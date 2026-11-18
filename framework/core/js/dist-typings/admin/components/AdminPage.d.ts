@@ -21,6 +21,11 @@ export type SettingsComponentOptions = FieldComponentOptions & {
     section?: string;
     json?: boolean;
     refreshAfterSaving?: boolean;
+    /**
+     * Optional: The URL to navigate to when this setting appears in admin search.
+     * The default is the group link, then the page or extension route.
+     */
+    link?: string;
 };
 /**
  * Valid attrs that can be returned by the `headerInfo` function
@@ -70,8 +75,8 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     /**
      * `buildSettingComponent` takes a settings object and turns it into a component.
      * Depending on the type of input, you can set the type to 'bool', 'select', or
-     * any standard <input> type. Any values inside the 'extra' object will be added
-     * to the component as an attribute.
+     * any standard <input> type. Field attributes are forwarded to the `FormGroup`; the
+     * search-only `link` option is not.
      *
      * Alternatively, you can pass a callback that will be executed in ExtensionPage's
      * context to include custom JSX elements.

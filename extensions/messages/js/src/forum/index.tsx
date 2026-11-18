@@ -11,6 +11,7 @@ import type User from 'flarum/common/models/User';
 import extendRealtime from './extendRealtime';
 import addMessageSearch from './addMessageSearch';
 import composingMessageTo from './utils/composingMessageTo';
+import addMessageLikes from './addMessageLikes';
 
 export { default as extend } from './extend';
 
@@ -85,12 +86,24 @@ app.initializers.add('flarum-messages', () => {
 
   addMessageSearch();
 
+  if ('flarum-likes' in flarum.extensions) {
+    addMessageLikes();
+  }
+
   extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
     items.add('messageReceived', {
       name: 'messageReceived',
       icon: 'fas fa-envelope',
       label: app.translator.trans('flarum-messages.forum.settings.notify_message_received_label'),
     });
+
+    if ('flarum-likes' in flarum.extensions) {
+      items.add('messageLiked', {
+        name: 'messageLiked',
+        icon: 'far fa-thumbs-up',
+        label: app.translator.trans('flarum-messages.forum.settings.notify_message_liked_label'),
+      });
+    }
   });
 
   // Register realtime events with flarum/realtime when enabled.

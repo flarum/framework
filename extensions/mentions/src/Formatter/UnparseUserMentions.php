@@ -45,6 +45,7 @@ class UnparseUserMentions
             $user = $users->find($attributes['id']);
 
             $attributes['displayname'] = $user->display_name ?? $this->translator->trans('core.lib.username.deleted_text');
+            $attributes['displayname'] = preg_replace('/[\r\n\x{2028}\x{2029}]+/u', ' ', $attributes['displayname']);
 
             if (str_contains($attributes['displayname'], '"#')) {
                 $attributes['displayname'] = preg_replace('/"#[a-z]{0,3}[0-9]+/', '_', $attributes['displayname']);

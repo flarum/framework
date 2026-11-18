@@ -45,6 +45,7 @@ class MigrationLedgerUndoTest extends TestCase
             $table->text('value')->nullable();
         });
         $this->db->getSchemaBuilder()->create('migrations', function ($table) {
+            $table->increments('id');
             $table->string('migration');
             $table->string('extension')->nullable();
         });
@@ -142,6 +143,91 @@ class MigrationLedgerUndoTest extends TestCase
             ['migration' => '2026_01_01_000001_create_first', 'extension' => null],
             ['migration' => '2026_01_15_000000_add_column', 'extension' => 'acme-tags'],
         ], $ledger->ran());
+    }
+
+    public function test_a_resumed_update_undoes_deferred_migrations_in_execution_order(): void
+    {
+        $this->db->table('settings')->insert(['key' => 'counter', 'value' => '2']);
+        $dir = $this->dir.'/vendor/flarum/core/migrations';
+        file_put_contents($dir.'/2026_02_01_000001_older.php', <<<'PHP'
+<?php
+return [
+    'shouldRun' => fn ($schema): bool => $schema->getConnection()->table('settings')->where('key', 'ready')->exists(),
+    'up' => fn ($schema) => $schema->getConnection()->table('settings')->where('key', 'counter')->update(['value' => $schema->getConnection()->raw('CAST(value AS REAL) * 2')]),
+    'down' => fn ($schema) => $schema->getConnection()->table('settings')->where('key', 'counter')->update(['value' => $schema->getConnection()->raw('CAST(value AS REAL) / 2')]),
+];
+PHP);
+        file_put_contents($dir.'/2026_02_01_000002_newer.php', <<<'PHP'
+<?php
+return [
+    'up' => fn ($schema) => $schema->getConnection()->table('settings')->where('key', 'counter')->increment('value'),
+    'down' => fn ($schema) => $schema->getConnection()->table('settings')->where('key', 'counter')->decrement('value'),
+];
+PHP);
+        file_put_contents($dir.'/2026_02_01_000003_retry.php', <<<'PHP'
+<?php
+return [
+    'up' => function ($schema) {
+        if (! $schema->getConnection()->table('settings')->where('key', 'ready')->exists()) {
+            throw new \RuntimeException('update stopped');
+        }
+    },
+    'down' => fn () => null,
+];
+PHP);
+        $this->plan('flarum/core');
+        $ledger = $this->ledger();
+        $ledger->before($this->db);
+
+        try {
+            $this->migrator->run($dir);
+            $this->fail('The update should stop before recording its final ledger.');
+        } catch (\RuntimeException $exception) {
+            $this->assertSame('update stopped', $exception->getMessage());
+        }
+        $this->assertSame(3.0, (float) $this->db->table('settings')->where('key', 'counter')->value('value'));
+
+        $this->db->table('settings')->insert(['key' => 'ready', 'value' => '1']);
+        $this->migrator->run($dir);
+        $ledger->after($this->db, $this->createStub(ExtensionManager::class), $this->dir.'/vendor');
+        $this->assertSame(6.0, (float) $this->db->table('settings')->where('key', 'counter')->value('value'));
+
+        $this->assertTrue($this->prepare($ledger));
+        $ledger->finish($this->db, $this->migrator, $this->createStub(ExtensionManager::class), $this->dir.'/vendor');
+
+        $this->assertSame(2.0, (float) $this->db->table('settings')->where('key', 'counter')->value('value'));
+    }
+
+    public function test_undo_includes_updated_packages_migrations_deferred_until_after_the_update(): void
+    {
+        $this->db->table('settings')->insert(['key' => 'counter', 'value' => '2']);
+        $dir = $this->dir.'/vendor/flarum/core/migrations';
+        $name = '2026_02_01_000001_deferred';
+        file_put_contents($dir.'/'.$name.'.php', <<<'PHP'
+<?php
+return [
+    'shouldRun' => fn ($schema): bool => $schema->getConnection()->table('settings')->where('key', 'ready')->exists(),
+    'up' => fn ($schema) => $schema->getConnection()->table('settings')->where('key', 'counter')->update(['value' => $schema->getConnection()->raw('CAST(value AS REAL) * 2')]),
+    'down' => fn ($schema) => $schema->getConnection()->table('settings')->where('key', 'counter')->update(['value' => $schema->getConnection()->raw('CAST(value AS REAL) / 2')]),
+];
+PHP);
+        $this->plan('flarum/core');
+        $ledger = $this->ledger();
+        $ledger->before($this->db);
+        $this->up('2026_01_01_000001_create_first');
+        $this->migrator->runMigrationList($dir, [$name]);
+        $ledger->after($this->db, $this->createStub(ExtensionManager::class), $this->dir.'/vendor');
+
+        $this->db->table('settings')->insert(['key' => 'ready', 'value' => '1']);
+        $this->migrator->runMigrationList($dir, [$name]);
+        $this->migrator->getRepository()->log('2026_03_01_000001_unrelated', 'acme-other');
+        $this->assertSame(4.0, (float) $this->db->table('settings')->where('key', 'counter')->value('value'));
+
+        $this->assertTrue($this->prepare($ledger));
+        $ledger->finish($this->db, $this->migrator, $this->createStub(ExtensionManager::class), $this->dir.'/vendor');
+
+        $this->assertSame(2.0, (float) $this->db->table('settings')->where('key', 'counter')->value('value'));
+        $this->assertSame(['2026_03_01_000001_unrelated'], $this->migrator->getRepository()->getRan('acme-other'));
     }
 
     private function plan(string ...$packages): void

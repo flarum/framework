@@ -12,6 +12,10 @@ namespace Flarum\Messages;
 use Flarum\Audit\AuditLogger;
 use Flarum\Group\Group;
 use Flarum\Messages\DialogMessage\Event\Created;
+use Flarum\Messages\DialogMessage\Event\Deleted;
+use Flarum\Messages\DialogMessage\Event\Hidden;
+use Flarum\Messages\DialogMessage\Event\Restored;
+use Flarum\Messages\DialogMessage\Event\Revised;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -27,11 +31,23 @@ class AuditIntegration
         'dialog.posted',
         'dialog.group_started',
         'dialog.group_posted',
+        'dialog.message_edited',
+        'dialog.message_hidden',
+        'dialog.message_restored',
+        'dialog.message_deleted',
     ];
 
     public function __invoke(Container $container): void
     {
-        $container->make(Dispatcher::class)->listen(Created::class, [$this, 'messageCreated']);
+        $events = $container->make(Dispatcher::class);
+
+        $events->listen(Created::class, [$this, 'messageCreated']);
+
+        // What was done to a message, and whose it was: never what it said.
+        $events->listen(Revised::class, fn (Revised $event) => $this->messageChanged('dialog.message_edited', $event->message));
+        $events->listen(Hidden::class, fn (Hidden $event) => $this->messageChanged('dialog.message_hidden', $event->message));
+        $events->listen(Restored::class, fn (Restored $event) => $this->messageChanged('dialog.message_restored', $event->message));
+        $events->listen(Deleted::class, fn (Deleted $event) => $this->messageChanged('dialog.message_deleted', $event->message, $event->dialogId));
     }
 
     public function messageCreated(Created $event): void
@@ -62,5 +78,14 @@ class AuditIntegration
             'dialog_id' => $dialog->id,
             'group_id' => $group->id,
         ]));
+    }
+
+    public function messageChanged(string $action, DialogMessage $message, ?int $dialogId = null): void
+    {
+        AuditLogger::log($action, [
+            'dialog_id' => $dialogId ?? $message->dialog_id,
+            'message_id' => $message->id,
+            'user_id' => $message->user_id,
+        ]);
     }
 }

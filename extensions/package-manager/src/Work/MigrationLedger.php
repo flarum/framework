@@ -77,14 +77,12 @@ class MigrationLedger
     {
         $before = $this->beforeState();
         $seen = array_flip(array_map(fn ($m) => $m['extension'].'|'.$m['migration'], $before['migrations']));
+        $recorded = array_flip(array_map(fn ($m) => $m['extension'].'|'.$m['migration'], $this->ran()));
         $added = array_values(array_filter(
             $this->current($db),
             fn ($m) => ! isset($seen[$m['extension'].'|'.$m['migration']])
-                && ($scope === null || isset($scope[$m['extension'] ?? '']))
+                && ($scope === null || isset($scope[$m['extension'] ?? '']) || isset($recorded[$m['extension'].'|'.$m['migration']]))
         ));
-        // Flarum runs them in filename order, which starts with a timestamp.
-        usort($added, fn ($a, $b) => strcmp($a['migration'], $b['migration']));
-
         foreach ($added as $m) {
             $from = $this->liveDir($m['extension'], $extensions, $vendorPath).'/'.$m['migration'].'.php';
             $to = $this->copyDir($m['extension']).'/'.$m['migration'].'.php';
@@ -125,9 +123,10 @@ class MigrationLedger
          * Only then, and only for what this update changed. The table also
          * holds whatever ran since: an extension enabled after the update
          * migrates too, and undoing the update must not reverse it. A record
-         * from a migrate that finished is kept as it is.
+         * from a migrate that finished is retained, with later deferred
+         * migrations added only for packages this update changed.
          */
-        if ($db !== null && ! is_file($this->workDir.'/migrations.json') && is_file($this->workDir.'/migrations.before.json')) {
+        if ($db !== null && ! $this->pending() && is_file($this->workDir.'/migrations.before.json')) {
             $this->after($db, $extensions, $vendorPath, $this->scope());
         }
 
@@ -290,7 +289,7 @@ class MigrationLedger
     /** @return list<array{migration:string, extension:?string}> */
     protected function current(ConnectionInterface $db): array
     {
-        return $db->table('migrations')->get(['migration', 'extension'])
+        return $db->table('migrations')->orderBy('id')->get(['migration', 'extension'])
             ->map(fn ($row) => ['migration' => (string) $row->migration, 'extension' => $row->extension !== null ? (string) $row->extension : null])
             ->values()->all();
     }

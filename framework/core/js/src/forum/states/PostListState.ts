@@ -51,7 +51,7 @@ export default class PostListState<P extends PostListParams = PostListParams> ex
     const preloadedPosts = app.preloadedApiDocument<Post[]>();
 
     if (preloadedPosts) {
-      this.pageSize = preloadedPosts.payload.meta?.perPage || PostListState.DEFAULT_PAGE_SIZE;
+      this.pageSize = preloadedPosts.payload.meta?.page?.limit || preloadedPosts.payload.meta?.perPage || PostListState.DEFAULT_PAGE_SIZE;
 
       // The server preloads `?q=` as a plain text search, because gambits are
       // parsed in the frontend only: a query holding one must be requested again.

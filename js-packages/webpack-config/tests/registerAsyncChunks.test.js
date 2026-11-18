@@ -1,6 +1,8 @@
 /**
  * @jest-environment node
  */
+import vm from 'vm';
+import path from 'path';
 import compile, { registrationsIn } from './chunkCompiler.js';
 import RegisterAsyncChunksPlugin from '../src/RegisterAsyncChunksPlugin.cjs';
 
@@ -81,4 +83,53 @@ describe.each([
 
     expect(pairs).toEqual([...new Set(pairs)]);
   });
+});
+
+test('registers npm imports under their emitted chunks with valid module ids (#4601)', async () => {
+  const assets = await compile('src/forum/npm.js');
+  const registrations = registrationsIn(assets['forum.js']);
+
+  for (const urlPath of ['forum/npm/sortablejs', 'forum/npm/@babel/runtime/helpers/typeof']) {
+    const registration = registrations.find((r) => r.urlPath === urlPath);
+
+    expect(registration).toEqual(expect.objectContaining({ chunkId: urlPath, namespace: 'flarum-test-extension' }));
+
+    const self = {};
+    vm.runInNewContext(assets[`${urlPath}.js`], { self });
+    const [[chunkIds, modules]] = Object.values(self)[0];
+
+    expect(chunkIds).toContain(registration.chunkId);
+    expect(typeof modules[registration.moduleId]).toBe('function');
+  }
+});
+
+test('does not register an import mentioned only in a comment', async () => {
+  const assets = await compile('src/forum/comment.js');
+
+  expect(registrationsIn(assets['forum.js']).map((r) => r.urlPath)).toEqual(['forum/components/Outer']);
+});
+
+test('keeps a same-named local module addressable alongside an npm import', async () => {
+  const assets = await compile('src/forum/collision.js');
+  const registration = registrationsIn(assets['forum.js']).find((r) => r.urlPath === 'forum/sortablejs');
+
+  expect(registration.moduleId).toBe('./src/forum/sortablejs.js');
+});
+
+test('shares a published npm chunk without registering wrappers or dependency source files', async () => {
+  const packagePath = path.resolve(__dirname, 'fixtures/source-package');
+
+  for (const fixture of ['src/forum/sourcePackages.js', 'src/forum/sourcePackagesReversed.js']) {
+    const assets = await compile(fixture, {
+      aliases: { 'source-package': packagePath, 'source-package-alias': packagePath },
+    });
+    const registrations = registrationsIn(assets['forum.js']);
+
+    for (const registration of registrations) {
+      expect(assets[`${registration.urlPath}.js`]).toBeDefined();
+    }
+
+    expect(registrations).toHaveLength(1);
+    expect(registrations[0].urlPath).toMatch(/^forum\/npm\/source-package(?:-alias)?$/);
+  }
 });

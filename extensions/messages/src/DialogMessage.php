@@ -9,6 +9,7 @@
 
 namespace Flarum\Messages;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\Eloquent\Collection;
 use Flarum\Database\ScopeVisibilityTrait;
@@ -16,9 +17,12 @@ use Flarum\Formatter\Formattable;
 use Flarum\Formatter\HasFormattedContent;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Group\Group;
+use Flarum\Messages\Notification\MessageLikedBlueprint;
+use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
+use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Expression;
@@ -33,12 +37,19 @@ use Illuminate\Database\Query\Expression;
  * @property int|Expression $number
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon|null $edited_at
+ * @property int|null $edited_user_id
+ * @property \Carbon\Carbon|null $hidden_at
+ * @property int|null $hidden_user_id
  * @property-read Dialog|null $dialog
  * @property-read User|null $user
+ * @property-read User|null $editedUser
+ * @property-read User|null $hiddenUser
  * @property-read Collection<int, User> $mentionsUsers
  * @property-read Collection<int, Post> $mentionsPosts
  * @property-read Collection<int, Group> $mentionsGroups
  * @property-read Collection<int, Tag> $mentionsTags
+ * @property-read Collection<int, User> $likes
  */
 class DialogMessage extends AbstractModel implements Formattable
 {
@@ -65,6 +76,10 @@ class DialogMessage extends AbstractModel implements Formattable
         'dialog_id' => 'integer',
         'user_id' => 'integer',
         'number' => 'integer',
+        'edited_at' => 'datetime',
+        'edited_user_id' => 'integer',
+        'hidden_at' => 'datetime',
+        'hidden_user_id' => 'integer',
     ];
 
     public static function boot()
@@ -83,6 +98,10 @@ class DialogMessage extends AbstractModel implements Formattable
         });
 
         static::deleted(function (self $message) {
+            if (self::$deletesNotifications) {
+                self::deleteNotificationsAbout([$message->id]);
+            }
+
             $dialog = $message->dialog;
 
             if (! $dialog) {
@@ -120,10 +139,97 @@ class DialogMessage extends AbstractModel implements Formattable
         });
     }
 
+    /** Off while a caller deleting many messages deletes their notifications itself. */
+    protected static bool $deletesNotifications = true;
+
+    /**
+     * Run a callback that deletes messages whose notifications are already gone,
+     * without each deletion looking for them again.
+     */
+    public static function withoutDeletingNotifications(callable $callback): void
+    {
+        $previous = self::$deletesNotifications;
+        self::$deletesNotifications = false;
+
+        try {
+            $callback();
+        } finally {
+            self::$deletesNotifications = $previous;
+        }
+    }
+
+    /**
+     * Delete the notifications about these messages. By type name as well as
+     * by the registered types: flarum/likes may be disabled now, leaving its
+     * alerts unregistered but still there.
+     *
+     * @param int[]|\Illuminate\Contracts\Database\Query\Builder $ids
+     */
+    public static function deleteNotificationsAbout(array|QueryBuilder $ids): void
+    {
+        $types = array_keys(array_filter(Notification::getSubjectModels(), fn (string $model) => is_a(self::class, $model, true)));
+        $types[] = MessageLikedBlueprint::getType();
+
+        Notification::query()
+            ->whereIn('type', array_unique($types))
+            ->whereIn('subject_id', $ids)
+            ->delete();
+    }
+
     /** Written by a member, rather than a notice of something that happened. */
     public function isComment(): bool
     {
         return ($this->type ?? self::COMMENT) === self::COMMENT;
+    }
+
+    /** Deleted, in a way that can be undone. */
+    public function isHidden(): bool
+    {
+        return $this->hidden_at !== null;
+    }
+
+    /**
+     * Change what the message says. Nothing changes, and nobody is told, when
+     * the content is the same.
+     */
+    public function revise(string $content, User $actor): static
+    {
+        if ($this->content !== $content) {
+            $oldContent = $this->content ?? '';
+
+            $this->setContentAttribute($content, $actor);
+
+            $this->edited_at = Carbon::now();
+            $this->edited_user_id = $actor->id;
+
+            $this->raise(new DialogMessage\Event\Revised($this, $actor, $oldContent));
+        }
+
+        return $this;
+    }
+
+    public function hide(?User $actor = null): static
+    {
+        if (! $this->hidden_at) {
+            $this->hidden_at = Carbon::now();
+            $this->hidden_user_id = $actor?->id;
+
+            $this->raise(new DialogMessage\Event\Hidden($this, $actor));
+        }
+
+        return $this;
+    }
+
+    public function restore(?User $actor = null): static
+    {
+        if ($this->hidden_at !== null) {
+            $this->hidden_at = null;
+            $this->hidden_user_id = null;
+
+            $this->raise(new DialogMessage\Event\Restored($this, $actor));
+        }
+
+        return $this;
     }
 
     /**
@@ -144,6 +250,16 @@ class DialogMessage extends AbstractModel implements Formattable
         return $this->belongsTo(User::class);
     }
 
+    public function editedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'edited_user_id');
+    }
+
+    public function hiddenUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'hidden_user_id');
+    }
+
     public function mentionsUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'dialog_message_mentions_user', 'dialog_message_id', 'mentions_user_id');
@@ -162,5 +278,11 @@ class DialogMessage extends AbstractModel implements Formattable
     public function mentionsTags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'dialog_message_mentions_tag', 'dialog_message_id', 'mentions_tag_id');
+    }
+
+    /** Who liked the message, with flarum/likes enabled. */
+    public function likes(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'dialog_message_likes', 'dialog_message_id', 'user_id');
     }
 }

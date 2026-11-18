@@ -106,6 +106,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
     private childDomNode;
     private oldText;
     private oldVisibility;
+    private oldOptions;
     private shouldRecreateTooltip;
     private shouldUpdateText;
     private shouldChangeTooltipVisibility;
@@ -117,6 +118,18 @@ export default class Tooltip extends Component<TooltipAttrs> {
     private updateText;
     private updateVisibility;
     private createTooltip;
+    /**
+     * Destroys the Bootstrap tooltip at once, returning whether it was shown.
+     */
+    private destroyTooltip;
+    /**
+     * Shows a rebuilt hover/focus tooltip again while the element is hovered
+     * or focused with a trigger the tooltip uses, so it hides as usual when
+     * the pointer or focus leaves.
+     */
+    private showIfActive;
+    private getTrigger;
+    private setAriaLabel;
     private getRealText;
     /**
      * Checks if the tooltip DOM node has changed.

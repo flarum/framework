@@ -126,10 +126,18 @@ class Exporter
     {
         $this->storageManager->deleteStoredExport($export);
 
-        Notification::query()
+        $notifications = Notification::query()
             ->where('type', 'gdprExportAvailable')
             ->where('subject_id', $export->id)
-            ->update(['is_deleted' => true]);
+            ->where('is_deleted', false);
+
+        // The notification went to whoever requested the export, which may be
+        // a moderator rather than the exported user.
+        $recipientIds = (clone $notifications)->pluck('user_id')->all();
+
+        $notifications->update(['is_deleted' => true]);
+
+        Notification::forgetCachedCounts($recipientIds);
 
         $export->file = null;
         $export->save();
