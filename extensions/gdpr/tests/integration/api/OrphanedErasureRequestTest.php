@@ -67,15 +67,25 @@ class OrphanedErasureRequestTest extends TestCase
     }
 
     #[Test]
-    public function deleting_a_user_removes_their_request_from_the_list_and_count()
+    public function deleting_a_user_outside_gdpr_removes_their_request_from_the_list_and_count()
     {
-        $response = $this->send(
-            $this->request('DELETE', '/api/users/4', [
-                'authenticatedAs' => 1,
-            ])
-        );
+        $this->app();
 
-        $this->assertEquals(204, $response->getStatusCode());
+        // Leave out the orphan seeded in setUp(), so only the deletion below can orphan a request.
+        ErasureRequest::query()->whereKey(3)->delete();
+        $this->assertEquals([1, 2], $this->listedRequestIds());
+        $this->assertEquals(2, $this->erasureRequestCount());
+
+        // Not through `DELETE /api/users/{id}`: with this extension enabled that endpoint
+        // processes the request itself. This is how another extension or a console
+        // command would delete the user.
+        User::query()->findOrFail(4)->delete();
+
+        // The request is orphaned: still confirmed, with no user. Depending on whether
+        // the database enforces the `set null` foreign key, `user_id` is null or dangling.
+        $request = ErasureRequest::query()->findOrFail(1);
+        $this->assertEquals(ErasureRequest::STATUS_USER_CONFIRMED, $request->status);
+        $this->assertNull($request->user);
 
         $this->assertEquals([2], $this->listedRequestIds());
         $this->assertEquals(1, $this->erasureRequestCount());
