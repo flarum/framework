@@ -176,9 +176,21 @@
       transform: translateX(calc(~"6px + var(--drawer-width)"));
     }
 
+    // Fade in place instead of sliding in when the user asks for less motion.
+    @media (prefers-reduced-motion: reduce) {
+      opacity: 0;
+      transition: opacity 0.2s;
+
+      &,
+      &:dir(rtl) {
+        transform: none;
+      }
+    }
+
     .drawerOpen & {
       -webkit-transform: none !important;
               transform: none !important;
+      opacity: 1;
     }
   }
   .drawer-backdrop {
