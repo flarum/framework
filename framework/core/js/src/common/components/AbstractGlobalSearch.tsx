@@ -107,7 +107,7 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
 
     return (
       <div role="search" className={classList('Search', { 'Search--active': !!value })} aria-label={this.attrs.a11yRoleLabel}>
-        <Tooltip text={buttonLabel} position="bottom" container="body">
+        <Tooltip text={value || extractText(this.attrs.label)} ariaLabel={buttonLabel} position="bottom" container="body">
           <button
             type="button"
             // Match the hover and focus treatment of the other header controls.

@@ -3,7 +3,7 @@ import Component, { ComponentAttrs } from '../Component';
 import listItems, { ModdedChildrenWithItemName } from '../helpers/listItems';
 import extractText from '../utils/extractText';
 import type Mithril from 'mithril';
-import Tooltip from './Tooltip';
+import Tooltip, { type TooltipAttrs } from './Tooltip';
 import Icon from './Icon';
 
 export interface IDropdownAttrs extends ComponentAttrs {
@@ -70,7 +70,25 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
   }
 
   protected renderButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
-    return this.getButton(children);
+    return this.wrapButton(this.getButton(children));
+  }
+
+  protected wrapButton(button: Mithril.Vnode<any, any>): Mithril.Vnode<any, any> {
+    const tooltip = this.getButtonTooltip(button);
+
+    if (!tooltip) return button;
+
+    return (
+      <Tooltip position="bottom" {...tooltip} tooltipVisible={this.showing ? false : undefined}>
+        {button}
+      </Tooltip>
+    );
+  }
+
+  protected getButtonTooltip(_button: Mithril.Vnode<any, any>): TooltipAttrs | undefined {
+    const { tooltip } = this.attrs;
+
+    return tooltip ? { text: tooltip } : undefined;
   }
 
   oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
@@ -169,7 +187,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
    * Get the template for the button.
    */
   getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
-    let button = (
+    return (
       <button
         type="button"
         className={'Dropdown-toggle ' + this.attrs.buttonClassName}
@@ -182,16 +200,6 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
         {this.getButtonContent(children)}
       </button>
     );
-
-    if (this.attrs.tooltip) {
-      button = (
-        <Tooltip text={this.attrs.tooltip} position="bottom">
-          {button}
-        </Tooltip>
-      );
-    }
-
-    return button;
   }
 
   /**

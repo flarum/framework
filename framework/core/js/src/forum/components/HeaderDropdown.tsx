@@ -6,7 +6,7 @@ import type Mithril from 'mithril';
 import classList from '../../common/utils/classList';
 
 import Icon from '../../common/components/Icon';
-import Tooltip from '../../common/components/Tooltip';
+import type { TooltipAttrs } from '../../common/components/Tooltip';
 
 export interface IHeaderDropdownAttrs extends IDropdownAttrs {
   state: any;
@@ -22,21 +22,12 @@ export default abstract class HeaderDropdown<CustomAttrs extends IHeaderDropdown
     super.initAttrs(attrs);
   }
 
-  protected renderButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
-    const button = super.renderButton(children);
-
-    if (this.attrs.tooltip) return button;
-
-    return (
-      <Tooltip
-        text={button.attrs['aria-label'] ?? extractText(this.attrs.label)}
-        position="bottom"
-        container="body"
-        tooltipVisible={this.showing ? false : undefined}
-      >
-        {button}
-      </Tooltip>
-    );
+  protected getButtonTooltip(button: Mithril.Vnode<any, any>): TooltipAttrs {
+    return {
+      text: this.attrs.tooltip || extractText(this.attrs.label),
+      ariaLabel: button.attrs['aria-label'],
+      container: 'body',
+    };
   }
 
   getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
