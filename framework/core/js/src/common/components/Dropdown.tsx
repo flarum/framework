@@ -63,10 +63,14 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
 
     return (
       <div className={'ButtonGroup Dropdown dropdown ' + this.attrs.className + ' itemCount' + items.length + (this.showing ? ' open' : '')}>
-        {this.getButton(vnode.children as Mithril.ChildArray)}
+        {this.renderButton(vnode.children as Mithril.ChildArray)}
         {renderItems && this.getMenu(items)}
       </div>
     );
+  }
+
+  protected renderButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
+    return this.getButton(children);
   }
 
   oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {

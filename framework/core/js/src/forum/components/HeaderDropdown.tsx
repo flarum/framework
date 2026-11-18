@@ -6,6 +6,7 @@ import type Mithril from 'mithril';
 import classList from '../../common/utils/classList';
 
 import Icon from '../../common/components/Icon';
+import Tooltip from '../../common/components/Tooltip';
 
 export interface IHeaderDropdownAttrs extends IDropdownAttrs {
   state: any;
@@ -17,20 +18,31 @@ export default abstract class HeaderDropdown<CustomAttrs extends IHeaderDropdown
     attrs.buttonClassName ||= 'Button Button--flat';
     attrs.menuClassName ||= 'Dropdown-menu--right';
     attrs.label ||= extractText(app.translator.trans('core.forum.notifications.tooltip'));
-    // attrs.icon ||= 'fas fa-bell';
-    //
-    // // For best a11y support, both `title` and `aria-label` should be used
-    // attrs.accessibleToggleLabel ||= extractText(app.translator.trans('core.forum.notifications.toggle_dropdown_accessible_label'));
 
     super.initAttrs(attrs);
+  }
+
+  protected renderButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
+    const button = super.renderButton(children);
+
+    if (this.attrs.tooltip) return button;
+
+    return (
+      <Tooltip
+        text={button.attrs['aria-label'] ?? extractText(this.attrs.label)}
+        position="bottom"
+        container="body"
+        tooltipVisible={this.showing ? false : undefined}
+      >
+        {button}
+      </Tooltip>
+    );
   }
 
   getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
     const newCount = this.getNewCount();
 
     const vdom = super.getButton(children);
-
-    vdom.attrs.title = this.attrs.label;
 
     vdom.attrs.className = classList(vdom.attrs.className, [newCount && 'new']);
     vdom.attrs.onclick = this.onclick.bind(this);
