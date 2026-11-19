@@ -656,11 +656,11 @@ class UpdateTest extends TestCase
 
         $this->assertFalse(
             User::find(3)->isAdmin(),
-            "User 3 must not be an administrator after sending group id ".var_export($malformedId, true)
+            'User 3 must not be an administrator after sending group id '.var_export($malformedId, true)
         );
         $this->assertFalse(
             User::find(3)->groups->contains('id', Group::ADMINISTRATOR_ID),
-            "User 3 must not be in the Administrator group after sending group id ".var_export($malformedId, true)
+            'User 3 must not be in the Administrator group after sending group id '.var_export($malformedId, true)
         );
     }
 
