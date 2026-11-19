@@ -24,9 +24,8 @@ export default class Pane {
      * Whether or not the pane is currently pinned.
      *
      * @type {Boolean}
-     * @protected
      */
-    protected pinned: boolean;
+    pinned: boolean;
     /**
      * Whether or not the pane is currently exists.
      *
