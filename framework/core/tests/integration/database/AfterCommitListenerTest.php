@@ -14,6 +14,7 @@ use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
+use Illuminate\Database\ConnectionInterface;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -24,7 +25,8 @@ use PHPUnit\Framework\Attributes\Test;
  * transaction's commit. The integration harness wraps each test in a
  * transaction that is rolled back and never committed, so without special
  * handling those listeners never run — making after-commit behaviour
- * impossible to test. The testing harness runs these callbacks inline instead.
+ * impossible to test. The testing harness runs these callbacks inline instead,
+ * unless the code under test opens its own transaction (flarum/framework#5022).
  */
 class AfterCommitListenerTest extends TestCase
 {
@@ -61,6 +63,36 @@ class AfterCommitListenerTest extends TestCase
         $this->assertTrue(
             $ran,
             'A ShouldDispatchAfterCommit event should be dispatched during an integration test.'
+        );
+    }
+
+    #[Test]
+    public function after_commit_event_is_dispatched_after_a_nested_transaction_commits(): void
+    {
+        $ran = false;
+
+        $this->extend(
+            (new Extend\Event())->listen(AfterCommitDispatchableEvent::class, function () use (&$ran) {
+                $ran = true;
+            })
+        );
+
+        $connection = $this->app()->getContainer()->make(ConnectionInterface::class);
+
+        $connection->beginTransaction();
+
+        $this->app()->getContainer()->make(Dispatcher::class)->dispatch(new AfterCommitDispatchableEvent());
+
+        $this->assertFalse(
+            $ran,
+            'A ShouldDispatchAfterCommit event should not be dispatched before a nested transaction commits.'
+        );
+
+        $connection->commit();
+
+        $this->assertTrue(
+            $ran,
+            'A ShouldDispatchAfterCommit event should be dispatched once a nested transaction commits.'
         );
     }
 }
