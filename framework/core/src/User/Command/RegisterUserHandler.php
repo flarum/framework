@@ -147,11 +147,12 @@ class RegisterUserHandler
      */
     private function uploadAvatarFromUrl(User $user, string $url)
     {
-        $urlValidator = $this->validator->make(compact('url'), [
-            'url' => 'required|active_url',
-        ]);
+        // No DNS here (Laravel's active_url rule asks the resolver, and some
+        // resolvers answer for IP literals such as 127.0.0.1), so the result
+        // doesn't depend on the host's resolver.
+        $host = parse_url($url, PHP_URL_HOST);
 
-        if ($urlValidator->fails()) {
+        if (! is_string($host) || $host === '' || self::isNumericHost($host)) {
             throw new InvalidArgumentException('Provided avatar URL must be a valid URI.', 503);
         }
 
@@ -161,9 +162,60 @@ class RegisterUserHandler
             throw new InvalidArgumentException("Provided avatar URL must have scheme http or https. Scheme provided was $scheme.", 503);
         }
 
+        if (! self::isAllowedHost($host)) {
+            throw new InvalidArgumentException('Provided avatar URL must not point at a loopback, link-local or reserved address.', 503);
+        }
+
         $image = $this->imageManager->make($url);
 
         $this->avatarUploader->upload($user, $image);
+    }
+
+    /**
+     * Whether the host is a number that isn't written as a standard IPv4
+     * address, such as 127.1, 2130706433 or 0x7f.0.0.1. The system resolver
+     * reads these as IPv4 addresses without asking DNS.
+     */
+    private static function isNumericHost(string $host): bool
+    {
+        $host = rtrim($host, '.');
+
+        return filter_var($host, FILTER_VALIDATE_IP) === false
+            && preg_match('/^(0x[0-9a-f]*|[0-9]+)(\.(0x[0-9a-f]*|[0-9]*))*$/i', $host) === 1;
+    }
+
+    /**
+     * Rejects localhost and IP-literal hosts in loopback, link-local and
+     * reserved ranges. Other hostnames are left to the fetch, as before.
+     */
+    private static function isAllowedHost(string $host): bool
+    {
+        // A trailing dot names the same host.
+        $host = strtolower(rtrim($host, '.'));
+
+        if ($host === 'localhost' || substr($host, -10) === '.localhost') {
+            return false;
+        }
+
+        $ip = trim($host, '[]');
+
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            return true;
+        }
+
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
+            // Check the address, not its spelling: PHP 7 matches IPv6 ranges by
+            // text prefix, and doesn't treat IPv4-mapped (::ffff:0:0/96) or
+            // IPv4-compatible (::/96) addresses as reserved.
+            $packed = (string) inet_pton($ip);
+            $prefix = substr($packed, 0, 12);
+
+            $ip = $prefix === str_repeat("\0", 10)."\xff\xff" || $prefix === str_repeat("\0", 12)
+                ? inet_ntop(substr($packed, 12))
+                : inet_ntop($packed);
+        }
+
+        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE) !== false;
     }
 
     private function fulfillToken(User $user, RegistrationToken $token)

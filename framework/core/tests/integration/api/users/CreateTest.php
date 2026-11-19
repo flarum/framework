@@ -301,78 +301,113 @@ class CreateTest extends TestCase
         }
     }
 
+    public function invalidAvatarUrlProvider(): array
+    {
+        $invalid = 'Provided avatar URL must be a valid URI.';
+        $blockedAddress = 'Provided avatar URL must not point at a loopback, link-local or reserved address.';
+
+        return [
+            'relative path' => ['../image.png', $invalid],
+            'bare filename' => ['image.png', $invalid],
+            'ipv4 loopback literal' => ['https://127.0.0.1/image.png', $blockedAddress],
+            'ipv6 loopback literal' => ['https://[::1]/image.png', $blockedAddress],
+            'cloud metadata literal' => ['https://169.254.169.254/image.png', $blockedAddress],
+            'ipv4-mapped loopback literal' => ['http://[::ffff:127.0.0.1]/image.png', $blockedAddress],
+            'loopback literal behind userinfo' => ['https://user:pw@127.0.0.1/image.png', $blockedAddress],
+            'loopback literal with trailing dot' => ['https://127.0.0.1./image.png', $blockedAddress],
+            'expanded ipv6 loopback literal' => ['https://[0:0:0:0:0:0:0:1]/image.png', $blockedAddress],
+            'hex ipv4-mapped loopback literal' => ['http://[::ffff:7f00:1]/image.png', $blockedAddress],
+            'hex ipv4-mapped metadata literal' => ['http://[::ffff:a9fe:a9fe]/image.png', $blockedAddress],
+            'localhost' => ['http://localhost/image.png', $blockedAddress],
+            'short ipv4 loopback' => ['http://127.1/image.png', $invalid],
+            'decimal ipv4 loopback' => ['http://2130706433/image.png', $invalid],
+            'hex ipv4 loopback' => ['http://0x7f.0.0.1/image.png', $invalid],
+            'uppercase scheme' => ['HTTPS://example.com/image.png', 'Provided avatar URL must have scheme http or https. Scheme provided was HTTPS.'],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider invalidAvatarUrlProvider
+     */
+    public function cannot_create_user_with_invalid_avatar_uri(string $avatarUrl, string $expectedError)
+    {
+        $this->app();
+
+        $regToken = RegistrationToken::generate('flarum', '1', [
+            'username' => 'test',
+            'email' => 'test@machine.local',
+            'is_email_confirmed' => 1,
+            'avatar_url' => $avatarUrl
+        ], []);
+        $regToken->saveOrFail();
+
+        $response = $this->send(
+            $this->request(
+                'POST',
+                '/api/users',
+                [
+                    'json' => [
+                        'data' => [
+                            'attributes' => [
+                                'token' => $regToken->token,
+                            ],
+                        ]
+                    ],
+                ]
+            )->withAttribute('bypassCsrfToken', true)
+        );
+
+        $body = (string) $response->getBody();
+        $this->assertJson($body);
+
+        $this->assertEquals(500, $response->getStatusCode(), $body);
+
+        $firstError = json_decode($body, true)['errors'][0];
+
+        $this->assertStringStartsWith('InvalidArgumentException: '.$expectedError, $firstError['detail']);
+    }
+
     /**
      * @test
      */
-    public function cannot_create_user_with_invalid_avatar_uri()
+    public function avatar_url_validation_does_not_need_dns()
     {
-        // Boot app
         $this->app();
 
-        $regTokens = [];
-
-        // Add registration tokens that should cause a failure
-        $regTokens[] = RegistrationToken::generate('flarum', '1', [
+        // .invalid never resolves, so this only gets past validation if
+        // validation doesn't ask DNS; it then fails at the fetch instead.
+        $regToken = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' => 'https://127.0.0.1/image.png'
+            'avatar_url' => 'https://avatar.invalid/image.png'
         ], []);
+        $regToken->saveOrFail();
 
-        $regTokens[] = RegistrationToken::generate('flarum', '1', [
-            'username' => 'test',
-            'email' => 'test@machine.local',
-            'is_email_confirmed' => 1,
-            'avatar_url' => 'https://192.168.0.1/image.png'
-        ], []);
+        $response = $this->send(
+            $this->request(
+                'POST',
+                '/api/users',
+                [
+                    'json' => [
+                        'data' => [
+                            'attributes' => [
+                                'token' => $regToken->token,
+                            ],
+                        ]
+                    ],
+                ]
+            )->withAttribute('bypassCsrfToken', true)
+        );
 
-        $regTokens[] = RegistrationToken::generate('flarum', '1', [
-            'username' => 'test',
-            'email' => 'test@machine.local',
-            'is_email_confirmed' => 1,
-            'avatar_url' => '../image.png'
-        ], []);
+        $body = (string) $response->getBody();
+        $this->assertJson($body);
 
-        $regTokens[] = RegistrationToken::generate('flarum', '1', [
-            'username' => 'test',
-            'email' => 'test@machine.local',
-            'is_email_confirmed' => 1,
-            'avatar_url' => 'image.png'
-        ], []);
+        $firstError = json_decode($body, true)['errors'][0];
 
-        // Test each reg token
-        foreach ($regTokens as $regToken) {
-            $regToken->saveOrFail();
-
-            // Call the registration endpoint
-            $response = $this->send(
-                $this->request(
-                    'POST',
-                    '/api/users',
-                    [
-                        'json' => [
-                            'data' => [
-                                'attributes' => [
-                                    'token' => $regToken->token,
-                                ],
-                            ]
-                        ],
-                    ]
-                )->withAttribute('bypassCsrfToken', true)
-            );
-
-            // The response body should contain details about the invalid URI
-            $body = (string) $response->getBody();
-            $this->assertJson($body);
-            $decodedBody = json_decode($body, true);
-
-            $this->assertEquals(500, $response->getStatusCode());
-
-            $firstError = $decodedBody['errors'][0];
-
-            // Check that the error is an invalid URI
-            $this->assertStringStartsWith('InvalidArgumentException: Provided avatar URL must be a valid URI.', $firstError['detail']);
-        }
+        $this->assertStringStartsNotWith('InvalidArgumentException', $firstError['detail'], $body);
+        $this->assertStringContainsString('avatar.invalid', $firstError['detail'], $body);
     }
 
     /**
