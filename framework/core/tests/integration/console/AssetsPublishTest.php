@@ -10,8 +10,10 @@
 namespace Flarum\Tests\integration\console;
 
 use Flarum\Testing\integration\ConsoleTestCase;
+use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Mockery;
 
 class AssetsPublishTest extends ConsoleTestCase
 {
@@ -59,5 +61,32 @@ class AssetsPublishTest extends ConsoleTestCase
         $this->assertFileExists($sourcePath);
 
         $this->assertEquals(filesize($sourcePath), $publishedSize, 'Published polyfill size differs from source.');
+    }
+
+    /**
+     * @test
+     */
+    public function polyfill_is_published_with_a_javascript_mime_type()
+    {
+        $options = [];
+
+        $disk = Mockery::mock(Cloud::class);
+        $disk->shouldReceive('put')->andReturnUsing(function ($path, $contents, $putOptions = []) use (&$options) {
+            $options[$path] = $putOptions;
+
+            return true;
+        });
+
+        $factory = Mockery::mock(Factory::class);
+        $factory->shouldReceive('disk')->with('flarum-assets')->andReturn($disk);
+
+        $this->app()->getContainer()->instance('filesystem', $factory);
+
+        $this->runCommand(['command' => 'assets:publish']);
+
+        foreach (['xslt-polyfill/xslt-polyfill.min.js', 'xslt-polyfill/dist/xslt-wasm.js'] as $path) {
+            $this->assertArrayHasKey($path, $options, "$path was not published.");
+            $this->assertSame('application/javascript', $options[$path]['mimetype'] ?? null, "$path was published without a JavaScript mime type.");
+        }
     }
 }
