@@ -11,7 +11,14 @@ declare const MessageControls: {
     };
     userControls(message: DialogMessage, context: Message): ItemList<Mithril.Children>;
     moderationControls(message: DialogMessage, context: Message): ItemList<Mithril.Children>;
+    /**
+     * As for posts: "Delete" can be undone; a deleted message can be restored,
+     * or deleted for good.
+     */
     destructiveControls(message: DialogMessage, context: Message): ItemList<Mithril.Children>;
+    editAction(message: DialogMessage): Promise<void>;
+    hideAction(message: DialogMessage): Promise<void> | undefined;
+    restoreAction(message: DialogMessage): Promise<void>;
     deleteAction(message: DialogMessage, context: Message): Promise<void> | undefined;
 };
 export default MessageControls;

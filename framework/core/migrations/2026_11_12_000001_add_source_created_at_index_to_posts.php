@@ -15,13 +15,13 @@ use Illuminate\Database\Schema\Builder;
 return [
     'up' => function (Builder $schema) {
         $schema->table('posts', function (Blueprint $table) {
-            $table->index(['source', 'created_at']);
+            $table->index(['created_via', 'created_at']);
         });
     },
 
     'down' => function (Builder $schema) {
         $schema->table('posts', function (Blueprint $table) {
-            $table->dropIndex(['source', 'created_at']);
+            $table->dropIndex(['created_via', 'created_at']);
         });
     }
 ];

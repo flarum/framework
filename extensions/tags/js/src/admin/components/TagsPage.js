@@ -114,7 +114,7 @@ export default class TagsPage extends ExtensionPage {
             </FormSection>
 
             <FormSection className="TagGroup TagGroup--secondary" label={app.translator.trans('flarum-tags.admin.tags.secondary_heading')}>
-              <ul className="TagList">
+              <ul className="TagList TagList--secondary">
                 {tags
                   .filter((tag) => tag.position() === null)
                   .sort((a, b) => a.name().localeCompare(b.name()))
@@ -216,6 +216,9 @@ export default class TagsPage extends ExtensionPage {
       .map((e) => {
         this.sortable.create(e, {
           group: 'tags',
+          // Secondary tags have no stored order: they are always listed by
+          // name. They can still be dragged to and from the other lists.
+          sort: !e.classList.contains('TagList--secondary'),
           delay: 50,
           delayOnTouchOnly: true,
           touchStartThreshold: 5,

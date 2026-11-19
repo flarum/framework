@@ -18,7 +18,7 @@ use Flarum\ExtensionManager\Prune\Pruner;
 use Flarum\ExtensionManager\Prune\Retention;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 

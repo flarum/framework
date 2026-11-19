@@ -10,7 +10,7 @@
 namespace Flarum\Mcp\Tests\integration\tools;
 
 use Carbon\Carbon;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -128,7 +128,7 @@ class WriteRulesTest extends McpTestCase
         ];
 
         foreach ($calls as $tool => $arguments) {
-            $response = $this->json($this->callTool($tool, $arguments, $auth));
+            $response = $this->mcpJson($this->callTool($tool, $arguments, $auth));
             $this->assertArrayNotHasKey('result', $response, $tool.': '.json_encode($response));
         }
 

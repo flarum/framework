@@ -27,7 +27,7 @@ use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 
 [$script, $dir, $runId, $itemsJson, $logPath, $budget] = $argv;
 $killInside = $argv[6] ?? '';

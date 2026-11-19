@@ -24,6 +24,8 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
     static initAttrs(attrs: IMessageComposerAttrs): void;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     headerItems(): import("flarum/common/utils/ItemList").default<Mithril.Children>;
+    /** How many recipients to show by avatar: the groups, all shown, take their places first. */
+    shownRecipients(): number;
     /**
      * Why someone can't be picked as a recipient, if they can't: they couldn't
      * reply. The server still has the final say when the message is sent.

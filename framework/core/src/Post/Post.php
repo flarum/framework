@@ -36,8 +36,8 @@ use Illuminate\Support\Arr;
  * @property int|null $hidden_user_id
  * @property string $ip_address
  * @property bool $is_private
- * @property string|null $source
- * @property string|null $source_name
+ * @property string|null $created_via
+ * @property string|null $created_via_name
  * @property-read Discussion|null $discussion
  * @property-read User|null $user
  * @property-read User|null $editedUser

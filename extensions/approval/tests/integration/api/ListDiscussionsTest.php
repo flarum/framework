@@ -9,7 +9,7 @@
 
 namespace Flarum\Approval\Tests\integration\api;
 
-use Flarum\Approval\Tests\integration\InteractsWithUnapprovedContent;
+use Flarum\Approval\Testing\InteractsWithUnapprovedContent;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;

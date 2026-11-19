@@ -41,6 +41,8 @@ export interface DeckColumnConfig {
     /** 0 or 1: Deck has up to two rows of columns. */
     row?: number;
     params: Record<string, string | number>;
+    /** A name the member gave the column, shown instead of its title. */
+    name?: string;
 }
 /**
  * Makes a field a picker: the member searches the way they would in the

@@ -63,7 +63,8 @@ class LeaveDialogHandler
             // Nobody is: the group goes, with its messages. Not left to the
             // foreign key's cascade, which SQLite only honours when told to.
             // In one query: each message's own delete hook would repair the
-            // pointers of a dialog going too.
+            // pointers of a dialog going too, so their notifications go here.
+            DialogMessage::deleteNotificationsAbout($dialog->messages()->select('id')->toBase());
             $dialog->messages()->delete();
             $dialog->delete();
 

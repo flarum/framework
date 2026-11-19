@@ -10,6 +10,7 @@
 namespace Flarum\Messages\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Gdpr\Testing\InteractsWithGdpr;
 use Flarum\Messages\Data\Messages;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
@@ -26,6 +27,7 @@ use PHPUnit\Framework\Attributes\Test;
 class GdprTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use InteractsWithGdpr;
 
     protected function setUp(): void
     {
@@ -53,11 +55,6 @@ class GdprTest extends TestCase
         ]);
     }
 
-    private function type(int $userId): Messages
-    {
-        return $this->app()->getContainer()->make(Messages::class, ['user' => User::find($userId), 'erasureRequest' => null]);
-    }
-
     #[Test]
     public function is_listed_among_the_data_types(): void
     {
@@ -70,7 +67,7 @@ class GdprTest extends TestCase
     #[Test]
     public function exports_only_the_members_own_messages(): void
     {
-        $export = $this->type(4)->export();
+        $export = $this->gdprDataType(Messages::class, 4)->export();
 
         $this->assertCount(1, $export);
         $this->assertArrayHasKey('messages/message-102.json', $export[0]);
@@ -80,7 +77,7 @@ class GdprTest extends TestCase
     #[Test]
     public function anonymising_removes_the_members_addresses_and_keeps_the_rest(): void
     {
-        $this->type(4)->anonymize();
+        $this->gdprDataType(Messages::class, 4)->anonymize();
 
         $this->assertNull(DialogMessage::find(102)->ip_address);
         $this->assertEquals('203.0.113.9', '203.0.113.9');
@@ -91,10 +88,37 @@ class GdprTest extends TestCase
     #[Test]
     public function erasing_removes_the_members_messages_and_repairs_the_dialog(): void
     {
-        $this->type(4)->delete();
+        $this->gdprDataType(Messages::class, 4)->delete();
 
         $this->assertNull(DialogMessage::find(102));
         $this->assertNotNull(DialogMessage::find(103));
         $this->assertEquals(103, Dialog::find(102)->first_message_id);
+    }
+
+    #[Test]
+    public function erasing_removes_the_notifications_about_the_members_messages_at_once(): void
+    {
+        $this->prepareDatabase([
+            DialogMessage::class => [
+                ['id' => 104, 'dialog_id' => 102, 'user_id' => 4, 'content' => 'Still there?', 'number' => 3],
+            ],
+            'notifications' => [
+                ['id' => 1, 'user_id' => 4, 'from_user_id' => 3, 'type' => 'messageLiked', 'subject_id' => 102, 'created_at' => Carbon::now()],
+                ['id' => 2, 'user_id' => 4, 'from_user_id' => 3, 'type' => 'messageLiked', 'subject_id' => 104, 'created_at' => Carbon::now()],
+                ['id' => 3, 'user_id' => 3, 'from_user_id' => 4, 'type' => 'messageLiked', 'subject_id' => 103, 'created_at' => Carbon::now()],
+            ],
+        ]);
+
+        $deletes = 0;
+        $this->database()->listen(function ($query) use (&$deletes) {
+            if (str_starts_with(strtolower($query->sql), 'delete from') && str_contains($query->sql, 'notifications')) {
+                $deletes++;
+            }
+        });
+
+        $this->gdprDataType(Messages::class, 4)->delete();
+
+        $this->assertEquals([3], $this->database()->table('notifications')->pluck('id')->all());
+        $this->assertEquals(1, $deletes, 'One statement for all of their messages, not one per message.');
     }
 }

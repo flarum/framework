@@ -293,3 +293,26 @@ describe('resizing a column', () => {
     expect(width(deck)).toBe(280);
   });
 });
+
+describe('editing from the column menu', () => {
+  it('opens the column’s settings', () => {
+    const deck = deckOf(['a', 0]);
+    const show = jest.spyOn(app.modal, 'show').mockImplementation(async () => {});
+
+    render(deck, 'a');
+    click('edit');
+
+    const [, attrs] = show.mock.calls[0] as any[];
+    expect(attrs.deck).toBe(deck);
+    expect(attrs.column).toBe(deck.columns()[0].config);
+  });
+
+  it('shows the name it was given', () => {
+    setLayout([{ ...column('a'), name: 'My column' }]);
+    const deck = new DeckState();
+
+    render(deck, 'a');
+
+    expect(root.querySelector('.DeckColumn-titleText')?.textContent).toBe('My column');
+  });
+});

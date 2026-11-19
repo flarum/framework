@@ -12,7 +12,7 @@ namespace Flarum\Mcp\Tests\integration\protocol;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
 use Flarum\Group\Group;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use PHPUnit\Framework\Attributes\Test;
@@ -100,7 +100,7 @@ class SessionTest extends McpTestCase
 
         $hijack = $this->inSession($session, 'tools/list', [], $other);
         $this->assertSame(404, $hijack->getStatusCode());
-        $this->assertArrayNotHasKey('result', $this->json($hijack));
+        $this->assertArrayNotHasKey('result', $this->mcpJson($hijack));
 
         // A guest presenting it is refused too.
         $this->database()->table('group_permission')->insert(['group_id' => Group::GUEST_ID, 'permission' => 'mcp.use']);
@@ -123,7 +123,7 @@ class SessionTest extends McpTestCase
         $this->remoteAddress = '203.0.113.9';
         $hijack = $this->inSession($session, 'tools/list');
         $this->assertSame(404, $hijack->getStatusCode());
-        $this->assertArrayNotHasKey('result', $this->json($hijack));
+        $this->assertArrayNotHasKey('result', $this->mcpJson($hijack));
 
         $this->delete($session, []);
 

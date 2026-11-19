@@ -11,7 +11,7 @@ namespace Flarum\OAuthProvider\Tests\integration\console;
 
 use Carbon\Carbon;
 use Flarum\OAuthProvider\Models\Client;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\ConsoleTestCase;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\User\User;

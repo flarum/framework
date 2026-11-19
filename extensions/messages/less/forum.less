@@ -97,6 +97,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
   color: var(--control-color);
 
   .Avatar {
@@ -117,6 +118,37 @@
   &-more {
     font-size: 0.85rem;
     font-weight: bold;
+  }
+
+  // A phone's composer header has room for one line: the rest scroll into
+  // view, rather than wrap under the header's edge.
+  @media @phone {
+    &-label {
+      flex-shrink: 0;
+    }
+
+    &-list {
+      flex-wrap: nowrap;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      > li {
+        flex-shrink: 0;
+      }
+    }
+
+    // Held at the end of the line, so how many more stays in view.
+    &-more {
+      position: sticky;
+      inset-inline-end: 0;
+      padding-inline-start: 6px;
+      background: var(--body-bg);
+    }
   }
 }
 
@@ -207,12 +239,23 @@
     flex-shrink: 0;
     position: relative;
 
+    > .Badge {
+      .Badge--size(42px);
+      box-shadow: none;
+
+      &, .Badge-icon {
+        font-size: 16px;
+      }
+    }
+
     // Two of a group's members, one over the other, in the space of one avatar.
     &--group {
       width: 42px;
       height: 42px;
+      isolation: isolate;
 
-      .Avatar {
+      .Avatar,
+      .Badge {
         --size: 30px;
         position: absolute;
         box-shadow: 0 0 0 2px var(--body-bg);
@@ -226,6 +269,23 @@
           bottom: 0;
           inset-inline-end: 0;
         }
+
+        &:hover {
+          z-index: 1;
+        }
+      }
+
+      // A group's badge at an avatar's size, its icon kept near a badge's.
+      .Badge {
+        .Badge--size(30px);
+
+        &, .Badge-icon {
+          font-size: 12px;
+        }
+      }
+
+      .Bubble {
+        z-index: 2;
       }
     }
 
@@ -274,9 +334,51 @@
 
 .Message {
   padding-inline-end: 0;
+}
 
-  .PostUser-badges {
-    margin-inline-start: -72px;
+// Deleted, in a way that can be undone: that it was, in place of what it said.
+// Whoever may restore it sees what it said under that, faded.
+.Message--hidden {
+  .Post-header, .Post-header a,
+  .PostUser .PostUser-name, .PostUser .PostUser-name a {
+    color: var(--muted-more-color);
+  }
+}
+.Message-deletedNotice {
+  color: var(--muted-color);
+  font-style: italic;
+  margin: 0;
+}
+.Message-deletedContent {
+  opacity: 0.5;
+  margin-top: 8px;
+}
+
+// The author's badges sit over the top of their avatar, as in a discussion,
+// sized to a message's smaller avatar. More than it holds run back over the
+// stream's margin, not over the author's name. The preview of a reply being
+// written is laid out as a message.
+@media @tablet-up {
+  .Message,
+  .MessageStream .CommentPost.editing {
+    .PostUser-badges {
+      display: flex;
+      justify-content: flex-end;
+      width: 40px;
+
+      .Badge {
+        .Badge--size(20px);
+      }
+    }
+  }
+}
+
+// A phone's message avatar is larger than a post's: its badges keep the same
+// place over its top.
+@media @phone {
+  .Message .PostUser-badges {
+    top: -16px;
+    width: 40px;
   }
 }
 
@@ -305,18 +407,45 @@
   margin-bottom: 24px;
 }
 
-// The first few of a group's members, overlapping.
+// The groups a group conversation is addressed to, then the first few of its
+// members: tiles of one size, overlapping, and how many more.
 .DialogSection-header-avatars {
   display: flex;
+  align-items: center;
   flex-shrink: 0;
 
-  .Avatar {
+  > .Avatar,
+  > .DialogSection-header-group {
+    position: relative;
     box-shadow: 0 0 0 2px var(--body-bg);
 
-    & + .Avatar {
-      margin-inline-start: -14px;
+    &:hover {
+      z-index: 1;
+    }
+
+    // A hovered group's tooltip is inserted between the tiles.
+    & ~ .Avatar,
+    & ~ .DialogSection-header-group {
+      margin-inline-start: -10px;
     }
   }
+
+  // An avatar's size, its icon kept near a badge's: at the tile's scale it
+  // would crowd the circle.
+  > .DialogSection-header-group {
+    .Badge--size(40px);
+
+    &, .Badge-icon {
+      font-size: 16px;
+    }
+  }
+}
+
+.DialogSection-header-more {
+  margin-inline-start: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--control-color);
 }
 
 .DialogSection-members {
@@ -408,6 +537,17 @@
 
   .Avatar {
     --size: 38px;
+  }
+
+  // A group's badge at the avatars' size, its icon kept near a badge's.
+  &-group {
+    .Badge--size(38px);
+    flex-shrink: 0;
+    box-shadow: none;
+
+    &, .Badge-icon {
+      font-size: 16px;
+    }
   }
 
   a {

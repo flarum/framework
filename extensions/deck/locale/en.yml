@@ -42,6 +42,7 @@ flarum-deck:
     column:
       controls_label: "{title} column options"
       drag_handle_label: "Drag to move {title}"
+      edit_button: Edit column
       move_left_button: Move left
       move_right_button: Move right
       move_to_bottom_row_button: Move to bottom row
@@ -72,6 +73,11 @@ flarum-deck:
     discussion_controls:
       add_to_deck_button: Add to Deck
       added_message: This discussion is now a column in your Deck.
+
+    edit_column:
+      name_label: Name
+      submit_button: Save
+      title: Edit column
 
     index:
       deck_link: Deck

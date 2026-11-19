@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use Flarum\Extend;
 use Flarum\OAuthProvider\ClientRegistration\AllowedClients;
 use Flarum\OAuthProvider\Models\Client;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -93,7 +93,7 @@ class AllowedClientsTest extends TestCase
      */
     protected function document(): array
     {
-        return $this->json($this->send($this->request('GET', '/.well-known/oauth-authorization-server')));
+        return $this->oauthJson($this->send($this->request('GET', '/.well-known/oauth-authorization-server')));
     }
 
     #[Test]
@@ -148,7 +148,7 @@ class AllowedClientsTest extends TestCase
         $this->assertSame(401, $this->userinfo($tokens['access_token'])->getStatusCode());
         $refreshed = $this->refresh('dynamic-client', $tokens['refresh_token']);
         $this->assertSame(401, $refreshed->getStatusCode(), (string) $refreshed->getBody());
-        $this->assertSame('invalid_client', $this->json($refreshed)['error']);
+        $this->assertSame('invalid_client', $this->oauthJson($refreshed)['error']);
 
         $this->switchTo(AllowedClients::SELF_REGISTERED_SETTING, true);
 
@@ -176,7 +176,7 @@ class AllowedClientsTest extends TestCase
         $this->assertSame(401, $this->userinfo($tokens['access_token'])->getStatusCode());
         $refreshed = $this->refresh('admin-client', $tokens['refresh_token']);
         $this->assertSame(401, $refreshed->getStatusCode(), (string) $refreshed->getBody());
-        $this->assertSame('invalid_client', $this->json($refreshed)['error']);
+        $this->assertSame('invalid_client', $this->oauthJson($refreshed)['error']);
 
         $this->switchTo(AllowedClients::ADMIN_SETTING, true);
 

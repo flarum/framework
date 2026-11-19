@@ -21,6 +21,7 @@ flarum-mentions:
       allow_username_format_text: |
         The current format for user mentions is @"Display Name"#ID.
         This setting allows using the old format of @Username, however it will still be converted to the new format upon saving.
+        Selecting a suggestion always inserts the current format.
 
   # Translations in this namespace are used by the forum user interface.
   forum:

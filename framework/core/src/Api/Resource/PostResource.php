@@ -70,8 +70,8 @@ class PostResource extends AbstractDatabaseResource
             $post->ip_address = $context->request->getAttribute('ipAddress');
 
             if ($source = RequestUtil::getPostSource($context->request)) {
-                $post->source = $source->key;
-                $post->source_name = $source->storedName();
+                $post->created_via = $source->key;
+                $post->created_via_name = $source->storedName();
             }
 
             return $post;
@@ -245,11 +245,12 @@ class PostResource extends AbstractDatabaseResource
             Schema\Str::make('source')
                 ->description('How the post was made when not in the forum\'s own interface, such as `api`; null otherwise. Set by the server.')
                 ->nullable()
+                ->property('created_via')
                 ->visible(fn (Post $post) => $post instanceof CommentPost && $this->showsPostSource()),
             Schema\Str::make('sourceName')
                 ->description('The name shown after "via" for the post\'s source, such as an application\'s name, or null to use the source\'s own label.')
                 ->nullable()
-                ->property('source_name')
+                ->property('created_via_name')
                 ->visible(fn (Post $post) => $post instanceof CommentPost && $this->showsPostSource()),
             Schema\DateTime::make('editedAt')
                 ->description('When the post was last edited, or null if it never was.'),

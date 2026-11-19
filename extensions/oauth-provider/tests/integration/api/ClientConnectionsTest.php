@@ -10,7 +10,7 @@
 namespace Flarum\OAuthProvider\Tests\integration\api;
 
 use Carbon\Carbon;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -81,7 +81,7 @@ class ClientConnectionsTest extends TestCase
 
         $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
 
-        $ids = array_map('intval', array_column($this->json($response)['data'], 'id'));
+        $ids = array_map('intval', array_column($this->oauthJson($response)['data'], 'id'));
         sort($ids);
 
         return $ids;
@@ -93,7 +93,7 @@ class ClientConnectionsTest extends TestCase
         $response = $this->send($this->request('GET', '/api/oauth-provider-clients', ['authenticatedAs' => 1]));
 
         $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
-        $clients = array_column($this->json($response)['data'], 'attributes', 'id');
+        $clients = array_column($this->oauthJson($response)['data'], 'attributes', 'id');
 
         $this->assertSame(2, $clients[self::CIMD]['connectionCount']);
         $this->assertEqualsWithDelta(Carbon::now()->subMinute()->getTimestamp(), Carbon::parse($clients[self::CIMD]['lastUsedAt'])->getTimestamp(), 5);

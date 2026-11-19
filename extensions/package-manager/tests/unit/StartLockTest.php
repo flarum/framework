@@ -17,7 +17,7 @@ use Flarum\ExtensionManager\Run\StartLock;
 use Flarum\ExtensionManager\Run\StartLockUnwritable;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\Foundation\Paths;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -228,11 +228,10 @@ class StartLockTest extends TestCase
     {
         $autoload = dirname(__DIR__, 4).'/vendor/autoload.php';
         $code = sprintf(
-            'require %s; require %s; require %s; while (microtime(true) < %F) { usleep(200); } '
+            'require %s; require %s; while (microtime(true) < %F) { usleep(200); } '
             .'try { \Flarum\ExtensionManager\Tests\Unit\StartLockTest::beginIn(%s); echo "started"; } '
             .'catch (\Flarum\ExtensionManager\Exception\RefusedException $e) { echo "refused"; }',
             var_export($autoload, true),
-            var_export(__DIR__.'/EnglishTranslator.php', true),
             var_export(__FILE__, true),
             $go,
             var_export($this->dir, true)

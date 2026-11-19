@@ -15,7 +15,7 @@ use Flarum\ExtensionManager\Run\Drivers;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\StepsFactory;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Locale\TranslatorInterface;

@@ -182,3 +182,32 @@ describe('a conversation addressed to a Flarum Group', () => {
     mq(m('div', details.content())).should.contain('Moderators');
   });
 });
+
+describe("a group conversation's header avatars", () => {
+  const avatars = (dialog: Dialog) => mq(m('div', section(dialog).headerAvatar()));
+
+  it('shows its Groups first, then its members, three in all, and counts the rest', () => {
+    const dialog = group([{ canSendAnyMessage: true }, { canSendAnyMessage: true }, { canSendAnyMessage: true }]);
+    app.store.pushPayload({
+      data: [
+        { type: 'groups', id: '1', attributes: { namePlural: 'Admins', nameSingular: 'Admin', icon: 'fas fa-wrench' } },
+        { type: 'groups', id: '5', attributes: { namePlural: 'Team', nameSingular: 'Team member', icon: 'fas fa-comment' } },
+      ],
+    } as any);
+    dialog.pushData({ relationships: { groups: { data: ['1', '5'].map((id) => ({ type: 'groups', id })) } } });
+
+    const header = avatars(dialog);
+
+    header.should.have(2, '.DialogSection-header-group');
+    header.should.have(1, '.Avatar');
+    header.should.contain('+2');
+  });
+
+  it('shows only members when no Group is addressed, and nothing to count when they fit', () => {
+    const header = avatars(group([{ canSendAnyMessage: true }, { canSendAnyMessage: true }]));
+
+    header.should.not.have('.DialogSection-header-group');
+    header.should.have(2, '.Avatar');
+    header.should.not.have('.DialogSection-header-more');
+  });
+});

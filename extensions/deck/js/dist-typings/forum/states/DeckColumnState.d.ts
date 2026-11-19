@@ -3,6 +3,11 @@ export default class DeckColumnState {
     config: DeckColumnConfig;
     readonly type: DeckColumnType;
     readonly source: DeckColumnSource;
+    /**
+     * Tells this column's state from the one it is replaced by when its settings
+     * change, which has to be shown afresh: loaded, started and watched.
+     */
+    readonly key: string;
     /** Items waiting behind the "new" pill. */
     newCount: number;
     /** Something may have changed while the column was off screen. */
@@ -43,6 +48,8 @@ export default class DeckColumnState {
      */
     queueCheck(live: boolean, recheckOnly?: boolean): void;
     cancelCheck(): void;
+    /** The column was replaced or removed: nothing it had queued, or was asked to run again, asks the server. */
+    discard(): void;
     /** See DeckColumnSource.prune(). */
     prune(): void;
     check(live: boolean): Promise<void>;

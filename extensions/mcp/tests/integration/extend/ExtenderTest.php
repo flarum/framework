@@ -13,9 +13,9 @@ use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Extend\Mcp;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\BrokenTool;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\EchoTool;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\Fixtures\Extend\BrokenTool;
+use Flarum\Mcp\Testing\Fixtures\Extend\EchoTool;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
@@ -104,7 +104,7 @@ class ExtenderTest extends McpTestCase
         $removed = $this->toolOutput($this->callTool('remove_avatar', ['id' => '2'], $auth));
         $this->assertSame('2', $removed['data']['id']);
 
-        $crash = $this->json($this->callTool('echo', ['text' => 'crash'], $auth));
+        $crash = $this->mcpJson($this->callTool('echo', ['text' => 'crash'], $auth));
         $this->assertSame(-32603, $crash['error']['code']);
         $this->assertStringNotContainsString('secret internal detail', (string) json_encode($crash));
     }

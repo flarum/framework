@@ -88,6 +88,7 @@ export default class Composer extends Component<import("../../common/Component")
      * @private
      */
     private minimize;
+    focusRestoreControl: boolean | undefined;
     /**
      * Build an item list for the composer's controls.
      *

@@ -33,6 +33,12 @@ class SendMessageNotificationsJob extends AbstractJob
 
     public function handle(NotificationSyncer $notifications): void
     {
+        // Deleted by its author before the queue got here: there is nothing
+        // to tell anyone about.
+        if ($this->message->isHidden()) {
+            return;
+        }
+
         $eligible = function ($query) {
             $query->where('dialog_user.last_read_message_id', '<', $this->message->id)
                 ->where(function ($query) {

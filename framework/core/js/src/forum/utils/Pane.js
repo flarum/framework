@@ -26,7 +26,6 @@ export default class Pane {
      * Whether or not the pane is currently pinned.
      *
      * @type {Boolean}
-     * @protected
      */
     this.pinned = false;
 

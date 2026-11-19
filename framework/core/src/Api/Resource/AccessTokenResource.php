@@ -87,7 +87,10 @@ class AccessTokenResource extends AbstractDatabaseResource
             Schema\DateTime::make('lastActivityAt'),
             Schema\Boolean::make('isCurrent')
                 ->get(function (#[\SensitiveParameter] AccessToken $token, Context $context) {
-                    return $token->token === $context->request->getAttribute('session')->get('access_token');
+                    /** @var Session|null $session */
+                    $session = $context->request->getAttribute('session');
+
+                    return $session !== null && $token->token === $session->get('access_token');
                 }),
             Schema\Boolean::make('isSessionToken')
                 ->get(function (#[\SensitiveParameter] AccessToken $token) {

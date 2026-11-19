@@ -11,12 +11,12 @@ namespace Flarum\Mcp\Tests\integration\extend;
 
 use Flarum\Extend;
 use Flarum\Mcp\Extend\Mcp;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\EchoTool;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\RecordingReporter;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\ThrowingPrompt;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\ThrowingResource;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\ThrowingTool;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\Fixtures\Extend\EchoTool;
+use Flarum\Mcp\Testing\Fixtures\Extend\RecordingReporter;
+use Flarum\Mcp\Testing\Fixtures\Extend\ThrowingPrompt;
+use Flarum\Mcp\Testing\Fixtures\Extend\ThrowingResource;
+use Flarum\Mcp\Testing\Fixtures\Extend\ThrowingTool;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -30,8 +30,8 @@ class FaultIsolationTest extends McpTestCase
     {
         parent::setUp();
 
-        RecordingReporter::$messages = [];
-        ThrowingTool::$throwFrom = '';
+        RecordingReporter::reset();
+        ThrowingTool::reset();
 
         $this->extend(
             (new Extend\ErrorHandling())->reporter(RecordingReporter::class),
@@ -47,6 +47,16 @@ class FaultIsolationTest extends McpTestCase
         $this->prepareDatabase([
             User::class => [$this->normalUser()],
         ]);
+    }
+
+    protected function tearDown(): void
+    {
+        try {
+            parent::tearDown();
+        } finally {
+            RecordingReporter::reset();
+            ThrowingTool::reset();
+        }
     }
 
     /**
@@ -73,7 +83,7 @@ class FaultIsolationTest extends McpTestCase
         $this->assertContains("ThrowingTool::$method() broke.", RecordingReporter::$messages);
 
         // The auth middleware looks the tool up too, and must not trip on it.
-        $call = $this->json($this->callTool('throwing', [], $auth));
+        $call = $this->mcpJson($this->callTool('throwing', [], $auth));
         $this->assertArrayHasKey('error', $call);
         $this->assertArrayNotHasKey('result', $call);
 
@@ -138,7 +148,7 @@ class FaultIsolationTest extends McpTestCase
         $response = $this->send($this->request('GET', '/api/mcp-capabilities', ['authenticatedAs' => 1]));
 
         $this->assertSame(200, $response->getStatusCode());
-        $names = array_column(array_column($this->json($response)['data'], 'attributes'), 'name');
+        $names = array_column(array_column($this->mcpJson($response)['data'], 'attributes'), 'name');
         $this->assertContains('echo', $names);
         $this->assertNotContains('throwing', $names);
     }

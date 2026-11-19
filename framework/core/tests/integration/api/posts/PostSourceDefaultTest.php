@@ -62,6 +62,6 @@ class PostSourceDefaultTest extends TestCase
 
         $document = json_decode((string) $response->getBody(), true);
         $this->assertArrayNotHasKey('source', $document['data']['attributes']);
-        $this->assertEquals('api', Post::query()->findOrFail($document['data']['id'])->source);
+        $this->assertEquals('api', Post::query()->findOrFail($document['data']['id'])->created_via);
     }
 }

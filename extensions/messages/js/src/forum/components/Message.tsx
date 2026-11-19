@@ -11,6 +11,9 @@ import PostMeta from 'flarum/forum/components/PostMeta';
 import classList from 'flarum/common/utils/classList';
 import MessageControls from '../utils/MessageControls';
 import type MessageStreamState from '../states/MessageStreamState';
+import Icon from 'flarum/common/components/Icon';
+import listItems from 'flarum/common/helpers/listItems';
+import MessageEdited from './MessageEdited';
 
 export interface IMessageAttrs extends IAbstractPostAttrs {
   message: DialogMessage;
@@ -25,6 +28,9 @@ export interface IMessageAttrs extends IAbstractPostAttrs {
 export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessageAttrs> extends AbstractPost<CustomAttrs> {
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
+
+    // Opening the composer to edit it changes nothing on the message itself.
+    this.subtree.check(() => this.isEditing());
   }
 
   user(): User | null | false {
@@ -57,9 +63,12 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
 
     attrs.className = classList(attrs.className || null, 'Message', {
       'Post--renderFailed': message.renderFailed(),
+      'Message--hidden': message.isHidden(),
       revealContent: false,
-      editing: false,
+      editing: this.isEditing(),
     });
+
+    if (this.isEditing()) attrs['aria-busy'] = 'true';
 
     return attrs;
   }
@@ -68,17 +77,42 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
     return super.header();
   }
 
+  /** Whether this message is open in the composer to be edited. */
+  isEditing(): boolean {
+    return app.composer.bodyMatches('ext:flarum/messages/forum/components/EditMessageComposer', { message: this.attrs.message });
+  }
+
   content(): Mithril.Children[] {
+    const message = this.attrs.message;
+
+    // Deleted, in a way that can be undone: the others see that it was;
+    // whoever may restore it sees what it said, set apart.
+    if (message.isHidden()) {
+      const contentHtml = message.canHide() || message.user() === app.session.user ? message.contentHtml() : null;
+
+      return super.content().concat([
+        <header className="Post-header">
+          <ul>{listItems(this.headerItems().toArray())}</ul>
+        </header>,
+        <div className="Post-body">
+          <p className="Message-deletedNotice">
+            <Icon name="far fa-trash-alt" /> {app.translator.trans('flarum-messages.forum.message.deleted_text')}
+          </p>
+          {contentHtml ? <div className="Message-deletedContent">{m.trust(contentHtml)}</div> : null}
+        </div>,
+      ]);
+    }
+
     return super
       .content()
       .concat([
         <Comment
           headerItems={this.headerItems()}
           cardVisible={false}
-          isEditing={false}
+          isEditing={this.isEditing()}
           isHidden={false}
-          contentHtml={this.attrs.message.contentHtml()}
-          user={this.attrs.message.user()}
+          contentHtml={message.contentHtml() || ''}
+          user={message.user()}
         />,
       ]);
   }
@@ -123,6 +157,10 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
         }}
       />
     );
+
+    if (message.editedAt() && !message.isHidden()) {
+      items.add('edited', <MessageEdited message={message} />);
+    }
 
     return items;
   }

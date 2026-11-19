@@ -7,13 +7,15 @@ import Icon from 'flarum/common/components/Icon';
 import ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
 import deckColumnTypes from '../columns/deckColumnTypes';
-import { makeColumn } from '../utils/deckLayout';
+import { MAX_NAME_LENGTH, makeColumn } from '../utils/deckLayout';
 import type DeckState from '../states/DeckState';
 import type { DeckColumnConfig, DeckColumnField, DeckColumnType } from '../columns/DeckColumnType';
 
 export interface IAddColumnModalAttrs extends IFormModalAttrs {
   deck: DeckState;
   onadd?: (config: DeckColumnConfig) => void;
+  /** A column to edit, rather than adding one. */
+  column?: DeckColumnConfig;
 }
 
 export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = IAddColumnModalAttrs> extends FormModal<CustomAttrs> {
@@ -26,13 +28,25 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
   /** What each search field shows for its choice. */
   protected chosen: Record<string, Mithril.Children> = {};
   protected error: Mithril.Children = null;
+  /** The name a column being edited is given; empty for the type's own title. */
+  protected name = '';
+  /** A column being edited's settings from its search fields, until something else is picked. */
+  protected kept: DeckColumnConfig['params'] = {};
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
+    super.oninit(vnode);
+
+    if (this.attrs.column) this.startEditing(this.attrs.column);
+  }
 
   className() {
     return 'AddColumnModal Modal--small';
   }
 
   title() {
-    return app.translator.trans('flarum-deck.forum.add_column.title');
+    return this.attrs.column
+      ? app.translator.trans('flarum-deck.forum.edit_column.title')
+      : app.translator.trans('flarum-deck.forum.add_column.title');
   }
 
   content() {
@@ -91,7 +105,9 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
 
   /** Whether the deck already has a column of the chosen type with these params. */
   protected hasColumnWith(params: DeckColumnConfig['params']): boolean {
-    return this.columnsOf(this.type!).some((config) => Object.entries(params).every(([key, value]) => config.params[key] === value));
+    return this.columnsOf(this.type!).some(
+      (config) => config.id !== this.attrs.column?.id && Object.entries(params).every(([key, value]) => config.params[key] === value)
+    );
   }
 
   fields(): ItemList<Mithril.Children> {
@@ -110,6 +126,28 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
       );
     });
 
+    if (this.attrs.column) {
+      const { name, ...config } = this.attrs.column;
+
+      items.add(
+        'name',
+        <div className="Form-group">
+          <label for="AddColumnModal-name">{app.translator.trans('flarum-deck.forum.edit_column.name_label')}</label>
+          <input
+            id="AddColumnModal-name"
+            className="FormControl"
+            autocomplete="off"
+            maxlength={MAX_NAME_LENGTH}
+            // The title the column has without a name of its own.
+            placeholder={type.title(config)}
+            value={this.name}
+            oninput={(e: InputEvent) => (this.name = (e.target as HTMLInputElement).value)}
+          />
+        </div>,
+        20
+      );
+    }
+
     if (this.error) {
       items.add('error', <p className="AddColumnModal-error">{this.error}</p>, 10);
     }
@@ -118,11 +156,15 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
       'submit',
       <div className="Form-group Form-controls">
         <Button className="Button Button--primary Button--block" type="submit">
-          {app.translator.trans('flarum-deck.forum.add_column.submit_button')}
+          {this.attrs.column
+            ? app.translator.trans('flarum-deck.forum.edit_column.submit_button')
+            : app.translator.trans('flarum-deck.forum.add_column.submit_button')}
         </Button>
-        <Button className="Button Button--link" onclick={() => this.back()}>
-          {app.translator.trans('flarum-deck.forum.add_column.back_button')}
-        </Button>
+        {!this.attrs.column && (
+          <Button className="Button Button--link" onclick={() => this.back()}>
+            {app.translator.trans('flarum-deck.forum.add_column.back_button')}
+          </Button>
+        )}
       </div>,
       0
     );
@@ -196,6 +238,35 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     else if (this.typeFields[0]?.gambits) this.openFilters(this.typeFields[0]);
   }
 
+  /**
+   * Fills the form from a column's settings. A search field keeps what the
+   * column was for, under its current title, until something else is picked.
+   */
+  protected startEditing(column: DeckColumnConfig): void {
+    const type = deckColumnTypes.get(column.type);
+    const { name, ...config } = column;
+
+    this.type = column.type;
+    this.name = name ?? '';
+    this.typeFields = type.fields?.() ?? [];
+
+    const ownKeys = this.typeFields.filter((field) => !field.search).map((field) => field.key);
+
+    // Which params came from which search field isn't known, so they're kept
+    // together, and a new pick is laid over them.
+    this.kept = Object.fromEntries(Object.entries(column.params).filter(([key]) => !ownKeys.includes(key)));
+
+    this.typeFields.forEach((field) => {
+      if (field.search) {
+        this.picked[field.key] = {};
+        this.chosen[field.key] = type.title(config);
+      } else {
+        // A select saved without a value starts on its first option, as when adding.
+        this.values[field.key] = String(column.params[field.key] ?? (field.options ? (Object.keys(field.options())[0] ?? '') : ''));
+      }
+    });
+  }
+
   /** Filters are written in the search modal, which suggests them as they're typed. */
   protected async openFilters(field: DeckColumnField): Promise<void> {
     // See openPicker(): core's search modal has to be loaded first.
@@ -232,6 +303,9 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
       browse: search.browse,
       isAdded: (model) => this.hasColumnWith(search.params(model)),
       onpick: (model) => {
+        // With one search field, everything kept came from its earlier pick.
+        if (this.typeFields.filter((other) => other.search).length === 1) this.kept = {};
+
         this.picked[field.key] = search.params(model);
         this.chosen[field.key] = search.display?.(model) ?? search.label(model);
         this.error = null;
@@ -249,7 +323,7 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     e.preventDefault();
 
     const type = deckColumnTypes.get(this.type!);
-    const params: DeckColumnConfig['params'] = {};
+    const params: DeckColumnConfig['params'] = { ...this.kept };
 
     for (const field of this.typeFields) {
       if (field.search) {
@@ -281,6 +355,12 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
   }
 
   protected add(params: DeckColumnConfig['params']): void {
+    if (this.attrs.column) {
+      this.attrs.deck.editColumn(this.attrs.column.id, { params, name: this.name });
+      this.hide();
+      return;
+    }
+
     const config = makeColumn(this.type!, params);
 
     this.attrs.deck.addColumn(config);

@@ -387,3 +387,25 @@ describe('re-asking about particular items', () => {
     expect(state.source.checkForNew).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('a column replaced by new settings', () => {
+  it('asks nothing more, even a check it had already been asked to run again', async () => {
+    const state = visibleColumn();
+    let finish!: (count: number) => void;
+    state.source.checkForNew.mockImplementation(() => new Promise<number>((resolve) => (finish = resolve)));
+
+    state.check(false);
+    await settle();
+    // Something arrives while that check is running.
+    state.check(false);
+    state.discard();
+
+    finish(0);
+    // The running check's whole chain, through to its finally.
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+    jest.advanceTimersByTime(MIN_CHECK_INTERVAL + CHECK_DEBOUNCE);
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+
+    expect(state.source.checkForNew).toHaveBeenCalledTimes(1);
+  });
+});

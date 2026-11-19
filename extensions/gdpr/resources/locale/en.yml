@@ -20,7 +20,8 @@ flarum-gdpr:
             user_table_data:
                 title: User Table Data
                 help_text: |
-                    On the most part, any columns added to the <code>user</code> table will be handled automatically, both for exporting data and for erasure.
+                    Columns added to the <code>user</code> table are exported automatically, and nullable columns are cleared automatically when a user is anonymized.
+                    Non-nullable columns keep their value when a user is anonymized, so an extension that stores personal data in one must anonymize it with its own data type.
                     However, there are some special cases, which are listed below.
                 column: Column
                 type: Type
@@ -95,7 +96,7 @@ flarum-gdpr:
                 delete_description: Deletes all tokens the user has created.
                 export_description: Exports all tokens the user has created. Data restricted to creation date and token type.
             user:
-                anonymize_description: Sets all columns on the user table to null. Non-nullable columns are set to their default values or special values. Password is changed, preferences set to default and all groups are removed.
+                anonymize_description: Sets all nullable columns on the user table to null. Username and email are replaced, password is changed, preferences set to default, join date and avatar flags reset and all groups are removed. Other non-nullable columns, such as post counts and columns added by extensions, keep their value.
                 delete_description: Deletes the user from the database.
                 export_description: Exports data from the user table. All columns except id, password.
         request_data:

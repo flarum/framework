@@ -117,3 +117,45 @@ it('uses the addressed Group badge in the conversation list', () => {
   item.should.have('.DialogListItem-avatar .Badge');
   item.should.not.have('.DialogListItem-avatar .Avatar');
 });
+
+/** Addresses `dialog` to these groups, as the API includes them. */
+function addressTo(dialog: Dialog, groups: Array<[string, string]>): void {
+  groups.forEach(([id, name]) =>
+    app.store.pushPayload({ data: { type: 'groups', id, attributes: { namePlural: name + 's', nameSingular: name, icon: 'fas fa-users' } } } as any)
+  );
+  dialog.pushData({ relationships: { groups: { data: groups.map(([id]) => ({ type: 'groups', id })) } } });
+}
+
+describe('a conversation addressed to groups in the list', () => {
+  it('stacks two of its groups, as it does two members', () => {
+    const dialog = conversation('group', [], '1', 'Editors, Moderators');
+    addressTo(dialog, [
+      ['4', 'Moderator'],
+      ['5', 'Editor'],
+    ]);
+    const item = mq(DialogListItem, { dialog });
+
+    item.should.have(2, '.DialogListItem-avatar--group > .Badge');
+    item.should.have('.DialogListItem-avatar--group > .Badge--group--4:first-child');
+    item.should.have('.DialogListItem-avatar--group > .Badge--group--5:nth-child(2)');
+  });
+
+  it('stacks its group before its other members', () => {
+    const dialog = conversation('group', ['38', '39'], '38', 'Editors, user38, user39');
+    addressTo(dialog, [['5', 'Editor']]);
+    const item = mq(DialogListItem, { dialog });
+
+    item.should.have('.DialogListItem-avatar--group > .Badge--group--5:first-child');
+    item.should.have(1, '.DialogListItem-avatar--group > .Avatar');
+  });
+
+  // The list item is named in its title; a tooltip over the tile would only repeat it.
+  it("gives a group's badge no tooltip", () => {
+    const dialog = conversation('group', ['40'], '40', 'Editors, user40');
+    addressTo(dialog, [['5', 'Editor']]);
+    const item = mq(DialogListItem, { dialog });
+
+    item.should.not.have('.DialogListItem-avatar .Badge[aria-label]');
+    item.should.not.have('.DialogListItem-avatar .Badge[role=img]');
+  });
+});
