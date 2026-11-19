@@ -10,6 +10,10 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApiResponse;
+use Flarum\Discussion\Discussion;
+use Flarum\Http\RequestUtil;
+use Flarum\Post\Post;
+use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -248,6 +252,64 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
         if (! empty($nonCallableRelations)) {
             $models->loadMissing($nonCallableRelations);
+        }
+
+        if ($request && $request->getAttribute('actorReference')) {
+            $this->removeInvisibleDiscussionPosts($models, RequestUtil::getActor($request));
+        }
+    }
+
+    /**
+     * Unset a discussion's first, last or most relevant post when the actor
+     * cannot see it, so it is serialized neither as an included resource nor
+     * as relationship linkage. These relations are loaded without the post
+     * visibility scope, so check every loaded one in a single query.
+     */
+    private function removeInvisibleDiscussionPosts(Collection $models, User $actor): void
+    {
+        $relations = ['firstPost', 'lastPost', 'mostRelevantPost'];
+        $postIds = [];
+
+        foreach ($models as $model) {
+            if (! $model instanceof Discussion) {
+                continue;
+            }
+
+            foreach ($relations as $relation) {
+                if ($model->relationLoaded($relation) && $model->getRelation($relation) instanceof Post) {
+                    $postIds[] = $model->getRelation($relation)->id;
+                }
+            }
+        }
+
+        if (empty($postIds)) {
+            return;
+        }
+
+        $visibleIds = array_flip(
+            Post::whereVisibleTo($actor)
+                ->whereIn('posts.id', array_unique($postIds))
+                ->pluck('posts.id')
+                ->map(function ($id) {
+                    return (int) $id;
+                })
+                ->all()
+        );
+
+        foreach ($models as $model) {
+            if (! $model instanceof Discussion) {
+                continue;
+            }
+
+            foreach ($relations as $relation) {
+                if (
+                    $model->relationLoaded($relation)
+                    && ($post = $model->getRelation($relation)) instanceof Post
+                    && ! isset($visibleIds[(int) $post->id])
+                ) {
+                    $model->setRelation($relation, null);
+                }
+            }
         }
     }
 
