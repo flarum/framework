@@ -4,6 +4,7 @@ import app from '../app';
 import highlight from '../../common/helpers/highlight';
 import type { GlobalSearchSource } from './GlobalSearch';
 import extractText from '../../common/utils/extractText';
+import SearchManager from '../../common/SearchManager';
 import Link from '../../common/components/Link';
 import Icon from '../../common/components/Icon';
 import PermissionGrid from './PermissionGrid';
@@ -30,6 +31,18 @@ export default class GeneralSearchSource implements GlobalSearchSource {
   protected results = new Map<string, GeneralSearchResult[]>();
 
   public resource: string = 'general';
+
+  /**
+   * Admin settings search runs in the browser and sends no requests, so a
+   * raised forum minimum does not apply to it. It searches from one character
+   * in CJK mode, where a single character is often a whole word, and follows
+   * a lowered forum minimum otherwise.
+   */
+  minSearchLength(): number {
+    if (SearchManager.isCjkMode()) return 1;
+
+    return Math.min(SearchManager.MIN_SEARCH_LEN, SearchManager.minSearchLength());
+  }
 
   title(): string {
     return extractText(app.translator.trans('core.admin.search_source.general.heading'));

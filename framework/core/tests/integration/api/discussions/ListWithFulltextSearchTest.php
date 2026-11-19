@@ -233,6 +233,25 @@ class ListWithFulltextSearchTest extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2', '3'], $ids, 'Latin search must still work with CJK mode on.');
     }
 
+    /**
+     * "0" is a valid one-character search term, not an empty query: it must
+     * not fall through to the unfiltered list.
+     */
+    #[Test]
+    public function search_for_zero_is_not_treated_as_an_empty_query()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams(['filter' => ['q' => '0']])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $ids = Arr::pluck(json_decode($response->getBody()->getContents(), true)['data'], 'id');
+
+        $this->assertEquals([], $ids, 'No discussion contains "0", so none should be found.');
+    }
+
     #[Test]
     public function search_for_special_characters_gives_empty_result()
     {

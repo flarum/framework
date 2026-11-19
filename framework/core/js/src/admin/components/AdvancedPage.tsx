@@ -275,6 +275,16 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
             {app.translator.trans('core.admin.advanced.search.no_other_drivers')}
           </InfoTile>
         )}
+        <Form>
+          {this.buildSettingComponent({
+            type: 'number',
+            setting: 'search_min_length',
+            label: app.translator.trans('core.admin.advanced.search.min_length_label'),
+            help: app.translator.trans('core.admin.advanced.search.min_length_help'),
+            placeholder: '3',
+            min: 1,
+          })}
+        </Form>
         {cjkCapableDriver && (
           <Form>
             {this.buildSettingComponent({
@@ -632,6 +642,11 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     });
 
     app.generalIndex.for('core-advanced').add('settings', [
+      {
+        id: 'search_min_length',
+        label: app.translator.trans('core.admin.advanced.search.min_length_label', {}, true),
+        help: app.translator.trans('core.admin.advanced.search.min_length_help', {}, true),
+      },
       {
         id: 'maintenance_mode',
         label: app.translator.trans('core.admin.advanced.maintenance.section_label', {}, true),

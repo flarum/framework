@@ -111,4 +111,10 @@ class TagSearchTest extends TestCase
     {
         $this->assertEquals(['Apples and pears'], $this->titles(['q' => 'apples']));
     }
+
+    #[Test]
+    public function a_search_for_zero_on_the_tag_page_preloads_its_results()
+    {
+        $this->assertEquals([], $this->titles(['q' => '0']));
+    }
 }
