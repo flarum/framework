@@ -61,7 +61,6 @@ class Export extends AbstractModel
             $export->save();
 
             $export->setRelation('user', $user);
-            $export->setRelation('actor', $actor);
         });
     }
 
