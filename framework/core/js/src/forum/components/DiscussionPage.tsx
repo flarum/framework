@@ -69,6 +69,31 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
 
     this.load();
 
+    // A discussion opened directly has no list yet: only the index page fills
+    // it. A reader who pinned the pane expects it here too, so load the
+    // index's default list for them, on screens wide enough to pin the pane,
+    // so nobody else pays for the request. Only a list that was never asked
+    // for (its params are still the constructor's) is loaded: one the reader
+    // was browsing stays theirs, even when it is empty, and a load that came
+    // back empty or failed is not repeated on every discussion opened after it.
+    //
+    // The params are the index's, so that going to the default index reuses
+    // the list, but without the sort, search and filter of this discussion's
+    // URL, which are not the index's. This must stay after `this.load()`,
+    // which takes the server's preloaded discussion: the list would otherwise
+    // be handed that document as its own results.
+    const list = app.discussions;
+
+    if (!list.hasItems() && !list.isLoading() && Object.keys(list.getParams()).length === 0 && app.pane?.pinned && app.screen() === 'desktop-hd') {
+      // A list that came back empty or failed leaves nothing to show, and the
+      // pinned pane would otherwise keep its width as a blank gutter.
+      const settled = () => {
+        if (!list.hasItems() && !list.isLoading()) app.pane?.disable();
+      };
+
+      list.refreshParams({ ...app.search.state.params(), sort: undefined, q: undefined, filter: {} }, 1).then(settled, settled);
+    }
+
     // If the discussion list has been loaded, then we'll enable the pane (and
     // hide it by default). Also, if we've just come from another discussion
     // page, then we don't want Mithril to redraw the whole page – if it did,
