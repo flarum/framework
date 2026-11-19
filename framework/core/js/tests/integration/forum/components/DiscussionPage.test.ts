@@ -2,9 +2,11 @@ import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from '../../../../src/forum/app';
 import DiscussionPage from '../../../../src/forum/components/DiscussionPage';
 import Discussion from '../../../../src/common/models/Discussion';
+import DiscussionListState from '../../../../src/forum/states/DiscussionListState';
 import Post from '../../../../src/common/models/Post';
 import RequestError from '../../../../src/common/utils/RequestError';
 import mq from 'mithril-query';
+import { jest } from '@jest/globals';
 import m from 'mithril';
 
 /**
@@ -235,6 +237,161 @@ describe('DiscussionPage', () => {
 
     expect(findsFor('discussions')).toHaveLength(1);
     expect(findsFor('posts')).toHaveLength(0);
+  });
+
+  describe('the pinned discussion list pane on a direct load', () => {
+    // Loading a discussion URL directly leaves the discussion list empty: it is
+    // only filled by the index page. A reader who pinned the pane must still
+    // get it, so the page loads the default list itself, but only where the
+    // pane can be pinned at all, and only for readers who pinned it.
+    let pane: any;
+    let refreshParams: jest.SpiedFunction<typeof app.discussions.refreshParams>;
+    let screen: string;
+    let originalPane: typeof app.pane;
+    let originalScreen: typeof app.screen;
+    let originalDiscussions: typeof app.discussions;
+
+    const listRequests = () => pendingFinds.filter(({ args: [type, params] }) => type === 'discussions' && typeof params === 'object');
+
+    /** Settle the pane's list request: with these discussions, or failed. */
+    const settleList = async (result: 'empty' | 'failed') => {
+      const { resolve, reject } = listRequests()[0];
+
+      if (result === 'failed') {
+        const error = new RequestError(500, '{"errors":[{"status":"500"}]}', { url: '/api/discussions' } as any, {} as any);
+        reject(error);
+      } else {
+        resolve(Object.assign([], { payload: { data: [], links: {} } }));
+      }
+
+      await new Promise((r) => setTimeout(r, 10));
+    };
+
+    beforeEach(() => {
+      originalPane = app.pane;
+      originalScreen = app.screen;
+      originalDiscussions = app.discussions;
+      // A fresh list per test: a refresh left pending by an earlier test would
+      // still count as loading.
+      app.discussions = new DiscussionListState({});
+      pane = { pinned: true, active: false, enable: jest.fn(), disable: jest.fn(), hide: jest.fn(), show() {}, onmouseleave() {}, togglePinned() {} };
+      // @ts-ignore
+      app.pane = pane;
+      screen = 'desktop-hd';
+      app.screen = () => screen as any;
+      // Let the refresh run: it marks the list as loading at once, and its
+      // request goes to the intercepted store and is left pending.
+      refreshParams = jest.spyOn(app.discussions, 'refreshParams');
+      seedDiscussionFromList();
+      routeParams = { id: '476-test-discussion' };
+    });
+
+    afterEach(() => {
+      // @ts-ignore
+      app.pane = originalPane;
+      app.screen = originalScreen;
+      app.discussions = originalDiscussions;
+    });
+
+    test('loads the default discussion list and enables the pane when pinned', () => {
+      mountPage();
+
+      expect(refreshParams).toHaveBeenCalledTimes(1);
+      expect(pane.enable).toHaveBeenCalled();
+    });
+
+    test('loads the list the index page asks for, so the index reuses it', () => {
+      mountPage();
+
+      expect(listRequests()).toHaveLength(1);
+
+      // What IndexPage does on the forum's home, whose route has no params.
+      routeParams = {};
+      app.discussions.refreshParams(app.search.state.params(), 1);
+
+      expect(listRequests()).toHaveLength(1);
+    });
+
+    test('loads the list on a page load, after the discussion takes its preloaded document', () => {
+      // A real direct load: the server preloads the discussion. The list must
+      // not be handed that single-discussion document as its own results.
+      app.data.apiDocument = { data: discussionData([101]), included: [makePostData(101, 1)] } as any;
+      // @ts-ignore
+      app.initialRoute = window.location.href;
+
+      mountPage();
+
+      expect(findsFor('discussions').filter(([, params]) => typeof params === 'string')).toHaveLength(0);
+      expect(listRequests()).toHaveLength(1);
+      expect(app.discussions.hasItems()).toBe(false);
+      expect(app.data.apiDocument).toBeNull();
+    });
+
+    test.each(['empty', 'failed'] as const)('switches the pane off when the list comes back %s', async (result) => {
+      mountPage();
+      expect(pane.enable).toHaveBeenCalled();
+
+      await settleList(result);
+
+      // Otherwise the pinned pane keeps its width as a blank gutter beside the
+      // discussion.
+      expect(pane.disable).toHaveBeenCalled();
+    });
+
+    test.each(['empty', 'failed'] as const)('does not ask again on the next discussion when the list came back %s', async (result) => {
+      mountPage();
+      await settleList(result);
+
+      mountPage();
+
+      expect(listRequests()).toHaveLength(1);
+    });
+
+    test('does not replace a list the reader was browsing that came back empty', () => {
+      // e.g. a search with no results, then a discussion opened from a
+      // notification: that list is the reader's, and the index returns to it.
+      app.discussions = new DiscussionListState({ q: 'nothing matches' });
+      refreshParams = jest.spyOn(app.discussions, 'refreshParams');
+
+      mountPage();
+
+      expect(refreshParams).not.toHaveBeenCalled();
+    });
+
+    test("asks for the index's default list, not the discussion URL's sort, search or filter", () => {
+      routeParams = { id: '476-test-discussion', sort: 'oldest', q: 'xyz', filter: { nope: '1' } as any };
+
+      mountPage();
+
+      expect(refreshParams).toHaveBeenCalledWith(expect.objectContaining({ sort: undefined, q: undefined, filter: {} }), 1);
+    });
+
+    test('does not load the list when the pane is not pinned', () => {
+      pane.pinned = false;
+
+      mountPage();
+
+      expect(refreshParams).not.toHaveBeenCalled();
+      expect(pane.enable).not.toHaveBeenCalled();
+    });
+
+    test('does not load the list on screens too narrow to pin the pane', () => {
+      screen = 'desktop';
+
+      mountPage();
+
+      expect(refreshParams).not.toHaveBeenCalled();
+      expect(pane.enable).not.toHaveBeenCalled();
+    });
+
+    test('reuses a list that is already loaded', () => {
+      app.discussions.getPages = () => [{ number: 1, items: [app.store.getById('discussions', '476')] }] as any;
+
+      mountPage();
+
+      expect(refreshParams).not.toHaveBeenCalled();
+      expect(pane.enable).toHaveBeenCalled();
+    });
   });
 
   describe('when the discussion request fails', () => {

@@ -1,5 +1,5 @@
 import app from 'flarum/forum/app';
-import { extend } from 'flarum/common/extend';
+import { extend, override } from 'flarum/common/extend';
 import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import type Discussion from 'flarum/common/models/Discussion';
 import type ItemList from 'flarum/common/utils/ItemList';
@@ -38,6 +38,17 @@ export function applyEmbedSidebar(items: ItemList<Mithril.Children>, discussion:
 }
 
 export default function extendDiscussionPage(): void {
+  // The embed shows a single discussion and hides the header that holds the
+  // pane's pin. A pin saved while reading the forum shares this origin's
+  // storage, so without this a wide embed would load the forum's discussion
+  // list beside the discussion, with no way to unpin it from here. Only the
+  // in-memory flag changes: the forum keeps the reader's choice.
+  override(DiscussionPage.prototype, 'oninit', function (this: DiscussionPage, original: (...args: any[]) => void, ...args: any[]) {
+    if (app.pane) app.pane.pinned = false;
+
+    return original(...args);
+  });
+
   extend(DiscussionPage.prototype, 'sidebarItems', function (this: DiscussionPage, items: ItemList<Mithril.Children>) {
     // `discussion` is protected on DiscussionPage; access via a cast.
     applyEmbedSidebar(items, (this as any).discussion);
