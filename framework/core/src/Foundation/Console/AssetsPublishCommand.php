@@ -112,7 +112,9 @@ class AssetsPublishCommand extends AbstractCommand
         foreach ($files as $relSource => $relTarget) {
             $sourcePath = "$sourceDir/$relSource";
             if ($local->exists($sourcePath)) {
-                $target->put($relTarget, $local->get($sourcePath));
+                // Flysystem sniffs these bundles as application/octet-stream,
+                // which browsers refuse to execute.
+                $target->put($relTarget, $local->get($sourcePath), ['mimetype' => 'application/javascript']);
             }
         }
     }
