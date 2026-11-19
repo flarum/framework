@@ -10,8 +10,8 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Config\StabilityRule;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
-use Flarum\ExtensionManager\Tests\unit\FakeHttp;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\FakeHttp;
 use Flarum\ExtensionManager\Work\PrivateIndex;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use PHPUnit\Framework\TestCase;

@@ -10,7 +10,8 @@
 namespace Flarum\Gdpr\Tests\integration;
 
 use Carbon\Carbon;
-use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
+use Flarum\Audit\Testing\BuildsAuditRequests;
+use Flarum\Audit\Testing\InteractsWithAuditLog;
 use Flarum\Gdpr\Console\ProcessEraseRequests;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Group\Group;
@@ -25,6 +26,7 @@ class AuditTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
     use InteractsWithAuditLog;
+    use BuildsAuditRequests;
 
     public function setUp(): void
     {
@@ -73,10 +75,14 @@ class AuditTest extends TestCase
 
     public function tearDown(): void
     {
-        parent::tearDown();
+        try {
+            parent::tearDown();
 
-        $fs = $this->app()->getContainer()->make(Factory::class)->disk('gdpr-export');
-        $fs->delete($fs->allFiles());
+            $fs = $this->app()->getContainer()->make(Factory::class)->disk('gdpr-export');
+            $fs->delete($fs->allFiles());
+        } finally {
+            $this->tearDownAuditLog();
+        }
     }
 
     protected function process(int $id, string $mode): ResponseInterface

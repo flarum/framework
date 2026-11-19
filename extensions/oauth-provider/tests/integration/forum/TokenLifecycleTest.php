@@ -12,7 +12,7 @@ namespace Flarum\OAuthProvider\Tests\integration\forum;
 use Flarum\Extend;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\Client;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -50,7 +50,7 @@ class TokenLifecycleTest extends TestCase
     {
         $tokens = $this->publicClientTokens('restricted-client', ['scope' => 'openid profile email']);
 
-        $this->assertSame(['openid'], $this->jwtClaims($tokens['access_token'])['scopes'] ?? null, 'Scopes the admin did not allow must not be granted');
+        $this->assertSame(['openid'], $this->oauthJwtClaims($tokens['access_token'])['scopes'] ?? null, 'Scopes the admin did not allow must not be granted');
     }
 
     #[Test]
@@ -63,7 +63,7 @@ class TokenLifecycleTest extends TestCase
         $refreshed = $this->refresh('public-client', $tokens['refresh_token']);
         $this->assertSame(200, $refreshed->getStatusCode(), (string) $refreshed->getBody());
 
-        $this->assertSame(['openid', 'email'], $this->jwtClaims($this->json($refreshed)['access_token'])['scopes'] ?? null, 'A scope the admin since withdrew must not be granted again');
+        $this->assertSame(['openid', 'email'], $this->oauthJwtClaims($this->oauthJson($refreshed)['access_token'])['scopes'] ?? null, 'A scope the admin since withdrew must not be granted again');
     }
 
     #[Test]
@@ -71,7 +71,7 @@ class TokenLifecycleTest extends TestCase
     {
         $tokens = $this->publicClientTokens('public-client', ['scope' => 'openid profile email']);
 
-        $this->assertSame(['openid', 'profile', 'email'], $this->jwtClaims($tokens['access_token'])['scopes'] ?? null);
+        $this->assertSame(['openid', 'profile', 'email'], $this->oauthJwtClaims($tokens['access_token'])['scopes'] ?? null);
     }
 
     #[Test]
@@ -90,7 +90,7 @@ class TokenLifecycleTest extends TestCase
     public function userinfo_records_when_and_where_a_token_was_used(): void
     {
         $tokens = $this->publicClientTokens('public-client', ['scope' => 'openid profile']);
-        $tokenId = $this->jwtClaims($tokens['access_token'])['jti'];
+        $tokenId = $this->oauthJwtClaims($tokens['access_token'])['jti'];
 
         $this->assertNull(AccessToken::query()->findOrFail($tokenId)->last_used_at);
 
@@ -120,7 +120,7 @@ class TokenLifecycleTest extends TestCase
     public function refreshed_id_token_keeps_the_original_auth_time(): void
     {
         $tokens = $this->publicClientTokens('public-client', ['scope' => 'openid profile']);
-        $authTime = $this->jwtClaims($tokens['id_token'])['auth_time'] ?? null;
+        $authTime = $this->oauthJwtClaims($tokens['id_token'])['auth_time'] ?? null;
         $this->assertIsInt($authTime, 'The first ID token carries auth_time');
 
         $refreshed = $this->token([
@@ -130,9 +130,9 @@ class TokenLifecycleTest extends TestCase
         ]);
         $this->assertSame(200, $refreshed->getStatusCode(), (string) $refreshed->getBody());
 
-        $idToken = $this->json($refreshed)['id_token'] ?? null;
+        $idToken = $this->oauthJson($refreshed)['id_token'] ?? null;
         $this->assertIsString($idToken, 'A refresh with the openid scope returns an ID token');
-        $this->assertSame($authTime, $this->jwtClaims($idToken)['auth_time'] ?? null, 'auth_time must survive a refresh');
+        $this->assertSame($authTime, $this->oauthJwtClaims($idToken)['auth_time'] ?? null, 'auth_time must survive a refresh');
     }
 
     #[Test]
@@ -149,7 +149,7 @@ class TokenLifecycleTest extends TestCase
         ]);
 
         $this->assertSame(401, $refreshed->getStatusCode(), (string) $refreshed->getBody());
-        $this->assertSame('invalid_client', $this->json($refreshed)['error']);
+        $this->assertSame('invalid_client', $this->oauthJson($refreshed)['error']);
     }
 
     #[Test]

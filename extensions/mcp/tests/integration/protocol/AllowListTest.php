@@ -10,8 +10,8 @@
 namespace Flarum\Mcp\Tests\integration\protocol;
 
 use Flarum\Mcp\Extend\Mcp;
-use Flarum\Mcp\Tests\integration\IssuesOAuthTokens;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\IssuesOAuthTokens;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use Laminas\Diactoros\Uri;
 use PHPUnit\Framework\Attributes\Test;

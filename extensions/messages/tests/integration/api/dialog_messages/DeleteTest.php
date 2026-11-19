@@ -10,6 +10,7 @@
 namespace Flarum\Messages\Tests\integration\api\dialog_messages;
 
 use Carbon\Carbon;
+use Flarum\Group\Group;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -45,10 +46,12 @@ class DeleteTest extends TestCase
             ],
         ]);
 
-        // Anything other than "until reply" reaches the delete without the
-        // policy having loaded the dialog, which is the case the first/last
-        // pointers used to be lost in.
-        $this->setting('flarum-messages.allow_delete_own_messages', '-1');
+        // Deleting for good is a permission of its own.
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'dialog.deleteMessages', 'group_id' => Group::MEMBER_ID],
+            ],
+        ]);
     }
 
     protected function delete(int $messageId, int $actor = 3): int

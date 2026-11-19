@@ -14,7 +14,7 @@ use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
 use Flarum\ExtensionManager\Run\StepsFactory;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**

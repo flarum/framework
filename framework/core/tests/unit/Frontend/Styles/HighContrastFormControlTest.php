@@ -9,12 +9,10 @@
 
 namespace Flarum\Tests\unit\Frontend\Styles;
 
+use Flarum\Testing\CompiledColors;
 use Flarum\Testing\unit\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-
-// The monorepo's test autoloader doesn't map Flarum\Tests to core's tests.
-require_once __DIR__.'/CompiledColors.php';
 
 /**
  * The high contrast themes promise fields that can be found, followed and

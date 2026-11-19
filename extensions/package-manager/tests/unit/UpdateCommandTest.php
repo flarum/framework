@@ -16,7 +16,7 @@ use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StartLock;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\SavedManifests;
 use Flarum\ExtensionManager\Work\WorkDir;
 use Flarum\Foundation\Paths;

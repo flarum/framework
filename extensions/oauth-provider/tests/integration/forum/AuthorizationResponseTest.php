@@ -10,7 +10,7 @@
 namespace Flarum\OAuthProvider\Tests\integration\forum;
 
 use Flarum\Extend;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -116,7 +116,7 @@ class AuthorizationResponseTest extends TestCase
         $response = $this->authorize($query);
 
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame('invalid_request', $this->json($response)['error']);
+        $this->assertSame('invalid_request', $this->oauthJson($response)['error']);
     }
 
     #[Test]
@@ -157,7 +157,7 @@ class AuthorizationResponseTest extends TestCase
             $response = $this->authorize($this->query('loopback-public', ['redirect_uri' => $uri]));
 
             $this->assertSame(401, $response->getStatusCode(), $uri);
-            $this->assertSame('invalid_client', $this->json($response)['error']);
+            $this->assertSame('invalid_client', $this->oauthJson($response)['error']);
         }
     }
 

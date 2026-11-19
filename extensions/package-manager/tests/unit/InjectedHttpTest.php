@@ -12,7 +12,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Packagist;
 use Flarum\ExtensionManager\Plan\Nightly;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;

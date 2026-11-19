@@ -66,6 +66,27 @@ export default [
     )
     .permission(
       () => ({
+        icon: 'fas fa-pencil-alt',
+        label: app.translator.trans('flarum-messages.admin.permissions.edit_own_messages_label'),
+        id: 'flarum-messages.allow_edit_own_messages',
+        setting: () => (
+          <SettingDropdown
+            default={'reply'}
+            key="flarum-messages.allow_edit_own_messages"
+            options={[
+              { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
+              { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') },
+              { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') },
+              { value: '0', label: app.translator.trans('core.admin.permissions_controls.allow_never_button') },
+            ]}
+          />
+        ),
+      }),
+      'reply',
+      81
+    )
+    .permission(
+      () => ({
         icon: 'far fa-trash-alt',
         label: app.translator.trans('flarum-messages.admin.permissions.delete_own_messages_label'),
         id: 'flarum-messages.allow_delete_own_messages',
@@ -74,7 +95,7 @@ export default [
 
           return (
             <SettingDropdown
-              default={'0'}
+              default={'reply'}
               key="flarum-messages.allow_delete_own_messages"
               options={[
                 { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
@@ -98,6 +119,16 @@ export default [
       }),
       'moderate',
       96
+    )
+    .permission(
+      () => ({
+        icon: 'fas fa-times',
+        label: app.translator.trans('flarum-messages.admin.permissions.delete_messages_forever_label'),
+        permission: 'dialog.deleteMessages',
+        allowGuest: false,
+      }),
+      'moderate',
+      95
     )
     .permission(
       () => ({

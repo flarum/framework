@@ -85,6 +85,9 @@ class Conversations
             'author' => $document->username($message),
             'createdAt' => Document::attribute($message, 'createdAt'),
             'content' => ApiResult::truncate($text, $excerpt ?? ApiResult::MAX_STRING_LENGTH),
+            'editedAt' => Document::attribute($message, 'editedAt'),
+            // Deleted, in a way that can be undone: only its author sees what it said.
+            'deleted' => Document::attribute($message, 'isHidden') ? true : null,
         ], fn ($value) => $value !== null);
     }
 

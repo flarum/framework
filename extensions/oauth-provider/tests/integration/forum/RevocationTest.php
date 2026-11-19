@@ -12,7 +12,7 @@ namespace Flarum\OAuthProvider\Tests\integration\forum;
 use Flarum\Extend;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\RefreshToken;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -65,7 +65,7 @@ class RevocationTest extends TestCase
 
     protected function tokenRow(string $jwt): AccessToken
     {
-        return AccessToken::query()->findOrFail($this->jwtClaims($jwt)['jti']);
+        return AccessToken::query()->findOrFail($this->oauthJwtClaims($jwt)['jti']);
     }
 
     #[Test]
@@ -95,7 +95,7 @@ class RevocationTest extends TestCase
 
         $refresh = $this->token(['grant_type' => 'refresh_token', 'client_id' => 'public-client', 'refresh_token' => $tokens['refresh_token']]);
         $this->assertSame(400, $refresh->getStatusCode());
-        $this->assertSame('invalid_grant', $this->json($refresh)['error']);
+        $this->assertSame('invalid_grant', $this->oauthJson($refresh)['error']);
     }
 
     #[Test]
@@ -106,13 +106,13 @@ class RevocationTest extends TestCase
 
         $rotated = $this->token(['grant_type' => 'refresh_token', 'client_id' => 'public-client', 'refresh_token' => $first['refresh_token']]);
         $this->assertSame(200, $rotated->getStatusCode(), (string) $rotated->getBody());
-        $current = $this->json($rotated);
+        $current = $this->oauthJson($rotated);
         $this->assertFalse($this->tokenRow($current['access_token'])->revoked);
 
         // The old refresh token shows up again: someone kept a copy.
         $reuse = $this->token(['grant_type' => 'refresh_token', 'client_id' => 'public-client', 'refresh_token' => $first['refresh_token']]);
         $this->assertSame(400, $reuse->getStatusCode());
-        $this->assertSame('invalid_grant', $this->json($reuse)['error']);
+        $this->assertSame('invalid_grant', $this->oauthJson($reuse)['error']);
 
         $row = $this->tokenRow($current['access_token']);
         $this->assertTrue($row->revoked);
@@ -161,7 +161,7 @@ class RevocationTest extends TestCase
     {
         $response = $this->revoke(['token' => 'garbage', 'client_id' => 'confidential-client', 'client_secret' => 'wrong']);
         $this->assertSame(401, $response->getStatusCode());
-        $this->assertSame('invalid_client', $this->json($response)['error']);
+        $this->assertSame('invalid_client', $this->oauthJson($response)['error']);
 
         $response = $this->revoke(['token' => 'garbage'], ['Authorization' => 'Basic '.base64_encode('confidential-client:test-secret')]);
         $this->assertSame(200, $response->getStatusCode());
@@ -173,6 +173,6 @@ class RevocationTest extends TestCase
         $response = $this->revoke(['client_id' => 'public-client']);
 
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame('invalid_request', $this->json($response)['error']);
+        $this->assertSame('invalid_request', $this->oauthJson($response)['error']);
     }
 }
