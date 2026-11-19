@@ -11,8 +11,8 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
-use Psr\Log\LoggerInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use Psr\Log\LoggerInterface;
 
 class Middleware implements ExtenderInterface
 {
