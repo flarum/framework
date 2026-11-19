@@ -114,7 +114,14 @@ class AccessTokenResource extends AbstractDatabaseResource
                 ->ui(['column' => 60, 'label' => 'core.admin.access_tokens.columns.last_ip_address']),
             Schema\Str::make('device')
                 ->ui(['column' => 70, 'label' => 'core.admin.access_tokens.columns.device'])
+                ->nullable()
                 ->get(function (#[\SensitiveParameter] AccessToken $token) {
+                    // Without one, Agent falls back to the current request's headers and
+                    // would describe the viewer's browser instead.
+                    if (! $token->last_user_agent) {
+                        return null;
+                    }
+
                     $agent = new Agent();
                     $agent->setUserAgent($token->last_user_agent);
 

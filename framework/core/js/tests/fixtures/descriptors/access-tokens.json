@@ -142,6 +142,7 @@
             "name": "device",
             "kind": "string",
             "label": "Device",
+            "nullable": true,
             "ui": {
                 "column": 70
             }
