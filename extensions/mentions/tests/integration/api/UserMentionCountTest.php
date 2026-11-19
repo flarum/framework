@@ -183,6 +183,39 @@ class UserMentionCountTest extends TestCase
     }
 
     #[Test]
+    #[DataProvider('forumComposerResources')]
+    public function creation_includes_the_updated_count_for_a_mentioned_user(string $type): void
+    {
+        $this->reply('@"potato"#3 first mention');
+        $this->assertSame(1, $this->mentionCountOf(3));
+
+        $data = ['type' => $type, 'attributes' => ['content' => '@"potato"#3 second mention']];
+        if ($type === 'discussions') {
+            $data['attributes']['title'] = 'Mentioning another user';
+        } else {
+            $data['relationships']['discussion']['data'] = ['type' => 'discussions', 'id' => '2'];
+        }
+
+        $response = $this->send($this->request('POST', '/api/'.$type, [
+            'authenticatedAs' => 2,
+            'json' => ['data' => $data],
+        ]));
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+        $payload = json_decode($response->getBody(), true);
+        $recipients = array_values(array_filter($payload['included'], fn ($item) => $item['type'] === 'users' && $item['id'] === '3'));
+        $this->assertCount(1, $recipients);
+        $this->assertSame(2, $recipients[0]['attributes']['mentionCount']);
+        $this->assertSame(2, $this->mentionCountOf(3));
+    }
+
+    public static function forumComposerResources(): iterable
+    {
+        yield 'reply composer' => ['posts'];
+        yield 'discussion composer' => ['discussions'];
+    }
+
+    #[Test]
     public function approving_an_already_synced_mention_updates_the_count()
     {
         $this->extension('flarum-approval', 'flarum-flags');

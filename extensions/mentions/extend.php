@@ -67,6 +67,9 @@ return [
 
     (new Extend\ApiResource(Resource\PostResource::class))
         ->fields(PostResourceFields::class)
+        ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint
+            ->addDefaultInclude(['mentionsUsers'])
+            ->eagerLoadWhenIncluded(['mentionsUsers' => ['mentionsUsers.groups']]))
         ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint): Endpoint\Endpoint {
             return $endpoint->addDefaultInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion']);
         })
@@ -75,6 +78,9 @@ return [
         }),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint
+            ->addDefaultInclude(['firstPost.mentionsUsers'])
+            ->eagerLoadWhenIncluded(['firstPost.mentionsUsers' => ['firstPost.mentionsUsers.groups']]))
         ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
             return $endpoint->eagerLoadWhenIncluded([
                 'firstPost' => [
