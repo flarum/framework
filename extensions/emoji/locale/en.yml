@@ -7,6 +7,12 @@ flarum-emoji:
   # Translations in this namespace are used by the admin interface.
   admin:
 
+    # These translations are used for the section headings on the Settings page.
+    sections:
+      images:
+        description: Where the emoji images shown in posts and the composer are loaded from.
+        label: Emoji images
+
     # These translations are used in the Settings page of the admin interface.
     settings:
       cdn_label: CDN mirror address

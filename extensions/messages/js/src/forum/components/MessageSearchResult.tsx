@@ -35,7 +35,8 @@ export default class MessageSearchResult<CustomAttrs extends IMessageSearchResul
     const items = new ItemList<Mithril.Children>();
     const message = this.attrs.message;
     const dialog = message.dialog();
-    const recipient = dialog ? dialog.recipient() : null;
+    // A group by its title, which names its members.
+    const withWhom = dialog && dialog.isGroup() ? dialog.title() : username((dialog && dialog.recipient()) || null);
 
     items.add('avatar', <Avatar user={message.user() || null} />, 100);
 
@@ -45,11 +46,17 @@ export default class MessageSearchResult<CustomAttrs extends IMessageSearchResul
         <div className="MessageSearchResult-title">
           {/* One element, so the title and the time are the row's only two parts. */}
           <span className="MessageSearchResult-conversation">
-            {app.translator.trans('flarum-messages.forum.search_source.conversation_with', { username: username(recipient || null) })}
+            {app.translator.trans('flarum-messages.forum.search_source.conversation_with', { username: withWhom })}
           </span>
           {humanTime(message.createdAt())}
         </div>
-        <div className="MessageSearchResult-excerpt">{highlight(message.contentPlain() ?? '', this.highlightRegExp(), 175)}</div>
+        <div className="MessageSearchResult-excerpt">
+          {/* Only its author finds a deleted message, and sees that it is. */}
+          {message.isHidden() && (
+            <em className="MessageSearchResult-deleted">{app.translator.trans('flarum-messages.forum.message.deleted_text')} </em>
+          )}
+          {highlight(message.contentPlain() ?? '', this.highlightRegExp(), 175)}
+        </div>
       </div>,
       90
     );

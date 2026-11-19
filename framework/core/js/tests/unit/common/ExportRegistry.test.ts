@@ -217,6 +217,36 @@ describe('ExportRegistry chunks that are not registered yet (#5103)', () => {
     }
   }
 
+  it('loads a chunk from its immutable revision filename', async () => {
+    const manifest = document.createElement('script');
+    manifest.id = 'flarum-rev-manifest';
+    manifest.type = 'application/json';
+    manifest.textContent = JSON.stringify({ 'js/flarum-deck/forum/components/DeckPickerModal.js': 'abc123' });
+    document.body.appendChild(manifest);
+    try {
+      const registry = new ExportRegistry();
+      const original = makeScriptLoader(['load']);
+      await withForumAttributes(() =>
+        registry.loadChunk(
+          original as any,
+          'https://cdn.example.com/assets/forum/components/DeckPickerModal.js',
+          jest.fn() as any,
+          0,
+          436,
+          'flarum-deck'
+        )
+      );
+      expect(original).toHaveBeenCalledWith(
+        'https://cdn.example.com/assets/js/flarum-deck/forum/components/DeckPickerModal.abc123.js',
+        expect.any(Function),
+        0,
+        436
+      );
+    } finally {
+      manifest.remove();
+    }
+  });
+
   it('rebuilds the url of an unregistered chunk from its namespace', async () => {
     const registry = new ExportRegistry();
     const original = makeScriptLoader(['load']);

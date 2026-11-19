@@ -57,6 +57,23 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function user_can_list_tokens_with_a_token_header()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/access-tokens')
+                ->withQueryParams(['filter' => ['user' => 1]])
+                ->withAddedHeader('Authorization', 'Token c')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $data = json_decode((string) $response->getBody(), true)['data'];
+
+        $this->assertNotEmpty($data);
+        $this->assertEquals([false], array_values(array_unique(array_column(array_column($data, 'attributes'), 'isCurrent'))));
+    }
+
+    #[Test]
     #[DataProvider('canViewTokensDataProvider')]
     public function user_can_view_access_tokens(int $authenticatedAs, array $canViewIds)
     {
@@ -70,6 +87,9 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode(), $contents);
         $this->assertEqualsCanonicalizing(array_merge($canViewIds, [$testsTokenId]), Arr::pluck($data, 'id'));
+
+        $currentIds = Arr::pluck(array_filter($data, fn (array $token) => $token['attributes']['isCurrent']), 'id');
+        $this->assertEquals([$testsTokenId], $currentIds);
     }
 
     #[Test]

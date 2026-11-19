@@ -1,13 +1,14 @@
 import app from 'flarum/admin/app';
 import apiUrl from '../apiUrl';
-import { alertError } from '../errors';
+import { alertOnce } from '../errors';
+import { confirmRollback, requestRollback } from '../rollback';
 import { pollOutcome, runIsOver, shouldPoll } from '../runState';
 import type { RollbackPayload, Run, StatePayload, StepPayload } from '../types';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
+import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
 import type RequestError from 'flarum/common/utils/RequestError';
 import type Mithril from 'mithril';
-import { confirmAction } from './ConfirmModal';
 
 const PHASES = ['plan', 'fetch', 'apply', 'finalise'];
 
@@ -32,14 +33,23 @@ function stepLabel(item: string): string {
   return STEPS.includes(step) ? app.translator.trans('flarum-extension-manager.admin.run.steps.' + step, {}, true) : item;
 }
 
-/** "finalise → register" from the runner, as "Finishing up → Updating Composer's records". */
-function whereLabel(where: string | null): string {
-  if (!where) return '';
-  const [raw, item] = String(where).split(' → ');
-  const phase = raw.replace(/ \(planning\)$/, '');
+/**
+ * Where a run stopped, in one sentence: "It stopped during: Finishing up →
+ * Updating Composer's records". Built from the phase and item the server
+ * records, never from its log text. A run with no phase recorded (the queue
+ * worker died, or it failed before the server kept one) shows the server's
+ * own description, which it translated.
+ */
+function failedAt(run: Run): string {
+  const phase = run.errorPhase;
+
+  if (!phase) return app.translator.trans('flarum-extension-manager.admin.run.failed_at', { step: run.errorStep || '' }, true);
+
   const named = PHASES.includes(phase) ? app.translator.trans('flarum-extension-manager.admin.run.phases.' + phase, {}, true) : phase;
 
-  return item ? named + ' → ' + stepLabel(item) : named;
+  return run.errorItem
+    ? app.translator.trans('flarum-extension-manager.admin.run.failed_at_step', { phase: named, step: stepLabel(run.errorItem) }, true)
+    : app.translator.trans('flarum-extension-manager.admin.run.failed_at', { step: named }, true);
 }
 
 export interface RunPanelAttrs extends ComponentAttrs {
@@ -70,18 +80,21 @@ export interface RunPanelAttrs extends ComponentAttrs {
  */
 export default class RunPanel extends Component<RunPanelAttrs> {
   /** Consecutive failed polls. A host hiccup is not a failed update. */
-  private misses = 0;
-  private polling = false;
-  private rollingBack = false;
+  protected misses = 0;
+  protected polling = false;
+  protected rollingBack = false;
   /** True once we have fallen back to reading progress instead of driving it. */
-  private watching = false;
+  protected watching = false;
   /** The HTTP status of the last failed drive, so the panel can be specific. */
-  private lastStatus: number | null = null;
+  protected lastStatus: number | null = null;
   /** What the last failure means and what to do next — see runState.pollOutcome. */
-  private outcome = pollOutcome(null, 0);
+  protected outcome = pollOutcome(null, 0);
+
+  /** One alert for a run of failed polls, not one per poll. */
+  protected pollAlert = alertOnce();
 
   /** The run the loop is following, so a new one starts with a clean slate. */
-  private following: string | null = null;
+  protected following: string | null = null;
 
   oncreate(vnode: Mithril.VnodeDOM<RunPanelAttrs, this>) {
     super.oncreate(vnode);
@@ -99,7 +112,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     this.follow();
   }
 
-  private follow() {
+  protected follow() {
     const run = this.attrs.run;
 
     if (run?.id && run.id !== this.following) {
@@ -109,6 +122,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
       this.watching = false;
       this.lastStatus = null;
       this.outcome = pollOutcome(null, 0);
+      this.pollAlert.clear();
     }
 
     if (!this.rollingBack && shouldPoll(run, this.polling)) {
@@ -119,6 +133,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
   onremove() {
     // Stops the loop rescheduling itself once the page is gone.
     this.polling = false;
+    this.pollAlert.clear();
   }
 
   /** Which extensions this run is for: the names, or the first few and a count. */
@@ -144,6 +159,15 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
     return (
       <div className={'ExtensionManager-run' + (failed ? ' ExtensionManager-run--failed' : '')}>
+        {/*
+         * What a screen reader hears, in one place. The visible text changes
+         * all over the panel, and marking each piece live would read some of it
+         * twice. Progress and the end of a run are polite; a failure is said
+         * once, by the alert role on where it stopped.
+         */}
+        <div className="visually-hidden" role="status" aria-live="polite">
+          {this.announcement(run)}
+        </div>
         <div className="ExtensionManager-runHead">
           <div>
             <h3>
@@ -167,8 +191,8 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
         {failed ? (
           <div className="ExtensionManager-error">
-            <div className="ExtensionManager-errorWhere">
-              {app.translator.trans('flarum-extension-manager.admin.run.failed_at', { step: whereLabel(run.errorStep) })}
+            <div className="ExtensionManager-errorWhere" role="alert">
+              {failedAt(run)}
             </div>
             <pre className="ExtensionManager-errorText">{run.error}</pre>
             {/*
@@ -177,7 +201,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
              * exactly as reversible as a complete one — and this is the moment
              * somebody most needs to know that.
              */}
-            <Button className="Button" disabled={this.rollingBack} onclick={() => this.rollback()}>
+            <Button className="Button" disabled={this.rollingBack} onclick={() => this.confirmRollback(run)}>
               {this.rollingBack
                 ? app.translator.trans('flarum-extension-manager.admin.run.rolling_back')
                 : app.translator.trans('flarum-extension-manager.admin.run.roll_back')}
@@ -200,17 +224,19 @@ export default class RunPanel extends Component<RunPanelAttrs> {
          */}
         {rolled && run.error ? (
           <div className="ExtensionManager-error">
-            <div className="ExtensionManager-errorWhere">
-              {app.translator.trans('flarum-extension-manager.admin.run.failed_at', { step: whereLabel(run.errorStep) })}
-            </div>
+            <div className="ExtensionManager-errorWhere">{failedAt(run)}</div>
             <pre className="ExtensionManager-errorText">{run.error}</pre>
           </div>
         ) : null}
 
-        {this.attrs.rollbackNote ? <div className="ExtensionManager-next">{this.attrs.rollbackNote}</div> : null}
+        {this.attrs.rollbackNote ? (
+          <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice">
+            {this.attrs.rollbackNote}
+          </Alert>
+        ) : null}
 
         {this.misses > 2 && !done && !failed && !rolled ? (
-          <div className="ExtensionManager-stall">
+          <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice">
             {/*
              * Says WHICH problem. A 400 or 401 here is an expired session —
              * the update is fine and a reload fixes the screen — and telling
@@ -218,14 +244,18 @@ export default class RunPanel extends Component<RunPanelAttrs> {
              * update.
              */}
             {this.outcome.message === 'unauthorised'
-              ? app.translator.trans('flarum-extension-manager.admin.run.poll_unauthorised')
-              : app.translator.trans('flarum-extension-manager.admin.run.poll_failing', { count: this.misses })}
-            {this.watching ? ' ' + app.translator.trans('flarum-extension-manager.admin.run.watching_only', {}, true) : ''}
-          </div>
+              ? app.translator.trans('flarum-extension-manager.admin.run.cannot_drive', { watching: this.watching ? 'yes' : 'no' })
+              : app.translator.trans('flarum-extension-manager.admin.run.cannot_reach', {
+                  count: this.misses,
+                  watching: this.watching ? 'yes' : 'no',
+                })}
+          </Alert>
         ) : null}
 
         {this.attrs.busy && !done && !failed && !rolled ? (
-          <div className="ExtensionManager-stall">{app.translator.trans('flarum-extension-manager.admin.run.another_driver')}</div>
+          <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice">
+            {app.translator.trans('flarum-extension-manager.admin.run.another_driver')}
+          </Alert>
         ) : null}
 
         {/*
@@ -235,7 +265,9 @@ export default class RunPanel extends Component<RunPanelAttrs> {
          * says exactly what went wrong.
          */}
         {this.attrs.stale && !done && !failed && !rolled ? (
-          <div className="ExtensionManager-stall">{app.translator.trans('flarum-extension-manager.admin.run.nothing_moved')}</div>
+          <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice">
+            {app.translator.trans('flarum-extension-manager.admin.run.nothing_moved')}
+          </Alert>
         ) : null}
 
         {/*
@@ -290,6 +322,23 @@ export default class RunPanel extends Component<RunPanelAttrs> {
           </ol>
         </details>
       </div>
+    );
+  }
+
+  /** The live region's sentence: progress while running, the outcome once it ends, nothing for a failure (the alert says it). */
+  announcement(run: Run): string {
+    if (run.state === 'done') return app.translator.trans('flarum-extension-manager.admin.run.done', {}, true);
+    if (run.state === 'rolled-back') return app.translator.trans('flarum-extension-manager.admin.run.rolled_back', {}, true);
+    if (run.state === 'failed') return '';
+
+    const total = (run.items || []).length;
+
+    if (!total) return run.phase === 'plan' ? app.translator.trans('flarum-extension-manager.admin.run.working_out', {}, true) : '';
+
+    return app.translator.trans(
+      'flarum-extension-manager.admin.run.working_on',
+      { item: stepLabel(run.items[Math.min(run.index, total - 1)]), index: Math.min(run.index + 1, total), total },
+      true
     );
   }
 
@@ -378,9 +427,10 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     if (!this.polling) return;
 
     app
-      .request<StepPayload>({ method: 'POST', url: apiUrl() + '/extension-manager/step' })
+      .request<StepPayload>({ method: 'POST', url: apiUrl() + '/extension-manager/step', errorHandler: this.pollAlert.handler })
       .then((data) => {
         this.misses = 0;
+        this.pollAlert.clear();
         this.attrs.onprogress(data);
 
         if (data.idle) {
@@ -430,9 +480,9 @@ export default class RunPanel extends Component<RunPanelAttrs> {
    * Keeps polling on the same backoff so a transient failure recovers into
    * driving again by itself.
    */
-  private watch() {
+  protected watch() {
     app
-      .request<StatePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/state' })
+      .request<StatePayload>({ method: 'GET', url: apiUrl() + '/extension-manager/state', errorHandler: this.pollAlert.handler })
       .then((data) => {
         this.watching = true;
 
@@ -441,6 +491,8 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
           if (runIsOver(data.run)) {
             this.polling = false;
+            // The run's outcome is on screen now, which says more than the alert.
+            this.pollAlert.clear();
             this.attrs.ondone(data.run);
             m.redraw();
 
@@ -458,19 +510,9 @@ export default class RunPanel extends Component<RunPanelAttrs> {
       });
   }
 
-  /** Undoing a run that worked is asked for, and says whether the database goes back too. */
+  /** Undoing a run is asked for, finished or failed, and says whether the database goes back too. */
   confirmRollback(run: Run) {
-    const count = run.migrations?.length || 0;
-
-    confirmAction({
-      title: app.translator.trans('flarum-extension-manager.admin.run.roll_back'),
-      message: count
-        ? app.translator.trans('flarum-extension-manager.admin.run.roll_back_confirm_db', { count })
-        : app.translator.trans('flarum-extension-manager.admin.run.roll_back_confirm'),
-      confirmText: app.translator.trans('flarum-extension-manager.admin.run.roll_back'),
-      danger: true,
-      onconfirm: () => this.rollback(),
-    });
+    confirmRollback(run, () => this.rollback());
   }
 
   rollback() {
@@ -478,12 +520,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     this.polling = false;
     m.redraw();
 
-    app
-      .request<RollbackPayload>({
-        method: 'POST',
-        url: apiUrl() + '/extension-manager/rollback',
-        errorHandler: alertError('flarum-extension-manager.admin.run.rollback_failed'),
-      })
+    requestRollback()
       .then((data) => {
         this.rollingBack = false;
         this.attrs.onrollback(data);

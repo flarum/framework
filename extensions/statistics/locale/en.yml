@@ -25,6 +25,8 @@ flarum-statistics:
       last_28_days_label: Last 28 days
       last_7_days_label: Last 7 days
       mini_heading: Forum statistics
+      new_during_label: New during
+      period_toggle_accessible_label: Select period for new items
       previous_28_days_label: Previous 28 days
       previous_7_days_label: Previous 7 days
       custom_label: Choose custom range...

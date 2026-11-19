@@ -9,6 +9,7 @@
 
 namespace Flarum\Messages;
 
+use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Audit\Extend\Audit as AuditExtend;
@@ -20,6 +21,7 @@ use Flarum\Realtime\Extend\Realtime as RealtimeExtend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Statistics\Extend\Statistics as StatisticsExtend;
 use Flarum\User\User;
+use Illuminate\Mail\Events\MessageSending;
 
 return [
     (new Extend\Frontend('forum'))
@@ -36,6 +38,14 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\View())->namespace('flarum-messages', __DIR__.'/views'),
+
+    (new Extend\Settings())
+        ->default(RecipientLimit::SETTING, RecipientLimit::DEFAULT)
+        ->default(GroupNames::SETTING, false)
+        ->default(RecipientGroups::SETTING, '[]')
+        ->default(Access\DialogMessagePolicy::EDIT_OWN, 'reply')
+        ->default(Access\DialogMessagePolicy::DELETE_OWN, 'reply')
+        ->serializeToForum('messagesMaxRecipients', RecipientLimit::SETTING, RecipientLimit::clamp(...)),
 
     (new Extend\Model(User::class))
         ->belongsToMany('dialogs', Dialog::class, 'dialog_user')
@@ -57,6 +67,9 @@ return [
 
     new Extend\ApiResource(Api\Resource\DialogMessageResource::class),
 
+    (new Extend\ApiResource(Resource\GroupResource::class))
+        ->fields(Api\GroupResourceFields::class),
+
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(Api\UserResourceFields::class),
 
@@ -71,6 +84,7 @@ return [
         ->addSearcher(DialogMessage::class, Search\DialogMessageSearcher::class)
         ->setFulltext(Search\DialogMessageSearcher::class, Search\FulltextFilter::class)
         ->addFilter(Search\DialogMessageSearcher::class, DialogMessage\Filter\DialogFilter::class)
+        ->addFilter(Search\DialogMessageSearcher::class, DialogMessage\Filter\IdFilter::class)
         ->addFilter(Search\DialogSearcher::class, Dialog\Filter\UnreadFilter::class),
 
     (new Extend\ServiceProvider())
@@ -80,9 +94,11 @@ return [
         ->type(Notification\MessageReceivedBlueprint::class, ['email']),
 
     (new Extend\Event())
+        ->listen(MessageSending::class, Listener\CheckMessageEmailAccess::class)
         ->listen(DialogMessage\Event\Created::class, Listener\SendNotificationWhenMessageSent::class)
         ->listen(DialogMessage\Event\Created::class, Listener\UpdateMentionsMetadataWhenVisible::class)
-        ->listen(DialogMessage\Event\Updated::class, Listener\UpdateMentionsMetadataWhenVisible::class),
+        ->listen(DialogMessage\Event\Revised::class, Listener\UpdateMentionsMetadataWhenVisible::class)
+        ->subscribe(Listener\HideNotificationsWhenMessageHidden::class),
 
     (new Extend\Conditional())
         // The mention relationships, on by default only where their resources
@@ -97,6 +113,31 @@ return [
                 ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
                     ->addDefaultInclude(['mentionsTags'])),
         ])
+        // Members can like what's said in their conversations, under the
+        // rules for liking posts.
+        ->whenExtensionEnabled('flarum-likes', fn () => [
+            (new Extend\ApiResource(Api\Resource\DialogMessageResource::class))
+                ->fields(Api\DialogMessageLikeFields::class)
+                ->endpoints(Api\DialogMessageLikeEndpoints::class)
+                // Whether a member may like a message turns on whether they may
+                // reply in its conversation, which reads its members' groups.
+                ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
+                    ->addDefaultInclude(['likes'])
+                    ->eagerLoad(['dialog.users.groups'])),
+
+            (new Extend\ThrottleApi())
+                ->set('messageLikeTimeout', Api\DialogMessageLikeThrottler::class),
+
+            (new Extend\Notification())
+                ->type(Notification\MessageLikedBlueprint::class, ['alert']),
+
+            (new Extend\ApiResource(Resource\NotificationResource::class))
+                ->endpoint([Endpoint\Show::class, Endpoint\Index::class], fn (Endpoint\Show|Endpoint\Index $endpoint) => $endpoint
+                    ->beforeSerialization(fn (Context $context, mixed $data) => resolve(Api\LoadLikedMessageSubjects::class)($context, $data))),
+
+            (new Extend\Event())
+                ->subscribe(Listener\SendNotificationWhenMessageLiked::class),
+        ])
         // Messages are personal data: exported with the member, addresses removed
         // when they are anonymised, gone when they are erased.
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
@@ -108,6 +149,27 @@ return [
                 ->broadcastDialogEvent(
                     DialogMessage\Event\Created::class,
                     fn ($event) => $event->message,
+                )
+                // Raised only with flarum/likes enabled.
+                ->broadcastDialogEvent(
+                    [DialogMessage\Event\Liked::class, DialogMessage\Event\Unliked::class],
+                    fn ($event) => $event->message,
+                )
+                // Edited, deleted and restored: each member gets the message as
+                // they may now see it.
+                ->broadcastDialogEvent(
+                    [DialogMessage\Event\Revised::class, DialogMessage\Event\Hidden::class, DialogMessage\Event\Restored::class],
+                    fn ($event) => $event->message,
+                )
+                // Deleted for good: there is nothing left to send but which it was.
+                ->broadcastDialogRemoval(
+                    DialogMessage\Event\Deleted::class,
+                    fn (DialogMessage\Event\Deleted $event) => [
+                        'id' => $event->message->id,
+                        'dialogId' => $event->dialogId,
+                        'dialogDeleted' => $event->dialogDeleted,
+                        'userIds' => $event->memberIds,
+                    ],
                 )
                 ->registerModelEndpoint(DialogMessage::class, 'dialog-messages')
                 ->registerModelEndpoint(Dialog::class, 'dialogs'),
@@ -122,6 +184,6 @@ return [
         ->whenExtensionEnabled('flarum-statistics', fn () => [
             (new StatisticsExtend())
                 ->entity('dialogs', fn () => Dialog::query(), 'created_at')
-                ->entity('dialog_replies', fn () => DialogMessage::query()->where('number', '>', 1), 'created_at'),
+                ->entity('dialog_replies', fn () => DialogMessage::query()->where('number', '>', 1)->where('type', DialogMessage::COMMENT), 'created_at'),
         ]),
 ];

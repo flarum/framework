@@ -52,7 +52,7 @@ export default class HostPanel extends Component<HostPanelAttrs> {
         <div className="ExtensionManager-checks">
           {checks.map((c) => (
             <div className="ExtensionManager-check" key={c.id}>
-              <div aria-hidden="true">{c.warn ? '⚠️' : c.ok ? '✅' : '❌'}</div>
+              {this.mark(c.warn ? 'warn' : c.ok ? 'ok' : 'fail')}
               <div>
                 <div className="ExtensionManager-check-what">{c.whatKey ? hostLine(c.whatKey, c.whatParams) : c.what}</div>
                 {c.whyKeys ? (
@@ -70,6 +70,19 @@ export default class HostPanel extends Component<HostPanelAttrs> {
         </div>
 
         {phpRow ? this.phpSetting(this.attrs.onchange) : null}
+      </div>
+    );
+  }
+
+  /** A row's status: an icon for the eye, its name for a screen reader. */
+  mark(status: 'ok' | 'warn' | 'fail') {
+    const icon = { ok: 'fas fa-circle-check', warn: 'fas fa-triangle-exclamation', fail: 'fas fa-circle-xmark' }[status];
+    const label = app.translator.trans('flarum-extension-manager.admin.host.status.' + status, {}, true);
+
+    return (
+      <div className={'ExtensionManager-check-mark ExtensionManager-check-mark--' + status} title={label}>
+        <i className={icon} aria-hidden="true" />
+        <span className="visually-hidden">{label}</span>
       </div>
     );
   }

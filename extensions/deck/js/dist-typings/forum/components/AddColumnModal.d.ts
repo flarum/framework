@@ -6,6 +6,8 @@ import type { DeckColumnConfig, DeckColumnField, DeckColumnType } from '../colum
 export interface IAddColumnModalAttrs extends IFormModalAttrs {
     deck: DeckState;
     onadd?: (config: DeckColumnConfig) => void;
+    /** A column to edit, rather than adding one. */
+    column?: DeckColumnConfig;
 }
 export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = IAddColumnModalAttrs> extends FormModal<CustomAttrs> {
     protected type: string | null;
@@ -17,6 +19,11 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     /** What each search field shows for its choice. */
     protected chosen: Record<string, Mithril.Children>;
     protected error: Mithril.Children;
+    /** The name a column being edited is given; empty for the type's own title. */
+    protected name: string;
+    /** A column being edited's settings from its search fields, until something else is picked. */
+    protected kept: DeckColumnConfig['params'];
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
     title(): string | any[];
     content(): JSX.Element;
@@ -28,6 +35,11 @@ export default class AddColumnModal<CustomAttrs extends IAddColumnModalAttrs = I
     fields(): ItemList<Mithril.Children>;
     protected input(field: DeckColumnField): Mithril.Children;
     protected choose(key: string, type: DeckColumnType): void;
+    /**
+     * Fills the form from a column's settings. A search field keeps what the
+     * column was for, under its current title, until something else is picked.
+     */
+    protected startEditing(column: DeckColumnConfig): void;
     /** Filters are written in the search modal, which suggests them as they're typed. */
     protected openFilters(field: DeckColumnField): Promise<void>;
     protected openPicker(field: DeckColumnField): Promise<void>;

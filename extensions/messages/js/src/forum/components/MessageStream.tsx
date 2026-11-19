@@ -9,6 +9,7 @@ import Button from 'flarum/common/components/Button';
 import ScrollListener from 'flarum/common/utils/ScrollListener';
 import Dialog from '../../common/models/Dialog';
 import Message from './Message';
+import EventMessage from './EventMessage';
 import { markRead } from '../utils/readState';
 
 export interface IDialogStreamAttrs extends ComponentAttrs {
@@ -164,6 +165,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
         <div className="MessageStream-item" key="reply">
           <ReplyPlaceholder
             discussion={this.attrs.dialog}
+            headingLevel={3}
             onclick={() => {
               import('flarum/forum/components/ComposerBody').then(() => {
                 app.composer
@@ -188,7 +190,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
     return (
       <div className="MessageStream-item" key={message.id()} data-id={message.id()} data-number={message.number()} tabindex="-1">
         {this.timeGap(message)}
-        <Message message={message} state={this.attrs.state} />
+        {message.isComment() ? <Message message={message} state={this.attrs.state} /> : <EventMessage message={message} />}
       </div>
     );
   }

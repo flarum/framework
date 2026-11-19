@@ -37,6 +37,9 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     public $booted = false;
 
+    protected bool $migrating = false;
+    protected array $migratedIds = [];
+
     public function __construct(
         SettingsRepositoryInterface $config,
         Paths $paths,
@@ -71,7 +74,7 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     public function isEnabled($extension): bool
     {
-        if (! $this->booted) {
+        if (! $this->booted && ! $this->migrating) {
             return false;
         }
 
@@ -83,14 +86,69 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     public function getEnabled(): array
     {
-        return $this->enabledIds;
+        return $this->migrating ? ($this->pendingEnabledExtensions ?? $this->migratedIds) : $this->enabledIds;
+    }
+
+    public function beginMigrationSetup(): void
+    {
+        $this->booted = false;
+        $this->migrating = true;
+        $this->migratedIds = [];
+    }
+
+    public function finishMigrationSetup(): void
+    {
+        $this->migrating = false;
+        $this->booted = true;
+    }
+
+    public function migrateConditional(): void
+    {
+        if (! $this->migrating && method_exists(ExtensionManager::class, 'migrateConditional')) {
+            parent::migrateConditional();
+        }
     }
 
     /**
-     * Enabled extensions must be specified by the test case, so this should do nothing.
+     * Boot the test case's extensions in dependency order, the same way a real forum does.
+     */
+    public function getEnabledExtensions(): array
+    {
+        $selected = parent::getEnabledExtensions();
+
+        // The current and monorepo extensions have their required dependencies cleared, so `enable()`
+        // does not insist on them. Sort copies with dependencies limited to the selected extensions,
+        // so required ones still count for the order and missing ones do not drop anything.
+        $selectedNames = [];
+
+        foreach ($selected as $extension) {
+            $selectedNames[$extension->name] = true;
+        }
+
+        $copies = array_map(function (Extension $extension) use ($selectedNames) {
+            $copy = clone $extension;
+            $copy->calculateDependencies($selectedNames);
+
+            return $copy;
+        }, $selected);
+
+        $enabled = [];
+
+        foreach ($this->sortDependencies($copies) as $copy) {
+            $enabled[$copy->getId()] = $selected[$copy->getId()];
+        }
+
+        return $enabled;
+    }
+
+    /**
+     * Persist migration-setup progress in memory; ordinary test toggles keep the selected set.
      */
     protected function setEnabledExtensions(array $enabledExtensions): void
     {
+        if ($this->migrating) {
+            $this->migratedIds = array_map(fn (Extension $extension) => $extension->getId(), $enabledExtensions);
+        }
     }
 
     /**

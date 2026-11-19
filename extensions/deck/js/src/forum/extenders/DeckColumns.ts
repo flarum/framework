@@ -2,6 +2,7 @@ import type ForumApplication from 'flarum/forum/ForumApplication';
 import type IExtender from 'flarum/common/extenders/IExtender';
 import type { IExtensionModule } from 'flarum/common/extenders/IExtender';
 import deckColumnTypes from '../columns/deckColumnTypes';
+import { membershipEvents } from '../columns/realtimeEvents';
 import type { DeckColumnType } from '../columns/DeckColumnType';
 
 /**
@@ -25,6 +26,7 @@ import type { DeckColumnType } from '../columns/DeckColumnType';
  */
 export default class DeckColumns implements IExtender<ForumApplication> {
   private readonly types: Array<{ key: string; type: DeckColumnType; priority: number }> = [];
+  private readonly events: string[] = [];
 
   add(key: string, type: DeckColumnType, priority: number = 0): this {
     this.types.push({ key, type, priority });
@@ -32,7 +34,21 @@ export default class DeckColumns implements IExtender<ForumApplication> {
     return this;
   }
 
+  /**
+   * Realtime events, as your extension broadcasts them, that can move a
+   * discussion in or out of a filter without anything being posted: such as
+   * choosing a best answer, for an `is:solved` column. Filtered discussion
+   * columns ask the server about that discussion again, rather than only
+   * redrawing it.
+   */
+  membershipEvents(...names: string[]): this {
+    this.events.push(...names);
+
+    return this;
+  }
+
   extend(app: ForumApplication, extension: IExtensionModule): void {
     this.types.forEach(({ key, type, priority }) => deckColumnTypes.add(key, type, priority));
+    this.events.forEach((name) => membershipEvents.add(name));
   }
 }

@@ -12,6 +12,8 @@ export interface IReplyPlaceholderAttrs extends ComponentAttrs {
   discussion: Discussion | Model;
   onclick?: () => void;
   composingReply?: () => boolean;
+  /** The heading level of the author's name while composing. Defaults to 2; pass 3 below a heading of its own. */
+  headingLevel?: 2 | 3;
 }
 
 /**
@@ -25,6 +27,8 @@ export default class ReplyPlaceholder<CustomAttrs extends IReplyPlaceholderAttrs
       : app.composer.composingReplyTo(this.attrs.discussion as Discussion);
 
     if (composingReply) {
+      const Heading = this.attrs.headingLevel === 3 ? 'h3' : 'h2';
+
       return (
         <article className="Post CommentPost editing" aria-busy="true">
           <div className="Post-container">
@@ -34,7 +38,7 @@ export default class ReplyPlaceholder<CustomAttrs extends IReplyPlaceholderAttrs
             <div className="Post-main">
               <header className="Post-header">
                 <div className="PostUser">
-                  <h3 className="PostUser-name">{username(app.session.user)}</h3>
+                  <Heading className="PostUser-name">{username(app.session.user)}</Heading>
                   <ul className="PostUser-badges badges badges--packed">{listItems(app.session.user!.badges().toArray())}</ul>
                 </div>
               </header>

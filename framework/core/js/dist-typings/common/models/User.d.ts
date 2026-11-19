@@ -9,6 +9,8 @@ export default class User extends Model {
     displayName(): string;
     email(): string | undefined;
     isEmailConfirmed(): boolean | undefined;
+    emailBouncedAt(): Date | null | undefined;
+    emailBounceReason(): string | null | undefined;
     password(): string | undefined;
     hasUploadedAvatar(): boolean;
     avatarUrl(): string | null;

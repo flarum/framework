@@ -50,9 +50,11 @@ class SearchTest extends TestCase
         ]);
 
         $this->database()->table('dialog_messages')->insert([
-            ['id' => 201, 'dialog_id' => 201, 'user_id' => 3, 'number' => 1, 'content' => '<t><p>The pineapple arrives tomorrow</p></t>', 'created_at' => $now],
-            ['id' => 202, 'dialog_id' => 201, 'user_id' => 1, 'number' => 2, 'content' => '<t><p>Nothing relevant here</p></t>', 'created_at' => $now],
-            ['id' => 203, 'dialog_id' => 202, 'user_id' => 4, 'number' => 1, 'content' => '<t><p>Pineapple secrets between us</p></t>', 'created_at' => $now],
+            ['id' => 201, 'dialog_id' => 201, 'user_id' => 3, 'number' => 1, 'type' => 'comment', 'content' => '<t><p>The pineapple arrives tomorrow</p></t>', 'created_at' => $now],
+            ['id' => 202, 'dialog_id' => 201, 'user_id' => 1, 'number' => 2, 'type' => 'comment', 'content' => '<t><p>Nothing relevant here</p></t>', 'created_at' => $now],
+            ['id' => 203, 'dialog_id' => 202, 'user_id' => 4, 'number' => 1, 'type' => 'comment', 'content' => '<t><p>Pineapple secrets between us</p></t>', 'created_at' => $now],
+            // A notice, whose content is the name it gave the conversation.
+            ['id' => 204, 'dialog_id' => 201, 'user_id' => 3, 'number' => 3, 'type' => 'renamed', 'content' => '{"name":"Pineapple club"}', 'created_at' => $now],
         ]);
 
         $this->database()->table('dialog_user')->insert([
@@ -107,6 +109,12 @@ class SearchTest extends TestCase
     }
 
     #[Test]
+    public function the_conversations_notices_are_never_found(): void
+    {
+        $this->assertNotContains('204', $this->search('club', 1));
+    }
+
+    #[Test]
     public function a_word_nobody_wrote_finds_nothing(): void
     {
         $this->assertEquals([], $this->search('zeppelin', 1));
@@ -120,5 +128,15 @@ class SearchTest extends TestCase
         );
 
         $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    /** A message its author deleted, in a way that can be undone, is theirs alone to find. */
+    #[Test]
+    public function a_deleted_message_is_found_only_by_its_author(): void
+    {
+        $this->database()->table('dialog_messages')->where('id', 201)->update(['hidden_at' => Carbon::now(), 'hidden_user_id' => 3]);
+
+        $this->assertNotContains('201', $this->search('pineapple', 1));
+        $this->assertContains('201', $this->search('pineapple', 3));
     }
 }

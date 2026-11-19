@@ -47,6 +47,13 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
      * there would put the loading state back on screen.
      */
     protected revalidating: Promise<void> | null;
+    /**
+     * Incremented whenever the list is replaced (`goto()`, and so `refresh()`).
+     * Requests remember the value they started under and discard their response
+     * if it has changed, so a slow response for a previous filter cannot
+     * overwrite the results of the current one.
+     */
+    protected generation: number;
     protected constructor(params?: P, page?: number, pageSize?: number | null);
     abstract get type(): string;
     clear(): void;
@@ -61,6 +68,11 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
      */
     protected errorShownByRequest<T>(promise: Promise<T>): Promise<T>;
     protected parseResults(pg: number, results: ApiResponsePlural<T>): void;
+    /**
+     * Whether the list's search query (`params.q`) holds any gambits, which
+     * only the frontend can turn into API filters.
+     */
+    protected queryHasGambits(): boolean;
     /**
      * Load a new page of results.
      */

@@ -111,6 +111,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
 
   private oldText: string = '';
   private oldVisibility: boolean | undefined;
+  private oldOptions: unknown[] | null = null;
 
   private shouldRecreateTooltip: boolean = false;
   private shouldUpdateText: boolean = false;
@@ -154,6 +155,25 @@ export default class Tooltip extends Component<TooltipAttrs> {
       this.oldVisibility = this.attrs.tooltipVisible;
       this.shouldChangeTooltipVisibility = true;
     }
+
+    // Bootstrap reads these options only when the tooltip is created, so the
+    // tooltip has to be rebuilt when one of them changes, such as switching
+    // between manual (`tooltipVisible` is a boolean) and hover/focus triggers.
+    // Untyped callers may pass a fresh delay object or jQuery container on
+    // every redraw, so compare those by value.
+    const options = [
+      this.getTrigger(),
+      position,
+      typeof delay === 'object' && delay !== null ? `${(delay as any).show}/${(delay as any).hide}` : delay,
+      html,
+      (container as any)?.jquery ? (container as any)[0] : container,
+    ];
+
+    if (this.oldOptions !== null && options.some((option, i) => option !== this.oldOptions![i])) {
+      this.shouldRecreateTooltip = true;
+    }
+
+    this.oldOptions = options;
 
     // We'll try our best to detect any issues created by devs before they cause any weird effects.
     // Throwing an error will prevent the forum rendering, but will be better at alerting devs to
@@ -201,40 +221,31 @@ export default class Tooltip extends Component<TooltipAttrs> {
     super.onupdate(vnode);
 
     this.checkDomNodeChanged();
-    this.recreateTooltip();
 
     if (this.shouldUpdateText) {
       this.updateText();
       this.shouldUpdateText = false;
     }
+
+    this.recreateTooltip();
   }
 
   onremove(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
     super.onremove(vnode);
 
-    if (this.childDomNode !== null) {
-      $(this.childDomNode).tooltip(
-        'destroy',
-        // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
-        'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
-      );
-    }
+    this.destroyTooltip();
   }
 
   private recreateTooltip() {
     if (this.shouldRecreateTooltip && this.childDomNode !== null) {
-      const tooltip = $(this.childDomNode).data('bs.tooltip');
-      if (tooltip && tooltip.$tip) {
-        tooltip.$tip.removeClass('fade');
-      }
-
-      $(this.childDomNode).tooltip(
-        'destroy',
-        // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
-        'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
-      );
+      const wasShown = this.destroyTooltip();
       this.createTooltip();
       this.shouldRecreateTooltip = false;
+
+      // Destroying the old tooltip hid it: reapply a manual visibility, or
+      // show it again while the element is still hovered or focused.
+      this.shouldChangeTooltipVisibility = true;
+      if (wasShown) this.showIfActive();
     }
 
     if (this.shouldChangeTooltipVisibility) {
@@ -248,12 +259,28 @@ export default class Tooltip extends Component<TooltipAttrs> {
 
     const realText = this.getRealText();
     this.childDomNode.setAttribute('data-original-title', realText);
-    this.childDomNode.setAttribute('aria-label', realText);
+    this.setAriaLabel(realText);
 
     const tooltip = $(this.childDomNode).data('bs.tooltip');
-    if (tooltip && tooltip.$tip && tooltip.$tip.hasClass('in')) {
+    if (!tooltip) return;
+
+    // Bootstrap falls back to the `title` option when `data-original-title` is
+    // empty, so keep it in step: empty text then means no tooltip.
+    tooltip.options.title = realText;
+
+    const isShown = tooltip.$tip && tooltip.$tip.hasClass('in');
+
+    if (isShown && realText) {
       tooltip.$tip.find('.tooltip-inner')[this.attrs.html ? 'html' : 'text'](realText);
       tooltip.show();
+    } else if (isShown) {
+      // Hide without fading: a fading hide detaches the tip when it ends,
+      // even if the text has come back and shown it again by then.
+      tooltip.$tip.removeClass('fade');
+      tooltip.hide();
+    } else if (realText && this.attrs.tooltipVisible === true) {
+      // It was hidden or never shown for want of text.
+      this.shouldChangeTooltipVisibility = true;
     }
   }
 
@@ -279,21 +306,17 @@ export default class Tooltip extends Component<TooltipAttrs> {
     if (this.childDomNode === null) return;
 
     const {
-      showOnFocus = true,
       position = 'top',
       delay,
       // This will have no effect when switching to CSS tooltips
       html = false,
       container = false,
-      tooltipVisible,
-      text,
     } = this.attrs;
 
-    // Fancy "hack" to assemble the trigger string
-    const trigger = typeof tooltipVisible === 'boolean' ? 'manual' : classList('hover', [showOnFocus && 'focus']);
+    const trigger = this.getTrigger();
 
     const realText = this.getRealText();
-    this.childDomNode.setAttribute('aria-label', realText);
+    this.setAriaLabel(realText);
     this.childDomNode.removeAttribute('title');
 
     // https://getbootstrap.com/docs/3.3/javascript/#tooltips-options
@@ -309,6 +332,75 @@ export default class Tooltip extends Component<TooltipAttrs> {
       // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
       'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
     );
+  }
+
+  /**
+   * Destroys the Bootstrap tooltip at once, returning whether it was shown.
+   */
+  private destroyTooltip(): boolean {
+    if (this.childDomNode === null) return false;
+
+    const tooltip = $(this.childDomNode).data('bs.tooltip');
+    if (!tooltip) return false;
+
+    const wasShown = !!tooltip.$tip && tooltip.$tip.hasClass('in');
+
+    if (tooltip.$tip) {
+      // Hide without fading, and drop the callback of a fade-in still running,
+      // which would otherwise run after `destroy` has cleared the tooltip.
+      tooltip.$tip.removeClass('fade').off('bsTransitionEnd');
+    }
+
+    $(this.childDomNode).tooltip(
+      'destroy',
+      // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
+      'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
+    );
+
+    return wasShown;
+  }
+
+  /**
+   * Shows a rebuilt hover/focus tooltip again while the element is hovered
+   * or focused with a trigger the tooltip uses, so it hides as usual when
+   * the pointer or focus leaves.
+   */
+  private showIfActive() {
+    if (this.childDomNode === null) return;
+
+    const tooltip = $(this.childDomNode).data('bs.tooltip');
+    if (!tooltip || tooltip.options.trigger === 'manual') return;
+
+    const node = this.childDomNode;
+    const isActive: Record<string, () => boolean> = {
+      hover: () => node.matches(':hover'),
+      focus: () => node === document.activeElement,
+    };
+
+    const active = (tooltip.options.trigger as string).split(' ').filter((trigger) => isActive[trigger]?.());
+
+    if (active.length === 0) return;
+
+    active.forEach((trigger) => (tooltip.inState[trigger] = true));
+    tooltip.hoverState = 'in';
+    tooltip.show();
+  }
+
+  private getTrigger(): string {
+    const { tooltipVisible, showOnFocus = true } = this.attrs;
+
+    // Fancy "hack" to assemble the trigger string
+    return typeof tooltipVisible === 'boolean' ? 'manual' : classList('hover', [showOnFocus && 'focus']);
+  }
+
+  private setAriaLabel(text: string) {
+    if (this.childDomNode === null) return;
+
+    if (text) {
+      this.childDomNode.setAttribute('aria-label', text);
+    } else {
+      this.childDomNode.removeAttribute('aria-label');
+    }
   }
 
   private getRealText(): string {
@@ -327,17 +419,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
     const domNode = (this.firstChild as Mithril.VnodeDOM<any, any>).dom as HTMLElement;
 
     if (domNode && !domNode.isSameNode(this.childDomNode)) {
-      if (this.childDomNode) {
-        const tooltip = $(this.childDomNode).data('bs.tooltip');
-        if (tooltip && tooltip.$tip) {
-          tooltip.$tip.removeClass('fade');
-        }
-        $(this.childDomNode).tooltip(
-          'destroy',
-          // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
-          'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
-        );
-      }
+      this.destroyTooltip();
       this.childDomNode = domNode;
       this.shouldRecreateTooltip = true;
     }

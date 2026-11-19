@@ -19,7 +19,7 @@ use PHPUnit\Framework\Attributes\Test;
 
 /**
  * "Delete own messages until someone replies": only the latest message in the
- * conversation can go. Judged from the dialog's own last-message pointer,
+ * conversation can be deleted, in a way that can be undone. Judged from the dialog's own last-message pointer,
  * which the list already carries, rather than loading the last message for
  * every message shown (and crashing when there is none).
  */
@@ -58,12 +58,52 @@ class DeletePolicyTest extends TestCase
         ]);
     }
 
+    protected function hide(int $id, int $actor): int
+    {
+        return $this->send($this->request('PATCH', '/api/dialog-messages/'.$id, [
+            'authenticatedAs' => $actor,
+            'json' => ['data' => ['type' => 'dialog-messages', 'id' => (string) $id, 'attributes' => ['isHidden' => true]]],
+        ]))->getStatusCode();
+    }
+
     #[Test]
     public function the_latest_message_can_be_deleted_by_its_author_but_an_earlier_one_cannot(): void
     {
         // Bob's message has been replied to, so it stays; Alice's is the latest.
-        $this->assertEquals(403, $this->send($this->request('DELETE', '/api/dialog-messages/102', ['authenticatedAs' => 4]))->getStatusCode());
-        $this->assertEquals(204, $this->send($this->request('DELETE', '/api/dialog-messages/103', ['authenticatedAs' => 3]))->getStatusCode());
+        $this->assertEquals(403, $this->hide(102, 4));
+        $this->assertEquals(200, $this->hide(103, 3));
+    }
+
+    /**
+     * Deleting for good is a permission of its own: the window for members'
+     * own messages doesn't reach it.
+     */
+    #[Test]
+    public function members_cannot_delete_their_own_messages_for_good(): void
+    {
+        $this->setting('flarum-messages.allow_delete_own_messages', '-1');
+
+        $this->assertEquals(403, $this->send($this->request('DELETE', '/api/dialog-messages/103', ['authenticatedAs' => 3]))->getStatusCode());
+        $this->assertNotNull($this->database()->table('dialog_messages')->where('id', 103)->first());
+    }
+
+    /**
+     * A notice records something that happened, such as who renamed a group:
+     * it isn't its member's to take back, however their own messages may be.
+     */
+    #[Test]
+    public function a_notice_cannot_be_deleted_by_the_member_it_is_about(): void
+    {
+        $this->setting('flarum-messages.allow_delete_own_messages', '-1');
+
+        $this->prepareDatabase([
+            DialogMessage::class => [
+                ['id' => 105, 'dialog_id' => 102, 'user_id' => 3, 'type' => 'renamed', 'content' => '{"name":"Hi"}', 'number' => 3],
+            ],
+        ]);
+
+        $this->assertEquals(403, $this->hide(105, 3));
+        $this->assertEquals(403, $this->send($this->request('DELETE', '/api/dialog-messages/105', ['authenticatedAs' => 3]))->getStatusCode());
     }
 
     #[Test]

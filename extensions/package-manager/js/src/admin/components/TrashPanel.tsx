@@ -9,18 +9,20 @@ import { alertError, serverMessage } from '../errors';
 import type { TrashPayload } from '../types';
 import { confirmAction } from './ConfirmModal';
 
+/** A size in the forum's locale, with the locale's own unit names: 1.5 MB, or 1,5 Mo in French. */
 function human(bytes: number): string {
   const units: [string, number][] = [
-    ['GB', 1 << 30],
-    ['MB', 1 << 20],
-    ['KB', 1 << 10],
+    ['gigabyte', 1 << 30],
+    ['megabyte', 1 << 20],
+    ['kilobyte', 1 << 10],
+    ['byte', 1],
   ];
+  const [unit, size] = units.find(([, size]) => bytes >= size) || units[units.length - 1];
 
-  for (const [unit, size] of units) {
-    if (bytes >= size) return Math.round((bytes / size) * 10) / 10 + ' ' + unit;
-  }
+  // Bytes in full ("0 bytes"): the short form is "byte" for every count in English.
+  const unitDisplay = unit === 'byte' ? 'long' : 'short';
 
-  return bytes + ' B';
+  return new Intl.NumberFormat(app.data.locale, { style: 'unit', unit, unitDisplay, maximumFractionDigits: 1 }).format(bytes / size);
 }
 
 /**
@@ -33,14 +35,14 @@ function human(bytes: number): string {
  * to and what happens cannot drift apart.
  */
 export default class TrashPanel extends Component {
-  private loading = true;
-  private busy = false;
-  private data: TrashPayload | null = null;
+  protected loading = true;
+  protected busy = false;
+  protected data: TrashPayload | null = null;
   /** Why the copies could not be read at all, when they could not. */
-  private loadError: string | null = null;
+  protected loadError: string | null = null;
 
-  private keepDays = '';
-  private keepRuns = '';
+  protected keepDays = '';
+  protected keepRuns = '';
 
   oninit(vnode: Mithril.Vnode<ComponentAttrs, this>) {
     super.oninit(vnode);
@@ -201,7 +203,7 @@ export default class TrashPanel extends Component {
       });
   }
 
-  private show(data: TrashPayload) {
+  protected show(data: TrashPayload) {
     this.data = data;
     this.keepDays = String(data.settings.keepDays);
     this.keepRuns = String(data.settings.keepRuns);

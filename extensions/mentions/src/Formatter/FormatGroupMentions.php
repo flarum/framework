@@ -34,11 +34,15 @@ class FormatGroupMentions
             if ($group) {
                 $attributes['groupname'] = $group->name_plural;
                 $attributes['icon'] = $group->icon ?? 'fas fa-at';
+                $attributes['iconimage'] = $group->icon_image_url ?? '';
+                $attributes['iconsrcset'] = $group->icon_image_srcset ?? '';
                 $attributes['color'] = $group->color;
                 $attributes['deleted'] = false;
             } else {
                 $attributes['groupname'] = $this->translator->trans('flarum-mentions.forum.group_mention.deleted_text');
                 $attributes['icon'] = '';
+                $attributes['iconimage'] = '';
+                $attributes['iconsrcset'] = '';
                 $attributes['deleted'] = true;
             }
 

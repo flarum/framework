@@ -37,17 +37,30 @@ class LockDiff
 
         $changes = [];
 
-        foreach ($new as $name => $version) {
+        foreach ($new as $name => [$version, $ref]) {
             if (! isset($old[$name])) {
-                $changes[] = new Change(Change::ADD, $name, null, $version);
-            } elseif ($old[$name] !== $version) {
-                $changes[] = new Change(Change::REPLACE, $name, $old[$name], $version);
+                $changes[] = new Change(Change::ADD, $name, null, $version, null, $ref);
+                continue;
+            }
+
+            [$was, $wasRef] = $old[$name];
+
+            /*
+             * A development version is a branch, and a branch moves without
+             * its version string changing: `2.x-dev` yesterday and `2.x-dev`
+             * today are different code. Compared on the version alone, every
+             * nightly after the first planned nothing and said so. The commit
+             * is what says whether it moved. Only for these: a tag that points
+             * somewhere new is not something an update should act on quietly.
+             */
+            if ($was !== $version || (Change::isDev($version) && $wasRef !== null && $ref !== null && $wasRef !== $ref)) {
+                $changes[] = new Change(Change::REPLACE, $name, $was, $version, $wasRef, $ref);
             }
         }
 
-        foreach ($old as $name => $version) {
+        foreach ($old as $name => [$version, $ref]) {
             if (! isset($new[$name])) {
-                $changes[] = new Change(Change::REMOVE, $name, $version, null);
+                $changes[] = new Change(Change::REMOVE, $name, $version, null, $ref);
             }
         }
 
@@ -149,14 +162,23 @@ class LockDiff
         return $reasons;
     }
 
-    /** @return array<string,string> package => version */
+    /**
+     * @return array<string,array{0:string,1:?string}> package => [version, commit]
+     *
+     * The commit only for a development version, where it is the only thing
+     * that changes; see between(). The archive's reference first, since that
+     * is what the fetch phase downloads, then the source's.
+     */
     protected function index(array $lock): array
     {
         $out = [];
 
         foreach ($this->packages($lock) as $package) {
             if (isset($package['name'], $package['version'])) {
-                $out[(string) $package['name']] = (string) $package['version'];
+                $version = (string) $package['version'];
+                $ref = $package['dist']['reference'] ?? $package['source']['reference'] ?? null;
+
+                $out[(string) $package['name']] = [$version, Change::isDev($version) && is_string($ref) && $ref !== '' ? $ref : null];
             }
         }
 

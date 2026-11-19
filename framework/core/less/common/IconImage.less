@@ -1,0 +1,43 @@
+// An uploaded image in place of a Font Awesome icon. A model's icon classes
+// gain `IconImage IconImage--<n>` when it has an image, and the rule for
+// `IconImage--<n>` sets --icon-image (see common/utils/withIconImage). So
+// any element given the classes shows the image in the glyph's place,
+// whatever rendered it. The glyph is kept, unseen, for its box and baseline.
+.IconImage {
+  background: var(--icon-image) center / contain no-repeat;
+
+  &::before,
+  &::after {
+    visibility: hidden;
+  }
+}
+
+// SVG-based Font Awesome Kits replace the glyph with paths rather than
+// pseudo-elements. Keep the SVG's box and background, but hide its artwork.
+svg.IconImage > * {
+  visibility: hidden;
+}
+
+// Without an icon there's no glyph to give the box its size and baseline, so
+// a space stands in, in a fixed-width glyph's box. The box stays weaker than
+// a component's icon slot; the space beats a forced Font Awesome style's
+// empty glyph.
+:where(.IconImage--only) {
+  display: inline-block;
+  width: 1.25em;
+  line-height: 1;
+}
+
+.IconImage.IconImage--only::before {
+  content: "\00a0";
+}
+
+// An image rendered on the server, such as in a mention: keep its proportions
+// within an icon-sized box, without relying on object-fit in email clients.
+img.IconImage {
+  width: auto;
+  height: auto;
+  max-width: 1.25em;
+  max-height: 1em;
+  vertical-align: -0.125em;
+}

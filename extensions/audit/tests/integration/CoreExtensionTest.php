@@ -10,6 +10,7 @@
 namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Audit\AuditLog;
+use Flarum\Audit\Testing\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 class CoreExtensionTest extends TestCase

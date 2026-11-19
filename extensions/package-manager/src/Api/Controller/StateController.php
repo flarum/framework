@@ -19,6 +19,7 @@ use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -39,6 +40,7 @@ class StateController implements RequestHandlerInterface
         protected ExtensionManager $extensions,
         protected Paths $paths,
         protected RunStore $runs,
+        protected ClientInterface $http,
     ) {
     }
 
@@ -49,7 +51,7 @@ class StateController implements RequestHandlerInterface
         $run = $this->runs->latest();
         $undoError = PendingUndo::finish($this->translator, $run, $this->paths);
 
-        $check = new UpdateCheck(StorageDir::of($this->paths->storage).'/updates.json');
+        $check = new UpdateCheck(StorageDir::of($this->paths->storage).'/updates.json', $this->http);
         $cached = $check->current($this->paths->base.'/composer.lock');
 
         return new JsonResponse([

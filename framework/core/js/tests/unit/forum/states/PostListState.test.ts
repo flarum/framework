@@ -59,6 +59,26 @@ describe('post lists', () => {
     expect(query.page).toEqual({ total: 0, offset: 0, limit: 20 });
   });
 
+  // The API reports the page size it used as `meta.page.limit`, which can
+  // differ from the default when a forum changes the posts endpoint's limit.
+  test('take the page size from the limit the preloaded page was served with', async () => {
+    jest
+      .spyOn(app, 'preloadedApiDocument')
+      .mockReturnValueOnce(Object.assign([], { payload: { data: [], links: { next: '/' }, meta: { page: { offset: 0, limit: 21 } } } }) as any)
+      .mockReturnValue(null as any);
+    const find = jest.spyOn(app.store, 'find').mockResolvedValue(Object.assign([], { payload: { data: [] } }) as any);
+
+    const state = new PostListState({});
+    await state.refresh();
+
+    expect(state.pageSize).toBe(21);
+
+    await state.loadNext();
+
+    expect(find).toHaveBeenCalledTimes(1);
+    expect((find.mock.calls[0][1] as any).page).toEqual({ total: 0, offset: 21, limit: 21 });
+  });
+
   // fof/geoip: adds to the include from an extender.
   test('keep the opt-out when an extension adds to the include', async () => {
     class Extended extends PostListState {}

@@ -13,6 +13,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Restore;
+use Flarum\ExtensionManager\Config\JsonFile;
 use Flarum\ExtensionManager\Host\CoreVersion;
 use Flarum\ExtensionManager\Host\ErrorLog;
 use Flarum\ExtensionManager\Host\FlarumUpdater;
@@ -30,7 +31,7 @@ use Flarum\ExtensionManager\Run\Reverted;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\Steps;
 use Flarum\Locale\TranslatorInterface;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Illuminate\Database\ConnectionInterface;
 use RuntimeException;
 
@@ -59,6 +60,7 @@ class ComposerSteps implements Steps
         protected Fetcher $fetcher,
         protected Applier $applier,
         protected Journal $journal,
+        protected ClientInterface $http,
         /** @var list<string> the packages the user asked to change */
         protected array $requested = [],
         /** 'update', 'install' for something new, or 'remove' to take one out */
@@ -112,6 +114,33 @@ class ComposerSteps implements Steps
     }
 
     public function doItem(string $phase, string $item, Run $run): ?string
+    {
+        if (! in_array($phase, SavedManifests::BEFORE_LOCK_STAYS, true)) {
+            return $this->item($phase, $item, $run);
+        }
+
+        try {
+            return $this->item($phase, $item, $run);
+        } catch (NotYet|Reverted $e) {
+            // Not a failure, or one that has already put everything back.
+            throw $e;
+        } catch (\Throwable $e) {
+            /*
+             * Until the apply phase is over, the manifests the plan wrote
+             * describe a site that does not exist yet, so a run that stops
+             * here puts the old ones back. Left in place, the next run would
+             * save the new lock as its starting point and plan nothing, and the
+             * update check would read it and call the site up to date. The
+             * rollback still finds the saved copies, for the files it has to
+             * move back.
+             */
+            SavedManifests::restore($this->workDir, $this->installPath);
+
+            throw $e;
+        }
+    }
+
+    protected function item(string $phase, string $item, Run $run): ?string
     {
         return match ($phase) {
             'plan' => match ($item) {
@@ -238,11 +267,21 @@ class ComposerSteps implements Steps
         $sources = (new LockDiff())->sources($after);
         $reasons = (new LockDiff())->reasons($changes, $after, $this->requested);
 
-        file_put_contents($this->workDir.'/plan.json', json_encode([
+        $plan = (string) json_encode([
             'changes' => array_map(fn (Change $c) => $c->toArray(), $changes),
             'sources' => $sources,
             'reasons' => $reasons,
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        /*
+         * Checked, because on a full disk a short write leaves a plan.json
+         * that reads as no plan at all, and a run with no plan applies nothing
+         * and finishes "done". Failing here fails the plan phase, which puts
+         * the manifests back (see doItem).
+         */
+        if (@file_put_contents($this->workDir.'/plan.json', $plan) !== strlen($plan)) {
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.plan_unwritable', ['path' => $this->workDir.'/plan.json']));
+        }
 
         if ($changes === []) {
             return match ($this->mode) {
@@ -403,6 +442,22 @@ class ComposerSteps implements Steps
         };
     }
 
+    /**
+     * The version Flarum records, read from the settings table itself rather
+     * than through SettingsRepositoryInterface. It is changed by another
+     * process (`php flarum migrate`) or another request (Flarum's updater)
+     * while this one runs, and the repository keeps every setting it read for
+     * the life of the request, or longer behind a cache such as fof/redis; the
+     * command line drives a whole run in one process. A cached value would
+     * make a database that did move look as if it had not.
+     */
+    protected function recordedVersion(ConnectionInterface $db): ?string
+    {
+        $version = $db->table('settings')->where('key', 'version')->value('value');
+
+        return $version === null ? null : (string) $version;
+    }
+
     /** Copy beside, then rename over: never a half-written file in place, and the file keeps its own mode. */
     protected static function replaceFile(string $from, string $to): bool
     {
@@ -463,8 +518,15 @@ class ComposerSteps implements Steps
             return [];
         }
 
-        $path = $this->installPath.'/composer.json';
-        $json = $this->readJson($path);
+        /*
+         * Through JsonFile, like every other edit to composer.json: it keeps an
+         * empty `{}` an object (decoded as a PHP array it came back as `[]`,
+         * and an empty `config` or `extra` written as a list is no longer the
+         * same file to Composer), and it writes beside and renames, so a run
+         * killed mid-write cannot leave half a composer.json behind.
+         */
+        $file = new JsonFile($this->translator, $this->installPath.'/composer.json');
+        $json = $file->read();
         $raised = [];
 
         foreach ($this->repin as $package => $version) {
@@ -488,7 +550,7 @@ class ComposerSteps implements Steps
             return [];
         }
 
-        file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+        $file->write($json);
 
         return $raised;
     }
@@ -671,7 +733,7 @@ class ComposerSteps implements Steps
         $db = resolve(ConnectionInterface::class);
         $ledger = new MigrationLedger($this->translator, $this->workDir);
         $ledger->before($db);
-        $was = $db->table('settings')->where('key', 'version')->value('value');
+        $was = $this->recordedVersion($db);
 
         /*
          * Only a new VERSION puts the forum behind "Update Flarum". A core
@@ -693,10 +755,10 @@ class ComposerSteps implements Steps
                 $this->registerWith(null);
                 $this->flarum('migrate', '');
             } else {
-                (new FlarumUpdater($this->translator, new Client(), $this->siteUrl, $this->storagePath))->migrate();
+                (new FlarumUpdater($this->translator, $this->http, $this->siteUrl, $this->storagePath))->migrate();
             }
 
-            $now = $db->table('settings')->where('key', 'version')->value('value');
+            $now = $this->recordedVersion($db);
 
             // The database is now ahead of the web server's compiled code: close
             // that window at once rather than within opcache's own timer.
@@ -1031,7 +1093,7 @@ class ComposerSteps implements Steps
 
     protected function health(): ?SiteHealth
     {
-        return $this->siteUrl === '' ? null : new SiteHealth($this->translator, new Client(), $this->siteUrl);
+        return $this->siteUrl === '' ? null : new SiteHealth($this->translator, $this->http, $this->siteUrl);
     }
 
     protected function restore(): ?Restore
@@ -1185,15 +1247,8 @@ class ComposerSteps implements Steps
         $blocked = $permissions->blocked($this->plan());
 
         if ($blocked !== []) {
-            // The resolve has already rewritten these; put them back so the
-            // refusal's "Nothing was changed" is true and no rollback is owed.
-            foreach (['composer.lock', 'composer.json'] as $file) {
-                $saved = $this->workDir.'/'.$file.'.before';
-                if (is_file($saved)) {
-                    @copy($saved, $this->installPath.'/'.$file);
-                }
-            }
-
+            // The resolve has already rewritten these. doItem() puts them back
+            // on the way out, so the refusal's "Nothing was changed" is true.
             throw new RuntimeException($permissions->explain($blocked));
         }
 
@@ -1407,7 +1462,17 @@ class ComposerSteps implements Steps
             return [];
         }
 
-        return (array) json_decode((string) file_get_contents($path), true);
+        /*
+         * Truncated by a full disk, an unreadable plan used to read as an empty
+         * one, and the run then finished "done" with nothing applied.
+         */
+        $plan = json_decode((string) file_get_contents($path), true);
+
+        if (! is_array($plan)) {
+            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.plan_unreadable', ['path' => $path]));
+        }
+
+        return $plan;
     }
 
     /** @return array<string,mixed> */

@@ -21,6 +21,7 @@ export default class AutocompleteDropdown extends Fragment {
       .show()
       .css({
         left: left + 'px',
+        right: 'auto',
         top: top + 'px',
       });
     this.active = true;

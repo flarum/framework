@@ -1,6 +1,6 @@
 import IExtender, { IExtensionModule } from './IExtender';
 import type AdminApplication from '../../admin/AdminApplication';
-import type { CustomExtensionPage, SettingConfigInput } from '../../admin/utils/AdminRegistry';
+import type { CustomExtensionPage, SettingConfigInput, SettingsSectionConfig, SettingsTabConfig } from '../../admin/utils/AdminRegistry';
 import type { PermissionConfig, PermissionType } from '../../admin/components/PermissionGrid';
 import type Mithril from 'mithril';
 import type { GeneralIndexItem } from '../../admin/states/GeneralSearchIndex';
@@ -8,7 +8,14 @@ import type { GeneralIndexItem } from '../../admin/states/GeneralSearchIndex';
 export default class Admin implements IExtender<AdminApplication> {
   protected context: string | null;
 
-  protected settings: { setting?: () => SettingConfigInput | null; customSetting?: () => Mithril.Children; priority: number }[] = [];
+  protected settings: {
+    setting?: () => SettingConfigInput | null;
+    customSetting?: () => Mithril.Children;
+    section?: string;
+    priority: number;
+  }[] = [];
+  protected sections: { section: () => SettingsSectionConfig | null; priority: number }[] = [];
+  protected tabs: { tab: () => SettingsTabConfig | null; priority: number }[] = [];
   protected settingReplacements: { setting: string; replacement: (original: SettingConfigInput) => SettingConfigInput }[] = [];
   protected settingPriorityChanges: { setting: string; priority: number }[] = [];
   protected settingRemovals: string[] = [];
@@ -62,9 +69,37 @@ export default class Admin implements IExtender<AdminApplication> {
 
   /**
    * Register a custom setting to be shown on the extension's settings page.
+   *
+   * Pass a section id to show it inside that section.
    */
-  customSetting(setting: () => Mithril.Children, priority = 0) {
-    this.settings.push({ customSetting: setting, priority });
+  customSetting(setting: () => Mithril.Children, priority = 0, section?: string) {
+    this.settings.push({ customSetting: setting, priority, section });
+
+    return this;
+  }
+
+  /**
+   * Register a titled group of settings on the extension's settings page.
+   * Settings join it with `section: '<id>'`.
+   *
+   * @example
+   * new Extend.Admin()
+   *   .section(() => ({ id: 'display', label: app.translator.trans('acme-foo.admin.sections.display') }))
+   *   .setting(() => ({ setting: 'acme-foo.compact', type: 'bool', label: '...', section: 'display' }))
+   */
+  section(section: () => SettingsSectionConfig | null, priority = 0) {
+    this.sections.push({ section, priority });
+
+    return this;
+  }
+
+  /**
+   * Register a tab on the extension's settings page. Sections join it with `tab: '<id>'`.
+   *
+   * Once a page has a tab, its permissions are shown in a tab of their own.
+   */
+  tab(tab: () => SettingsTabConfig | null, priority = 0) {
+    this.tabs.push({ tab, priority });
 
     return this;
   }
@@ -127,8 +162,24 @@ export default class Admin implements IExtender<AdminApplication> {
     app.beforeMount(() => {
       app.registry.for(this.context || extension.name);
 
-      this.settings.forEach(({ setting, customSetting, priority }) => {
-        const settingConfig = setting ? setting() : customSetting!;
+      this.tabs.forEach(({ tab, priority }) => {
+        const tabConfig = tab();
+
+        if (tabConfig) {
+          app.registry.registerTab(tabConfig, priority);
+        }
+      });
+
+      this.sections.forEach(({ section, priority }) => {
+        const sectionConfig = section();
+
+        if (sectionConfig) {
+          app.registry.registerSection(sectionConfig, priority);
+        }
+      });
+
+      this.settings.forEach(({ setting, customSetting, section, priority }) => {
+        const settingConfig = setting ? setting() : customSetting && section ? Object.assign(customSetting, { section }) : customSetting!;
 
         if (settingConfig) {
           app.registry.registerSetting(settingConfig, priority);

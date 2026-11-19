@@ -42,6 +42,19 @@ function preview(href: string, text: string = href): HTMLElement {
 }
 
 describe('labelDiscussionLinks', () => {
+  it('shows a loaded discussion title inside a quote without interpreting markup', () => {
+    const model = app.store.pushObject({ type: 'discussions', id: '987', attributes: { title: '<b>Quoted & safe</b>' } });
+    const el = document.createElement('div');
+    el.innerHTML = `<blockquote><a href="${ORIGIN}/d/987">${ORIGIN}/d/987</a></blockquote>`;
+
+    labelDiscussionLinks(el);
+
+    expect(el.querySelector('.UrlLink-discussion')?.textContent).toBe('<b>Quoted & safe</b>');
+    expect(el.querySelector('.UrlLink-discussion')?.getAttribute('title')).toBe('<b>Quoted & safe</b>');
+    expect(el.querySelector('b')).toBeNull();
+    app.store.remove(model);
+  });
+
   it('shows a discussion link as the discussion it points at', () => {
     const el = preview(`${ORIGIN}/d/123-the-slug`);
 

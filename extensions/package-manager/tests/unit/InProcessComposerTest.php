@@ -19,7 +19,7 @@ use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
 use Flarum\ExtensionManager\Run\StepRunner;
 use Flarum\ExtensionManager\Run\Steps;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\ComposerSteps;
 use Flarum\ExtensionManager\Work\Fetcher;
@@ -399,6 +399,7 @@ class InProcessComposerTest extends TestCase
             new Fetcher(EnglishTranslator::make(), new \GuzzleHttp\Client(), $this->dir.'/work/staging'),
             new Applier(EnglishTranslator::make(), $this->dir.'/project/vendor', $this->dir.'/work/staging', $this->dir.'/work/trash', $journal),
             $journal,
+            new \GuzzleHttp\Client(),
             $packages,
             $mode
         );

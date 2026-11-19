@@ -88,7 +88,7 @@ class EmailLogoUploadTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
 
-        // The forum logo itself is unchanged: WebP, 60px tall.
+        // The forum logo itself is unchanged: WebP, 90px tall.
         $this->assertStringEndsWith('.webp', $this->storedSetting('logo_path'));
 
         $copyPath = $this->storedSetting('logo_email_copy_path');

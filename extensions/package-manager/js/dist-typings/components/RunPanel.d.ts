@@ -1,5 +1,6 @@
 import type { RollbackPayload, Run, StepPayload } from '../types';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
+import type RequestError from 'flarum/common/utils/RequestError';
 import type Mithril from 'mithril';
 export interface RunPanelAttrs extends ComponentAttrs {
     run: Run | null;
@@ -28,24 +29,31 @@ export interface RunPanelAttrs extends ComponentAttrs {
  */
 export default class RunPanel extends Component<RunPanelAttrs> {
     /** Consecutive failed polls. A host hiccup is not a failed update. */
-    private misses;
-    private polling;
-    private rollingBack;
+    protected misses: number;
+    protected polling: boolean;
+    protected rollingBack: boolean;
     /** True once we have fallen back to reading progress instead of driving it. */
-    private watching;
+    protected watching: boolean;
     /** The HTTP status of the last failed drive, so the panel can be specific. */
-    private lastStatus;
+    protected lastStatus: number | null;
     /** What the last failure means and what to do next — see runState.pollOutcome. */
-    private outcome;
+    protected outcome: import("../runState").PollOutcome;
+    /** One alert for a run of failed polls, not one per poll. */
+    protected pollAlert: {
+        handler: (e: RequestError) => void;
+        clear: () => void;
+    };
     /** The run the loop is following, so a new one starts with a clean slate. */
-    private following;
+    protected following: string | null;
     oncreate(vnode: Mithril.VnodeDOM<RunPanelAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<RunPanelAttrs, this>): void;
-    private follow;
+    protected follow(): void;
     onremove(): void;
     /** Which extensions this run is for: the names, or the first few and a count. */
     target(packages: string[]): string;
     view(): JSX.Element | null;
+    /** The live region's sentence: progress while running, the outcome once it ends, nothing for a failure (the alert says it). */
+    announcement(run: Run): string;
     /**
      * A removal only takes things away (it resolves with
      * `--no-update-with-dependencies`), so it has no Downloading step. Shown and
@@ -63,8 +71,8 @@ export default class RunPanel extends Component<RunPanelAttrs> {
      * Keeps polling on the same backoff so a transient failure recovers into
      * driving again by itself.
      */
-    private watch;
-    /** Undoing a run that worked is asked for, and says whether the database goes back too. */
+    protected watch(): void;
+    /** Undoing a run is asked for, finished or failed, and says whether the database goes back too. */
     confirmRollback(run: Run): void;
     rollback(): void;
 }

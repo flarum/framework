@@ -74,6 +74,13 @@ export default class ModalManagerState {
      */
     close(): void;
     /**
+     * Removes the modal with the given key, wherever it is in the stack. If it
+     * is the topmost one, this is the same as `close()`.
+     *
+     * @internal
+     */
+    remove(key: number): void;
+    /**
      * Checks if a modal is currently open.
      *
      * @return `true` if a modal dialog is currently open, otherwise `false`.

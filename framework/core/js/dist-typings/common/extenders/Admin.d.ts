@@ -1,6 +1,6 @@
 import IExtender, { IExtensionModule } from './IExtender';
 import type AdminApplication from '../../admin/AdminApplication';
-import type { CustomExtensionPage, SettingConfigInput } from '../../admin/utils/AdminRegistry';
+import type { CustomExtensionPage, SettingConfigInput, SettingsSectionConfig, SettingsTabConfig } from '../../admin/utils/AdminRegistry';
 import type { PermissionConfig, PermissionType } from '../../admin/components/PermissionGrid';
 import type Mithril from 'mithril';
 import type { GeneralIndexItem } from '../../admin/states/GeneralSearchIndex';
@@ -9,6 +9,15 @@ export default class Admin implements IExtender<AdminApplication> {
     protected settings: {
         setting?: () => SettingConfigInput | null;
         customSetting?: () => Mithril.Children;
+        section?: string;
+        priority: number;
+    }[];
+    protected sections: {
+        section: () => SettingsSectionConfig | null;
+        priority: number;
+    }[];
+    protected tabs: {
+        tab: () => SettingsTabConfig | null;
         priority: number;
     }[];
     protected settingReplacements: {
@@ -63,8 +72,26 @@ export default class Admin implements IExtender<AdminApplication> {
     removeSetting(setting: string): this;
     /**
      * Register a custom setting to be shown on the extension's settings page.
+     *
+     * Pass a section id to show it inside that section.
      */
-    customSetting(setting: () => Mithril.Children, priority?: number): this;
+    customSetting(setting: () => Mithril.Children, priority?: number, section?: string): this;
+    /**
+     * Register a titled group of settings on the extension's settings page.
+     * Settings join it with `section: '<id>'`.
+     *
+     * @example
+     * new Extend.Admin()
+     *   .section(() => ({ id: 'display', label: app.translator.trans('acme-foo.admin.sections.display') }))
+     *   .setting(() => ({ setting: 'acme-foo.compact', type: 'bool', label: '...', section: 'display' }))
+     */
+    section(section: () => SettingsSectionConfig | null, priority?: number): this;
+    /**
+     * Register a tab on the extension's settings page. Sections join it with `tab: '<id>'`.
+     *
+     * Once a page has a tab, its permissions are shown in a tab of their own.
+     */
+    tab(tab: () => SettingsTabConfig | null, priority?: number): this;
     /**
      * Register a permission to be shown on the extension's permissions page.
      */

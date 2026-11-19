@@ -12,7 +12,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Apply\Tree;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunStore;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /** "Recently updated", as an app store keeps it: written from RunStore::save, kept past pruning. */

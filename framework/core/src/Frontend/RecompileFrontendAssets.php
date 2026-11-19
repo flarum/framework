@@ -68,12 +68,9 @@ class RecompileFrontendAssets
     {
         $this->settings()->set($this->dirtyKey(), 1);
 
-        // The translator's compiled catalogue cache is stored under a fixed
-        // name per locale — it is NOT keyed by the registered resources — so
-        // without this, requests after a toggle would keep loading the
-        // pre-toggle catalogue, and the deferred rebuild (and the UI itself)
-        // would bake stale translations: a newly-enabled extension's keys
-        // would be missing until a manual cache clear.
+        // A toggle changes the locale revision, and compiled catalogues are
+        // named after theirs, so the next request builds a new one. This
+        // removes the ones it replaces, which nothing else would.
         $this->locales->clearCache();
     }
 

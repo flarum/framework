@@ -9,6 +9,7 @@
 
 namespace Flarum\Messages\Access;
 
+use Flarum\Messages\DialogAudience;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -16,8 +17,6 @@ class ScopeDialogVisibility
 {
     public function __invoke(User $actor, Builder $query): void
     {
-        $query->whereHas('users', function (Builder $query) use ($actor) {
-            $query->where('user_id', $actor->id);
-        });
+        DialogAudience::scope($query, (int) $actor->id);
     }
 }

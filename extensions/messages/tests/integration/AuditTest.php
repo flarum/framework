@@ -11,7 +11,8 @@ namespace Flarum\Messages\Tests\integration;
 
 use Carbon\Carbon;
 use Flarum\Audit\AuditLog;
-use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
+use Flarum\Audit\Testing\BuildsAuditRequests;
+use Flarum\Audit\Testing\InteractsWithAuditLog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\Testing\integration\TestCase;
@@ -25,6 +26,16 @@ use PHPUnit\Framework\Attributes\Test;
 class AuditTest extends TestCase
 {
     use InteractsWithAuditLog;
+    use BuildsAuditRequests;
+
+    protected function tearDown(): void
+    {
+        try {
+            parent::tearDown();
+        } finally {
+            $this->tearDownAuditLog();
+        }
+    }
 
     protected function setUp(): void
     {
@@ -44,7 +55,7 @@ class AuditTest extends TestCase
             // alice and carol together.
             Dialog::class => [
                 ['id' => 102, 'type' => 'direct'],
-                ['id' => 103, 'type' => 'direct'],
+                ['id' => 103, 'type' => 'group'],
             ],
             DialogMessage::class => [
                 ['id' => 102, 'dialog_id' => 102, 'user_id' => 3, 'content' => 'Hi', 'number' => 1, 'created_at' => Carbon::now()->subHour()],
@@ -127,6 +138,18 @@ class AuditTest extends TestCase
     }
 
     #[Test]
+    public function starting_a_group_is_logged_once_for_each_recipient(): void
+    {
+        $body = $this->message(['attributes' => ['content' => 'Hello both', 'users' => [['id' => 4], ['id' => 5]]]]);
+        $dialogId = (int) $body['data']['relationships']['dialog']['data']['id'];
+
+        $this->assertEqualsCanonicalizing([
+            ['dialog_id' => $dialogId, 'user_id' => 4],
+            ['dialog_id' => $dialogId, 'user_id' => 5],
+        ], $this->payloads('dialog.started'));
+    }
+
+    #[Test]
     public function nothing_of_what_was_written_is_logged(): void
     {
         $this->reply('102');
@@ -135,5 +158,53 @@ class AuditTest extends TestCase
             // Key order doesn't survive the JSON column, so only the set is compared.
             $this->assertEqualsCanonicalizing(['dialog_id', 'user_id'], array_keys($payload));
         }
+    }
+
+    #[Test]
+    public function group_recipients_are_audited_as_groups_without_expanding_their_members(): void
+    {
+        $this->setting('flarum-messages.recipient_groups', '[4]');
+        $this->prepareDatabase(['group_user' => [['user_id' => 3, 'group_id' => 4], ['user_id' => 4, 'group_id' => 4]]]);
+        $body = $this->message(['attributes' => ['content' => 'Private team content', 'groups' => [['id' => 4]], 'users' => [['id' => 3]]]]);
+        $id = (int) $body['data']['relationships']['dialog']['data']['id'];
+        $this->assertEqualsCanonicalizing([
+            ['dialog_id' => $id, 'user_id' => 3],
+        ], $this->payloads('dialog.started'));
+        $this->assertEqualsCanonicalizing([['dialog_id' => $id, 'group_id' => 4]], $this->payloads('dialog.group_started'));
+    }
+
+    private function patchMessage(int $id, array $attributes): void
+    {
+        $this->sendSuccessfulRequest('PATCH', '/api/dialog-messages/'.$id, [
+            'json' => ['data' => ['type' => 'dialog-messages', 'id' => (string) $id, 'attributes' => $attributes]],
+        ]);
+    }
+
+    /**
+     * What was done to a message and whose it was, never what it said: the
+     * admin here may do all of it, as admins may with posts.
+     */
+    #[Test]
+    public function editing_deleting_restoring_and_deleting_a_message_for_good_are_logged(): void
+    {
+        $this->patchMessage(102, ['content' => 'Hi there']);
+        $this->patchMessage(102, ['isHidden' => true]);
+        $this->patchMessage(102, ['isHidden' => false]);
+        $this->sendSuccessfulRequest('DELETE', '/api/dialog-messages/102', [], 204);
+
+        foreach (['dialog.message_edited', 'dialog.message_hidden', 'dialog.message_restored', 'dialog.message_deleted'] as $action) {
+            $this->assertSame([['dialog_id' => 102, 'message_id' => 102, 'user_id' => 3]], array_map(
+                fn (array $payload) => ['dialog_id' => $payload['dialog_id'], 'message_id' => $payload['message_id'], 'user_id' => $payload['user_id']],
+                $this->payloads($action)
+            ), $action);
+        }
+    }
+
+    #[Test]
+    public function an_edit_that_changes_nothing_is_not_logged(): void
+    {
+        $this->patchMessage(102, ['content' => 'Hi']);
+
+        $this->assertLogDoesntExist('dialog.message_edited');
     }
 }

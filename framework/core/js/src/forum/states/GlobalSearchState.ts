@@ -43,7 +43,19 @@ export default class GlobalSearchState extends SearchState {
     const q = this.params().q || '';
     const filter = this.params().filter || {};
 
-    return app.search.gambits.from('users', app.search.gambits.from('discussions', q, filter), filter).trim();
+    // Some gambits serve more than one model (`author`, `group`), so each pass
+    // skips the filter keys an earlier pass already wrote back.
+    const written = new Set<string>();
+    const unwritten = () => Object.fromEntries(Object.entries(filter).filter(([key]) => !written.has(key.replace(/^-/, ''))));
+
+    let query = q;
+
+    for (const model of ['discussions', 'users', 'posts']) {
+      query = app.search.gambits.from(model, query, unwritten());
+      app.search.gambits.for(model).forEach((gambit) => written.add(gambit.filterKey()));
+    }
+
+    return query.trim();
   }
 
   /**
@@ -77,11 +89,25 @@ export default class GlobalSearchState extends SearchState {
   stickyParams(): SearchParams {
     return {
       sort: m.route.param('sort'),
-      q: m.route.param('q'),
+      q: this.routeSearch(),
       // Objects must be copied, otherwise they are passed by reference.
       // Which could end up undesirably modifying the mithril route params.
       filter: Object.assign({}, m.route.param('filter')),
     };
+  }
+
+  /**
+   * The search in the address. Mithril keeps a "+" that a browser's address
+   * bar sends for a space, and turns "true" and "false" into booleans, so
+   * the address itself is read the way browsers write it.
+   */
+  protected routeSearch(): string {
+    const q = m.route.param('q');
+
+    // No search: left as the router has it, like the other parameters.
+    if (q === undefined) return q;
+
+    return new URLSearchParams(window.location.search).get('q') ?? String(q);
   }
 
   /**

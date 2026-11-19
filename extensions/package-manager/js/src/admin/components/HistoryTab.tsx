@@ -1,10 +1,15 @@
 import app from 'flarum/admin/app';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
+import Button from 'flarum/common/components/Button';
 import type { HistoryEntry, Installed, RunState } from '../types';
 
 export interface HistoryTabAttrs extends ComponentAttrs {
   history: HistoryEntry[];
   installed: Installed[];
+  /** The id of the entry that can still be undone, if any: see ExtensionManagerPage.undoableFromHistory. */
+  undoable?: string | null;
+  rollingBack?: boolean;
+  onundo?: () => void;
 }
 
 /**
@@ -20,7 +25,7 @@ export default class HistoryTab extends Component<HistoryTabAttrs> {
 
     const names: Record<string, string> = {};
     (this.attrs.installed || []).forEach((e) => (names[e.package] = e.name));
-    names['flarum/core'] = names['flarum/core'] || 'Flarum';
+    names['flarum/core'] = names['flarum/core'] || app.translator.trans('flarum-extension-manager.admin.sections.queue.flarum', {}, true);
 
     return (
       <ol className="ExtensionManager-history">
@@ -61,6 +66,15 @@ export default class HistoryTab extends Component<HistoryTabAttrs> {
                   {app.translator.trans('flarum-extension-manager.admin.sections.queue.migrations', { count: entry.migrations })}
                 </div>
               ) : null}
+              {entry.id === this.attrs.undoable && this.attrs.onundo ? (
+                <div className="ExtensionManager-runActions">
+                  <Button className="Button" disabled={this.attrs.rollingBack} onclick={() => this.attrs.onundo?.()}>
+                    {this.attrs.rollingBack
+                      ? app.translator.trans('flarum-extension-manager.admin.run.rolling_back')
+                      : app.translator.trans('flarum-extension-manager.admin.run.roll_back')}
+                  </Button>
+                </div>
+              ) : null}
             </li>
           );
         })}
@@ -68,7 +82,7 @@ export default class HistoryTab extends Component<HistoryTabAttrs> {
     );
   }
 
-  private outcome(entry: HistoryEntry) {
+  protected outcome(entry: HistoryEntry) {
     if (entry.state === 'rolled-back') return app.translator.trans('flarum-extension-manager.admin.sections.queue.statuses.rolled_back');
     if (entry.state === 'failed') return app.translator.trans('flarum-extension-manager.admin.sections.queue.statuses.failure');
 
@@ -79,7 +93,7 @@ export default class HistoryTab extends Component<HistoryTabAttrs> {
         : app.translator.trans('flarum-extension-manager.admin.sections.queue.operations.extension_update');
   }
 
-  private tone(state: RunState): string {
+  protected tone(state: RunState): string {
     return state === 'done' ? ' ExtensionManager-tag--ok' : state === 'failed' ? ' ExtensionManager-tag--warn' : ' ExtensionManager-tag--muted';
   }
 }

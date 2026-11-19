@@ -11,7 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\ComposerSteps;
 use Flarum\ExtensionManager\Work\Fetcher;
@@ -51,6 +51,7 @@ class CodeLiveAtTest extends TestCase
             new Fetcher(EnglishTranslator::make(), new \GuzzleHttp\Client(), $this->dir.'/work/staging'),
             new Applier(EnglishTranslator::make(), $this->dir.'/project/vendor', $this->dir.'/work/staging', $this->dir.'/work/trash', $journal),
             $journal,
+            new \GuzzleHttp\Client(),
             vendorPath: $this->dir.'/project/vendor',
         );
 

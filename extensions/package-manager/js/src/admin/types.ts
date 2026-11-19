@@ -14,7 +14,11 @@ export interface Run extends RunLike {
   index: number;
   log: string[];
   error: string | null;
+  /** Where it stopped, as text for the log; the screen uses the two fields below. */
   errorStep: string | null;
+  /** The phase it stopped in, and the item it was on (null while planning). */
+  errorPhase?: string | null;
+  errorItem?: string | null;
   startedAt?: number;
   movedAt?: number;
   packages: string[];
@@ -183,6 +187,8 @@ export interface CompatPayload {
   verdicts: Record<string, Verdict>;
   /** The Flarum version the verdicts were worked out against. */
   core?: string;
+  /** composer.json's minimum-stability: what Composer will agree to install. */
+  minimumStability?: string;
 }
 
 export interface Found {
@@ -224,7 +230,8 @@ export interface Repository {
 export interface StoredCredential {
   kind: string;
   host: string;
-  detail: string;
+  /** The http-basic username, which is not the secret; null for a token. */
+  username: string | null;
 }
 
 export interface ConfigPayload {
@@ -250,8 +257,6 @@ export interface TrashPayload {
 export interface ErrorPayload {
   errors?: { detail?: string; code?: string }[];
   error?: string;
-  errorKey?: string;
-  errorParams?: TranslationParams;
   /** A refused start names the run already going. */
   run?: Run;
   stale?: boolean;

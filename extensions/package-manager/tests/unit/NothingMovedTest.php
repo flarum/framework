@@ -10,7 +10,7 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Run\Run;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerStepsFactory;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
@@ -70,7 +70,7 @@ class NothingMovedTest extends TestCase
             'storage' => $this->dir.'/storage', 'vendor' => $this->dir.'/vendor',
         ]);
 
-        return (new ComposerStepsFactory(EnglishTranslator::make(), $paths, new Config(['url' => 'https://example.test'])))
+        return (new ComposerStepsFactory(EnglishTranslator::make(), $paths, new Config(['url' => 'https://example.test']), new \GuzzleHttp\Client()))
             ->for('r1')->itemsFor('finalise', Run::start('r1', time()));
     }
 }

@@ -9,7 +9,9 @@
 
 namespace Flarum\Tests\unit\Mail;
 
+use Flarum\Mail\HandlesWebhooks;
 use Flarum\Mail\PostmarkDriver;
+use Flarum\Mail\ProvisionsWebhooks;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\unit\TestCase;
 use Illuminate\Translation\ArrayLoader;
@@ -18,6 +20,7 @@ use Illuminate\Validation\Factory as ValidatorFactory;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Mailer\Bridge\Postmark\Transport\PostmarkApiTransport;
+use Symfony\Component\Mailer\Bridge\Postmark\Webhook\PostmarkRequestParser;
 
 class PostmarkDriverTest extends TestCase
 {
@@ -156,5 +159,48 @@ class PostmarkDriverTest extends TestCase
 
         $this->assertInstanceOf(PostmarkApiTransport::class, $transport);
         $this->assertStringContainsString('outbound', (string) $transport);
+    }
+
+    // -------------------------------------------------------------------------
+    // Webhook capability
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function driver_handles_webhooks_but_does_not_provision_them(): void
+    {
+        $this->assertInstanceOf(HandlesWebhooks::class, $this->driver);
+        // Postmark webhooks are registered manually in its dashboard.
+        $this->assertNotInstanceOf(ProvisionsWebhooks::class, $this->driver);
+    }
+
+    #[Test]
+    public function webhook_request_parser_is_the_postmark_parser(): void
+    {
+        $parser = $this->driver->getWebhookRequestParser($this->settings($this->validSettings()));
+
+        $this->assertInstanceOf(PostmarkRequestParser::class, $parser);
+    }
+
+    #[Test]
+    public function webhooks_require_both_credentials(): void
+    {
+        foreach ([[], ['mail_webhook_username' => 'forum'], ['mail_webhook_password' => 'secret'],
+            ['mail_webhook_username' => 'invalid:name', 'mail_webhook_password' => 'secret']] as $credentials) {
+            $settings = $this->settings(array_merge($this->validSettings(), $credentials));
+            $this->assertFalse($this->driver->webhookConfigured($settings));
+            $this->assertNull($this->driver->getWebhookSigningSecret($settings));
+        }
+    }
+
+    #[Test]
+    public function configured_credentials_are_passed_to_the_parser(): void
+    {
+        $settings = $this->settings(array_merge($this->validSettings(), [
+            'mail_webhook_username' => 'forum',
+            'mail_webhook_password' => 'secret:with:colons',
+        ]));
+
+        $this->assertTrue($this->driver->webhookConfigured($settings));
+        $this->assertSame('forum:secret:with:colons', $this->driver->getWebhookSigningSecret($settings));
     }
 }

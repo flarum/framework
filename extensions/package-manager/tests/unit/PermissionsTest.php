@@ -11,7 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Plan\Change;
 use Flarum\ExtensionManager\Run\Run;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerStepsFactory;
 use Flarum\ExtensionManager\Work\Permissions;
 use Flarum\ExtensionManager\Work\StaleCache;
@@ -110,7 +110,7 @@ class PermissionsTest extends TestCase
             'base' => $this->dir, 'public' => $this->dir.'/public',
             'storage' => $this->dir.'/storage', 'vendor' => $this->dir.'/vendor',
         ]);
-        $steps = (new ComposerStepsFactory(EnglishTranslator::make(), $paths, new Config(['url' => 'https://example.test'])))->for('r1');
+        $steps = (new ComposerStepsFactory(EnglishTranslator::make(), $paths, new Config(['url' => 'https://example.test']), new \GuzzleHttp\Client()))->for('r1');
         $run = Run::start('r1', time());
 
         $this->assertContains('check file permissions', $steps->itemsFor('plan', $run));
@@ -178,7 +178,7 @@ class PermissionsTest extends TestCase
             'base' => $this->dir, 'public' => $this->dir.'/public',
             'storage' => $this->dir.'/storage', 'vendor' => $this->dir.'/vendor',
         ]);
-        $steps = (new ComposerStepsFactory(EnglishTranslator::make(), $paths, new Config(['url' => 'https://example.test'])))->for('r1');
+        $steps = (new ComposerStepsFactory(EnglishTranslator::make(), $paths, new Config(['url' => 'https://example.test']), new \GuzzleHttp\Client()))->for('r1');
 
         $result = $steps->doItem('plan', 'check file permissions', Run::start('r1', time()));
 

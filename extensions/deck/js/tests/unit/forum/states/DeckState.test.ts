@@ -238,6 +238,78 @@ describe('sizing', () => {
   });
 });
 
+describe('editing a column', () => {
+  const named = (id: string, name: string) => ({ ...column(id), name });
+
+  it('changes its settings in place, keeping where it is and how wide', () => {
+    jest.useFakeTimers();
+    const save = setLayout([column('a'), { ...column('b', 1), width: 420 }, column('c', 1)]);
+    const state = new DeckState();
+
+    state.editColumn('b', { params: { query: 'is:unread' } });
+    jest.runOnlyPendingTimers();
+
+    expect(ids(state)).toEqual([['a'], ['b', 'c']]);
+    expect(save).toHaveBeenCalledTimes(1);
+    expect((save.mock.calls[0][0] as any)[PREFERENCE_KEY][1]).toEqual({ id: 'b', type: 'test', width: 420, row: 1, params: { query: 'is:unread' } });
+  });
+
+  it('loads a column again when its settings change', () => {
+    setLayout([column('a')]);
+    const state = new DeckState();
+    const before = state.columns()[0];
+
+    state.editColumn('a', { params: { query: 'is:unread' } });
+
+    expect(state.columns()[0]).not.toBe(before);
+    expect(state.columns()[0].config.params).toEqual({ query: 'is:unread' });
+  });
+
+  it('keeps what a column shows when only its name changes', () => {
+    setLayout([{ ...column('a'), params: { query: 'is:unread' } }]);
+    const state = new DeckState();
+    const before = state.columns()[0];
+
+    state.editColumn('a', { params: { query: 'is:unread' }, name: 'To do' });
+
+    expect(state.columns()[0]).toBe(before);
+    expect(state.columns()[0].title()).toBe('To do');
+  });
+
+  // The server sends no settings as an empty list, the client as an empty object.
+  it('keeps a column with no settings as the server sends it when only renamed', () => {
+    setLayout([{ ...column('a'), params: [] as any }]);
+    const state = new DeckState();
+    const before = state.columns()[0];
+
+    state.editColumn('a', { params: {}, name: 'To do' });
+
+    expect(state.columns()[0]).toBe(before);
+  });
+
+  it('stops a replaced column from checking for its old settings', () => {
+    setLayout([column('a')]);
+    const state = new DeckState();
+    const cancel = jest.spyOn(state.columns()[0], 'discard');
+
+    state.editColumn('a', { params: { query: 'is:unread' } });
+
+    expect(cancel).toHaveBeenCalled();
+  });
+
+  it('goes back to its own title when the name is cleared', () => {
+    setLayout([named('a', 'To do')]);
+    const state = new DeckState();
+
+    expect(state.columns()[0].title()).toBe('To do');
+
+    state.editColumn('a', { params: {}, name: '  ' });
+
+    expect(state.columns()[0].config).not.toHaveProperty('name');
+    expect(state.columns()[0].title()).toBe('Test');
+  });
+});
+
 describe('resetting', () => {
   it('clears the stored layout and cancels a save still pending', () => {
     jest.useFakeTimers();
@@ -270,6 +342,36 @@ describe('sync', () => {
     expect(columns.map((column) => column.config.id)).toEqual(['a', 'n']);
     expect(columns[0]).toBe(a);
     expect(columns[0].scrollTop).toBe(120);
+  });
+
+  it('keeps columns with no settings as the server sent them when another is added', () => {
+    jest.useFakeTimers();
+    setLayout([{ ...column('a'), params: [] as any }]);
+    const state = new DeckState();
+    const [a] = state.columns();
+
+    state.addColumn(column('b'));
+    jest.runOnlyPendingTimers();
+    // The layout as saved, which no longer matches the [] it was loaded with.
+    app.session.user!.pushAttributes({ preferences: { [PREFERENCE_KEY]: [column('a'), column('b')] } });
+    state.sync();
+
+    expect(state.columns()[0]).toBe(a);
+  });
+
+  it('loads a column again whose settings were changed elsewhere', () => {
+    setLayout([column('a'), column('b')]);
+    const state = new DeckState();
+    const [a, b] = state.columns();
+
+    app.session.user!.pushAttributes({ preferences: { [PREFERENCE_KEY]: [{ ...column('a'), name: 'Renamed' }, { ...column('b'), params: { query: 'is:unread' } }] } });
+    state.sync();
+
+    const columns = state.columns();
+
+    expect(columns[0]).toBe(a);
+    expect(columns[0].title()).toBe('Renamed');
+    expect(columns[1]).not.toBe(b);
   });
 
   it('leaves the layout alone while the member’s own change is waiting to save', () => {

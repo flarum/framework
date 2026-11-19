@@ -1,0 +1,13 @@
+/vendor
+composer.lock
+composer.phar
+
+.DS_Store
+Thumbs.db
+tests/.phpunit.cache
+tests/.phpunit.result.cache
+/tests/integration/tmp
+.vagrant
+.idea/*
+.vscode
+js/coverage-ts

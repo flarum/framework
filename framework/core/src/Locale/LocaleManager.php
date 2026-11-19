@@ -25,6 +25,8 @@ class LocaleManager
     protected array $locales = [];
     protected array $js = [];
     protected array $css = [];
+    protected array $directions = [];
+    protected array $languagePacks = [];
 
     /**
      * Every translation file registered on this instance, as
@@ -64,7 +66,8 @@ class LocaleManager
      * of it resolving services and querying the database on every request. A
      * file edited in place, with nothing added or removed and no stamp bumped,
      * is the one change this does not see; clearing the cache covers it, which
-     * a deployment does anyway.
+     * a deployment does anyway. In debug mode the catalogue cache checks the
+     * resources as well (see {@see CatalogueCache}).
      */
     public function revision(): string
     {
@@ -102,6 +105,31 @@ class LocaleManager
     public function hasLocale(string $locale): bool
     {
         return isset($this->locales[$locale]);
+    }
+
+    public function setLanguagePackId(string $locale, string $extensionId): void
+    {
+        $this->languagePacks[$locale] = $extensionId;
+    }
+
+    /**
+     * The ID of the extension whose language pack registered this locale.
+     */
+    public function getLanguagePackId(?string $locale): ?string
+    {
+        return $locale === null ? null : $this->languagePacks[$locale] ?? null;
+    }
+
+    public function setDirection(string $locale, string $direction): void
+    {
+        $this->directions[$locale] = $direction;
+    }
+
+    public function getDirection(?string $locale = null): string
+    {
+        $locale ??= $this->getLocale();
+
+        return $this->directions[$locale] ?? $this->directions[explode('-', $locale)[0]] ?? 'ltr';
     }
 
     public function addTranslations(string $locale, string $file, ?string $module = null): void
@@ -167,7 +195,9 @@ class LocaleManager
     public function clearCache(): void
     {
         if ($this->cacheDir) {
-            array_map('unlink', glob($this->cacheDir.'/*'));
+            // Another process may delete a listed file first: a concurrent
+            // clear, or a catalogue write renaming its temporary file.
+            array_map(fn (string $file) => @unlink($file), glob($this->cacheDir.'/*') ?: []);
         }
     }
 }

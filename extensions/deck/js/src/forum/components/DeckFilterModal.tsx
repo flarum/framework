@@ -10,7 +10,8 @@ import DeckPickerModal, { type IDeckPickerModalAttrs } from './DeckPickerModal';
 export interface IDeckFilterModalAttrs extends IDeckPickerModalAttrs {
   /** Whether a query can be used, e.g. that it's filters only. */
   accept: (query: string) => boolean;
-  invalidText?: Mithril.Children;
+  /** Shown when `accept` turns the query away; a function is given the query. */
+  invalidText?: Mithril.Children | ((query: string) => Mithril.Children);
   onapply: (query: string) => void;
 }
 
@@ -21,6 +22,8 @@ export interface IDeckFilterModalAttrs extends IDeckPickerModalAttrs {
  */
 export default class DeckFilterModal<CustomAttrs extends IDeckFilterModalAttrs = IDeckFilterModalAttrs> extends DeckPickerModal<CustomAttrs> {
   protected error: Mithril.Children = null;
+  /** The query the error is about; it no longer applies once that changes. */
+  protected rejected: string | null = null;
 
   /**
    * @param resource Whose filters to offer, e.g. 'discussions'.
@@ -31,7 +34,7 @@ export default class DeckFilterModal<CustomAttrs extends IDeckFilterModalAttrs =
       title: Mithril.Children;
       value: string;
       accept: (query: string) => boolean;
-      invalidText?: Mithril.Children;
+      invalidText?: IDeckFilterModalAttrs['invalidText'];
       onapply: (query: string) => void;
     }
   ): void {
@@ -51,7 +54,7 @@ export default class DeckFilterModal<CustomAttrs extends IDeckFilterModalAttrs =
     return [
       super.content(),
       <div className="Modal-footer DeckFilterModal-footer">
-        {this.error && <p className="DeckFilterModal-error">{this.error}</p>}
+        {this.error && this.query().trim() === this.rejected && <p className="DeckFilterModal-error">{this.error}</p>}
         <Button className="Button Button--primary" type="button" onclick={() => this.apply()}>
           {app.translator.trans('flarum-deck.forum.add_column.use_filters_button')}
         </Button>
@@ -87,7 +90,10 @@ export default class DeckFilterModal<CustomAttrs extends IDeckFilterModalAttrs =
     const query = this.query().trim();
 
     if (!this.attrs.accept(query)) {
-      this.error = this.attrs.invalidText ?? null;
+      const invalidText = this.attrs.invalidText;
+
+      this.error = (typeof invalidText === 'function' ? invalidText(query) : invalidText) ?? null;
+      this.rejected = query;
       m.redraw();
       return;
     }

@@ -20,6 +20,8 @@ export default class HostPanel extends Component<HostPanelAttrs> {
     phpPath: string | null;
     saving: boolean;
     view(): JSX.Element | null;
+    /** A row's status: an icon for the eye, its name for a screen reader. */
+    mark(status: 'ok' | 'warn' | 'fail'): JSX.Element;
     /** Where the admin can point the Extension Manager at the command-line PHP itself. */
     phpSetting(onchange?: () => void): JSX.Element;
     save(path: string, onchange?: () => void): void;

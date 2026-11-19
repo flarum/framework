@@ -188,6 +188,26 @@ class Document implements Renderable
         return $this->makeView()->render();
     }
 
+    /**
+     * Preload a JavaScript chunk the page imports as soon as it boots, so it
+     * downloads alongside the main bundle rather than after it.
+     *
+     * @param string $namespace `core`, or the ID of the extension the chunk belongs to.
+     * @param string $path The chunk's path in its JS, such as `forum/components/PostStream`.
+     */
+    public function preloadChunk(string $namespace, string $path): void
+    {
+        // The address the frontend loads it from: see ExportRegistry's versionedChunkUrl.
+        $file = "js/$namespace/$path.js";
+        $url = rtrim($this->filesystem->disk('flarum-assets')->url('js'), '/')."/$namespace/$path.js";
+
+        if ($revision = $this->versioner->getRevision($file)) {
+            $url = substr($url, 0, -3).".$revision.js";
+        }
+
+        $this->preloads[] = ['href' => $url, 'as' => 'script'];
+    }
+
     protected function makeView(): View
     {
         return $this->view->make($this->appView)->with([
@@ -434,6 +454,8 @@ HTML;
     {
         if (filter_var($url, FILTER_VALIDATE_URL)) {
             $urlParts = parse_url($url);
+            $fragment = isset($urlParts['fragment']) ? '#'.$urlParts['fragment'] : '';
+
             if (isset($urlParts['query'])) {
                 parse_str($urlParts['query'], $urlQueryArgs);
 
@@ -443,10 +465,11 @@ HTML;
                     $urlQueryArgs[$key] = $value;
                 }
 
-                $urlParts['query'] = http_build_query($urlQueryArgs);
-                $newUrl = $urlParts['scheme'].'://'.$urlParts['host'].$urlParts['path'].'?'.$urlParts['query'];
+                $query = http_build_query($urlQueryArgs);
+                $newUrl = strstr($url, '?', true).($query !== '' ? '?'.$query : '').$fragment;
             } elseif ($value !== null) {
-                $newUrl = $url.'?'.http_build_query([$key => $value]);
+                $base = $fragment !== '' ? strstr($url, '#', true) : $url;
+                $newUrl = $base.'?'.http_build_query([$key => $value]).$fragment;
             } else {
                 return $url;
             }

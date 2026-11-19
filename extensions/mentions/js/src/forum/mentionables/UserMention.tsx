@@ -5,7 +5,7 @@ import usernameHelper from 'flarum/common/helpers/username';
 import Avatar from 'flarum/common/components/Avatar';
 import highlight from 'flarum/common/helpers/highlight';
 import MentionableModel from './MentionableModel';
-import getCleanDisplayName, { shouldUseOldFormat } from '../utils/getCleanDisplayName';
+import getCleanDisplayName from '../utils/getCleanDisplayName';
 import AtMentionFormat from './formats/AtMentionFormat';
 
 export default class UserMention extends MentionableModel<User, AtMentionFormat> {
@@ -18,25 +18,9 @@ export default class UserMention extends MentionableModel<User, AtMentionFormat>
   }
 
   /**
-   * Automatically determines which mention syntax to be used based on the option in the
-   * admin dashboard. Also performs display name clean-up automatically.
-   *
-   * @"Display name"#UserID or `@username`
-   *
-   * @example <caption>New display name syntax</caption>
-   * // '@"user"#1'
-   * forUser(User) // User is ID 1, display name is 'User'
-   *
-   * @example <caption>Using old syntax</caption>
-   * // '@username'
-   * forUser(user) // User's username is 'username'
+   * Uses the user ID so autocomplete works regardless of the username's characters.
    */
   public replacement(user: User): string {
-    if (shouldUseOldFormat()) {
-      const cleanText = getCleanDisplayName(user, false);
-      return this.format.format(cleanText);
-    }
-
     const cleanText = getCleanDisplayName(user);
     return this.format.format(cleanText, '', user.id());
   }

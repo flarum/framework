@@ -18,6 +18,7 @@ use Flarum\ExtensionManager\Work\InstalledRecord;
 use Flarum\ExtensionManager\Work\MigrationLedger;
 use Flarum\ExtensionManager\Work\StaleCache;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\ConnectionInterface;
 use Throwable;
 
@@ -65,10 +66,11 @@ class Restore
          */
         $ledger = new MigrationLedger($this->translator, $this->workDirRoot);
         $pending = $ledger->prepare(
-            resolve(ConnectionInterface::class),
+            resolve(SettingsRepositoryInterface::class),
             resolve(Migrator::class),
             resolve(ExtensionManager::class),
-            $this->vendorPath
+            $this->vendorPath,
+            resolve(ConnectionInterface::class)
         );
 
         $undone = array_merge($pending ? [$this->translator->trans('flarum-extension-manager.api.restore.migrations_queued')] : [], (new Rollback(

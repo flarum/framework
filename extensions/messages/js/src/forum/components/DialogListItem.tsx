@@ -3,13 +3,17 @@ import Mithril from 'mithril';
 import classList from 'flarum/common/utils/classList';
 import Link from 'flarum/common/components/Link';
 import app from 'flarum/forum/app';
+import extractText from 'flarum/common/utils/extractText';
 import Avatar from 'flarum/common/components/Avatar';
+import GroupBadge from 'flarum/common/components/GroupBadge';
 import username from 'flarum/common/helpers/username';
 import humanTime from 'flarum/common/helpers/humanTime';
 import ItemList from 'flarum/common/utils/ItemList';
 import Button from 'flarum/common/components/Button';
 import type Dialog from '../../common/models/Dialog';
+import type Group from 'flarum/common/models/Group';
 import { markRead } from '../utils/readState';
+import describeEvent from '../utils/describeEvent';
 
 export interface IDialogListItemAttrs extends ComponentAttrs {
   dialog: Dialog;
@@ -21,7 +25,6 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const dialog = this.attrs.dialog;
 
-    const recipient = dialog.recipient();
     const unread = dialog.unreadCount();
     const actions = this.attrs.actions ? this.actionItems().toArray() : [];
 
@@ -39,8 +42,8 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
             active: this.attrs.active,
           })}
         >
-          <div className="DialogListItem-avatar">
-            <Avatar user={recipient} />
+          <div className={classList('DialogListItem-avatar', { 'DialogListItem-avatar--group': this.stacksAvatars() })}>
+            {this.avatar()}
             {!!unread && (
               <div className="Bubble Bubble--primary">
                 <span aria-hidden="true">{unread}</span>
@@ -50,7 +53,7 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
           </div>
           <div className="DialogListItem-content">
             <div className="DialogListItem-title">
-              {username(recipient)}
+              {this.name()}
               {humanTime(dialog.lastMessageAt()!)}
             </div>
             <div className="DialogListItem-lastMessage">{this.preview()}</div>
@@ -62,17 +65,73 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
     );
   }
 
-  /** The last message, said to be the member's own when it is. */
+  /**
+   * What stands for the others: the groups a group conversation is addressed
+   * to, then its other members, as the header shows them. The tiles are
+   * pictures only, as a member's avatar is here, so a group's badge carries
+   * no tooltip; the conversation is named beside them.
+   */
+  tiles(): Mithril.Children[] {
+    const dialog = this.attrs.dialog;
+
+    if (!dialog.isGroup()) return [<Avatar user={dialog.recipients()[0] || null} />];
+
+    const groups = (dialog.groups() || []).filter((group): group is Group => !!group);
+
+    return [...groups.map((group) => <GroupBadge group={group} label="" />), ...dialog.recipients().map((user) => <Avatar user={user} />)];
+  }
+
+  /** A group with two or more to show; one left on their own is shown as a direct conversation's. */
+  stacksAvatars(): boolean {
+    const dialog = this.attrs.dialog;
+
+    return dialog.isGroup() && (dialog.groups() || []).filter(Boolean).length + dialog.recipients().length > 1;
+  }
+
+  /** The other member's avatar; in a group, the first two of its tiles, one over the other. */
+  avatar(): Mithril.Children {
+    const tiles = this.tiles();
+
+    return this.stacksAvatars() ? tiles.slice(0, 2) : tiles[0] || <Avatar user={null} />;
+  }
+
+  /** The other member; a group goes by its title, which names its members. */
+  name(): Mithril.Children {
+    const dialog = this.attrs.dialog;
+
+    return dialog.isGroup() ? <span className="DialogListItem-name">{dialog.title()}</span> : username(dialog.recipient());
+  }
+
+  /**
+   * The last message, said to be the member's own when it is. In a group,
+   * where it could be from any of the others, who wrote it. A notice says
+   * what happened.
+   */
   preview(): Mithril.Children {
     const lastMessage = this.attrs.dialog.lastMessage();
 
     if (!lastMessage) return '';
 
-    const content = lastMessage.contentPlain()?.slice(0, 80) ?? '';
+    // A notice, such as someone leaving: what happened.
+    if (!lastMessage.isComment()) return describeEvent(lastMessage, true);
 
-    return lastMessage.user() === app.session.user
-      ? app.translator.trans('flarum-messages.forum.dialog_list.own_last_message_preview', { content })
-      : content;
+    // Deleted, in a way that can be undone: that it was, not what it said.
+    const content = lastMessage.isHidden()
+      ? extractText(app.translator.trans('flarum-messages.forum.message.deleted_text'))
+      : (lastMessage.contentPlain()?.slice(0, 80) ?? '');
+
+    if (lastMessage.user() === app.session.user) {
+      return app.translator.trans('flarum-messages.forum.dialog_list.own_last_message_preview', { content });
+    }
+
+    if (this.attrs.dialog.isGroup()) {
+      return app.translator.trans('flarum-messages.forum.dialog_list.group_last_message_preview', {
+        username: username(lastMessage.user() || null),
+        content,
+      });
+    }
+
+    return content;
   }
 
   actionItems(): ItemList<Mithril.Children> {

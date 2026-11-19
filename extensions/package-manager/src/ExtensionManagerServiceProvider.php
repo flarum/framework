@@ -19,11 +19,26 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\Factory as QueueFactory;
 
 class ExtensionManagerServiceProvider extends AbstractServiceProvider
 {
+    /** The controllers and commands the container builds that take the HTTP client. */
+    public const NEEDS_HTTP = [
+        Api\Controller\CheckController::class,
+        Api\Controller\CompatController::class,
+        Api\Controller\CoreController::class,
+        Api\Controller\DiscoverController::class,
+        Api\Controller\ReleaseNotesController::class,
+        Api\Controller\StartController::class,
+        Api\Controller\StateController::class,
+        Console\CheckCommand::class,
+        Console\UpdateCommand::class,
+    ];
+
     public function register(): void
     {
         /*
@@ -39,6 +54,19 @@ class ExtensionManagerServiceProvider extends AbstractServiceProvider
                 \Flarum\ExtensionManager\Host\Opcache::honourWebReset($storage);
             }
         }
+
+        /*
+         * One HTTP client for everything this extension asks of Packagist,
+         * GitHub, protected repositories and the site itself, given only to
+         * its own classes: Flarum binds no client of its own, and this must
+         * not become one for every other extension.
+         */
+        $this->container->singleton('flarum-extension-manager.http', fn () => new Client());
+
+        $this->container
+            ->when(self::NEEDS_HTTP)
+            ->needs(ClientInterface::class)
+            ->give(fn ($container) => $container->make('flarum-extension-manager.http'));
 
         $this->container->singleton(RunStore::class, function ($container) {
             /*
@@ -84,7 +112,8 @@ class ExtensionManagerServiceProvider extends AbstractServiceProvider
             return new ComposerStepsFactory(
                 $container->make(TranslatorInterface::class),
                 $container->make(Paths::class),
-                $container->make(Config::class)
+                $container->make(Config::class),
+                $container->make('flarum-extension-manager.http')
             );
         });
 

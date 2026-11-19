@@ -212,7 +212,8 @@ class PrivateIndex
         $urls = [];
         $secureHttp = $this->repositories->secureHttp();
 
-        foreach ($this->repositories->all() as $repo) {
+        // Unredacted: a credential written into the URL is how some repositories are reached.
+        foreach ($this->repositories->unredacted() as $repo) {
             /*
              * `composer` type only. A `vcs` repository has no index to read —
              * answering it would mean cloning, which is not something to do on a
@@ -268,6 +269,20 @@ class PrivateIndex
     protected function get(string $url, string $accept = 'application/json'): ?string
     {
         $authorization = $this->auth->authorizationFor($url);
+
+        /*
+         * A credential written into a repository URL is, as in Composer,
+         * http-basic for that host, taking the place of any in auth.json. It
+         * goes as a header and never in the URL, and only over HTTPS.
+         */
+        if (preg_match('#^([a-z][a-z0-9+.-]*://)([^/?\#]*)@#i', $url, $m)) {
+            $url = $m[1].substr($url, strlen($m[0]));
+
+            if (strtolower($m[1]) === 'https://') {
+                [$user, $password] = array_pad(explode(':', $m[2], 2), 2, '');
+                $authorization = 'Basic '.base64_encode(rawurldecode($user).':'.rawurldecode($password));
+            }
+        }
 
         try {
             return (string) $this->http->request('GET', $url, [

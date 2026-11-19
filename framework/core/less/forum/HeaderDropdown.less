@@ -32,8 +32,8 @@
 @media @tablet-up {
   .HeaderDropdownBubble[data-digits="3"],
   .HeaderDropdownBubble[data-digits="4"] {
-    left: auto;
-    right: 2px;
+    inset-inline-start: auto;
+    inset-inline-end: 2px;
   }
 }
 
@@ -43,7 +43,7 @@
   --bubble-shadow-color: var(--header-bg);
 
   @media @phone {
-    left: 20px;
+    inset-inline-start: 20px;
   }
 
   .new & {
@@ -54,7 +54,7 @@
 .Bubble {
   position: absolute;
   top: 2px;
-  left: 18px;
+  inset-inline-start: 18px;
   background: var(--bubble-bg);
   color: var(--bubble-color);
   font-size: 11px;

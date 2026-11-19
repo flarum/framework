@@ -16,6 +16,8 @@ use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Mailer\Transport\Dsn;
 use Symfony\Component\Mailer\Transport\NullTransport;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
+use Symfony\Component\Mailer\Transport\Smtp\SmtpTransport;
 use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
@@ -158,6 +160,28 @@ class SmtpDriverTest extends TestCase
         $dsn = $this->buildAndCapture(['mail_host' => 'smtp.example.com', 'mail_encryption' => 'tls']);
 
         $this->assertNull($dsn->getOption('verify_peer'));
+    }
+
+    // -------------------------------------------------------------------------
+    // pingThreshold (reused connections must be probed before SES drops them)
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function ping_threshold_is_below_ses_idle_timeout(): void
+    {
+        $driver = new SmtpDriver(new EsmtpTransportFactory());
+        $transport = $driver->buildTransport($this->settings([
+            'mail_host' => 'smtp.example.com',
+            'mail_port' => '587',
+            'mail_encryption' => 'tls',
+        ]));
+
+        $this->assertInstanceOf(SmtpTransport::class, $transport);
+
+        $threshold = (new \ReflectionProperty(SmtpTransport::class, 'pingThreshold'))->getValue($transport);
+
+        // AWS SES closes idle SMTP connections after ~10s.
+        $this->assertLessThan(10, $threshold);
     }
 
     // -------------------------------------------------------------------------

@@ -664,4 +664,18 @@ describe('PostStream.afterPostItems', () => {
       PostStream.prototype.afterFirstPostItems = originalFirst;
     }
   });
+
+  it('only has article children in the feed, including the reply placeholder', () => {
+    const { discussion, stream } = seed(2, [0, 1]);
+    jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+    const rendered = render(discussion, stream);
+
+    expect(rendered).toHaveElement('.ReplyPlaceholder');
+
+    expect(rendered).toHaveElement('.PostStream[role=feed]');
+
+    const children = rendered.find('.PostStream > *') as any[];
+    expect(children.length).toBeGreaterThan(0);
+    expect(children.every((child: any) => child.getAttribute('role') === 'article')).toBe(true);
+  });
 });

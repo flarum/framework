@@ -95,10 +95,12 @@ class CacheClearCommand extends AbstractCommand
 
         $report->cleared('cache store');
 
-        foreach (['formatter', 'locale', 'views'] as $dir) {
+        foreach (['formatter', 'less', 'locale', 'views'] as $dir) {
             $files = glob($this->paths->storage.'/'.$dir.'/*') ?: [];
 
-            $report->cleared($dir, count(array_filter($files, 'unlink')));
+            // Another process may delete a listed file first: a concurrent
+            // clear, or a write renaming its temporary file into place.
+            $report->cleared($dir, count(array_filter($files, fn (string $file) => @unlink($file))));
         }
 
         $this->events->dispatch(new ClearingCache);

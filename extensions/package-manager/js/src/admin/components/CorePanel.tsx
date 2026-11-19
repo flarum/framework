@@ -42,13 +42,13 @@ const BATCH = 12;
  * first built, which is the very failure the extension exists to prevent.
  */
 export default class CorePanel extends Component<CoreAttrs> {
-  private loading = true;
-  private current: string | null = null;
-  private newest: { from: string; to: string } | null = null;
-  private preflight: Preflight | null = null;
-  private checking = false;
-  private failed = false;
-  private seenCheck: number | null = null;
+  protected loading = true;
+  protected current: string | null = null;
+  protected newest: { from: string; to: string } | null = null;
+  protected preflight: Preflight | null = null;
+  protected checking = false;
+  protected failed = false;
+  protected seenCheck: number | null = null;
 
   oninit(vnode: Mithril.Vnode<CoreAttrs, this>) {
     super.oninit(vnode);
@@ -81,11 +81,7 @@ export default class CorePanel extends Component<CoreAttrs> {
             </div>
           </div>
           {this.newest ? (
-            <Button
-              className="Button Button--primary"
-              disabled={this.attrs.starting || this.blocked() > 0}
-              onclick={() => this.attrs.onbegin(this.packagesToUpdate())}
-            >
+            <Button className="Button Button--primary" disabled={this.attrs.starting || !this.ready()} onclick={() => this.confirmUpdate()}>
               {app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: this.newest.to })}
             </Button>
           ) : null}
@@ -132,6 +128,56 @@ export default class CorePanel extends Component<CoreAttrs> {
     );
   }
 
+  /**
+   * Whether the pre-flight has answered, and nothing it found blocks the update.
+   *
+   * Not just "nothing is blocked". Until the check comes back nothing is
+   * blocked because nothing has been checked, so the button was live from the
+   * moment the panel drew, and pressing it then sent core alone: no extension
+   * that needed to move with it, and no warning about the ones that could not.
+   * A pre-flight that failed to load counts as not answered. A batch of
+   * extensions that could not be checked does not: those rows say so, and an
+   * unknown is not a refusal.
+   */
+  ready(): boolean {
+    const p = this.preflight;
+
+    return !!p && !this.failed && !this.checking && (p.pending || []).length === 0 && this.blocked() === 0;
+  }
+
+  /**
+   * Asked, like the nightly build. Updating Flarum is the change whose blast
+   * radius is the whole forum, and it was the one button here that started
+   * on a single press.
+   */
+  confirmUpdate() {
+    const newest = this.newest;
+    if (!newest) return;
+
+    const packages = this.packagesToUpdate();
+
+    confirmAction({
+      title: app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: newest.to }),
+      message: app.translator.trans('flarum-extension-manager.admin.updater.core.confirm', {
+        from: this.current || newest.from,
+        to: newest.to,
+        count: packages.length - 1,
+      }),
+      details:
+        packages.length > 1 ? (
+          <ul className="ExtensionManager-confirm-list">
+            {packages.slice(1).map((name) => (
+              <li key={name}>
+                <code>{name}</code>
+              </li>
+            ))}
+          </ul>
+        ) : null,
+      confirmText: app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: newest.to }),
+      onconfirm: () => this.attrs.onbegin(packages),
+    });
+  }
+
   confirmNightly() {
     confirmAction({
       title: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.button'),
@@ -143,7 +189,14 @@ export default class CorePanel extends Component<CoreAttrs> {
 
   summary() {
     const p = this.preflight;
-    if (!p) return null;
+
+    // Says why the button is not ready yet. A failed check has its own alert above.
+    if (!p)
+      return this.failed ? null : (
+        <div className="ExtensionManager-coreChecking">
+          {app.translator.trans('flarum-extension-manager.admin.updater.core.preflight', { version: this.newest?.to })}
+        </div>
+      );
 
     const blocked = this.blocked();
     const updating = p.updating || 0;
@@ -159,9 +212,9 @@ export default class CorePanel extends Component<CoreAttrs> {
          * act on — and it is why the button above is disabled.
          */}
         {blocked > 0 ? (
-          <div className="ExtensionManager-coreBlocked">
+          <Alert type="error" dismissible={false}>
             {app.translator.trans('flarum-extension-manager.admin.updater.core.blocked', { count: blocked, version: p.target })}
-          </div>
+          </Alert>
         ) : null}
         {/*
          * In place of "every extension works": their require says yes, and
@@ -169,7 +222,7 @@ export default class CorePanel extends Component<CoreAttrs> {
          * down on Flarum 2.0.2 (ClaudiusH, 2026-10-18). A warning, not a block.
          */}
         {overrides.length ? (
-          <div className="ExtensionManager-coreOverrides">
+          <Alert type="warning" dismissible={false} className="ExtensionManager-coreOverrides">
             {app.translator.trans('flarum-extension-manager.admin.updater.core.overrides', { count: overrides.length, version: p.target })}
             <ul>
               {overrides.map((o) => (
@@ -181,12 +234,12 @@ export default class CorePanel extends Component<CoreAttrs> {
                 </li>
               ))}
             </ul>
-          </div>
+          </Alert>
         ) : null}
         {blocked > 0 || overrides.length ? null : pending === 0 ? (
-          <div className="ExtensionManager-coreClear">
+          <Alert type="success" dismissible={false}>
             {app.translator.trans('flarum-extension-manager.admin.updater.core.clear', { version: p.target })}
-          </div>
+          </Alert>
         ) : null}
 
         {updating > 0 ? <div>{app.translator.trans('flarum-extension-manager.admin.updater.core.updating_too', { count: updating })}</div> : null}

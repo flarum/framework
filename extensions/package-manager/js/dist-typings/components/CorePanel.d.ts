@@ -1,4 +1,4 @@
-import type { Verdict } from '../types';
+import type { Preflight, Verdict } from '../types';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import type Mithril from 'mithril';
 interface CoreAttrs extends ComponentAttrs {
@@ -25,16 +25,37 @@ interface CoreAttrs extends ComponentAttrs {
  * first built, which is the very failure the extension exists to prevent.
  */
 export default class CorePanel extends Component<CoreAttrs> {
-    private loading;
-    private current;
-    private newest;
-    private preflight;
-    private checking;
-    private failed;
-    private seenCheck;
+    protected loading: boolean;
+    protected current: string | null;
+    protected newest: {
+        from: string;
+        to: string;
+    } | null;
+    protected preflight: Preflight | null;
+    protected checking: boolean;
+    protected failed: boolean;
+    protected seenCheck: number | null;
     oninit(vnode: Mithril.Vnode<CoreAttrs, this>): void;
     onupdate(): void;
     view(): JSX.Element;
+    /**
+     * Whether the pre-flight has answered, and nothing it found blocks the update.
+     *
+     * Not just "nothing is blocked". Until the check comes back nothing is
+     * blocked because nothing has been checked, so the button was live from the
+     * moment the panel drew, and pressing it then sent core alone: no extension
+     * that needed to move with it, and no warning about the ones that could not.
+     * A pre-flight that failed to load counts as not answered. A batch of
+     * extensions that could not be checked does not: those rows say so, and an
+     * unknown is not a refusal.
+     */
+    ready(): boolean;
+    /**
+     * Asked, like the nightly build. Updating Flarum is the change whose blast
+     * radius is the whole forum, and it was the one button here that started
+     * on a single press.
+     */
+    confirmUpdate(): void;
     confirmNightly(): void;
     summary(): JSX.Element | null;
     rows(): JSX.Element | null;

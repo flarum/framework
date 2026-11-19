@@ -197,11 +197,39 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\DeleteFaviconController::class)
     );
 
+    // Discussions a browser suggests when the forum is its search engine
+    $map->get(
+        '/opensearch/suggestions',
+        'opensearch.suggestions',
+        $route->toController(Controller\ShowOpenSearchSuggestionsController::class)
+    );
+
+    // Upload an app icon
+    $map->post(
+        '/app-icon',
+        'app-icon',
+        $route->toController(Controller\UploadAppIconController::class)
+    );
+
+    // Remove the app icon
+    $map->delete(
+        '/app-icon',
+        'app-icon.delete',
+        $route->toController(Controller\DeleteAppIconController::class)
+    );
+
     // Clear the cache
     $map->delete(
         '/cache',
         'cache.clear',
         $route->toController(Controller\ClearCacheController::class)
+    );
+
+    // See whether streamed responses reach the browser as they're written
+    $map->get(
+        '/streaming-check',
+        'streaming.check',
+        $route->toController(Controller\CheckStreamingController::class)
     );
 
     // Pause or resume queue processing
@@ -252,6 +280,20 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/mail/test',
         'mailTest',
         $route->toController(Controller\SendTestMailController::class)
+    );
+
+    // Register/unregister the delivery-event webhook with the mail provider
+    $map->post(
+        '/mail/webhook/provision',
+        'mailWebhook.provision',
+        $route->toController(Controller\ProvisionMailWebhookController::class)
+    );
+
+    // Email bounce counts for the admin dashboard widget
+    $map->get(
+        '/mail/bounce-stats',
+        'mailBounceStats',
+        $route->toController(Controller\ShowEmailBounceStatsController::class)
     );
 
     // Trigger a sync of the abandoned extensions list

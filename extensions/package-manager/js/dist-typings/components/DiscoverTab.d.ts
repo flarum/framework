@@ -18,27 +18,41 @@ interface DiscoverAttrs extends ComponentAttrs {
  * be the slower, worse version of the same screen.
  */
 export default class DiscoverTab extends Component<DiscoverAttrs> {
+    /** One formatter for every card's download count; the locale does not change while the page is open. */
+    protected compact: Intl.NumberFormat | null;
     oninit(vnode: Mithril.Vnode<DiscoverAttrs, this>): void;
-    private query;
+    protected query: string;
     /** '' is everything; the rest are the keys of Packagist::CATEGORIES. */
-    private category;
-    private searching;
-    private searched;
-    private page;
-    private more;
-    private loadingMore;
-    private results;
-    private verdicts;
-    private installedNames;
-    private checking;
-    private error;
-    private core;
-    private seq;
+    protected category: string;
+    protected searching: boolean;
+    protected searched: boolean;
+    protected page: number;
+    protected more: boolean;
+    protected loadingMore: boolean;
+    protected results: Found[];
+    protected verdicts: Record<string, Verdict>;
+    protected minimumStability: string;
+    protected installedNames: string[];
+    protected checking: boolean;
+    protected error: string | null;
+    protected core: string | null;
+    protected seq: number;
     /** The query whose results are on screen, so a keystroke can tell if anything changed. */
-    private lastSearched;
+    protected lastSearched: string | null;
+    /**
+     * The query and category the results on screen belong to, which "Show more"
+     * pages through. Not the search box: what is typed there may not have been
+     * searched yet, and its second page appended under the first page of
+     * something else.
+     */
+    protected shown: {
+        query: string;
+        category: string;
+    };
     /** The pending debounce, so a new keystroke replaces it rather than adding to it. */
-    private typing;
+    protected typing: ReturnType<typeof setTimeout> | null;
     view(): JSX.Element;
+    pickCategory(id: string): void;
     /**
      * A keystroke, considered.
      *
@@ -65,6 +79,9 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
      */
     replacement(r: Found, v?: Verdict): string | null;
     action(r: Found, v?: Verdict): JSX.Element | null;
+    /** Whether the forum's minimum stability lets Composer install this release. */
+    allowed(v: Verdict): boolean;
+    /** A download count, abbreviated the way the forum's locale does it: 220K, 1.5M; 220 k, 1,5 M in French. */
     short(n: number): string;
     search(): void;
     /**

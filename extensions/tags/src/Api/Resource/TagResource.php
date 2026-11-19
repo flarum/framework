@@ -13,7 +13,10 @@ use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Schema;
+use Flarum\Foundation\IconImage\IconImageApi;
+use Flarum\Foundation\ValidationException;
 use Flarum\Http\SlugManager;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Tags\Event\Creating;
 use Flarum\Tags\Event\Deleting;
 use Flarum\Tags\Event\Saving;
@@ -29,7 +32,8 @@ use Tobyz\JsonApiServer\Context;
 class TagResource extends AbstractDatabaseResource
 {
     public function __construct(
-        protected SlugManager $slugManager
+        protected SlugManager $slugManager,
+        protected TranslatorInterface $translator
     ) {
     }
 
@@ -89,6 +93,7 @@ class TagResource extends AbstractDatabaseResource
                 ->eagerLoadWhere('state', function (Builder|Relation $query, FlarumContext $context) {
                     $query->where('user_id', $context->getActor()->id);
                 }),
+            ...IconImageApi::endpoints(),
         ];
     }
 
@@ -117,6 +122,7 @@ class TagResource extends AbstractDatabaseResource
                 ->maxLength(700)
                 ->nullable(),
             Schema\Str::make('slug')
+                ->description('The slug used in the tag\'s URL, and the value the discussions tag filter takes.')
                 ->requiredOnCreate()
                 ->writable()
                 ->unique('tags', 'slug', true)
@@ -128,23 +134,35 @@ class TagResource extends AbstractDatabaseResource
                 ->get(fn (Tag $tag) => $tag->slug)
                 ->visible(fn (Tag $tag, FlarumContext $context) => $context->getActor()->can('edit', $tag)),
             Schema\Str::make('color')
+                ->description('Hex color code, or null.')
                 ->writable()
                 ->nullable()
                 ->rule('hex_color'),
             Schema\Str::make('icon')
+                ->description('Font Awesome icon classes, or null.')
                 ->writable()
-                ->nullable(),
+                ->nullable()
+                ->deserialize(IconImageApi::withoutImageClasses(...)),
+            ...IconImageApi::fields(),
             Schema\Boolean::make('isHidden')
+                ->description('Whether discussions with this tag are left out of the All Discussions list.')
                 ->writable(),
             Schema\Boolean::make('isPrimary')
+                ->description('Whether this is a primary tag. Discussions need a number of primary tags and may have secondary ones. Set when the tag is created; afterwards it changes only with the tag order.')
+                // Also writable on update so that clients saving every
+                // attribute can send it back unchanged: a change is refused in
+                // updating().
                 ->writable(),
             Schema\Boolean::make('isRestricted')
+                ->description('Whether the tag has its own permissions instead of the global ones. Only visible to admins.')
                 ->writableOnUpdate()
                 ->visible(fn (Tag $tag, FlarumContext $context) => $context->getActor()->isAdmin()),
             Schema\Integer::make('discussionCount'),
             Schema\Integer::make('position')
+                ->description('Order among the primary tags; null for secondary tags.')
                 ->nullable(),
             Schema\Str::make('defaultSort')
+                ->description('The sort the tag\'s discussion list opens with, as its URL alias (such as latest), or null.')
                 // The sort a tag's discussion list opens with, stored as the
                 // alias that appears in a URL rather than the API sort behind
                 // it, so that it round-trips through the dropdown unchanged.
@@ -157,14 +175,18 @@ class TagResource extends AbstractDatabaseResource
                 ->writable()
                 ->nullable(),
             Schema\Boolean::make('isChild')
+                ->description('Whether the tag is a child of a primary tag.')
                 ->get(fn (Tag $tag) => (bool) $tag->parent_id),
             Schema\DateTime::make('lastPostedAt'),
             Schema\Boolean::make('canStartDiscussion')
+                ->description('Whether you can start a discussion with this tag.')
                 ->get(fn (Tag $tag, FlarumContext $context) => $context->getActor()->can('startDiscussion', $tag)),
             Schema\Boolean::make('canAddToDiscussion')
+                ->description('Whether you can add this tag to an existing discussion.')
                 ->get(fn (Tag $tag, FlarumContext $context) => $context->getActor()->can('addToDiscussion', $tag)),
 
             Schema\Relationship\ToOne::make('parent')
+                ->description('The parent primary tag of a child tag.')
                 ->type('tags')
                 ->includable()
                 ->writable(fn (Tag $tag, FlarumContext $context) => (bool) Arr::get($context->body(), 'attributes.isPrimary')),
@@ -175,6 +197,7 @@ class TagResource extends AbstractDatabaseResource
                 // permission checks then read without querying it again.
                 ->inverse('parent'),
             Schema\Relationship\ToOne::make('lastPostedDiscussion')
+                ->description('The discussion with the latest post in this tag.')
                 ->type('discussions')
                 ->includable(),
         ];
@@ -185,6 +208,20 @@ class TagResource extends AbstractDatabaseResource
         $this->events->dispatch(
             new Creating($model, $context->getActor(), $context->body())
         );
+
+        return $model;
+    }
+
+    public function updating(object $model, Context $context): ?object
+    {
+        // A tag becomes primary or secondary with the tag order, which also
+        // sets its position to match. Changing the flag alone would leave the
+        // position behind.
+        if ($model->isDirty('is_primary')) {
+            throw new ValidationException([
+                'isPrimary' => $this->translator->trans('flarum-tags.api.cannot_change_is_primary_message'),
+            ]);
+        }
 
         return $model;
     }

@@ -99,3 +99,32 @@
   font-size: 15px;
   margin: 1rem 0 0;
 }
+
+// A duration is entered as a number and a unit together, so the two controls
+// read as one field rather than as two unrelated ones stacked up.
+.SessionLifetime-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.SessionLifetime-value {
+  flex: 0 1 8em;
+  min-width: 0;
+}
+
+.SessionLifetime-unit {
+  flex: 0 1 12em;
+  min-width: 0;
+}
+
+// The read-only summary shown when the lengths are pinned in config.php.
+.SessionLifetimes-summary {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li + li {
+    margin-top: 4px;
+  }
+}

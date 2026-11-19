@@ -11,7 +11,9 @@ namespace Flarum\ExtensionManager\Work;
 
 use Flarum\Database\Migrator;
 use Flarum\Extension\ExtensionManager;
+use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Run\Run;
+use Flarum\ExtensionManager\Run\RunLock;
 use Flarum\Foundation\Paths;
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Database\ConnectionInterface;
@@ -38,13 +40,31 @@ class PendingUndo
             return null;
         }
 
+        /*
+         * Reached from the page's polling, so two tabs (or the dashboard banner
+         * beside the page) can arrive together. Under the run's lock only one
+         * reverses anything; the other finds it busy and the next poll sees the
+         * work done.
+         */
+        $lock = new RunLock($translator, StorageDir::of($paths->storage).'/locks');
+
         try {
-            $ledger->finish(
-                resolve(ConnectionInterface::class),
-                resolve(Migrator::class),
-                resolve(ExtensionManager::class),
-                $paths->vendor
-            );
+            $held = $lock->acquire($run->id);
+
+            if ($held === null) {
+                return null;
+            }
+
+            try {
+                $ledger->finish(
+                    resolve(ConnectionInterface::class),
+                    resolve(Migrator::class),
+                    resolve(ExtensionManager::class),
+                    $paths->vendor
+                );
+            } finally {
+                $lock->release($held);
+            }
 
             return null;
         } catch (Throwable $e) {

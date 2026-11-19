@@ -67,6 +67,7 @@ flarum-extension-manager:
           incompatible: not for this Flarum
           incompatible_why: "Its newest release asks for flarum/core {requires}."
           unknown: could not check
+          needs_stability: "needs {level} in Sources"
           prerelease: "{version} — a pre-release"
           checking: Checking…
 
@@ -75,6 +76,8 @@ flarum-extension-manager:
 
       queue:
         title: Recent updates
+        # The name a history entry shows for flarum/core.
+        flarum: Flarum
         none: Nothing has been updated, installed or removed with the Extension Manager on this forum yet.
         operations:
           extension_install: Installed
@@ -134,10 +137,10 @@ flarum-extension-manager:
       up_to_date: Everything checkable is up to date.
       some_newer: "{count, plural, one {# extension has} other {# extensions have}} a newer version."
       core_newer: Flarum itself has a newer version.
-      core_newer_too: So does Flarum itself.
-      last_checked: "Checked {when}."
-      uncheckable: "{count} could not be checked — no repository this forum knows about lists them."
-      tracking: "{count} track a branch, so there is no version to compare."
+      some_newer_and_core: "{count, plural, one {# extension has} other {# extensions have}} a newer version. So does Flarum itself."
+      # {summary} is one of the four lines above; {when} is one of the "ago" strings below.
+      check_line: >-
+        <b>{summary}</b> Checked {when}.{uncheckable, plural, =0 {} other { # could not be checked — no repository this forum knows about lists them.}}{tracking, plural, =0 {} other { # track a branch, so there is no version to compare.}}
       check_now: Check now
       check_for_updates: Check for updates
       check_overdue: Check for updates to get the latest security fixes and features for your extensions.
@@ -152,11 +155,10 @@ flarum-extension-manager:
       # On the dashboard.
       banner:
         title: "{count, plural, one {# package has} other {# packages have}} a newer version"
-        body: >-
+        # {checked} is "yes" when there has been a check; {when} is one of the "ago" strings.
+        details: >-
           That does not always mean you can install it — what else has to change, and
-          whether anything blocks it, is worked out when you ask.
-        checked: "Last checked {when}."
-        uncheckable: "{count, plural, one {# package} other {# packages}} could not be checked at all."
+          whether anything blocks it, is worked out when you ask.{checked, select, yes { Last checked {when}.} other {}}{uncheckable, plural, =0 {} one { # package could not be checked at all.} other { # packages could not be checked at all.}}
         more: "and {count} more"
         open: Take a look
         dismiss: Not now
@@ -167,6 +169,12 @@ flarum-extension-manager:
         running: "This forum runs Flarum {version}."
         current: No newer Flarum has been published since the last check.
         update_to: "Update Flarum to {version}"
+        # Asked before a core update, like the nightly build below.
+        confirm: >-
+          Update Flarum from {from} to {to}?{count, plural, =0 {} one { # extension listed below is updated with it, because its current version does not support the new Flarum.} other { # extensions listed below are updated with it, because their current versions do not support the new Flarum.}}
+          If the site does not work afterwards, everything is put back.
+        # Shown until the pre-flight answers; the Update button waits for it.
+        preflight: "Checking which of your extensions work with Flarum {version}…"
         failed: >-
           The Extension Manager could not work out what upgrading Flarum would involve. Nothing
           has changed.
@@ -243,6 +251,7 @@ flarum-extension-manager:
         check_the_site_again: Checking the site again
         tidy_the_trash: Tidying old copies
       failed_at: "It stopped during: {step}"
+      failed_at_step: "It stopped during: {phase} → {step}"
       roll_back: Undo this update
       rolling_back: Undoing…
       roll_back_confirm: >-
@@ -268,15 +277,18 @@ flarum-extension-manager:
         Nothing has moved for a couple of minutes. That is normal while Composer is
         working something out; if it stays like this, the log below is the place to
         look.
-      poll_unauthorised: >-
+      # {watching} is "yes" once the page has fallen back to reading progress
+      # instead of driving it.
+      cannot_drive: >-
         This screen cannot reach the server to drive the update — usually a
         session that has expired while the page sat open. The update itself is
-        unaffected and is being carried on in the background. Reload the page.
-      watching_only: Showing progress read-only.
-      poll_failing: >-
+        unaffected and is being carried on in the background. Reload the page.{watching, select, yes { Showing progress read-only.} other {}}
+      # One alert for a run of failed polls; the panel's notice below says more.
+      cannot_reach_short: This page could not reach the forum. The update itself is unaffected, and the page will keep trying.
+      cannot_reach: >-
         This page has failed to reach the forum {count} times in a row. The update
         itself is unaffected — it keeps its place on disk — and this will keep
-        trying.
+        trying.{watching, select, yes { Showing progress read-only.} other {}}
 
     composer:
       title: Sources
@@ -360,6 +372,7 @@ flarum-extension-manager:
       remove_q: Remove?
       submit_button: Save credential
       token_stored: token stored
+      username_stored: "username {username}"
       show: Show
       hide: Hide
       fields:
@@ -432,6 +445,11 @@ flarum-extension-manager:
     # these keys, relative to admin.
     host:
       title: This host
+      # Read out for each row's status icon.
+      status:
+        ok: OK
+        warn: Warning
+        fail: Problem
       spawn_ok: Can run Composer as a separate process
       spawn_ok_why: Composer runs outside the web request, so its memory use is its own and cannot take the site down with it.
       in_process: Runs without separate processes
@@ -596,9 +614,11 @@ flarum-extension-manager:
       nothing_to_do: "nothing to do"
       nothing_to_update: "Nothing to update — everything is already at the newest version it can be."
       permissions_not_checked: "File permissions not checked on this host"
+      plan_unreadable: "The plan for this update at {path} could not be read, so the update stopped there. The disk may be full: free some space, then roll back and start again."
       permissions_ok: "Every file this update changes is writable"
       pin_raised: "{package} required at {version} instead of {current}"
       pinned_to: "{package} is pinned to {constraint}"
+      plan_unwritable: "Could not save the plan to {path}. Check the disk is not full and that the directory is writable. Nothing was changed."
       registered: "Composer now knows about the change"
       reread_done: "The web server has re-read the new files."
       resolve_failed: "Composer could not work out an update:"
@@ -624,8 +644,6 @@ flarum-extension-manager:
     config:
       basic_needs_username: "http-basic needs a username as well as a password."
       credential_empty: "The credential is empty."
-      detail_token_set: "token set"
-      detail_username: "username {username}"
       json_encode_failed: "Could not encode {file}: {error}"
       json_invalid: "{file} is not valid JSON, so the Extension Manager will not overwrite it. Fix it by hand first — {error}."
       json_refuse_write: "Refusing to write {file}: the result does not parse."
@@ -634,6 +652,7 @@ flarum-extension-manager:
       json_write_failed: "Could not write next to {path}. Check the directory is writable."
       no_credential: "There is no credential stored for that host."
       not_a_hostname: "That is not a hostname. Use github.com, not https://github.com/…."
+      repo_ambiguous: "More than one repository has that address, differing only in the credentials written into it. Remove the one you mean from composer.json by hand."
       repo_bad_url: "That does not look like a repository URL. Use https://, git@ or ssh://."
       repo_exists: "That repository is already configured."
       repo_insecure: "Composer will not use a repository over plain http:// or git:// while its secure-http setting is on, and credentials would travel unencrypted. Use https:// or ssh://."
@@ -765,6 +784,7 @@ flarum-extension-manager:
       record_failed: "The files are back, but Composer could not update its own record. Run `composer install` to finish putting things back."
       record_put_back: "Composer's record put back"
     rollback:
+      busy: "This update is still working on a step, so it can't be rolled back yet. Try again in a minute."
       move_aside_failed: "Could not move {path} aside during rollback"
       nothing: "There is nothing to roll back."
       nothing_changed: "That update never got as far as changing anything, so there is nothing to undo."
@@ -774,9 +794,14 @@ flarum-extension-manager:
       restored: "restored {file}"
     run:
       dir_failed: "Could not create the run directory at {path}"
+      failed_database: "A database error stopped this step: {error}"
       failed_during: "Failed during {step}: {error}"
+      failed_internal: "An unexpected PHP error stopped this step: {error}"
+      failed_network: "A download or request did not get through: {error}"
       finished: "Finished"
       finished_phase: "Finished {phase}"
+      lock_dir_failed: "Cannot create the lock directory at {path}, so this update cannot make sure it is the only thing changing the site."
+      lock_failed: "Cannot open the lock file at {path}. If the command line was run as another user, that user may own the file: give it to the web server's user, or delete it."
       no_worker: "There is no background worker on this forum, so keep this page open until it finishes. It will pick up where it left off if you do close it."
       nothing_to_undo: "nothing to undo"
       put_back: "Put back automatically: {undone}"
@@ -792,6 +817,7 @@ flarum-extension-manager:
     start:
       in_progress: "An update is already in progress."
       in_progress_stale: "An update is already in progress, though nothing has moved for {minutes} minutes."
+      lock_unwritable: "Could not create the update lock in {path}. Make sure the web server can write to that folder, then try again. Nothing was started."
       no_nightly: "There is no nightly build to move to: Packagist has no development branch for this Flarum, or could not be reached. Nothing was started."
       not_a_package: "That is not a package name: {package}"
       not_direct: "{package} is not something this site requires directly — it was installed because another extension depends on it. Removing that extension will take this one with it."
@@ -799,6 +825,7 @@ flarum-extension-manager:
       nothing_selected: "Nothing was selected, so nothing was started."
       replaced: "{name} has been replaced by another package, so it was not installed. Its Packagist page or repository names the one to use now."
       replaced_by: "{name} has been replaced by {replacement}. Install {replacement} instead; installing the old name gives you the new extension under the wrong id."
+      replaced_unchecked: "Packagist could not be reached to check whether {name} has been replaced by another package, so it was not installed. Try again in a minute."
       still_enabled: "{package} is still enabled. Turn it off on the Extensions page first, check the forum is happy without it, and then remove it."
     updater:
       answered: "Flarum's updater did not update the database (it answered {status}: {body})."

@@ -14,7 +14,7 @@ use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Tags\Api\Resource\TagResource;
 use Flarum\Tags\Tag;
-use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
+use Flarum\Tags\Testing\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;

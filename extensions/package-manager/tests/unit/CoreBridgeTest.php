@@ -13,7 +13,7 @@ use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Tree;
 use Flarum\ExtensionManager\Host\PhpBinary;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerRunner;
 use Flarum\ExtensionManager\Work\ComposerSteps;
 use Flarum\ExtensionManager\Work\Fetcher;
@@ -84,6 +84,7 @@ class CoreBridgeTest extends TestCase
         });
         $db->table('settings')->insert(['key' => 'version', 'value' => $recorded]);
         $db->getSchemaBuilder()->create('migrations', function ($table) {
+            $table->increments('id');
             $table->string('migration');
             $table->string('extension')->nullable();
         });
@@ -93,7 +94,24 @@ class CoreBridgeTest extends TestCase
         Container::setInstance($container);
     }
 
+    public function test_an_unreadable_plan_stops_the_run_instead_of_reading_as_empty(): void
+    {
+        // flarum/framework#5357: a plan.json truncated by a full disk read as an
+        // empty plan, and the run finished "done" with nothing applied.
+        @mkdir($this->dir.'/work', 0775, true);
+        file_put_contents($this->dir.'/work/plan.json', '{"changes":[{"op":"replace","pack');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('could not be read');
+        (new \ReflectionMethod($this->steps(), 'planFile'))->invoke($this->steps());
+    }
+
     private function bridge(): string
+    {
+        return (new \ReflectionMethod($steps = $this->steps(), 'bridgeCore'))->invoke($steps);
+    }
+
+    private function steps(): ComposerSteps
     {
         $journal = new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl');
         $php = new PhpBinary(EnglishTranslator::make(), PHP_BINARY, null, '', null, PHP_BINARY, 'cli', '');
@@ -106,9 +124,10 @@ class CoreBridgeTest extends TestCase
             new Fetcher(EnglishTranslator::make(), new \GuzzleHttp\Client(), $this->dir.'/work/staging'),
             new Applier(EnglishTranslator::make(), $this->dir.'/project/vendor', $this->dir.'/work/staging', $this->dir.'/work/trash', $journal),
             $journal,
+            new \GuzzleHttp\Client(),
             vendorPath: $this->dir.'/project/vendor',
         );
 
-        return (new \ReflectionMethod($steps, 'bridgeCore'))->invoke($steps);
+        return $steps;
     }
 }

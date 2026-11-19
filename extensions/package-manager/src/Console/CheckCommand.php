@@ -14,6 +14,7 @@ use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Work\UpdateCheck;
 use Flarum\Foundation\Paths;
 use Flarum\Locale\TranslatorInterface;
+use GuzzleHttp\ClientInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -32,6 +33,7 @@ class CheckCommand extends AbstractCommand
     public function __construct(
         protected TranslatorInterface $translator,
         protected Paths $paths,
+        protected ClientInterface $http,
     ) {
         parent::__construct();
     }
@@ -45,7 +47,7 @@ class CheckCommand extends AbstractCommand
 
     protected function fire(): int
     {
-        $check = new UpdateCheck(StorageDir::of($this->paths->storage).'/updates.json');
+        $check = new UpdateCheck(StorageDir::of($this->paths->storage).'/updates.json', $this->http);
 
         if (! $this->input->getOption('force') && ! $check->isStale()) {
             $this->info('The last check is still fresh. Use --force to check anyway.');

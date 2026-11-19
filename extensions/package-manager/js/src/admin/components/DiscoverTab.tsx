@@ -1,5 +1,6 @@
 import app from 'flarum/admin/app';
 import apiUrl from '../apiUrl';
+import { radioAttrs } from '../radioGroup';
 import { liveSearchPlan, submittedSearchPlan } from '../searchPolicy';
 import type { CompatPayload, DiscoverPayload, Found, Verdict } from '../types';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
@@ -34,6 +35,9 @@ interface DiscoverAttrs extends ComponentAttrs {
  * be the slower, worse version of the same screen.
  */
 export default class DiscoverTab extends Component<DiscoverAttrs> {
+  /** One formatter for every card's download count; the locale does not change while the page is open. */
+  protected compact: Intl.NumberFormat | null = null;
+
   /*
    * The list loads on open, with no query, showing everything installable
    * straight away, which is the right behaviour: somebody opening
@@ -49,25 +53,33 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     this.search();
   }
 
-  private query = '';
+  protected query = '';
   /** '' is everything; the rest are the keys of Packagist::CATEGORIES. */
-  private category = '';
-  private searching = false;
-  private searched = false;
-  private page = 1;
-  private more = false;
-  private loadingMore = false;
-  private results: Found[] = [];
-  private verdicts: Record<string, Verdict> = {};
-  private installedNames: string[] = [];
-  private checking = false;
-  private error: string | null = null;
-  private core: string | null = null;
-  private seq = 0;
+  protected category = '';
+  protected searching = false;
+  protected searched = false;
+  protected page = 1;
+  protected more = false;
+  protected loadingMore = false;
+  protected results: Found[] = [];
+  protected verdicts: Record<string, Verdict> = {};
+  protected minimumStability = 'stable';
+  protected installedNames: string[] = [];
+  protected checking = false;
+  protected error: string | null = null;
+  protected core: string | null = null;
+  protected seq = 0;
   /** The query whose results are on screen, so a keystroke can tell if anything changed. */
-  private lastSearched: string | null = null;
+  protected lastSearched: string | null = null;
+  /**
+   * The query and category the results on screen belong to, which "Show more"
+   * pages through. Not the search box: what is typed there may not have been
+   * searched yet, and its second page appended under the first page of
+   * something else.
+   */
+  protected shown = { query: '', category: '' };
   /** The pending debounce, so a new keystroke replaces it rather than adding to it. */
-  private typing: ReturnType<typeof setTimeout> | null = null;
+  protected typing: ReturnType<typeof setTimeout> | null = null;
 
   view() {
     return (
@@ -90,6 +102,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
           <input
             className="FormControl"
             type="search"
+            aria-label={app.translator.trans('flarum-extension-manager.admin.sections.discover.search', {}, true)}
             placeholder={app.translator.trans('flarum-extension-manager.admin.sections.discover.search', {}, true)}
             value={this.query}
             oninput={(e: InputEvent) => {
@@ -119,21 +132,19 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
           role="radiogroup"
           aria-label={app.translator.trans('flarum-extension-manager.admin.sections.discover.tabs.label', {}, true)}
         >
-          {CATEGORIES.map((c) => (
-            <button
-              type="button"
-              role="radio"
-              aria-checked={this.category === c.id ? 'true' : 'false'}
+          {CATEGORIES.map((c, i) => (
+            <Button
+              {...radioAttrs(
+                i,
+                CATEGORIES.findIndex((other) => other.id === this.category),
+                CATEGORIES.length,
+                (to) => this.pickCategory(CATEGORIES[to].id)
+              )}
               className={'ExtensionManager-chip' + (this.category === c.id ? ' is-on' : '')}
-              onclick={() => {
-                if (this.category === c.id) return;
-                this.category = c.id;
-                this.stopTyping();
-                this.search();
-              }}
+              onclick={() => this.pickCategory(c.id)}
             >
               {app.translator.trans(c.label)}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -172,6 +183,13 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
         ) : null}
       </div>
     );
+  }
+
+  pickCategory(id: string) {
+    if (this.category === id) return;
+    this.category = id;
+    this.stopTyping();
+    this.search();
   }
 
   /**
@@ -322,9 +340,24 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
       );
     }
 
-    // A pre-release is labelled as one. Most forums are on stable minimum
-    // stability and cannot install it at all, and somebody who can should still
-    // be told that is what they are getting.
+    // Composer refuses a release less finished than the forum allows, with an
+    // error that says the package "could not be found". Say which setting it needs.
+    if (!this.allowed(v)) {
+      return (
+        <span className="ExtensionManager-tag ExtensionManager-tag--muted">
+          {app.translator.trans('flarum-extension-manager.admin.sections.discover.compat.needs_stability', {
+            level: app.translator.trans(
+              'flarum-extension-manager.admin.composer.minimum_stability.options.' + (v.stability || 'stable').toLowerCase(),
+              {},
+              true
+            ),
+          })}
+        </span>
+      );
+    }
+
+    // A pre-release is labelled as one, so whoever installs it knows that is
+    // what they are getting.
     return v.stability && v.stability !== 'stable' ? (
       <span className="ExtensionManager-tag ExtensionManager-tag--warn">
         {app.translator.trans('flarum-extension-manager.admin.sections.discover.compat.prerelease', { version: v.version })}
@@ -380,7 +413,8 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
         );
       }
 
-      return this.verdicts[instead]?.compatible !== true ? null : (
+      const iv = this.verdicts[instead];
+      return iv?.compatible !== true || !this.allowed(iv) ? null : (
         <Button className="Button Button--primary Button--sm" disabled={this.attrs.starting} onclick={() => this.attrs.oninstall(instead)}>
           {app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.install_replacement', { replacement: instead })}
         </Button>
@@ -390,7 +424,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     if (v?.replaced) return null;
 
     // Not offered when it cannot work. The badge beside it says why.
-    if (!v || v.compatible !== true) return null;
+    if (!v || v.compatible !== true || !this.allowed(v)) return null;
 
     return (
       <Button className="Button Button--primary Button--sm" disabled={this.attrs.starting} onclick={() => this.attrs.oninstall(r.name)}>
@@ -399,10 +433,18 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     );
   }
 
+  /** Whether the forum's minimum stability lets Composer install this release. */
+  allowed(v: Verdict): boolean {
+    const order = ['stable', 'rc', 'beta', 'alpha', 'dev'];
+
+    return order.indexOf((v.stability || 'stable').toLowerCase()) <= order.indexOf(this.minimumStability.toLowerCase());
+  }
+
+  /** A download count, abbreviated the way the forum's locale does it: 220K, 1.5M; 220 k, 1,5 M in French. */
   short(n: number): string {
-    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-    if (n >= 1000) return Math.round(n / 1000) + 'k';
-    return String(n);
+    this.compact ??= new Intl.NumberFormat(app.data.locale, { notation: 'compact' });
+
+    return this.compact.format(n);
   }
 
   search() {
@@ -423,8 +465,15 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
      * identical request.
      */
     this.lastSearched = q;
+    this.shown = { query: q, category: this.category };
 
     this.page = 1;
+    /*
+     * A "Show more" still on its way belongs to the old results, and its reply
+     * is dropped by the number check, so nothing else would ever turn its
+     * "Loading…" back into a button.
+     */
+    this.loadingMore = false;
     this.searching = true;
     this.searched = true;
     this.error = null;
@@ -487,9 +536,9 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
           '/extension-manager/discover?page=' +
           (this.page + 1) +
           '&q=' +
-          encodeURIComponent(this.query.trim()) +
+          encodeURIComponent(this.shown.query) +
           '&category=' +
-          this.category,
+          encodeURIComponent(this.shown.category),
       })
       .then((data) => {
         if (mine !== this.seq) return;
@@ -531,6 +580,7 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
         this.checking = false;
         this.verdicts = { ...this.verdicts, ...(data.verdicts || {}) };
         this.core = data.core || this.core;
+        this.minimumStability = data.minimumStability || this.minimumStability;
 
         // A replacement is offered in place of the package it replaced, so it
         // is held to the same rule: no button until we know it works here.

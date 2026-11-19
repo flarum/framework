@@ -6,6 +6,11 @@ export interface IUploadImageButtonAttrs extends IButtonAttrs {
     routePath: string;
     value?: string | null | (() => string | null);
     url?: string | null | (() => string | null);
+    /**
+     * Set when the image is set in code, such as by a theme, and can't be
+     * changed here: the title of the extension that set it, or null.
+     */
+    lockedBy?: string | null;
 }
 export default class UploadImageButton<CustomAttrs extends IUploadImageButtonAttrs = IUploadImageButtonAttrs> extends Component<CustomAttrs> {
     loading: boolean;
