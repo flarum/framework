@@ -12,8 +12,8 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
-use Flarum\ExtensionManager\Tests\unit\FakeHttp;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\FakeHttp;
 use PHPUnit\Framework\TestCase;
 
 /**

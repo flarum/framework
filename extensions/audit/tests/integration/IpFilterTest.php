@@ -12,6 +12,7 @@ namespace Flarum\Audit\Tests\integration;
 use Flarum\Audit\AuditLog;
 use Flarum\Audit\AuditLogger;
 use Flarum\Audit\IpRange;
+use Flarum\Audit\Testing\TestCase;
 use Flarum\Group\Group;
 use Flarum\Group\Permission;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;

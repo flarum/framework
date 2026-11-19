@@ -10,7 +10,8 @@
 namespace Flarum\Suspend\Tests\integration;
 
 use Carbon\Carbon;
-use Flarum\Audit\Tests\integration\InteractsWithAuditLog;
+use Flarum\Audit\Testing\BuildsAuditRequests;
+use Flarum\Audit\Testing\InteractsWithAuditLog;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
@@ -18,6 +19,16 @@ use PHPUnit\Framework\Attributes\Test;
 class AuditTest extends TestCase
 {
     use InteractsWithAuditLog;
+    use BuildsAuditRequests;
+
+    protected function tearDown(): void
+    {
+        try {
+            parent::tearDown();
+        } finally {
+            $this->tearDownAuditLog();
+        }
+    }
 
     public function setUp(): void
     {

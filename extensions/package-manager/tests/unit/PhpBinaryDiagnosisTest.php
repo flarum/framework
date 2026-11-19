@@ -12,7 +12,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Host\Capability;
 use Flarum\ExtensionManager\Host\PhpBinary;
 use Flarum\ExtensionManager\Host\PhpOverride;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Yaml\Yaml;
 

@@ -15,7 +15,7 @@ use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\RefreshToken;
 use Flarum\OAuthProvider\Server\Repository\AuthCodeRepository;
 use Flarum\OAuthProvider\Server\Repository\RefreshTokenRepository;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -143,7 +143,7 @@ class SecretRotationTest extends TestCase
 
         $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
 
-        return $this->json($response)['data']['attributes']['plainSecret'];
+        return $this->oauthJson($response)['data']['attributes']['plainSecret'];
     }
 
     protected function refreshWith(string $secret, string $refreshToken): ResponseInterface
@@ -154,8 +154,8 @@ class SecretRotationTest extends TestCase
     protected function assertGrantRevoked(ResponseInterface $response): void
     {
         $this->assertSame(400, $response->getStatusCode(), (string) $response->getBody());
-        $this->assertSame('invalid_grant', $this->json($response)['error']);
-        $this->assertSame('This grant has been revoked.', $this->json($response)['hint']);
+        $this->assertSame('invalid_grant', $this->oauthJson($response)['error']);
+        $this->assertSame('This grant has been revoked.', $this->oauthJson($response)['hint']);
     }
 
     protected function assertNoWorkingToken(): void

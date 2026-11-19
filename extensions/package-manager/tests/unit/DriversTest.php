@@ -11,7 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Run\Drivers;
 use Flarum\ExtensionManager\Run\StepJob;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Queue\Factory as QueueFactory;
 use Illuminate\Queue\SyncQueue;

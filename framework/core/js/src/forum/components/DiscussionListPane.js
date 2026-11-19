@@ -36,11 +36,32 @@ export default class DiscussionListPane extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
+    // Create a 10px 'hot edge' on the left of the screen to activate the pane.
+    $(document).on('mousemove', hotEdge);
+
+    this.setupList(vnode);
+  }
+
+  onupdate(vnode) {
+    super.onupdate(vnode);
+
+    // The pane renders nothing until the list has items, which on a discussion
+    // opened directly is only once its request returns, after `oncreate`.
+    this.setupList(vnode);
+  }
+
+  /**
+   * Bind the pane's handlers to the list, once per element it renders.
+   */
+  setupList(vnode) {
+    if (!vnode.dom || vnode.dom === this.listElement) return;
+
+    this.listElement = vnode.dom;
+
     const $list = $(vnode.dom);
 
     // When the mouse enters and leaves the discussions pane, we want to show
-    // and hide the pane respectively. We also create a 10px 'hot edge' on the
-    // left of the screen to activate the pane.
+    // and hide the pane respectively.
     const pane = app.pane;
     $list.on('mouseenter', pane.show.bind(pane));
     $list.on('mouseleave', pane.onmouseleave.bind(pane));
@@ -48,8 +69,6 @@ export default class DiscussionListPane extends Component {
     // and when tabbing out, we should hide the pane.
     $list.on('focus', 'a, .Button', pane.show.bind(pane));
     $list.on('blur', 'a, .Button', pane.onmouseleave.bind(pane));
-
-    $(document).on('mousemove', hotEdge);
 
     // When coming from another discussion, scroll to the previous position
     // to prevent the discussion list jumping around.

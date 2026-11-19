@@ -13,7 +13,7 @@ use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Rollback;
 use Flarum\ExtensionManager\Plan\Change;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**

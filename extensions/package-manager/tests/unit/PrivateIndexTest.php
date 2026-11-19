@@ -12,7 +12,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\JsonFile;
 use Flarum\ExtensionManager\Config\Repositories;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\PrivateIndex;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;

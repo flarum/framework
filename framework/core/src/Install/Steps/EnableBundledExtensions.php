@@ -10,17 +10,29 @@
 namespace Flarum\Install\Steps;
 
 use Flarum\Database\DatabaseMigrationRepository;
+use Flarum\Database\MigrationContext;
 use Flarum\Database\Migrator;
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Foundation\Config;
+use Flarum\Foundation\MaintenanceMode;
+use Flarum\Foundation\Paths;
 use Flarum\Install\Step;
 use Flarum\Settings\DatabaseSettingsRepository;
+use Flarum\Settings\DefaultSettingsRepository;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Settings\SettingsServiceProvider;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\Container as ContainerContract;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Schema\Builder;
+use Illuminate\Events\Dispatcher as EventDispatcher;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
+use RuntimeException;
 
 class EnableBundledExtensions implements Step
 {
@@ -52,7 +64,9 @@ class EnableBundledExtensions implements Step
         private readonly ConnectionInterface $database,
         private readonly string $vendorPath,
         private readonly string $assetPath,
-        ?array $enabledExtensions = null
+        ?array $enabledExtensions = null,
+        private readonly ?Paths $paths = null,
+        private readonly ?Config $config = null
     ) {
         $this->enabledExtensions = $enabledExtensions ?? self::DEFAULT_ENABLED_EXTENSIONS;
     }
@@ -65,9 +79,10 @@ class EnableBundledExtensions implements Step
     public function run(): void
     {
         $extensions = ExtensionManager::resolveExtensionOrder($this->loadExtensions()->all())['valid'];
+        $migrator = $this->getMigrator($extensions);
 
         foreach ($extensions as $extension) {
-            $extension->migrate($this->getMigrator());
+            $extension->migrate($migrator);
             $adapter = new LocalFilesystemAdapter($this->assetPath);
             $extension->copyAssetsTo(
                 new FilesystemAdapter(new Filesystem($adapter), $adapter)
@@ -121,12 +136,62 @@ class EnableBundledExtensions implements Step
         });
     }
 
-    private function getMigrator(): Migrator
+    private function getMigrator(array $extensions): Migrator
     {
-        return $this->migrator ??= new Migrator(
+        $container = new Container();
+        $enabledExtensions = array_map(fn (Extension $extension) => $extension->getId(), $extensions);
+        /** @var Builder $schema */
+        $schema = $this->database->getSchemaBuilder();
+        $container->instance(ContainerContract::class, $container);
+        $container->instance(Builder::class, $schema);
+        $container->instance(ConnectionInterface::class, $this->database);
+        if ($this->paths !== null) {
+            $container->instance(Paths::class, $this->paths);
+        }
+        if ($this->config !== null) {
+            $container->instance(Config::class, $this->config);
+        }
+        $defaults = SettingsServiceProvider::defaults();
+        $container->instance('flarum.settings.default', $defaults);
+        $container->instance(SettingsRepositoryInterface::class, new DefaultSettingsRepository(
+            new DatabaseSettingsRepository($this->database),
+            $container->make('flarum.settings.default')
+        ));
+        $refreshDefaults = function () use ($extensions, $container, $defaults): void {
+            $defaults->forget($defaults->keys()->all());
+
+            foreach (SettingsServiceProvider::defaults() as $key => $value) {
+                $defaults->put($key, $value);
+            }
+
+            foreach ($extensions as $extension) {
+                $extension->getSettingsDefaults($container, $defaults);
+            }
+        };
+        $container->instance(MigrationContext::class, new MigrationContext($schema, $enabledExtensions, $container->make(SettingsRepositoryInterface::class), $refreshDefaults));
+
+        $migrator = $this->migrator ??= new Migrator(
             new DatabaseMigrationRepository($this->database, 'migrations'),
             $this->database,
-            new \Illuminate\Filesystem\Filesystem
+            new \Illuminate\Filesystem\Filesystem,
+            $container
         );
+        $container->singleton(ExtensionManager::class, function () use ($container, $migrator) {
+            if (! $this->paths || ! $this->config) {
+                throw new RuntimeException('ExtensionManager conditions during installation require installation paths and configuration.');
+            }
+
+            return new ExtensionManager(
+                $container->make(SettingsRepositoryInterface::class),
+                $this->paths,
+                $container,
+                $migrator,
+                new EventDispatcher($container),
+                new \Illuminate\Filesystem\Filesystem,
+                new MaintenanceMode($this->config, $container->make(SettingsRepositoryInterface::class)),
+            );
+        });
+
+        return $migrator;
     }
 }

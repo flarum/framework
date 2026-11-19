@@ -38,6 +38,13 @@ function holding(...pages: Array<ReturnType<typeof page>>): MessageStreamState {
   return state;
 }
 
+/** What the forum answers when asked for messages by id: those it still has. */
+const found = (numbers: number[], data: any[] = []) =>
+  Object.assign(
+    numbers.map((number) => app.store.getById<DialogMessage>('dialog-messages', String(number))!),
+    { payload: { data } }
+  );
+
 const numbers = (state: MessageStreamState) => state.getAllItems().map((m) => m.number());
 const offsets = (state: MessageStreamState) => state.getPages().map((p: any) => p.items.payload.meta.page.offset);
 
@@ -136,7 +143,7 @@ describe('refreshHeld', () => {
       // The forum says message 4, the newest, now has likes.
       app.store.pushPayload({ data: [{ type: 'dialog-messages', id: '4', attributes: { likesCount: 2 } }] } as any);
 
-      return [];
+      return found([4, 3, 2, 1]);
     }) as any);
 
     await state.refreshHeld();
@@ -148,6 +155,30 @@ describe('refreshHeld', () => {
     expect((find.mock.calls[0][1] as any).page).toEqual({ limit: 4 });
     expect(app.store.getById<DialogMessage>('dialog-messages', '4')!.likesCount()).toBe(2);
     expect(numbers(state)).toEqual([4, 3, 2, 1]);
+  });
+
+  it('drops a message the forum no longer has, deleted for good while events were missed', async () => {
+    const state = holding(page([3, 2, 1], 0));
+    jest.spyOn(app.store, 'find').mockImplementation((async () => found([3, 1])) as any);
+
+    await state.refreshHeld();
+
+    expect(numbers(state)).toEqual([3, 1]);
+  });
+
+  it('forgets what a message said once it was deleted while events were missed', async () => {
+    const state = holding(page([2, 1], 0));
+    app.store.getById<DialogMessage>('dialog-messages', '2')!.pushAttributes({ contentHtml: '<p>Secret</p>' });
+    jest.spyOn(app.store, 'find').mockImplementation((async () => {
+      app.store.pushPayload({ data: [{ type: 'dialog-messages', id: '2', attributes: { isHidden: true } }] } as any);
+
+      return found([2, 1], [{ type: 'dialog-messages', id: '2', attributes: { isHidden: true } }]);
+    }) as any);
+
+    await state.refreshHeld();
+
+    expect(numbers(state)).toEqual([2, 1]);
+    expect(app.store.getById<DialogMessage>('dialog-messages', '2')!.contentHtml()).toBeNull();
   });
 
   it('asks in batches the forum will answer in full', async () => {

@@ -10,7 +10,7 @@
 namespace Flarum\Tags\Tests\integration\api\forum;
 
 use Flarum\Tags\Tag;
-use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
+use Flarum\Tags\Testing\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;

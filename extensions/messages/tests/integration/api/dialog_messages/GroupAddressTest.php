@@ -16,7 +16,7 @@ use Flarum\Group\Group;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\Messages\Job\SendMessageNotificationsJob;
-use Flarum\Messages\Tests\integration\CapturesSentMail;
+use Flarum\Messages\Testing\CapturesSentMail;
 use Flarum\Notification\Job\SendEmailNotificationJob;
 use Flarum\Notification\NotificationMailer;
 use Flarum\Notification\NotificationSyncer;

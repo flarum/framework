@@ -10,7 +10,7 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Api\Controller\StartController;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerSteps;
 use Flarum\ExtensionManager\Work\WorkDir;
 use PHPUnit\Framework\TestCase;

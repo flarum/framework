@@ -18,7 +18,7 @@ use Flarum\OAuthProvider\Extend\Scope;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\OAuthProvider\ResourceServer\TokenValidator;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -81,7 +81,7 @@ class TokenValidatorTest extends TestCase
         $this->assertSame(2, $validated->user->id);
         $this->assertSame('public-client', $validated->clientId);
         $this->assertSame(['openid', 'mcp:read'], $validated->scopes);
-        $this->assertSame($this->jwtClaims($jwt)['jti'], $validated->tokenId);
+        $this->assertSame($this->oauthJwtClaims($jwt)['jti'], $validated->tokenId);
         $this->assertSame(self::RESOURCE, $validated->resource);
     }
 
@@ -123,7 +123,7 @@ class TokenValidatorTest extends TestCase
     {
         $jwt = $this->accessToken();
 
-        AccessToken::query()->where('id', $this->jwtClaims($jwt)['jti'])->update(['revoked' => true]);
+        AccessToken::query()->where('id', $this->oauthJwtClaims($jwt)['jti'])->update(['revoked' => true]);
 
         $this->assertNull($this->validator()->validate($jwt, self::RESOURCE));
     }
@@ -153,7 +153,7 @@ class TokenValidatorTest extends TestCase
     {
         $jwt = $this->accessToken();
         [$header, $payload, $signature] = explode('.', $jwt);
-        $claims = $this->jwtClaims($jwt);
+        $claims = $this->oauthJwtClaims($jwt);
         $claims['sub'] = '1';
         $forged = $header.'.'.rtrim(strtr(base64_encode(json_encode($claims)), '+/', '-_'), '=').'.'.$signature;
 
@@ -177,7 +177,7 @@ class TokenValidatorTest extends TestCase
     public function last_used_at_is_touched_at_most_once_a_minute(): void
     {
         $jwt = $this->accessToken();
-        $tokenId = $this->jwtClaims($jwt)['jti'];
+        $tokenId = $this->oauthJwtClaims($jwt)['jti'];
 
         $this->assertNull(AccessToken::query()->find($tokenId)->last_used_at);
 
@@ -199,7 +199,7 @@ class TokenValidatorTest extends TestCase
     public function the_address_a_token_was_last_used_from_is_recorded_with_its_use(): void
     {
         $jwt = $this->accessToken();
-        $tokenId = $this->jwtClaims($jwt)['jti'];
+        $tokenId = $this->oauthJwtClaims($jwt)['jti'];
 
         $first = Carbon::now()->addSecond()->startOfSecond();
         Carbon::setTestNow($first);

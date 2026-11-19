@@ -10,7 +10,7 @@
 namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Config\JsonFile;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use PHPUnit\Framework\TestCase;
 
 /**

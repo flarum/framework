@@ -10,6 +10,7 @@
 namespace Flarum\Audit\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Audit\Testing\TestCase;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
 use Illuminate\Support\Arr;

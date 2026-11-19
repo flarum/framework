@@ -11,7 +11,7 @@ namespace Flarum\Mcp\Tests\integration\integrations;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Flarum\User\User;

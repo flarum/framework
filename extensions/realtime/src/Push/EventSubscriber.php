@@ -14,6 +14,7 @@ use Flarum\Discussion\Event\Started;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Revised;
 use Flarum\Realtime\Push\Jobs\SendDialogMessageJob;
+use Flarum\Realtime\Push\Jobs\SendDialogRemovalJob;
 use Flarum\Realtime\Push\Jobs\SendFlaggedJob;
 use Flarum\Realtime\Push\Jobs\SendTriggerJob;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -56,6 +57,21 @@ class EventSubscriber extends Subscriber
                 $message = ($entry['getMessage'])($event);
 
                 $this->queue()->push(new SendDialogMessageJob(get_class($event), $message));
+            });
+        }
+
+        // Extension-registered removals of dialog messages deleted for good.
+        foreach ($this->registry->getDialogRemovals() as $entry) {
+            $this->listen($entry['events'], function (object $event) use ($entry) {
+                $removal = ($entry['getRemoval'])($event);
+
+                $this->queue()->push(new SendDialogRemovalJob(
+                    get_class($event),
+                    (int) $removal['id'],
+                    (int) $removal['dialogId'],
+                    (bool) ($removal['dialogDeleted'] ?? false),
+                    array_map('intval', $removal['userIds'] ?? []),
+                ));
             });
         }
 

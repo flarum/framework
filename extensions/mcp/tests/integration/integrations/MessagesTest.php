@@ -10,7 +10,7 @@
 namespace Flarum\Mcp\Tests\integration\integrations;
 
 use Carbon\Carbon;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\User\User;
@@ -268,25 +268,27 @@ class MessagesTest extends McpTestCase
     #[Test]
     public function delete_message_is_refused_unless_the_forum_allows_it(): void
     {
+        $this->setting('flarum-messages.allow_delete_own_messages', '0');
+
         $auth = $this->bearer($this->developerToken(2));
 
         $this->toolOutput($this->callTool('delete_message', ['messageId' => '2'], $auth), expectError: true);
-        $this->assertTrue(DialogMessage::query()->whereKey(2)->exists());
+        $this->assertNull(DialogMessage::query()->whereKey(2)->value('hidden_at'));
     }
 
     #[Test]
-    public function delete_message_deletes_own_messages_when_the_forum_allows_it(): void
+    public function delete_message_deletes_own_messages_in_a_way_that_can_be_undone(): void
     {
         $this->setting('flarum-messages.allow_delete_own_messages', '-1');
 
         $auth = $this->bearer($this->developerToken(2));
 
         $this->assertSame(['deleted' => true, 'messageId' => '2'], $this->toolOutput($this->callTool('delete_message', ['messageId' => '2'], $auth)));
-        $this->assertFalse(DialogMessage::query()->whereKey(2)->exists());
+        $this->assertNotNull(DialogMessage::query()->whereKey(2)->value('hidden_at'));
 
         // Someone else's message stays.
         $this->toolOutput($this->callTool('delete_message', ['messageId' => '1'], $auth), expectError: true);
-        $this->assertTrue(DialogMessage::query()->whereKey(1)->exists());
+        $this->assertNull(DialogMessage::query()->whereKey(1)->value('hidden_at'));
     }
 
     #[Test]

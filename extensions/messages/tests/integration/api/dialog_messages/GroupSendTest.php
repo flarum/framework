@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use Flarum\Extend;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
-use Flarum\Messages\Tests\integration\CapturesSentMail;
+use Flarum\Messages\Testing\CapturesSentMail;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Access\AbstractPolicy;

@@ -50,7 +50,13 @@ export default class MessageSearchResult<CustomAttrs extends IMessageSearchResul
           </span>
           {humanTime(message.createdAt())}
         </div>
-        <div className="MessageSearchResult-excerpt">{highlight(message.contentPlain() ?? '', this.highlightRegExp(), 175)}</div>
+        <div className="MessageSearchResult-excerpt">
+          {/* Only its author finds a deleted message, and sees that it is. */}
+          {message.isHidden() && (
+            <em className="MessageSearchResult-deleted">{app.translator.trans('flarum-messages.forum.message.deleted_text')} </em>
+          )}
+          {highlight(message.contentPlain() ?? '', this.highlightRegExp(), 175)}
+        </div>
       </div>,
       90
     );
