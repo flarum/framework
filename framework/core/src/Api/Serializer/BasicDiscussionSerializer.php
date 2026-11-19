@@ -11,6 +11,8 @@ namespace Flarum\Api\Serializer;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Http\SlugManager;
+use Flarum\User\User;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use InvalidArgumentException;
 
 class BasicDiscussionSerializer extends AbstractSerializer
@@ -63,6 +65,8 @@ class BasicDiscussionSerializer extends AbstractSerializer
      */
     protected function firstPost($discussion)
     {
+        $this->loadVisiblePost($discussion, 'firstPost');
+
         return $this->hasOne($discussion, BasicPostSerializer::class);
     }
 
@@ -79,6 +83,8 @@ class BasicDiscussionSerializer extends AbstractSerializer
      */
     protected function lastPost($discussion)
     {
+        $this->loadVisiblePost($discussion, 'lastPost');
+
         return $this->hasOne($discussion, BasicPostSerializer::class);
     }
 
@@ -95,6 +101,8 @@ class BasicDiscussionSerializer extends AbstractSerializer
      */
     protected function mostRelevantPost($discussion)
     {
+        $this->loadVisiblePost($discussion, 'mostRelevantPost');
+
         return $this->hasOne($discussion, PostSerializer::class);
     }
 
@@ -104,5 +112,31 @@ class BasicDiscussionSerializer extends AbstractSerializer
     protected function hiddenUser($discussion)
     {
         return $this->hasOne($discussion, BasicUserSerializer::class);
+    }
+
+    /**
+     * A lazy load would skip post visibility. Eager-loaded relations are
+     * checked in AbstractSerializeController::loadRelations().
+     *
+     * @param Discussion $discussion
+     */
+    private function loadVisiblePost($discussion, string $relation): void
+    {
+        // The actor is only set once setRequest() has been called.
+        /** @var User|null $actor */
+        $actor = $this->actor;
+
+        if (! $actor || ! $discussion instanceof Discussion || $discussion->relationLoaded($relation)) {
+            return;
+        }
+
+        $query = $discussion->$relation();
+
+        // Like a lazy load, don't query for a post when there is no key.
+        if ($query instanceof BelongsTo && $discussion->getAttribute($query->getForeignKeyName()) === null) {
+            $discussion->setRelation($relation, null);
+        } else {
+            $discussion->setRelation($relation, $query->whereVisibleTo($actor)->first());
+        }
     }
 }
