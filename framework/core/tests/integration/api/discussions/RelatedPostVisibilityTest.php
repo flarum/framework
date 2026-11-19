@@ -236,7 +236,7 @@ class RelatedPostVisibilityTest extends TestCase
                 $this->assertEquals(
                     $direct === 200,
                     $exposed,
-                    "Actor ".var_export($actorId, true)." got $direct for post $postId but ".($exposed ? 'did' : 'did not').' get it as firstPost'
+                    'Actor '.var_export($actorId, true)." got $direct for post $postId but ".($exposed ? 'did' : 'did not').' get it as firstPost'
                 );
             }
         }
