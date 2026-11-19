@@ -12,8 +12,8 @@ namespace Flarum\Mcp\Tests\integration\auth;
 use Carbon\Carbon;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
-use Flarum\Mcp\Tests\integration\IssuesOAuthTokens;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\IssuesOAuthTokens;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\OAuthProvider\Extend\Resource as OAuthResource;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
@@ -166,9 +166,9 @@ class AuthenticationTest extends McpTestCase
         $response = $this->modern('tools/list', [], $this->bearer($token));
 
         $this->assertSame(403, $response->getStatusCode());
-        $this->assertSame('forbidden', $this->json($response)['error']);
-        $this->assertArrayHasKey('error_description', $this->json($response));
-        $this->assertArrayNotHasKey('jsonrpc', $this->json($response));
+        $this->assertSame('forbidden', $this->mcpJson($response)['error']);
+        $this->assertArrayHasKey('error_description', $this->mcpJson($response));
+        $this->assertArrayNotHasKey('jsonrpc', $this->mcpJson($response));
     }
 
     #[Test]
@@ -217,7 +217,7 @@ class AuthenticationTest extends McpTestCase
         $this->extend(new OAuthResource(fn (UrlGenerator $url) => $url->to('forum')->base().'/elsewhere', ['mcp:read']));
         $this->setUpOAuth();
         $jwt = $this->issueOAuthToken('mcp:read', 'http://localhost/elsewhere');
-        $this->assertContains('http://localhost/elsewhere', (array) $this->jwtClaims($jwt)['aud']);
+        $this->assertContains('http://localhost/elsewhere', (array) $this->mcpJwtClaims($jwt)['aud']);
 
         $response = $this->modern('tools/list', [], $this->bearer($jwt));
 
@@ -234,7 +234,7 @@ class AuthenticationTest extends McpTestCase
 
         $this->assertSame(200, $this->modern('tools/list', [], $this->bearer($jwt))->getStatusCode());
 
-        $this->database()->table('oauth_provider_access_tokens')->where('id', $this->jwtClaims($jwt)['jti'])->update(['revoked' => true]);
+        $this->database()->table('oauth_provider_access_tokens')->where('id', $this->mcpJwtClaims($jwt)['jti'])->update(['revoked' => true]);
 
         $response = $this->modern('tools/list', [], $this->bearer($jwt));
         $this->assertSame(401, $response->getStatusCode());
@@ -252,7 +252,7 @@ class AuthenticationTest extends McpTestCase
 
         $this->assertSame(
             '203.0.113.7',
-            $this->database()->table('oauth_provider_access_tokens')->where('id', $this->jwtClaims($jwt)['jti'])->value('last_ip_address')
+            $this->database()->table('oauth_provider_access_tokens')->where('id', $this->mcpJwtClaims($jwt)['jti'])->value('last_ip_address')
         );
     }
 
@@ -289,7 +289,7 @@ class AuthenticationTest extends McpTestCase
     {
         $this->setUpOAuth();
         $jwt = $this->issueOAuthToken('openid');
-        $this->assertContains('http://localhost/mcp', (array) $this->jwtClaims($jwt)['aud']);
+        $this->assertContains('http://localhost/mcp', (array) $this->mcpJwtClaims($jwt)['aud']);
 
         foreach (['tools/list', 'server/discover'] as $method) {
             $response = $this->modern($method, [], $this->bearer($jwt));
@@ -303,7 +303,7 @@ class AuthenticationTest extends McpTestCase
 
         $response = $this->callTool('whoami', [], $this->bearer($jwt));
         $this->assertSame(403, $response->getStatusCode());
-        $this->assertArrayNotHasKey('result', $this->json($response));
+        $this->assertArrayNotHasKey('result', $this->mcpJson($response));
     }
 
     #[Test]

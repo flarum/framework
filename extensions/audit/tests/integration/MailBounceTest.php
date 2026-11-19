@@ -9,6 +9,7 @@
 
 namespace Flarum\Audit\Tests\integration;
 
+use Flarum\Audit\Testing\TestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 

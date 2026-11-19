@@ -11,7 +11,7 @@ namespace Flarum\OAuthProvider\Tests\integration\forum;
 
 use Flarum\Extend;
 use Flarum\OAuthProvider\Models\Client;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -76,7 +76,7 @@ class DynamicRegistrationTest extends TestCase
         $response = $this->register($metadata);
         $this->assertSame(201, $response->getStatusCode(), (string) $response->getBody());
 
-        return $this->json($response)['client_id'];
+        return $this->oauthJson($response)['client_id'];
     }
 
     #[Test]
@@ -192,7 +192,7 @@ class DynamicRegistrationTest extends TestCase
             $response = $this->register(['redirect_uris' => $uris]);
 
             $this->assertSame(400, $response->getStatusCode());
-            $this->assertSame('invalid_redirect_uri', $this->json($response)['error']);
+            $this->assertSame('invalid_redirect_uri', $this->oauthJson($response)['error']);
         }
 
         $this->assertSame(0, Client::query()->count());
@@ -205,14 +205,14 @@ class DynamicRegistrationTest extends TestCase
             $response = $this->register(['redirect_uris' => ['https://app.example.com/cb'], 'scope' => $scope]);
 
             $this->assertSame(400, $response->getStatusCode());
-            $this->assertSame('invalid_client_metadata', $this->json($response)['error']);
+            $this->assertSame('invalid_client_metadata', $this->oauthJson($response)['error']);
         }
 
         $this->assertSame(0, Client::query()->count());
 
         $response = $this->register(['redirect_uris' => ['https://app.example.com/cb'], 'scope' => 'openid  profile']);
         $this->assertSame(201, $response->getStatusCode());
-        $this->assertSame('openid profile', $this->json($response)['scope']);
+        $this->assertSame('openid profile', $this->oauthJson($response)['scope']);
     }
 
     #[Test]
@@ -221,7 +221,7 @@ class DynamicRegistrationTest extends TestCase
         $response = $this->register(['client_name' => "Safe\u{202E}evil\u{2066}\x07", 'redirect_uris' => ['https://app.example.com/cb']]);
 
         $this->assertSame(201, $response->getStatusCode());
-        $this->assertSame('Safeevil', $this->json($response)['client_name']);
+        $this->assertSame('Safeevil', $this->oauthJson($response)['client_name']);
     }
 
     #[Test]
@@ -235,7 +235,7 @@ class DynamicRegistrationTest extends TestCase
 
         $tokens = $this->publicClientTokens($clientId, ['scope' => 'openid email']);
 
-        $this->assertSame(['openid'], $this->jwtClaims($tokens['access_token'])['scopes']);
+        $this->assertSame(['openid'], $this->oauthJwtClaims($tokens['access_token'])['scopes']);
     }
 
     #[Test]

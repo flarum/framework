@@ -129,4 +129,14 @@ class SearchTest extends TestCase
 
         $this->assertEquals(401, $response->getStatusCode());
     }
+
+    /** A message its author deleted, in a way that can be undone, is theirs alone to find. */
+    #[Test]
+    public function a_deleted_message_is_found_only_by_its_author(): void
+    {
+        $this->database()->table('dialog_messages')->where('id', 201)->update(['hidden_at' => Carbon::now(), 'hidden_user_id' => 3]);
+
+        $this->assertNotContains('201', $this->search('pineapple', 1));
+        $this->assertContains('201', $this->search('pineapple', 3));
+    }
 }

@@ -52,6 +52,14 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
     /** @var WeakMap<DialogMessage, int[]>|null */
     protected ?WeakMap $recipientGroups = null;
 
+    /**
+     * Who could see the message, before deleting it may take its conversation,
+     * and the conversation's members, with it.
+     *
+     * @var WeakMap<DialogMessage, int[]>|null
+     */
+    protected ?WeakMap $deletedFrom = null;
+
     public function __construct(
         protected Translator $translator,
         protected LogReporter $log,
@@ -100,6 +108,16 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                         return $actor->can('sendAnyMessage');
                     }
                 }),
+            // Edit, delete in a way that can be undone, and restore.
+            Endpoint\Update::make()
+                ->authenticated()
+                ->visible(function (DialogMessage $message, Context $context): bool {
+                    $actor = $context->getActor();
+
+                    return $actor->can('edit', $message) || $actor->can('hide', $message);
+                })
+                ->defaultInclude(['editedUser', 'hiddenUser']),
+            // Delete for good.
             Endpoint\Delete::make()
                 ->authenticated()
                 ->visible(function (DialogMessage $message, Context $context): bool {
@@ -116,19 +134,24 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
             // query per conversation, or per member.
             Endpoint\Show::make()
                 ->authenticated()
-                ->defaultInclude(['user', 'dialog'])
+                ->defaultInclude(['user', 'dialog', 'editedUser'])
                 ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state', 'dialog.groups'], 'dialog.users' => ['dialog.users.groups']]),
             Endpoint\Index::make()
                 ->authenticated()
-                ->defaultInclude(['user', 'dialog'])
+                ->defaultInclude(['user', 'dialog', 'editedUser'])
                 ->eagerLoadWhenIncluded(['dialog' => ['dialog.users', 'dialog.state', 'dialog.groups'], 'dialog.users' => ['dialog.users.groups']])
                 ->defaultSort('-number')
+                // Whether each message can be edited or deleted turns on its
+                // conversation, and whether its members can still be written
+                // to: included or not, once for the page, not per message.
                 ->eagerLoad(function () {
+                    $relations = ['dialog.users.groups'];
+
                     if (! $this->extensions->isEnabled('flarum-mentions')) {
-                        return [];
+                        return $relations;
                     }
 
-                    $relations = ['mentionsUsers', 'mentionsPosts', 'mentionsGroups'];
+                    $relations = [...$relations, 'mentionsUsers', 'mentionsPosts', 'mentionsGroups'];
 
                     if ($this->extensions->isEnabled('flarum-tags')) {
                         $relations[] = 'mentionsTags';
@@ -183,18 +206,30 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->visible(fn (DialogMessage $message) => ! $message->isComment())
                 ->get(fn (DialogMessage $message) => $message->eventData()),
             Schema\Str::make('content')
-                ->description('Write-only: the message, in the forum\'s input format (Markdown or BBCode, as enabled).')
+                ->description('The message, in the forum\'s input format (Markdown or BBCode, as enabled). Shown only to those who can edit it.')
                 ->requiredOnCreate()
-                ->writableOnCreate()
-                ->hidden()
+                ->writable(function (DialogMessage $message, Context $context) {
+                    return $context->creating() || (
+                        $context->updating()
+                        && $message->isComment()
+                        && $context->getActor()->can('edit', $message)
+                    );
+                })
+                ->visible(fn (DialogMessage $message, Context $context) => $message->isComment() && $context->getActor()->can('edit', $message))
                 ->minLength(1)
+                // Blank strings skip minLength; an edit can't empty a message.
+                ->rule('filled', fn (Context $context) => $context->updating())
                 ->maxLength(63000)
-                ->set(function (DialogMessage $post, string $value, Context $context) {
-                    $post->setContentAttribute($value, $context->getActor());
+                ->set(function (DialogMessage $message, string $value, Context $context) {
+                    if ($context->creating()) {
+                        $message->setContentAttribute($value, $context->getActor());
+                    } else {
+                        $message->revise($value, $context->getActor());
+                    }
                 }),
             Schema\Str::make('contentHtml')
-                ->description('The message rendered as HTML.')
-                ->visible(fn (DialogMessage $message) => $message->isComment())
+                ->description('The message rendered as HTML. Absent on a deleted message, except for its author and those who can restore it.')
+                ->visible(fn (DialogMessage $message, Context $context) => $message->isComment() && $this->canSeeContent($message, $context->getActor()))
                 ->get(function (DialogMessage $post, Context $context) {
                     try {
                         $rendered = $post->formatContent($context->request);
@@ -209,6 +244,18 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 }),
             Schema\Boolean::make('renderFailed'),
             Schema\DateTime::make('createdAt'),
+            Schema\DateTime::make('editedAt')
+                ->description('When the message was last edited, or null if it never was.'),
+            Schema\Boolean::make('isHidden')
+                ->description('Whether the message is deleted, in a way that can be undone. Set to true to delete it, false to restore it.')
+                ->get(fn (DialogMessage $message) => $message->isHidden())
+                // A notice records what happened, whoever may hide messages.
+                ->writable(fn (DialogMessage $message, Context $context) => $context->updating() && $message->isComment() && $context->getActor()->can('hide', $message))
+                ->set(function (DialogMessage $message, bool $value, Context $context) {
+                    $value ? $message->hide($context->getActor()) : $message->restore($context->getActor());
+                }),
+            Schema\DateTime::make('hiddenAt')
+                ->visible(fn (DialogMessage $message) => $message->isHidden()),
             Schema\Str::make('ipAddress')
                 ->description('The IP address the message was sent from. Only visible to those allowed to view IP addresses.')
                 ->visible(fn (DialogMessage $message, Context $context) => $context->getActor()->can('dialog.viewIps')),
@@ -230,27 +277,45 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->get(function (DialogMessage $message, Context $context) {
                     return $context->getActor()->can('delete', $message);
                 }),
+            Schema\Boolean::make('canEdit')
+                ->get(fn (DialogMessage $message, Context $context) => $context->getActor()->can('edit', $message)),
+            Schema\Boolean::make('canHide')
+                ->get(fn (DialogMessage $message, Context $context) => $context->getActor()->can('hide', $message)),
 
             Schema\Relationship\ToOne::make('user')
                 ->type('users')
                 ->includable(),
+            Schema\Relationship\ToOne::make('editedUser')
+                ->description('Who last edited the message.')
+                ->type('users')
+                ->includable(),
+            Schema\Relationship\ToOne::make('hiddenUser')
+                ->description('Who deleted the message.')
+                ->type('users')
+                ->includable()
+                ->visible(fn (DialogMessage $message) => $message->isHidden()),
             Schema\Relationship\ToOne::make('dialog')
                 ->description('The dialog the message is in. When sending, give this or the users/groups attributes.')
                 ->type('dialogs')
                 ->includable()
                 ->writableOnCreate(),
+            // What a deleted message mentioned is part of what it said.
             Schema\Relationship\ToMany::make('mentionsUsers')
                 ->type('users')
-                ->includable(),
+                ->includable()
+                ->visible(fn (DialogMessage $message, Context $context) => $this->canSeeContent($message, $context->getActor())),
             Schema\Relationship\ToMany::make('mentionsPosts')
                 ->type('posts')
-                ->includable(),
+                ->includable()
+                ->visible(fn (DialogMessage $message, Context $context) => $this->canSeeContent($message, $context->getActor())),
             Schema\Relationship\ToMany::make('mentionsGroups')
                 ->type('groups')
-                ->includable(),
+                ->includable()
+                ->visible(fn (DialogMessage $message, Context $context) => $this->canSeeContent($message, $context->getActor())),
             Schema\Relationship\ToMany::make('mentionsTags')
                 ->type('tags')
-                ->includable(),
+                ->includable()
+                ->visible(fn (DialogMessage $message, Context $context) => $this->canSeeContent($message, $context->getActor())),
 
         ];
     }
@@ -467,6 +532,54 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ]);
             }
         }
+    }
+
+    /**
+     * A deleted message's content is its author's, and theirs who may restore
+     * it; the other members see that it was deleted.
+     */
+    protected function canSeeContent(DialogMessage $message, User $actor): bool
+    {
+        return ! $message->isHidden()
+            || $message->user_id === $actor->id
+            || $actor->can('hide', $message);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleting(object $model, OriginalContext $context): void
+    {
+        $this->deletedFrom ??= new WeakMap();
+        $this->deletedFrom[$model] = $model->dialog
+            ? DialogAudience::users($model->dialog)->pluck('users.id')->map(fn ($id) => (int) $id)->all()
+            : [];
+
+        $this->events->dispatch(
+            new DialogMessage\Event\Deleting($model, $context->getActor())
+        );
+
+        parent::deleting($model, $context);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleted(object $model, OriginalContext $context): void
+    {
+        $dialogId = (int) $model->dialog_id;
+
+        $this->events->dispatch(
+            new DialogMessage\Event\Deleted(
+                $model,
+                $context->getActor(),
+                $dialogId,
+                $this->deletedFrom[$model] ?? [],
+                ! Dialog::query()->whereKey($dialogId)->exists(),
+            )
+        );
+
+        parent::deleted($model, $context);
     }
 
     /**

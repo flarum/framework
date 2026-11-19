@@ -48,6 +48,18 @@ class RealtimeRegistry
     protected array $dialogEvents = [];
 
     /**
+     * Registrations for dialog messages deleted for good.
+     *
+     * Each entry: [
+     *   'events'     => string[],
+     *   'getRemoval' => callable(object): array{id: int, dialogId: int, dialogDeleted: bool, userIds: int[]},
+     * ]
+     *
+     * @var array<int, array{events: string[], getRemoval: callable}>
+     */
+    protected array $dialogRemovals = [];
+
+    /**
      * Flag/moderation event registrations (permission-filtered broadcasts).
      *
      * Each entry: [
@@ -91,6 +103,17 @@ class RealtimeRegistry
     }
 
     /**
+     * Register a broadcast for dialog messages deleted for good.
+     *
+     * @param string[] $events
+     * @param callable(object): array{id: int, dialogId: int, dialogDeleted: bool, userIds: int[]} $getRemoval
+     */
+    public function addDialogRemoval(array $events, callable $getRemoval): void
+    {
+        $this->dialogRemovals[] = compact('events', 'getRemoval');
+    }
+
+    /**
      * Register a flag/moderation event broadcast (permission-filtered).
      *
      * @param string[] $events
@@ -121,6 +144,12 @@ class RealtimeRegistry
     public function getDialogEvents(): array
     {
         return $this->dialogEvents;
+    }
+
+    /** @return array<int, array{events: string[], getRemoval: callable}> */
+    public function getDialogRemovals(): array
+    {
+        return $this->dialogRemovals;
     }
 
     /** @return array<int, array{events: string[], getDiscussion: callable, eventName: string}> */

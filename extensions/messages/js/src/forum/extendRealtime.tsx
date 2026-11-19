@@ -7,12 +7,26 @@ import RealtimeState from 'ext:flarum/realtime/forum/RealtimeState';
 import addRealtimeTypingIndicator from './addRealtimeTypingIndicator';
 import onMessageCreated from './onMessageCreated';
 import onMessageLikesChanged from './onMessageLikesChanged';
+import onMessageChanged from './onMessageChanged';
+import onMessageDeleted from './onMessageDeleted';
+import { forgetDialog } from './utils/removeMessage';
 import type DialogMessage from '../common/models/DialogMessage';
 import type MessageStream from './components/MessageStream';
 
 const MESSAGE_CREATED_EVENT = 'Flarum\\Messages\\DialogMessage\\Event\\Created';
 /** Raised only with flarum/likes enabled. */
 const MESSAGE_LIKE_EVENTS = ['Flarum\\Messages\\DialogMessage\\Event\\Liked', 'Flarum\\Messages\\DialogMessage\\Event\\Unliked'];
+/** Edited, deleted (in a way that can be undone) and restored. */
+const MESSAGE_CHANGED_EVENTS = [
+  'Flarum\\Messages\\DialogMessage\\Event\\Revised',
+  'Flarum\\Messages\\DialogMessage\\Event\\Hidden',
+  'Flarum\\Messages\\DialogMessage\\Event\\Restored',
+];
+/** Deleted for good. */
+const MESSAGE_DELETED_EVENT = 'Flarum\\Messages\\DialogMessage\\Event\\Deleted';
+
+/** The conversation open on screen, if any, for removals to take messages out of. */
+let openStream: MessageStream | null = null;
 
 /** A MessageStream, with what the live connection keeps on it. */
 type LiveStream = MessageStream & {
@@ -24,6 +38,9 @@ type LiveStream = MessageStream & {
 
 export default function extendRealtime() {
   const realtime = new RealtimeExtend().onUserChannelEvent(MESSAGE_CREATED_EVENT, (data: unknown) => onMessageCreated(data as any));
+
+  MESSAGE_CHANGED_EVENTS.forEach((event) => realtime.onUserChannelEvent(event, onMessageChanged));
+  realtime.onUserChannelEvent(MESSAGE_DELETED_EVENT, (data: unknown) => onMessageDeleted(data as any, openStream?.attrs.state));
 
   if ('flarum-likes' in flarum.extensions) {
     MESSAGE_LIKE_EVENTS.forEach((event) => realtime.onUserChannelEvent(event, onMessageLikesChanged));
@@ -63,6 +80,7 @@ export default function extendRealtime() {
   });
 
   extend('ext:flarum/messages/forum/components/MessageStream', 'oncreate', function (this: LiveStream) {
+    openStream = this;
     this.bindMessageCreated();
 
     // A reconnect replaces the channel objects: bind on the new one, and bring
@@ -71,14 +89,26 @@ export default function extendRealtime() {
       this.bindMessageCreated();
       this.attrs.state
         .catchUp()
-        // With likes, messages already shown change too, and those changes
-        // were missed as well.
-        .then(() => ('flarum-likes' in flarum.extensions ? this.attrs.state.refreshHeld() : undefined))
+        // Messages already shown change too, edited, deleted or liked, and
+        // those changes were missed as well.
+        .then(() => this.attrs.state.refreshHeld())
+        // Nothing left of it: deleted meanwhile, perhaps with the conversation.
+        .then(() => {
+          const dialog = this.attrs.dialog;
+
+          if (this.attrs.state.hasItems() || !dialog) return;
+
+          return app.store
+            .find('dialogs', dialog.id()!)
+            .then(() => undefined)
+            .catch(() => forgetDialog(dialog));
+        })
         .then(() => this.afterRedraw(() => this.markAsRead()));
     });
   });
 
   extend('ext:flarum/messages/forum/components/MessageStream', 'onremove', function (this: LiveStream) {
+    if (openStream === this) openStream = null;
     this.messageDisposeReconnect?.();
     this.messageDisposeReconnect = null;
     this.unbindMessageCreated();

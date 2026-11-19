@@ -9,7 +9,7 @@
 
 namespace Flarum\Mcp\Tests\integration\protocol;
 
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -170,7 +170,7 @@ class TransportTest extends McpTestCase
 
             $this->assertSame(200, $response->getStatusCode());
 
-            $metadata = $this->json($response);
+            $metadata = $this->mcpJson($response);
             $this->assertSame('http://localhost/mcp', $metadata['resource']);
             $this->assertSame(['http://localhost'], $metadata['authorization_servers']);
             $this->assertSame(['mcp:read', 'mcp:write'], $metadata['scopes_supported']);

@@ -10,12 +10,24 @@
 namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Audit\AuditLog;
+use Flarum\Audit\Testing\BuildsAuditRequests;
+use Flarum\Audit\Testing\InteractsWithAuditLog;
 use Flarum\Testing\integration\ConsoleTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 class BackfillIpCommandTest extends ConsoleTestCase
 {
     use InteractsWithAuditLog;
+    use BuildsAuditRequests;
+
+    protected function tearDown(): void
+    {
+        try {
+            parent::tearDown();
+        } finally {
+            $this->tearDownAuditLog();
+        }
+    }
 
     public function setUp(): void
     {

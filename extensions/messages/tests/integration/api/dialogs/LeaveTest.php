@@ -14,7 +14,7 @@ use Flarum\Extend;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\Dialog\Event\UserLeft;
 use Flarum\Messages\DialogMessage;
-use Flarum\Messages\Tests\integration\CapturesSentMail;
+use Flarum\Messages\Testing\CapturesSentMail;
 use Flarum\Messages\UserDialogState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;

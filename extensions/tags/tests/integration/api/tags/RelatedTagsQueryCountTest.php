@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
-use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
+use Flarum\Tags\Testing\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 

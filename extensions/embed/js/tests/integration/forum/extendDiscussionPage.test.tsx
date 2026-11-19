@@ -1,7 +1,12 @@
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from 'flarum/forum/app';
 import ItemList from 'flarum/common/utils/ItemList';
-import { applyEmbedSidebar } from '../../../src/forum/extendDiscussionPage';
+import extendDiscussionPage, { applyEmbedSidebar } from '../../../src/forum/extendDiscussionPage';
+import DiscussionPage from 'flarum/forum/components/DiscussionPage';
+import DiscussionListState from 'flarum/forum/states/DiscussionListState';
+import { jest } from '@jest/globals';
+import mq from 'mithril-query';
+import m from 'mithril';
 import extenders from '../../../src/forum/extend';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -85,5 +90,45 @@ describe('applyEmbedSidebar', () => {
     const items = sidebar();
     applyEmbedSidebar(items, discussion(5) as any);
     expect(items.get('controls').attrs.className).not.toContain('App-primaryControl');
+  });
+});
+
+describe('the discussion list pane in an embed', () => {
+  // An embed shows one discussion and hides the header that holds the pane's
+  // pin, so a pin saved while reading the forum (same origin, same
+  // localStorage) must not load the forum's list into it or narrow it.
+  let originals: any;
+
+  beforeEach(() => {
+    app.boot();
+    originals = { pane: app.pane, screen: app.screen, discussions: app.discussions, find: app.store.find, param: m.route.param };
+
+    // @ts-ignore
+    app.pane = { pinned: true, active: false, enable: jest.fn(), disable() {}, hide() {}, show() {}, onmouseleave() {}, togglePinned() {} };
+    app.screen = () => 'desktop-hd';
+    app.discussions = new DiscussionListState({});
+    // @ts-ignore
+    m.route.param = (key?: string) => (key ? ({ id: '5-foo' } as any)[key] : { id: '5-foo' });
+    // @ts-ignore
+    app.store.find = () => new Promise(() => {});
+  });
+
+  afterEach(() => {
+    // @ts-ignore
+    app.pane = originals.pane;
+    app.screen = originals.screen;
+    app.discussions = originals.discussions;
+    app.store.find = originals.find;
+    m.route.param = originals.param;
+  });
+
+  it('does not load the discussion list or show the pinned pane', () => {
+    extendDiscussionPage();
+    const refreshParams = jest.spyOn(app.discussions, 'refreshParams');
+
+    mq(DiscussionPage as any, { id: '5-foo' });
+
+    expect(refreshParams).not.toHaveBeenCalled();
+    expect((app.pane as any).enable).not.toHaveBeenCalled();
   });
 });

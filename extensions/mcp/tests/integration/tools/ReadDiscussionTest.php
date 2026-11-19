@@ -11,7 +11,7 @@ namespace Flarum\Mcp\Tests\integration\tools;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\DataProvider;

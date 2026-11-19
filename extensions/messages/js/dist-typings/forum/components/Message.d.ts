@@ -23,6 +23,8 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
     onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     elementAttrs(): Record<string, unknown>;
     header(): Mithril.Children;
+    /** Whether this message is open in the composer to be edited. */
+    isEditing(): boolean;
     content(): Mithril.Children[];
     classes(existing?: string): string[];
     actionItems(): ItemList<Mithril.Children>;

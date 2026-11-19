@@ -56,6 +56,31 @@ export default class MessageStreamState<P extends MessageStreamParams = MessageS
   }
 
   /**
+   * Lets go of a message that was deleted for good, push() in reverse: every
+   * page further from the newest end than the one it was on is now one nearer,
+   * so the next load starts where it should rather than skipping a message.
+   * The page keeps its array, and with it what the server said about it.
+   */
+  remove(message: DialogMessage): void {
+    const page = this.pages.find((pg) => pg.items.includes(message));
+
+    if (!page) return;
+
+    const offsetOf = (items: any) => ('payload' in items ? items.payload.meta?.page?.offset : undefined);
+    const from = offsetOf(page.items);
+
+    page.items.splice(page.items.indexOf(message), 1);
+
+    if (typeof from !== 'number') return;
+
+    this.pages.forEach((other) => {
+      const meta = 'payload' in other.items ? (other.items as any).payload.meta?.page : undefined;
+
+      if (meta && typeof meta.offset === 'number' && meta.offset > from) meta.offset -= 1;
+    });
+  }
+
+  /**
    * Brings in what arrived while events were not being received, after a
    * reconnect: the newest page is fetched and whatever it holds that this
    * doesn't is taken in, oldest first. When none of it is held already, more
@@ -89,7 +114,8 @@ export default class MessageStreamState<P extends MessageStreamParams = MessageS
 
   /**
    * Fetches the messages held again, after a reconnect, for what changed on
-   * them while events were not being received, such as likes. They are asked
+   * them while events were not being received: likes, edits, deletions. One
+   * that doesn't come back was deleted for good, and is let go of. They are asked
    * for by id, so each one held is fetched however the pages around it moved:
    * messages that arrived live, or meanwhile, or were deleted. The store takes
    * in what comes back, and the pages stay as they are. Messages that arrived
@@ -112,6 +138,26 @@ export default class MessageStreamState<P extends MessageStreamParams = MessageS
             ...(include ? { include: Array.isArray(include) ? include.join(',') : include } : {}),
             filter: { ...filter, id: batch.join(',') },
             page: { limit: batch.length },
+          })
+          .then((results) => {
+            const returned = new Set(results.map((message) => message.id()));
+            const raw = (results.payload?.data ?? []) as any[];
+
+            batch.forEach((id) => {
+              const message = app.store.getById<DialogMessage>(this.type, id);
+
+              if (!message) return;
+
+              if (!returned.has(id)) {
+                this.remove(message);
+                return;
+              }
+
+              // Deleted meanwhile: what it said isn't sent, and the store keeps
+              // what it had.
+              const attributes = raw.find((item) => item.id === id)?.attributes ?? {};
+              if (message.isHidden() && !('contentHtml' in attributes)) message.pushAttributes({ contentHtml: null });
+            });
           })
           .catch(() => {
             // A background refresh that failed leaves the messages as they were.

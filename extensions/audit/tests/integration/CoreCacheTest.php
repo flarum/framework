@@ -10,6 +10,7 @@
 namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Audit\AuditLog;
+use Flarum\Audit\Testing\TestCase;
 use Flarum\Foundation\Event\ClearingCache;
 use Illuminate\Contracts\Events\Dispatcher;
 use PHPUnit\Framework\Attributes\Test;

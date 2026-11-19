@@ -10,9 +10,9 @@
 namespace Flarum\Mcp\Tests\integration\protocol;
 
 use Flarum\Mcp\Extend\Mcp;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\ObjectResultTool;
-use Flarum\Mcp\Tests\integration\extend\Fixtures\StructuredResultTool;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\Fixtures\Extend\ObjectResultTool;
+use Flarum\Mcp\Testing\Fixtures\Extend\StructuredResultTool;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 

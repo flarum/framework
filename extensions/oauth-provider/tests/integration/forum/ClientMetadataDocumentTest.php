@@ -14,8 +14,8 @@ use Flarum\Extend;
 use Flarum\OAuthProvider\ClientRegistration\HostResolver;
 use Flarum\OAuthProvider\ClientRegistration\MetadataDocumentClients;
 use Flarum\OAuthProvider\Models\Client;
-use Flarum\OAuthProvider\Tests\integration\CollectingLogger;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\CollectingLogger;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -146,7 +146,7 @@ class ClientMetadataDocumentTest extends TestCase
         $this->assertSame([
             'error' => 'invalid_client',
             'error_description' => MetadataDocumentClients::GENERIC_ERROR,
-        ], $this->json($response));
+        ], $this->oauthJson($response));
         $this->assertNotEmpty(
             array_filter($this->logger->messages, fn (string $message) => str_contains($message, $loggedReason)),
             'Expected a log line containing "'.$loggedReason.'"; got: '.implode(' | ', $this->logger->messages)
@@ -428,7 +428,7 @@ class ClientMetadataDocumentTest extends TestCase
         $response = $this->authorizeClient();
 
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame('invalid_client', $this->json($response)['error']);
+        $this->assertSame('invalid_client', $this->oauthJson($response)['error']);
         $this->assertNull(Client::query()->find(self::CLIENT_ID));
     }
 
@@ -533,7 +533,7 @@ class ClientMetadataDocumentTest extends TestCase
         $response = $this->authorizeClient();
 
         $this->assertSame(401, $response->getStatusCode());
-        $this->assertSame('invalid_client', $this->json($response)['error']);
+        $this->assertSame('invalid_client', $this->oauthJson($response)['error']);
         $this->assertCount(0, $this->history);
     }
 }

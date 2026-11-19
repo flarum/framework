@@ -11,6 +11,12 @@ export default class DiscussionListPane extends Component<import("../../common/C
     constructor();
     view(): JSX.Element | undefined;
     oncreate(vnode: any): void;
+    onupdate(vnode: any): void;
+    /**
+     * Bind the pane's handlers to the list, once per element it renders.
+     */
+    setupList(vnode: any): void;
+    listElement: any;
     onremove(vnode: any): void;
     /**
      * Are we on a device that's larger than we consider "mobile"?

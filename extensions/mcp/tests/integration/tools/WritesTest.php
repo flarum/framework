@@ -12,7 +12,7 @@ namespace Flarum\Mcp\Tests\integration\tools;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Mcp\Extend\Mcp;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
@@ -180,7 +180,7 @@ class WritesTest extends McpTestCase
         $this->assertNotContains('users', $tools['delete_resource']['inputSchema']['properties']['type']['enum']);
         $this->assertContains('users', $tools['update_resource']['inputSchema']['properties']['type']['enum']);
 
-        $response = $this->json($this->callTool('delete_resource', ['type' => 'users', 'id' => '2'], $auth));
+        $response = $this->mcpJson($this->callTool('delete_resource', ['type' => 'users', 'id' => '2'], $auth));
 
         $this->assertSame(-32602, $response['error']['code']);
         $this->assertTrue($this->database()->table('users')->where('id', 2)->exists());

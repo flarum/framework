@@ -15,7 +15,7 @@ use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Run\Run;
 use Flarum\ExtensionManager\Run\RunLock;
 use Flarum\ExtensionManager\Run\RunStore;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\WorkDir;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;

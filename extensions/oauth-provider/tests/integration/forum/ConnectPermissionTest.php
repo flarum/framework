@@ -17,7 +17,7 @@ use Flarum\OAuthProvider\Access\MemberAccess;
 use Flarum\OAuthProvider\Extend\Resource;
 use Flarum\OAuthProvider\Extend\Scope;
 use Flarum\OAuthProvider\ResourceServer\TokenValidator;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;

@@ -10,6 +10,7 @@
 namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Audit\AuditLog;
+use Flarum\Audit\Testing\TestCase;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Queue\Events\QueuePaused;
 use Illuminate\Queue\Events\QueueResumed;

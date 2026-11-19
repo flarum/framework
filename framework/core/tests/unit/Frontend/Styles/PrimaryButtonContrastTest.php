@@ -9,13 +9,11 @@
 
 namespace Flarum\Tests\unit\Frontend\Styles;
 
+use Flarum\Testing\CompiledColors;
 use Flarum\Testing\unit\TestCase;
 use Less_Parser;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-
-// The monorepo's test autoloader doesn't map Flarum\Tests to core's tests.
-require_once __DIR__.'/CompiledColors.php';
 
 /**
  * The primary button picks its text the way the JS isDark utility picks it

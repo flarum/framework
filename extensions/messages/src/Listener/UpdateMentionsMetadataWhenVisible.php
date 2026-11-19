@@ -20,7 +20,7 @@ class UpdateMentionsMetadataWhenVisible
     ) {
     }
 
-    public function handle(DialogMessage\Event\Created|DialogMessage\Event\Updated $event): void
+    public function handle(DialogMessage\Event\Created|DialogMessage\Event\Revised $event): void
     {
         // A notice has no content to mention anyone in.
         if (! $this->extensions->isEnabled('flarum-mentions') || ! $event->message->isComment()) {
