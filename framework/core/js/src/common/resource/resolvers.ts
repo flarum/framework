@@ -1,3 +1,4 @@
+import app from '../app';
 import Icon from '../components/Icon';
 import humanTime from '../helpers/humanTime';
 import type Model from '../Model';
@@ -76,7 +77,15 @@ function dateColumn(d: FieldDescriptor): Field<any>['column'] {
     render: (model: Model) => {
       const raw = model.attribute<string | null>(d.name);
 
-      return raw ? humanTime(new Date(raw)) : null;
+      if (!raw) return null;
+
+      const date = dayjs(raw);
+
+      // humanTime() clamps future times to "just now" (it absorbs clock skew on post times), which would
+      // turn a date like a suspension end into "a few seconds ago".
+      if (!date.isAfter(dayjs())) return humanTime(date.toDate());
+
+      return m('time', { datetime: date.format(), title: app.translator.formatDateTime(date, 'core.lib.datetime_formats.fullTime') }, date.fromNow());
     },
   };
 }

@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import dayjs from 'dayjs';
 import mq from 'mithril-query';
 import { app } from '../../../../src/admin';
 import ItemList from '../../../../src/common/utils/ItemList';
@@ -12,6 +13,8 @@ import RelationInput from '../../../../src/common/resource/inputs/RelationInput'
 import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
 import type { Field, Filter, InputResolver } from '../../../../src/common/resource/types';
 import { bootAdmin, descriptor, fd, schemaDocument } from './fixtures';
+
+(globalThis as any).dayjs ??= dayjs;
 
 function inputOf(field: Field<any>): any {
   return field.input;
@@ -88,6 +91,15 @@ describe('fieldsFromDescriptor', () => {
   test('date and datetime → date / datetime-local', () => {
     expect(inputOf(single(fd('releasedOn', 'date'))).type).toBe('date');
     expect(inputOf(single(fd('publishedAt', 'datetime'))).type).toBe('datetime-local');
+  });
+
+  test('a datetime column shows a future date as future, not as "just now"', () => {
+    const column = single(fd('suspendedUntil', 'datetime', { ui: { column: true } })).column as any;
+    const render = (iso: string) => mq({ view: () => column.render({ attribute: () => iso }) }).rootEl.textContent;
+    const day = 24 * 60 * 60 * 1000;
+
+    expect(render(new Date(Date.now() + 14 * day).toISOString())).toBe('in 14 days');
+    expect(render(new Date(Date.now() - 3 * day).toISOString())).toBe('3 days ago');
   });
 
   test('an empty value is "" for a non-nullable string, else null', () => {
