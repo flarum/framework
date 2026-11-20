@@ -58,7 +58,6 @@ class DaemonPermissionCacheTest extends TestCase
             return $this->createStub(TimerInterface::class);
         });
 
-        // The daemon's other timers are left out, so the only one registered is the permission refresh.
         $command = new class extends ServeCommand {
             public function timers(LoopInterface $loop, Repository $cache): void
             {
