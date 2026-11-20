@@ -110,4 +110,30 @@ describe('EditTagModal slug suggestion', () => {
     type('name', 'Новости');
     expect(modal.submitData().slug).toBe('misc');
   });
+
+  /**
+   * Saving creates the tag before its icon is uploaded. When the upload fails,
+   * the modal stays open on a tag that now exists at its slug, so renaming it
+   * there must not move it.
+   */
+  it('stops suggesting once a new tag is saved, even when its icon upload fails', async () => {
+    const { modal, type } = open();
+
+    type('name', 'Alpha');
+    expect(modal.slug()).toBe('alpha');
+
+    const created = app.store.pushObject({ id: '3', type: 'tags', attributes: { slug: 'alpha', storedSlug: 'alpha', name: 'Alpha' } } as any);
+    modal.tag.save = () => Promise.resolve(created);
+    modal.iconImage.save = () => Promise.reject(new Error('The icon image field must be an image.'));
+
+    modal.onsubmit({ preventDefault() {} });
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(modal.loading).toBe(false);
+    expect(modal.tag).toBe(created);
+
+    type('name', 'Alpha renamed');
+    expect(modal.slug()).toBe('alpha');
+    expect(modal.submitData().slug).toBe('alpha');
+  });
 });

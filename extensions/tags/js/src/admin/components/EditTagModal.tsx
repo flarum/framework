@@ -104,7 +104,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
           oninput={(e: InputEvent) => {
             const target = e.target as HTMLInputElement;
             this.name(target.value);
-            if (this.suggestSlug) this.slug(slug(target.value, SluggingMode.UTF8_LATIN_ASCII));
+            if (this.suggestSlug) this.slug(slug(target.value, SluggingMode.UTF8_FOLDED));
           }}
         />
       </div>,
@@ -272,6 +272,10 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
         // A new tag's save resolves to another instance. Keep it, so that
         // saving again after a failed upload doesn't create a second tag.
         this.tag = tag;
+
+        // The tag now exists at its slug: if the modal stays open because the
+        // icon upload failed, renaming it there must not move it.
+        this.suggestSlug = false;
 
         return this.iconImage.save(tag);
       })
