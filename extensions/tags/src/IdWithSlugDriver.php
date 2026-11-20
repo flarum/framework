@@ -10,6 +10,7 @@
 namespace Flarum\Tags;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Database\IntegerKey;
 use Flarum\Http\BatchSlugDriverInterface;
 use Flarum\Http\SlugDriverInterface;
 use Flarum\User\User;
@@ -57,9 +58,11 @@ class IdWithSlugDriver implements SlugDriverInterface, BatchSlugDriverInterface
             $idToInput[$this->id($slug)] = $slug;
         }
 
+        $ids = array_filter(array_keys($idToInput), fn (int $id) => IntegerKey::fits(new Tag, $id));
+
         $tags = $this->repository
             ->queryVisibleTo($actor)
-            ->whereIn('id', array_keys($idToInput))
+            ->whereIn('id', $ids)
             ->get();
 
         /** @var Tag $tag */

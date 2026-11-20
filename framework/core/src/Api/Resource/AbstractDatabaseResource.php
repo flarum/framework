@@ -11,6 +11,7 @@ namespace Flarum\Api\Resource;
 
 use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Schema\Contracts\RelationAggregator;
+use Flarum\Database\IntegerKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -235,21 +236,12 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
 
     /**
      * Whether the id can be a key of the model. An integer key only matches
-     * digits: databases treat anything else differently (MySQL reads "2abc"
-     * as 2, PostgreSQL rejects the query), so it is answered as not found.
-     * So are digits beyond the integer range on PostgreSQL, which rejects them.
+     * digits within the key column's range (see IntegerKey), anything else is
+     * answered as not found.
      */
     protected function idCanBeKey(Model $model, string $id): bool
     {
-        if ($model->getKeyType() !== 'int') {
-            return true;
-        }
-
-        if (! ctype_digit($id)) {
-            return false;
-        }
-
-        return $model->getConnection()->getDriverName() !== 'pgsql' || (float) $id <= 2147483647;
+        return $model->getKeyType() !== 'int' || IntegerKey::fits($model, $id);
     }
 
     /**
