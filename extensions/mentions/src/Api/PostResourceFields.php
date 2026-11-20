@@ -62,6 +62,12 @@ class PostResourceFields
                 ->includable()
                 // The composer uses the updated users to refresh its store.
                 ->visible(fn (Post $post, Context $context) => $context->creating()),
+            Schema\Relationship\ToMany::make('affectedMentionUsers')
+                ->description('Users whose mention was added or removed by this edit.')
+                ->type('users')
+                ->includable()
+                ->visible(fn (Post $post, Context $context) => $context->updating())
+                ->get(fn (Post $post) => $post->relationLoaded('affectedMentionUsers') ? $post->getRelation('affectedMentionUsers')->all() : []),
             Schema\Relationship\ToMany::make('mentionsGroups')
                 ->type('groups'),
         ];
