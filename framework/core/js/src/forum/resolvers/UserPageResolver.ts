@@ -14,12 +14,6 @@ export default class UserPageResolver<
     return slug.split('-')[0];
   }
 
-  makeKey() {
-    const params = { ...m.route.param() };
-    params.username = this.canonicalizeUserSlug(params.username);
-    return this.routeName + JSON.stringify(params);
-  }
-
   render(vnode: Mithril.Vnode<Attrs, UserPage<Attrs>>) {
     const currentSlug = m.route.param('username');
     const id = this.canonicalizeUserSlug(currentSlug);
