@@ -606,9 +606,18 @@ class ExtensionManager
         // Instantiates an Extension object using the package path and composer.json file.
         $extension = new Extension($path, $package);
 
+        $version = Arr::get($package, 'version', '0.0');
+        $version = is_string($version) ? $version : '0.0';
+
         // Per default all extensions are installed if they are registered in composer.
         $extension->setInstalled(true);
-        $extension->setVersion(Arr::get($package, 'version', '0.0'));
+        $extension->setVersion($version);
+
+        if (self::isDevVersion($version)) {
+            $extension->setCommit(Extension::sanitizeCommit(
+                Arr::get($package, 'dist.reference') ?? Arr::get($package, 'source.reference')
+            ));
+        }
 
         $packageName = Arr::get($package, 'name');
 
@@ -641,6 +650,11 @@ class ExtensionManager
         return $extension;
     }
 
+    protected static function isDevVersion(string $version): bool
+    {
+        return str_starts_with($version, 'dev-') || str_ends_with($version, '-dev');
+    }
+
     protected function subExtensionConfsFromJson(array $package, string $packagePath): ?array
     {
         if (! ($subExtPaths = Arr::get($package, 'extra.flarum-subextensions', []))) {
@@ -650,10 +664,27 @@ class ExtensionManager
         $subExtConfs = [];
 
         foreach ($subExtPaths as $subExtPath) {
+            if (! is_string($subExtPath) || $subExtPath === '' || str_contains($subExtPath, '..')) {
+                continue;
+            }
+
             $subPackagePath = "$packagePath/$subExtPath";
             $conf = json_decode($this->filesystem->get("$subPackagePath/composer.json"), true);
 
-            if (Arr::get($conf, 'type') === 'flarum-extension' && str_contains((string) Arr::get($conf, 'name', ''), '/')) {
+            if (is_array($conf) && Arr::get($conf, 'type') === 'flarum-extension' && str_contains((string) Arr::get($conf, 'name', ''), '/')) {
+                // Inherit the parent monorepo version and commit reference when the
+                // sub-extension's composer.json omits them, without copying parent URLs.
+                if (! isset($conf['version']) && isset($package['version']) && is_string($package['version'])) {
+                    $conf['version'] = $package['version'];
+                }
+
+                $parentRef = Extension::sanitizeCommit(
+                    Arr::get($package, 'dist.reference') ?? Arr::get($package, 'source.reference')
+                );
+                if ($parentRef !== null && ! Arr::has($conf, 'dist.reference') && ! Arr::has($conf, 'source.reference')) {
+                    $conf['dist']['reference'] = $parentRef;
+                }
+
                 $subExtConfs[$subPackagePath] = $conf;
             }
         }

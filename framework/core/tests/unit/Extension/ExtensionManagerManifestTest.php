@@ -149,4 +149,100 @@ class ExtensionManagerManifestTest extends TestCase
         $this->assertCount(1, $extensions, 'Only flarum-extension packages are extensions');
         $this->assertNotNull($extensions->get('flarum-tags'));
     }
+
+    #[Test]
+    public function extracts_commit_hash_for_dev_versions_only(): void
+    {
+        $extensions = $this->manager(json_encode(['packages' => [
+            [
+                'name' => 'acme/dev-dist',
+                'type' => 'flarum-extension',
+                'version' => '2.x-dev',
+                'dist' => ['reference' => '9AE9C2B5222172709D6E811DA39B6A5BF588E198', 'url' => 'https://token:secret@example.com/archive.zip'],
+                'extra' => ['flarum-extension' => ['title' => 'Dev Dist']],
+            ],
+            [
+                'name' => 'acme/dev-source',
+                'type' => 'flarum-extension',
+                'version' => 'dev-main',
+                'source' => ['reference' => 'abcdef1234567890abcdef1234567890abcdef12'],
+                'extra' => ['flarum-extension' => ['title' => 'Dev Source']],
+            ],
+            [
+                'name' => 'acme/stable',
+                'type' => 'flarum-extension',
+                'version' => '2.0.3',
+                'dist' => ['reference' => '1111111111111111111111111111111111111111'],
+                'extra' => ['flarum-extension' => ['title' => 'Stable']],
+            ],
+        ]]))->getExtensions();
+
+        $this->assertSame('9ae9c2b5222172709d6e811da39b6a5bf588e198', $extensions->get('acme-dev-dist')->getCommit());
+        $this->assertSame('9ae9c2b5222172709d6e811da39b6a5bf588e198', $extensions->get('acme-dev-dist')->toArray()['commit']);
+        $this->assertSame('abcdef1234567890abcdef1234567890abcdef12', $extensions->get('acme-dev-source')->getCommit());
+        $this->assertNull($extensions->get('acme-stable')->getCommit());
+    }
+
+    #[Test]
+    public function rejects_non_hex_or_injected_commit_references(): void
+    {
+        $extensions = $this->manager(json_encode(['packages' => [
+            [
+                'name' => 'acme/xss',
+                'type' => 'flarum-extension',
+                'version' => 'dev-main',
+                'commit' => '<script>alert(1)</script>',
+                'dist' => ['reference' => '<error>injected</error>'],
+                'extra' => ['flarum-extension' => ['title' => 'XSS']],
+            ],
+            [
+                'name' => 'acme/too-short',
+                'type' => 'flarum-extension',
+                'version' => '2.x-dev',
+                'source' => ['reference' => 'abc123'],
+                'extra' => ['flarum-extension' => ['title' => 'Too Short']],
+            ],
+        ]]))->getExtensions();
+
+        $this->assertNull($extensions->get('acme-xss')->getCommit());
+        $this->assertNull($extensions->get('acme-xss')->toArray()['commit']);
+        $this->assertNull($extensions->get('acme-too-short')->getCommit());
+    }
+
+    #[Test]
+    public function subextensions_inherit_parent_version_and_commit_without_leaking_parent_urls(): void
+    {
+        $subDir = $this->vendor.'/acme/monorepo/extensions/child';
+        (new Filesystem())->makeDirectory($subDir, 0777, true);
+        file_put_contents($subDir.'/composer.json', json_encode([
+            'name' => 'acme/child',
+            'type' => 'flarum-extension',
+            'extra' => ['flarum-extension' => ['title' => 'Child']],
+        ]));
+
+        $extensions = $this->manager(json_encode(['packages' => [
+            [
+                'name' => 'acme/monorepo',
+                'type' => 'library',
+                'version' => '2.x-dev',
+                'dist' => [
+                    'reference' => 'deadbeef1234567890abcdef1234567890abcdef',
+                    'url' => 'https://x-access-token:ghp_secret@github.com/acme/monorepo.zip',
+                ],
+                'source' => [
+                    'url' => 'https://x-access-token:ghp_secret@github.com/acme/monorepo.git',
+                ],
+                'extra' => [
+                    'flarum-subextensions' => ['extensions/child', '../escaped-path'],
+                ],
+            ],
+        ]]))->getExtensions();
+
+        $child = $extensions->get('acme-child');
+        $this->assertNotNull($child);
+        $this->assertSame('2.x-dev', $child->getVersion());
+        $this->assertSame('deadbeef1234567890abcdef1234567890abcdef', $child->getCommit());
+        $this->assertArrayNotHasKey('url', $child->toArray()['dist'] ?? []);
+        $this->assertArrayNotHasKey('source', $child->toArray());
+    }
 }

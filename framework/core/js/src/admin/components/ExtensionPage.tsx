@@ -480,8 +480,15 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
 
   topItems() {
     const items = new ItemList<Mithril.Children>();
+    const rawCommit = this.extension.commit;
+    const commit = typeof rawCommit === 'string' && /^[0-9a-f]{7,64}$/i.test(rawCommit) ? rawCommit.toLowerCase() : undefined;
 
-    items.add('version', <span className="ExtensionVersion">{this.extension.version}</span>);
+    items.add(
+      'version',
+      <span className="ExtensionVersion" title={commit}>
+        {commit ? `${this.extension.version} (${commit.slice(0, 7)})` : this.extension.version}
+      </span>
+    );
 
     if (!this.isEnabled()) {
       const purge = () => {
