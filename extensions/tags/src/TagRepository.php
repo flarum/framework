@@ -9,9 +9,11 @@
 
 namespace Flarum\Tags;
 
+use Flarum\Database\IntegerKey;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TagRepository
 {
@@ -34,6 +36,10 @@ class TagRepository
      */
     public function findOrFail(int $id, ?User $actor = null): Tag
     {
+        if (! IntegerKey::fits(new Tag, $id)) {
+            throw (new ModelNotFoundException())->setModel(Tag::class, [$id]);
+        }
+
         $query = Tag::where('id', $id);
 
         return $this->scopeVisibleTo($query, $actor)->firstOrFail();

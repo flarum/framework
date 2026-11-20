@@ -9,6 +9,7 @@
 
 namespace Flarum\Discussion;
 
+use Flarum\Database\IntegerKey;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -29,9 +30,7 @@ class DiscussionRepository
      */
     public function findOrFail(int|string $id, ?User $user = null): Discussion
     {
-        // Ids come from URLs and slugs too. Text such as "2abc" is no id:
-        // MySQL would read it as 2, and PostgreSQL refuses to compare it at all.
-        if (! ctype_digit((string) $id)) {
+        if (! IntegerKey::fits(new Discussion, $id)) {
             throw (new ModelNotFoundException())->setModel(Discussion::class, [$id]);
         }
 

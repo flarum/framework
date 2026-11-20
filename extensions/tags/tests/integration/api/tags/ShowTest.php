@@ -138,6 +138,51 @@ class ShowTest extends TestCase
     }
 
     #[Test]
+    #[DataProvider('outOfRangeIds')]
+    public function id_with_slug_driver_returns_not_found_for_an_id_beyond_the_integer_range(string $slug): void
+    {
+        $this->setting('slug_driver_'.Tag::class, 'id_with_slug');
+
+        $response = $this->send(
+            $this->request('GET', "/api/tags/$slug")
+        );
+
+        $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
+
+        $contentResponse = $this->send(
+            $this->request('GET', "/t/$slug")
+        );
+
+        $this->assertEquals(404, $contentResponse->getStatusCode(), "/t/$slug");
+    }
+
+    public static function outOfRangeIds(): array
+    {
+        return [
+            'bare id' => ['2147483648'],
+            'id with slug' => ['2147483648-tag'],
+            'id beyond bigint' => ['99999999999999999999'],
+        ];
+    }
+
+    #[Test]
+    public function numeric_slug_beyond_the_integer_range_still_finds_its_tag(): void
+    {
+        $this->prepareDatabase([
+            Tag::class => [
+                ['id' => 156, 'name' => 'Big number', 'slug' => '2147483648', 'position' => 0, 'parent_id' => null]
+            ]
+        ]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/tags/2147483648')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame('156', json_decode((string) $response->getBody(), true)['data']['id']);
+    }
+
+    #[Test]
     public function numeric_but_non_integer_id_is_not_found(): void
     {
         $response = $this->send(

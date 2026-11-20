@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\api;
 
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -38,6 +39,31 @@ class NonIntegerIdTest extends TestCase
     #[DataProvider('paths')]
     public function non_integer_id_is_not_found(string $path)
     {
+        $response = $this->send(
+            $this->request('GET', $path, ['authenticatedAs' => 1])
+        );
+
+        $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
+    }
+
+    public static function slugPaths(): array
+    {
+        return [
+            'discussion page' => ['/d/2147483648', []],
+            'discussion page with title' => ['/d/2147483648-title', []],
+            'profile with the id driver' => ['/u/2147483648', ['slug_driver_'.User::class => 'id']],
+            'profile with the id and name driver' => ['/u/2147483648-name', ['slug_driver_'.User::class => 'id_with_display_name']],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('slugPaths')]
+    public function slug_with_an_id_beyond_the_integer_range_is_not_found(string $path, array $settings)
+    {
+        foreach ($settings as $key => $value) {
+            $this->setting($key, $value);
+        }
+
         $response = $this->send(
             $this->request('GET', $path, ['authenticatedAs' => 1])
         );
