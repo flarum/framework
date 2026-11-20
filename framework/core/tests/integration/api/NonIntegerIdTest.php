@@ -44,6 +44,30 @@ class NonIntegerIdTest extends TestCase
         $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
     }
 
+    public static function outOfRangePaths(): array
+    {
+        $cases = [];
+
+        foreach (['/api/users', '/api/discussions', '/api/posts', '/api/groups', '/api/notifications'] as $collection) {
+            foreach (['2147483648', '99999999999999999999'] as $id) {
+                $cases["$collection/$id"] = ["$collection/$id"];
+            }
+        }
+
+        return $cases;
+    }
+
+    #[Test]
+    #[DataProvider('outOfRangePaths')]
+    public function id_out_of_integer_range_is_not_found(string $path)
+    {
+        $response = $this->send(
+            $this->request('GET', $path, ['authenticatedAs' => 1])
+        );
+
+        $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
+    }
+
     #[Test]
     public function zero_padded_id_still_finds_the_record()
     {
