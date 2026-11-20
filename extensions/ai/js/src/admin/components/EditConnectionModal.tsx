@@ -63,7 +63,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     this.guardrailVersion = Stream(connection?.guardrail_version || '');
     this.model = Stream(connection?.model || '');
     this.monthlyTokens = Stream(connection?.monthly_tokens ? String(connection.monthly_tokens) : '');
-    this.includeStreamUsage = Stream(connection?.include_stream_usage === true);
+    this.includeStreamUsage = Stream(connection?.include_stream_usage !== false);
     this.key = Stream(connection?.key || '');
   }
 
@@ -176,6 +176,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
         <div className="Form-group">
           <Switch
             state={this.includeStreamUsage()}
+            disabled={this.test.status === 'running'}
             onchange={(checked: boolean) => {
               this.includeStreamUsage(checked);
               this.test.reset();
@@ -427,7 +428,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
 
     if (!forModels) {
       if (this.model().trim()) candidate.model = this.model().trim();
-      if (candidate.driver === 'openai-compatible' && this.includeStreamUsage()) candidate.include_stream_usage = true;
+      if (candidate.driver === 'openai-compatible' && !this.includeStreamUsage()) candidate.include_stream_usage = false;
       if (this.driver() === 'bedrock' && this.guardrailId().trim()) {
         candidate.guardrail_id = this.guardrailId().trim();
         if (this.guardrailVersion().trim()) candidate.guardrail_version = this.guardrailVersion().trim();
@@ -527,7 +528,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     if (region) connection.region = region;
     if (model) connection.model = model;
     if (monthlyTokens) connection.monthly_tokens = monthlyTokens;
-    if (connection.driver === 'openai-compatible' && this.includeStreamUsage()) connection.include_stream_usage = true;
+    if (connection.driver === 'openai-compatible' && !this.includeStreamUsage()) connection.include_stream_usage = false;
     if (guardrailId) connection.guardrail_id = guardrailId;
     if (guardrailId && guardrailVersion) connection.guardrail_version = guardrailVersion;
 

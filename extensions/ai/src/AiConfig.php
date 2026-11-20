@@ -147,8 +147,10 @@ class AiConfig
     {
         $model = $connection['model'] ?? null;
 
-        if ($connection['driver'] === 'openai-compatible' && ($connection['include_stream_usage'] ?? null) === true) {
-            $connection['stream_options']['include_usage'] = true;
+        if ($connection['driver'] === 'openai-compatible'
+            && ($connection['include_stream_usage'] ?? null) !== false
+            && (! array_key_exists('stream_options', $connection) || is_array($connection['stream_options']))) {
+            $connection['stream_options'] = ($connection['stream_options'] ?? []) + ['include_usage' => true];
         }
 
         unset($connection['model'], $connection['monthly_tokens'], $connection['guardrail_id'], $connection['guardrail_version'], $connection['include_stream_usage']);

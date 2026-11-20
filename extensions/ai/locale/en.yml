@@ -72,7 +72,7 @@ flarum-ai:
       guardrail_label: Guardrail
       guardrail_version_label: Guardrail version
       include_stream_usage_label: Include usage in streamed replies
-      include_stream_usage_help: Enable this if your server supports reporting token usage in streamed replies. Flarum needs those counts to track usage and enforce token limits.
+      include_stream_usage_help: Flarum requests token counts for streamed replies to track usage and enforce token limits. Turn this off if your server rejects the request for counts.
       key_bedrock_help: A Bedrock API key. Access keys and roles to assume are set in config.php, which can also let connections use the server's own AWS credentials when the key is left empty.
       key_link: "Get an API key from {provider}"
       key_dropped_text: A saved key is only used with the provider and API URL it was saved for. Enter it again to use it here.
@@ -185,7 +185,7 @@ flarum-ai:
         rate_limited_text: The provider is limiting calls with this key just now. Try again in a moment.
         unreachable_text: The provider couldn't be reached. Check the API URL, and that this server can reach it.
       ms_text: "{ms} ms"
-      no_usage_text: Flarum counted no tokens for this reply. Usage limits depend on token counts from the provider. For an OpenAI-compatible server, check whether it supports the Include usage in streamed replies setting and whether that setting is enabled.
+      no_usage_text: Flarum counted no tokens for this reply. Usage limits depend on token counts from the provider.
       passed_empty_text: "Connected, but {model} wrote nothing within the test's token limit. It may spend its tokens reasoning first: features that allow longer replies still work."
       passed_text: "Connected: {model} started answering after {first} and finished after {total}."
       provider_status_text: "The provider answered {status}: {message}"

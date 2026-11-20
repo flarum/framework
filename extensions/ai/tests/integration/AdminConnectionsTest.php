@@ -163,11 +163,11 @@ class AdminConnectionsTest extends TestCase
     }
 
     #[Test]
-    public function the_streamed_usage_setting_only_accepts_true_for_openai_compatible_servers(): void
+    public function only_openai_compatible_servers_can_opt_out_of_streamed_usage_with_a_boolean(): void
     {
         $this->assertSame(204, $this->save(['flarum-ai.connections' => json_encode([
-            'local' => ['driver' => 'openai-compatible', 'url' => 'https://llm.test/v1', 'include_stream_usage' => '1'],
-            'ollama' => ['driver' => 'ollama', 'url' => 'https://ollama.test', 'include_stream_usage' => true],
+            'local' => ['driver' => 'openai-compatible', 'url' => 'https://llm.test/v1', 'include_stream_usage' => '0'],
+            'ollama' => ['driver' => 'ollama', 'url' => 'https://ollama.test', 'include_stream_usage' => false],
         ])]));
 
         $payload = $this->payload($this->adminPage());
