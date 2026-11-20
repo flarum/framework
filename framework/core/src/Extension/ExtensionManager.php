@@ -614,9 +614,7 @@ class ExtensionManager
         $extension->setVersion($version);
 
         if (self::isDevVersion($version)) {
-            $extension->setCommit(Extension::sanitizeCommit(
-                Arr::get($package, 'dist.reference') ?? Arr::get($package, 'source.reference')
-            ));
+            $extension->setCommit(self::extractCommit($package));
         }
 
         $packageName = Arr::get($package, 'name');
@@ -655,6 +653,29 @@ class ExtensionManager
         return str_starts_with($version, 'dev-') || str_ends_with($version, '-dev');
     }
 
+    /**
+     * Resolve the commit SHA for the actual installation source, ignoring
+     * `dist.reference` on `path` repositories (which may be a config hash).
+     */
+    protected static function extractCommit(array $package): ?string
+    {
+        $sourceRef = Extension::sanitizeCommit(Arr::get($package, 'source.reference'));
+
+        if (Arr::get($package, 'installation-source') === 'source') {
+            return $sourceRef;
+        }
+
+        if (Arr::get($package, 'dist.type') !== 'path') {
+            $distRef = Extension::sanitizeCommit(Arr::get($package, 'dist.reference'));
+
+            if ($distRef !== null) {
+                return $distRef;
+            }
+        }
+
+        return $sourceRef;
+    }
+
     protected function subExtensionConfsFromJson(array $package, string $packagePath): ?array
     {
         if (! ($subExtPaths = Arr::get($package, 'extra.flarum-subextensions', []))) {
@@ -678,9 +699,7 @@ class ExtensionManager
                     $conf['version'] = $package['version'];
                 }
 
-                $parentRef = Extension::sanitizeCommit(
-                    Arr::get($package, 'dist.reference') ?? Arr::get($package, 'source.reference')
-                );
+                $parentRef = self::extractCommit($package);
                 if ($parentRef !== null && ! Arr::has($conf, 'dist.reference') && ! Arr::has($conf, 'source.reference')) {
                     $conf['dist']['reference'] = $parentRef;
                 }
