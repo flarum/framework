@@ -216,6 +216,39 @@ class UserMentionCountTest extends TestCase
     }
 
     #[Test]
+    #[DataProvider('postEditors')]
+    public function editing_a_post_includes_updated_counts_for_added_and_removed_mentions(int $editorId): void
+    {
+        $this->reply('@"potato"#3 first mention');
+        $postId = $this->reply('@"potato"#3 second mention', $editorId);
+        $this->assertSame(2, $this->mentionCountOf(3));
+        Post::query()->whereKey($postId)->update(['created_at' => Carbon::now()->subMinute()]);
+
+        $payload = $this->patchPost($postId, $editorId, ['content' => '@"moderator"#4 edited']);
+        $affected = array_column($payload['data']['relationships']['affectedMentionUsers']['data'] ?? [], 'id');
+        sort($affected);
+        $this->assertSame(['3', '4'], $affected);
+
+        $counts = [];
+        foreach ($payload['included'] as $item) {
+            if ($item['type'] === 'users' && in_array($item['id'], $affected, true)) {
+                $counts[$item['id']] = $item['attributes']['mentionCount'];
+            }
+        }
+
+        $this->assertSame(1, $counts[3]);
+        $this->assertSame(1, $counts[4]);
+        $this->assertSame($this->mentionCountOf(3), $counts[3]);
+        $this->assertSame($this->mentionCountOf(4), $counts[4]);
+    }
+
+    public static function postEditors(): iterable
+    {
+        yield 'admin' => [1];
+        yield 'member' => [2];
+    }
+
+    #[Test]
     public function approving_an_already_synced_mention_updates_the_count()
     {
         $this->extension('flarum-approval', 'flarum-flags');
@@ -250,11 +283,11 @@ class UserMentionCountTest extends TestCase
         $this->assertSame(2, $this->mentionCountOf(1));
     }
 
-    protected function reply(string $content): int
+    protected function reply(string $content, int $userId = 1): int
     {
         $response = $this->send(
             $this->request('POST', '/api/posts', [
-                'authenticatedAs' => 1,
+                'authenticatedAs' => $userId,
                 'json' => [
                     'data' => [
                         'type' => 'posts',
@@ -272,7 +305,7 @@ class UserMentionCountTest extends TestCase
         return (int) json_decode($response->getBody(), true)['data']['id'];
     }
 
-    protected function patchPost(int $postId, int $userId, array $attributes): void
+    protected function patchPost(int $postId, int $userId, array $attributes): array
     {
         $response = $this->send(
             $this->request('PATCH', "/api/posts/$postId", [
@@ -282,6 +315,8 @@ class UserMentionCountTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        return json_decode((string) $response->getBody(), true);
     }
 
     protected function mentionCountOf(int $userId): int

@@ -18,6 +18,7 @@ use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Post;
+use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
 use s9e\TextFormatter\Utils;
 
@@ -55,6 +56,16 @@ class UpdateMentionsMetadataWhenVisible
             ($event instanceof PostWasApproved || $event instanceof Restored) ? $userMentions : []
         );
         $this->mentionCount->refresh($affected);
+
+        if ($event instanceof Revised && $affected) {
+            // Removed mentions no longer appear in mentionsUsers. Include both
+            // sides of the edit so the composer can refresh its user models.
+            $event->post->setRelation('affectedMentionUsers', User::query()
+                ->whereKey($affected)
+                ->whereVisibleTo($event->actor)
+                ->with('groups')
+                ->get());
+        }
 
         // A new discussion caches the request actor as its author. The post
         // can have a separate author instance, so keep both models current.
