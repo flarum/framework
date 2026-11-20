@@ -163,6 +163,21 @@ class AdminConnectionsTest extends TestCase
     }
 
     #[Test]
+    public function the_streamed_usage_setting_only_accepts_true_for_openai_compatible_servers(): void
+    {
+        $this->assertSame(204, $this->save(['flarum-ai.connections' => json_encode([
+            'local' => ['driver' => 'openai-compatible', 'url' => 'https://llm.test/v1', 'include_stream_usage' => '1'],
+            'ollama' => ['driver' => 'ollama', 'url' => 'https://ollama.test', 'include_stream_usage' => true],
+        ])]));
+
+        $payload = $this->payload($this->adminPage());
+        $connections = json_decode($payload['settings']['flarum-ai.connections'], true);
+
+        $this->assertArrayNotHasKey('include_stream_usage', $connections['local']);
+        $this->assertArrayNotHasKey('include_stream_usage', $connections['ollama']);
+    }
+
+    #[Test]
     public function a_connection_saved_without_a_key_keeps_it_while_provider_and_url_are_unchanged(): void
     {
         $this->store(['claude' => ['driver' => 'anthropic', 'url' => 'https://proxy.test/v1']], ['claude' => self::KEY]);

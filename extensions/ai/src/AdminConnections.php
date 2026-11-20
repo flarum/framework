@@ -239,6 +239,7 @@ class AdminConnections
                 'region' => $region,
                 'model' => $model,
                 'monthly_tokens' => $monthly,
+                'include_stream_usage' => $driver === 'openai-compatible' && ($connection['include_stream_usage'] ?? null) === true ? true : null,
                 'guardrail_id' => $guardrailId,
                 'guardrail_version' => $guardrailVersion,
             ],

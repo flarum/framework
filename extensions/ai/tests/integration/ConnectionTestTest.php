@@ -103,6 +103,42 @@ class ConnectionTestTest extends TestCase
         $this->assertSame(['saved-key', 'claude-test', self::URL.'/messages'], $this->sentToProvider());
     }
 
+    #[Test]
+    public function streamed_usage_is_requested_only_when_enabled_on_the_connection(): void
+    {
+        $this->app();
+        Http::fake(['llm.test/v1/chat/completions' => function ($request) {
+            $reply = "data: {\"choices\":[{\"delta\":{\"content\":\"1\"},\"finish_reason\":\"stop\"}]}\n\n";
+
+            if (($request->data()['stream_options']['include_usage'] ?? null) === true) {
+                $reply .= "data: {\"choices\":[],\"usage\":{\"prompt_tokens\":12,\"completion_tokens\":6}}\n\n";
+            }
+
+            return Http::response($reply."data: [DONE]\n\n");
+        }]);
+
+        $connection = ['driver' => 'openai-compatible', 'url' => 'https://llm.test/v1', 'model' => 'local-test'];
+        $enabled = $connection + ['include_stream_usage' => true];
+
+        $candidate = $this->events($this->postTest(['name' => 'local', 'connection' => $enabled]));
+        $this->assertSame(12, end($candidate)['inputTokens']);
+        $this->assertSame(6, end($candidate)['outputTokens']);
+
+        $response = $this->send($this->request('POST', '/api/settings', [
+            'authenticatedAs' => 1,
+            'json' => ['flarum-ai.connections' => json_encode(['local' => $enabled, 'legacy' => $connection])],
+        ]));
+        $this->assertSame(204, $response->getStatusCode());
+
+        $saved = $this->events($this->postTest(['name' => 'local']));
+        $this->assertSame(12, end($saved)['inputTokens']);
+        $this->assertSame(6, end($saved)['outputTokens']);
+
+        $legacy = $this->events($this->postTest(['name' => 'legacy']));
+        $this->assertSame(0, end($legacy)['inputTokens']);
+        $this->assertArrayNotHasKey('stream_options', Http::recorded()->last()[0]->data());
+    }
+
     /**
      * Tests cost tokens like any call: counted for the connection, for no feature.
      */
