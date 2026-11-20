@@ -1,5 +1,6 @@
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import { ApiResponsePlural } from 'flarum/common/Store';
+import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 import AuditLog from '../models/AuditLog';
 interface AuditFilter {
     key: string;
@@ -19,6 +20,11 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
     showHelp: boolean;
     caret: number;
     autocompleteFocused: boolean;
+    suggestionIndex: number;
+    navigator: KeyboardNavigatable;
+    escapeHandled: boolean;
+    requestId: number;
+    listId: string;
     oninit(vnode: any): void;
     view(): JSX.Element;
     /**
@@ -39,7 +45,20 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
         key: string;
         values: string[];
     }[] | null;
-    autocomplete(): JSX.Element | null;
+    suggestions(): {
+        key: string;
+        value: string;
+    }[];
+    optionId(index: number): string;
+    autocomplete(groups: ReturnType<AuditBrowser['autocompleteGroups']>): JSX.Element | null;
+    moveSuggestion(delta: number): void;
+    select(): void;
+    cancel(): void;
+    /**
+     * Moving to another token drops the highlight, which belonged to the old token's suggestions.
+     */
+    setCaret(caret: number): void;
+    clear(): void;
     applySuggestion(key: string, value: string): void;
     filterHints(): JSX.Element | null;
     filterHelp(filters: AuditFilter[]): JSX.Element;
@@ -59,7 +78,7 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
     applyExample(example: string): void;
     requestParams(): any;
     refresh(clear?: boolean): Promise<void>;
-    loadResults(offset?: number | undefined): Promise<ApiResponsePlural<AuditLog>>;
+    loadResults(offset?: number | undefined, requestId?: number): Promise<ApiResponsePlural<AuditLog>>;
     loadMore(): void;
     parseResults(results: ApiResponsePlural<AuditLog>): ApiResponsePlural<AuditLog>;
 }
