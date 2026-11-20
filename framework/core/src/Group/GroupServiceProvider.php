@@ -12,6 +12,9 @@ namespace Flarum\Group;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Group\Access\ScopeGroupVisibility;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Queue\Jobs\SyncJob;
 
 class GroupServiceProvider extends AbstractServiceProvider
 {
@@ -20,7 +23,7 @@ class GroupServiceProvider extends AbstractServiceProvider
         $this->container->singleton(PermissionCache::class);
     }
 
-    public function boot(Container $container): void
+    public function boot(Container $container, Dispatcher $events): void
     {
         Group::registerVisibilityScoper(new ScopeGroupVisibility(), 'view');
 
@@ -34,5 +37,13 @@ class GroupServiceProvider extends AbstractServiceProvider
         // group set (and cache key) anyway — but drop its cached sets so its
         // permissions cannot be served to any lingering instances.
         Group::deleted(fn (Group $group) => $container->make(PermissionCache::class)->forgetGroup($group->id));
+
+        // Permission changes made by other processes never reach a worker's
+        // cache. Sync jobs run in the dispatching process and share its cache.
+        $events->listen(JobProcessing::class, function (JobProcessing $event) use ($container) {
+            if (! $event->job instanceof SyncJob) {
+                $container->make(PermissionCache::class)->flush();
+            }
+        });
     }
 }
