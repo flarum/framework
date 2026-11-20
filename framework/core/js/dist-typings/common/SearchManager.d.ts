@@ -2,7 +2,9 @@ import SearchState from './states/SearchState';
 import GambitManager from './GambitManager';
 export default class SearchManager<State extends SearchState = SearchState> {
     /**
-     * The minimum query length before sources are searched.
+     * The default minimum query length. The forum's configured minimum
+     * (`search_min_length`) takes precedence once the forum is loaded; admin
+     * settings search never requires more than this.
      */
     static MIN_SEARCH_LEN: number;
     /**
@@ -10,11 +12,17 @@ export default class SearchManager<State extends SearchState = SearchState> {
      */
     static isCjkMode(): boolean;
     /**
-     * The minimum query length for the current forum. Experimental CJK search mode
-     * drops it to 1, since a single character is often a whole word in languages
-     * without word spaces; the substring match backing that mode has no minimum.
+     * The minimum query length before sources are searched, as configured by the
+     * forum's admin (`search_min_length`).
      */
     static minSearchLength(): number;
+    /**
+     * The length of a query in characters, as compared against the minimum.
+     * Surrounding whitespace is not counted, since it is trimmed before the
+     * search is sent. Counts code points, so a character outside the Basic
+     * Multilingual Plane (such as some CJK ideographs) counts once, not twice.
+     */
+    static queryLength(query: string): number;
     /**
      * Time to wait (in milliseconds) after the user stops typing before triggering a search.
      */
