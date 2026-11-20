@@ -104,6 +104,7 @@ class PostWriteLockOrderTest extends TestCase
             $this->assertTrue($userWasLocked);
         } finally {
             $db->rollBack();
+
             try {
                 $observer->table('gdpr_erasure')->where('id', $id)->delete();
                 $observer->table('discussions')->where('id', $id)->delete();
