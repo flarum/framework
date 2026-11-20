@@ -4,7 +4,9 @@ import GambitManager from './GambitManager';
 
 export default class SearchManager<State extends SearchState = SearchState> {
   /**
-   * The minimum query length before sources are searched.
+   * The default minimum query length. The forum's configured minimum
+   * (`search_min_length`) takes precedence once the forum is loaded; admin
+   * settings search never requires more than this.
    */
   public static MIN_SEARCH_LEN = 3;
 
@@ -12,18 +14,25 @@ export default class SearchManager<State extends SearchState = SearchState> {
    * Whether experimental CJK search mode is enabled.
    */
   public static isCjkMode(): boolean {
-    const settings = app.data.settings as Record<string, unknown> | undefined;
-
-    return (settings?.['search_cjk_mode'] as unknown as boolean | undefined) ?? false;
+    return app.forum?.attribute<boolean>('searchCjkMode') ?? false;
   }
 
   /**
-   * The minimum query length for the current forum. Experimental CJK search mode
-   * drops it to 1, since a single character is often a whole word in languages
-   * without word spaces; the substring match backing that mode has no minimum.
+   * The minimum query length before sources are searched, as configured by the
+   * forum's admin (`search_min_length`).
    */
   public static minSearchLength(): number {
-    return this.isCjkMode() ? 1 : this.MIN_SEARCH_LEN;
+    return app.forum?.attribute<number>('searchMinLength') ?? this.MIN_SEARCH_LEN;
+  }
+
+  /**
+   * The length of a query in characters, as compared against the minimum.
+   * Surrounding whitespace is not counted, since it is trimmed before the
+   * search is sent. Counts code points, so a character outside the Basic
+   * Multilingual Plane (such as some CJK ideographs) counts once, not twice.
+   */
+  public static queryLength(query: string): number {
+    return Array.from(query.trim()).length;
   }
 
   /**

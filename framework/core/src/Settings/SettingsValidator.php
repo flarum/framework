@@ -29,6 +29,7 @@ class SettingsValidator extends AbstractValidator
     protected array $rules = [
         'forum_short_name' => ['max:'.ShortName::MAX_LENGTH],
         'splash_screen_background' => ['nullable', 'regex:'.SplashScreen::BACKGROUND_PATTERN],
+        'search_min_length' => ['required', 'integer', 'min:1'],
     ];
 
     protected function makeValidator(array $attributes): Validator

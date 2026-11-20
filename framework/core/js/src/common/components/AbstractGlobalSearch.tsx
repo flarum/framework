@@ -66,6 +66,12 @@ export interface GlobalSearchSource {
    * Get to the result item page. Only called if each list item has a data-id.
    */
   gotoItem(id: string): string | null;
+
+  /**
+   * The minimum query length before this source is searched. Defaults to the
+   * forum's configured minimum (`SearchManager.minSearchLength()`).
+   */
+  minSearchLength?(): number;
 }
 
 /**
