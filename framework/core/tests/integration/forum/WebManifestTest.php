@@ -11,13 +11,18 @@ namespace Flarum\Tests\integration\forum;
 
 use Flarum\Extend;
 use Flarum\Frontend\Document;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Laminas\Diactoros\Stream;
 use Laminas\Diactoros\UploadedFile;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\ResponseInterface;
 
 class WebManifestTest extends TestCase
 {
+    use RetrievesAuthorizedUsers;
+
     /** @var string[] */
     private array $tempFiles = [];
 
@@ -89,27 +94,97 @@ class WebManifestTest extends TestCase
         $this->assertArrayNotHasKey('id', $manifest);
     }
 
-    #[Test]
-    public function the_manifest_opens_the_start_page_and_keeps_the_app_s_id(): void
+    private function saveStartPage(string $page, int $actor = 1): ResponseInterface
     {
-        $response = $this->send($this->request('POST', '/api/settings', ['authenticatedAs' => 1, 'json' => ['app_start_page' => '/all']]));
+        return $this->send($this->request('POST', '/api/settings', ['authenticatedAs' => $actor, 'json' => ['app_start_page' => $page]]));
+    }
+
+    private function registerExtensionPage(): void
+    {
+        $this->extend((new Extend\Frontend('forum'))->route('/start-here', 'acme.start-here'));
+    }
+
+    #[Test]
+    #[DataProvider('startPages')]
+    public function the_manifest_opens_the_start_page_and_keeps_the_app_s_id(string $page, bool $fromExtension, string $startUrl): void
+    {
+        if ($fromExtension) {
+            $this->registerExtensionPage();
+        }
+
+        $response = $this->saveStartPage($page);
         $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
 
         $manifest = $this->manifest();
 
-        $this->assertSame('http://localhost/all', $manifest['start_url']);
+        $this->assertSame($startUrl, $manifest['start_url']);
         $this->assertSame('http://localhost/', $manifest['id']);
         $this->assertSame('http://localhost/', $manifest['scope']);
     }
 
-    #[Test]
-    public function a_start_page_outside_the_forum_cannot_be_saved(): void
+    public static function startPages(): array
     {
-        foreach (['../admin', 'a/%2e%2e/b', 'all discussions'] as $page) {
-            $response = $this->send($this->request('POST', '/api/settings', ['authenticatedAs' => 1, 'json' => ['app_start_page' => $page]]));
+        return [
+            'a core page' => ['/all', false, 'http://localhost/all'],
+            'an extension\'s page' => ['/start-here', true, 'http://localhost/start-here'],
+        ];
+    }
 
-            $this->assertEquals(422, $response->getStatusCode(), $page);
-        }
+    #[Test]
+    #[DataProvider('refusedStartPages')]
+    public function a_start_page_that_is_not_a_forum_page_cannot_be_saved(string $page): void
+    {
+        $response = $this->saveStartPage($page);
+
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame('The selected app start page is invalid.', json_decode((string) $response->getBody(), true)['errors'][0]['detail']);
+        $this->assertNull($this->database()->table('settings')->where('key', 'app_start_page')->value('value'));
+    }
+
+    public static function refusedStartPages(): array
+    {
+        return [
+            'an unknown path' => ['/nowhere'],
+            'a path without its slash' => ['all'],
+            'a full URL' => ['http://localhost/all'],
+            'a page that takes parameters' => ['/d/1'],
+            'a page that takes parameters, as its pattern' => ['/d/{id:\d+(?:-[^/]*)?}[/{near:[^/]*}]'],
+            'a route that is not a page' => ['/login'],
+        ];
+    }
+
+    #[Test]
+    public function an_empty_start_page_opens_the_home_page(): void
+    {
+        $response = $this->saveStartPage('');
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+
+        $manifest = $this->manifest();
+
+        $this->assertSame('http://localhost/', $manifest['start_url']);
+        $this->assertArrayNotHasKey('id', $manifest);
+    }
+
+    #[Test]
+    public function a_start_page_whose_extension_is_gone_falls_back_to_the_home_page(): void
+    {
+        $this->setting('app_start_page', '/start-here');
+
+        $manifest = $this->manifest();
+
+        $this->assertSame('http://localhost/', $manifest['start_url']);
+        $this->assertArrayNotHasKey('id', $manifest);
+    }
+
+    #[Test]
+    public function only_admins_can_choose_the_start_page(): void
+    {
+        $this->prepareDatabase(['users' => [$this->normalUser()]]);
+
+        $response = $this->saveStartPage('/all', 2);
+
+        $this->assertEquals(403, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertNull($this->database()->table('settings')->where('key', 'app_start_page')->value('value'));
     }
 
     #[Test]

@@ -13,6 +13,8 @@ import ThemeMode from '../../common/components/ThemeMode';
 import AppIconPreview from './AppIconPreview';
 import FaviconPreview from './FaviconPreview';
 import SplashScreenPreview from './SplashScreenPreview';
+import BasicsPage, { type HomePageItem } from './BasicsPage';
+import extractText from '../../common/utils/extractText';
 
 export default class AppearancePage extends AdminPage {
   headerInfo() {
@@ -184,11 +186,12 @@ export default class AppearancePage extends AdminPage {
           help: app.translator.trans('core.admin.appearance.open_as_app_help'),
         })}
         {this.buildSettingComponent({
-          type: 'text',
+          type: 'select',
           setting: 'app_start_page',
           label: app.translator.trans('core.admin.appearance.app_start_page_label'),
           help: app.translator.trans('core.admin.appearance.app_start_page_help'),
-          placeholder: 'all',
+          options: this.startPageOptions(),
+          default: '',
         })}
         {this.buildSettingComponent({
           type: 'color-preview',
@@ -246,6 +249,24 @@ export default class AppearancePage extends AdminPage {
    * The images a theme sets with the Theme extender, with the title of the
    * extension that set each one.
    */
+  /**
+   * The pages the installed app can open to: the forum's home page, or one of
+   * the pages it can be set to.
+   */
+  startPageOptions(): Record<string, string> {
+    const options: Record<string, string> = {
+      '': extractText(app.translator.trans('core.admin.appearance.app_start_page_options.home_page')),
+    };
+
+    BasicsPage.homePageItems()
+      .toArray()
+      .forEach((item: HomePageItem) => {
+        options[item.path] = extractText(item.label);
+      });
+
+    return options;
+  }
+
   themeImages(): Record<string, string | null> {
     return (app.data.themeImages as Record<string, string | null> | undefined) ?? {};
   }

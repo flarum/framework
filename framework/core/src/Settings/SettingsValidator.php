@@ -9,10 +9,14 @@
 
 namespace Flarum\Settings;
 
+use Closure;
 use Flarum\Forum\Branding\ShortName;
 use Flarum\Forum\Branding\SplashScreen;
 use Flarum\Forum\Branding\WebManifest;
 use Flarum\Foundation\AbstractValidator;
+use Flarum\Locale\TranslatorInterface;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Validation\Factory;
 use Illuminate\Validation\Validator;
 
 class SettingsValidator extends AbstractValidator
@@ -31,8 +35,13 @@ class SettingsValidator extends AbstractValidator
         'forum_short_name' => ['max:'.ShortName::MAX_LENGTH],
         'splash_screen_background' => ['nullable', 'regex:'.SplashScreen::BACKGROUND_PATTERN],
         'search_min_length' => ['required', 'integer', 'min:1'],
-        'app_start_page' => ['nullable', 'regex:'.WebManifest::START_PAGE_PATTERN],
+        'app_start_page' => ['nullable'],
     ];
+
+    public function __construct(Factory $validator, TranslatorInterface $translator, protected Container $container)
+    {
+        parent::__construct($validator, $translator);
+    }
 
     protected function makeValidator(array $attributes): Validator
     {
@@ -44,6 +53,15 @@ class SettingsValidator extends AbstractValidator
         // Apply attribute specific rules.
         foreach ($rules as $key => $value) {
             $rules[$key] = array_merge($value, $this->rules[$key] ?? []);
+        }
+
+        // Built only when it's saved: it looks at the forum's routes.
+        if (array_key_exists('app_start_page', $rules)) {
+            $rules['app_start_page'][] = function (string $attribute, mixed $value, Closure $fail) {
+                if (! is_string($value) || ! $this->container->make(WebManifest::class)->isStartPage($value)) {
+                    $fail('validation.in')->translate();
+                }
+            };
         }
 
         $validator = $this->validator->make($attributes, $rules, $this->getMessages());

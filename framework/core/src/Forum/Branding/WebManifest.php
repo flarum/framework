@@ -21,12 +21,6 @@ use Illuminate\Contracts\Container\Container;
  */
 class WebManifest
 {
-    /**
-     * A start page is a path on the forum: no white space or backslashes, and
-     * no "." or ".." segments, which would climb out of it.
-     */
-    public const START_PAGE_PATTERN = '/^(?!.*[\s\\\\])(?!(.*\/)?(\.|%2e){1,2}([\/?#]|$))/i';
-
     public function __construct(
         protected SettingsRepositoryInterface $settings,
         protected Branding $branding,
@@ -80,13 +74,23 @@ class WebManifest
     }
 
     /**
-     * The page the app opens to, as a path after the forum's address.
+     * Whether the path is a page the app can open to: a forum route that
+     * takes no parameters, as for the home page setting.
+     */
+    public function isStartPage(string $path): bool
+    {
+        return isset($this->container->make('flarum.forum.routes')->getRouteData()[0]['GET'][$path]);
+    }
+
+    /**
+     * The page the app opens to, as a path after the forum's address. A page
+     * whose extension was disabled falls back to the forum's address.
      */
     protected function startPage(): string
     {
-        $path = ltrim(trim((string) $this->settings->get('app_start_page')), '/');
+        $path = (string) $this->settings->get('app_start_page');
 
-        return preg_match(self::START_PAGE_PATTERN, $path) ? $path : '';
+        return $path !== '' && $this->isStartPage($path) ? ltrim($path, '/') : '';
     }
 
     /**
