@@ -138,6 +138,32 @@ describe('Dropdown viewport alignment', () => {
     }
   });
 
+  it('opens a menu near the viewport bottom upwards every time', () => {
+    const root = document.createElement('div');
+    document.body.append(root);
+
+    jest.spyOn($.fn, 'offset').mockImplementation(function (this: JQuery) {
+      return { top: this.hasClass('Dropdown-menu--top') ? 400 : 650, left: 20 };
+    });
+    jest.spyOn($.fn, 'height').mockImplementation(function (this: JQuery) {
+      return this[0] === window ? 800 : 200;
+    });
+
+    try {
+      m.mount(root, { view: () => m(Dropdown, { label: 'Sorting' }, [m(Button, 'Latest')]) });
+      const menu = root.querySelector<HTMLElement>('.Dropdown-menu')!;
+
+      $(root.firstElementChild!).trigger('shown.bs.dropdown');
+      expect(menu.classList.contains('Dropdown-menu--top')).toBe(true);
+
+      $(root.firstElementChild!).trigger('shown.bs.dropdown');
+      expect(menu.classList.contains('Dropdown-menu--top')).toBe(true);
+    } finally {
+      m.mount(root, null);
+      root.remove();
+    }
+  });
+
   it('allows a subclass to render a menu without the default class', () => {
     class CustomDropdown extends Dropdown {
       getMenu(items: Parameters<Dropdown['getMenu']>[0]) {
