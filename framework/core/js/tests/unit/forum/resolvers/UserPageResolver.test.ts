@@ -1,6 +1,7 @@
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from '../../../../src/forum/app';
 import PageState from '../../../../src/common/states/PageState';
+import PostsUserPage from '../../../../src/forum/components/PostsUserPage';
 import UserPage from '../../../../src/forum/components/UserPage';
 import UserPageResolver from '../../../../src/forum/resolvers/UserPageResolver';
 import { makeUser } from '../../../factory';
@@ -29,9 +30,21 @@ function resolved(user: any, slug: string, routeName = 'user.posts') {
   app.current = new PageState(UserPage, { routeName, user, resolvedUser: { slug, user } });
 }
 
+function keyFor(username: string): string {
+  // @ts-expect-error a stand-in for the router that only answers `param`
+  m.route = { param: (key?: string) => (key ? ({ username } as Record<string, string>)[key] : { username }) };
+
+  return new UserPageResolver(PostsUserPage, 'user.posts').makeKey();
+}
+
 describe('UserPageResolver', () => {
   beforeEach(() => {
     app.current = new PageState(UserPage, { routeName: 'user.posts' });
+  });
+
+  // A new key is what makes the router mount a new page for the other user.
+  test('gives users whose usernames share the part before a hyphen different keys', () => {
+    expect(keyFor('test-one')).not.toBe(keyFor('test-two'));
   });
 
   // Under the username driver, a username may start with another user's ID.
