@@ -34,6 +34,8 @@ class ApiResource implements ExtenderInterface
     private array $sorts = [];
     private array $removeSorts = [];
     private array $sort = [];
+    private bool $describable = false;
+    private array $rowAbilities = [];
 
     public function __construct(
         /**
@@ -229,8 +231,66 @@ class ApiResource implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Opt the resource in to the `resource-schemas` descriptor endpoint, which
+     * the generic admin resource components read.
+     *
+     * Any extension can opt in any resource, including one it does not own.
+     *
+     * The descriptor publishes, to every actor who can write a field, its
+     * static default (`->default('x')`) and the value lists of literal rules
+     * (`in:a,b`, `->in([...])`, `Rule::in()` passed directly). A closure
+     * default is never evaluated, and a value list built by a closure
+     * (`->rule(fn () => Rule::in(...))`) or any `not_in` is left to the server,
+     * which checks the field on blur: put data the actor must not see in closures.
+     */
+    public function describable(): self
+    {
+        $this->describable = true;
+
+        return $this;
+    }
+
+    /**
+     * Name the attributes that carry each record's permission for the generic
+     * admin resource components' row actions, in the resource's descriptor.
+     *
+     * By default, `edit` is `canEdit` and `delete` is `canDelete`, when the
+     * resource has those attributes. Pass a null to remove a row action.
+     *
+     * ```php
+     * (new Extend\ApiResource(UserResource::class))->rowAbilities(['edit' => 'canModerate']);
+     * ```
+     *
+     * @param array<'edit'|'delete', string|null> $abilities
+     */
+    public function rowAbilities(array $abilities): self
+    {
+        $this->rowAbilities = array_merge($this->rowAbilities, $abilities);
+
+        return $this;
+    }
+
     public function extend(Container $container, ?Extension $extension = null): void
     {
+        if ($this->rowAbilities) {
+            $container->extend('flarum.api.resource_row_abilities', function (array $abilities) {
+                $abilities[$this->resourceClass] = array_merge($abilities[$this->resourceClass] ?? [], $this->rowAbilities);
+
+                return $abilities;
+            });
+        }
+
+        if ($this->describable) {
+            $container->extend('flarum.api.describable_resources', function (array $resources) {
+                if (! in_array($this->resourceClass, $resources, true)) {
+                    $resources[] = $this->resourceClass;
+                }
+
+                return $resources;
+            });
+        }
+
         if (! (new ReflectionClass($this->resourceClass))->isAbstract()) {
             $container->extend('flarum.api.resources', function (array $resources) {
                 if (! in_array($this->resourceClass, $resources, true)) {

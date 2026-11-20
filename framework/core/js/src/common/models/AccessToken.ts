@@ -1,4 +1,5 @@
 import Model from '../Model';
+import type User from './User';
 
 export default class AccessToken extends Model {
   token() {
@@ -30,5 +31,11 @@ export default class AccessToken extends Model {
   }
   isSessionToken() {
     return Model.attribute<boolean>('isSessionToken').call(this);
+  }
+  canDelete() {
+    return Model.attribute<boolean>('canDelete').call(this);
+  }
+  user() {
+    return Model.hasOne<User>('user').call(this);
   }
 }

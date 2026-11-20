@@ -1,0 +1,329 @@
+import { jest } from '@jest/globals';
+import m from 'mithril';
+import mq from 'mithril-query';
+import { app } from '../../../../src/admin';
+import ResourceFormModal from '../../../../src/admin/components/resource/ResourceFormModal';
+import RequestError from '../../../../src/common/utils/RequestError';
+import EditUserModal from '../../../../src/common/components/EditUserModal';
+import { extend } from '../../../../src/common/extend';
+import type User from '../../../../src/common/models/User';
+import type ItemList from '../../../../src/common/utils/ItemList';
+import { clearDescriptorCache } from '../../../../src/common/resource/descriptor';
+import ResourceDefinition from '../../../../src/common/resource/ResourceDefinition';
+import type { Field, FieldError } from '../../../../src/common/resource/types';
+import { bootAdmin, schemaDocument } from '../../../unit/common/resource/fixtures';
+import { usersDescriptor } from '../fixtures/usersDescriptor';
+
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+/** The fields `EditUserModal` offers an admin editing another user, besides its submit button. */
+const EDIT_USER_MODAL_CORE_FIELDS = ['username', 'email', 'password', 'groups'];
+
+function modalAttrs(extra: Record<string, unknown>) {
+  return { state: {}, animateShow: (cb: () => void) => cb(), animateHide: jest.fn(), ...extra };
+}
+
+/** Render a modal and return the output plus the component instance. */
+async function render<T>(component: any, attrs: Record<string, unknown>): Promise<{ out: any; modal: T }> {
+  const oninit = jest.spyOn(component.prototype, 'oninit');
+  const out = mq(component, attrs);
+  const modal = oninit.mock.contexts[0] as T;
+
+  oninit.mockRestore();
+  await flush();
+  await flush();
+  out.redraw();
+
+  return { out, modal };
+}
+
+function fieldKeys(items: ItemList<unknown>): string[] {
+  return Object.keys(items.toObject()).filter((key) => key !== 'submit');
+}
+
+describe('ResourceFormModal', () => {
+  let user: User;
+  let request: jest.Mock<any>;
+
+  beforeAll(() => {
+    bootAdmin();
+  });
+
+  beforeEach(() => {
+    clearDescriptorCache();
+
+    request = jest.fn((options: any) => {
+      if (options.url.includes('/resource-schemas/')) return Promise.resolve(schemaDocument(usersDescriptor(), 'users'));
+      if (options.url.endsWith('/groups')) return Promise.resolve({ data: [], links: {} });
+
+      // Save: echo the sent attributes back.
+      return Promise.resolve({ data: { type: 'users', id: '2', attributes: options.body.data.attributes ?? {} } });
+    });
+    app.request = request as any;
+
+    user = app.store.pushObject<User>({
+      type: 'users',
+      id: '2',
+      attributes: {
+        username: 'normal',
+        displayName: 'Normal',
+        email: 'normal@machine.local',
+        isEmailConfirmed: true,
+        canEdit: true,
+        canEditCredentials: true,
+        canEditGroups: true,
+        canDelete: true,
+      },
+      relationships: { groups: { data: [] } },
+    } as any)!;
+  });
+
+  afterEach(() => jest.restoreAllMocks());
+
+  test("its writable fields match EditUserModal's core fields", async () => {
+    const { modal: resource } = await render<ResourceFormModal<User>>(
+      ResourceFormModal,
+      modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user })
+    );
+    const { modal: editUser } = await render<EditUserModal>(EditUserModal, modalAttrs({ user }));
+
+    // The reference: what EditUserModal offers.
+    expect(fieldKeys(editUser.fields())).toEqual(EDIT_USER_MODAL_CORE_FIELDS);
+
+    const keys = fieldKeys(resource.fields());
+
+    expect(keys).toEqual(expect.arrayContaining(EDIT_USER_MODAL_CORE_FIELDS));
+    // EditUserModal sets isEmailConfirmed through the "Activate" button inside its email item.
+    expect(keys.filter((key) => !EDIT_USER_MODAL_CORE_FIELDS.includes(key))).toEqual(['isEmailConfirmed']);
+  });
+
+  test('the create form has no token or colorScheme input (ui.widget hidden) and requires the credentials', async () => {
+    const { out, modal } = await render<ResourceFormModal<User>>(
+      ResourceFormModal,
+      modalAttrs({ definition: new ResourceDefinition<User>('users'), model: null })
+    );
+
+    const keys = fieldKeys(modal.fields());
+
+    expect(keys).not.toContain('token');
+    expect(keys).not.toContain('colorScheme');
+    expect(keys).toEqual(expect.arrayContaining(['username', 'email', 'password']));
+    expect(out).not.toHaveElement('.Modal-body [name=token]');
+    expect(out).not.toHaveElement('.Modal-body [name=colorScheme]');
+
+    for (const name of ['username', 'email', 'password']) {
+      expect(out).toHaveElement(`.Modal-body input[name=${name}][required]`);
+    }
+  });
+
+  test('the credentials are required on create because the hidden token counts as absent', async () => {
+    const { modal } = await render<ResourceFormModal<User>>(
+      ResourceFormModal,
+      modalAttrs({ definition: new ResourceDefinition<User>('users'), model: null })
+    );
+    const state = modal.formState!;
+
+    expect(state.isRequired('username')).toBe(true);
+    expect(Object.keys(state.validate())).toEqual(expect.arrayContaining(['username', 'email', 'password']));
+  });
+
+  test('fields() is an ItemList that extend() can add to', async () => {
+    const original = ResourceFormModal.prototype.fields;
+
+    extend(ResourceFormModal.prototype, 'fields', function (items: ItemList<any>) {
+      items.add('extra', m('div.Form-group.ExtraField', 'Extra'), 5);
+    });
+
+    try {
+      const { out, modal } = await render<ResourceFormModal<User>>(
+        ResourceFormModal,
+        modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user })
+      );
+
+      expect(modal.fields().has('extra')).toBe(true);
+      expect(out).toHaveElement('.Modal-body .ExtraField');
+      expect(out).toHaveElement('.Modal-body input[name=username]');
+    } finally {
+      // Undo the patch: restoreAllMocks does not know about extend().
+      ResourceFormModal.prototype.fields = original;
+    }
+  });
+
+  test('submitData() holds the changed fields only', async () => {
+    const { out, modal } = await render<ResourceFormModal<User>>(
+      ResourceFormModal,
+      modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user })
+    );
+
+    expect(modal.submitData()).toEqual({});
+
+    // FormGroup's `bidi` inputs need patchMithril to write back; drive the field's stream.
+    modal.formState!.stream('username')('renamed');
+    out.redraw();
+
+    expect(modal.submitData()).toEqual({ username: 'renamed' });
+
+    out.trigger('form', 'submit', {} as Event);
+    await flush();
+
+    const save = request.mock.calls.map((call: any) => call[0]).find((options: any) => options.method === 'PATCH');
+
+    expect(save.body.data.attributes).toEqual({ username: 'renamed' });
+    expect(save.body.data.relationships).toBeUndefined();
+  });
+
+  test('onsaved is called with the saved model', async () => {
+    const onsaved = jest.fn();
+    const attrs = modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user, onsaved });
+    const { out, modal } = await render<ResourceFormModal<User>>(ResourceFormModal, attrs);
+
+    modal.formState!.stream('username')('renamed');
+    out.redraw();
+    out.trigger('form', 'submit', {} as Event);
+    await flush();
+    await flush();
+
+    expect(onsaved).toHaveBeenCalledWith(user);
+    expect(user.username()).toBe('renamed');
+    expect(attrs.animateHide).toHaveBeenCalled();
+  });
+
+  test("a locale-map field's validate() error shows on it, and fields hear of it through onclienterrors", async () => {
+    const heard: Record<string, FieldError[]>[] = [];
+
+    class LocalizedUsers extends ResourceDefinition<User> {
+      fields() {
+        const fields = super.fields();
+        const username = fields.get('username') as Field<User, Record<string, string>>;
+
+        fields.setContent('username', {
+          ...username,
+          value: (model) => ({ '*': model?.username() ?? '' }),
+          input: (ctx) => m('div.LocaleInput', JSON.stringify(ctx.stream())),
+          // The base row as core checks it; `de` by the same constraints, its messages naming it.
+          validate: (value, ctx) => [
+            ...ctx.check(value['*']),
+            ...(value.de ? ctx.check(value.de).map((message) => ({ message: `de: ${message}`, path: 'de' })) : []),
+          ],
+        } as Field<User, any>);
+        fields.add('switcher', { label: 'Locale', input: () => null, onclienterrors: (errors) => heard.push(errors) });
+
+        return fields;
+      }
+    }
+
+    const { out, modal } = await render<ResourceFormModal<User>>(
+      ResourceFormModal,
+      modalAttrs({ definition: new LocalizedUsers('users'), model: user })
+    );
+
+    modal.formState!.stream('username')({ '*': '', de: 'x' });
+    out.redraw();
+    out.trigger('form', 'submit', {} as Event);
+    await flush();
+    out.redraw();
+
+    // The empty base row is not required on update; the `de` value is too short.
+    const tooShort = `de: ${app.translator.trans('core.lib.resource.validation.min_length', { count: 3 }, true)}`;
+
+    expect(out).toHaveElement('.ResourceForm-field--username.has-error');
+    expect(out).toContainRaw(tooShort);
+    expect(heard).toEqual([{ username: [{ message: tooShort, path: 'de' }] }]);
+    expect(request.mock.calls.some((call: any) => call[0].method === 'PATCH')).toBe(false);
+  });
+
+  test('a 422 pointing below a field shows on that field, the rest of the pointer as path', async () => {
+    const errors = [{ status: '422', detail: 'German name taken', source: { pointer: '/data/attributes/username/de' } }];
+
+    request.mockImplementation(async (options: any) => {
+      if (options.url.includes('/resource-schemas/')) return schemaDocument(usersDescriptor(), 'users');
+      if (options.url.endsWith('/groups')) return { data: [], links: {} };
+
+      const error = new RequestError(422, JSON.stringify({ errors }), options, {} as XMLHttpRequest);
+      await options.errorHandler?.(error);
+      throw error;
+    });
+
+    const { out, modal } = await render<ResourceFormModal<User>>(
+      ResourceFormModal,
+      modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user })
+    );
+
+    modal.formState!.stream('username')('renamed');
+    out.redraw();
+    out.trigger('form', 'submit', {} as Event);
+    await flush();
+    await flush();
+    out.redraw();
+
+    expect(out).toHaveElement('.ResourceForm-field--username.has-error');
+    expect(out).toContainRaw('German name taken');
+    expect(modal.formState!.fieldErrors('username')).toEqual([expect.objectContaining({ message: 'German name taken', path: 'de' })]);
+  });
+
+  describe('with ui hints', () => {
+    /** The users descriptor with help, groups, a priority, markRequired and a visibleWhen field. */
+    function hinted() {
+      const d = usersDescriptor();
+      const field = (name: string) => d.fields.find((f) => f.name === name)!;
+
+      field('email').ui = { ...field('email').ui, help: 'Used for notifications.', group: 'Account', priority: 5 };
+      field('password').ui = { ...field('password').ui, group: 'Account', markRequired: true };
+      field('username').constraints = { ...field('username').constraints, messages: { required: 'Every user needs a name.' } };
+      field('isEmailConfirmed').ui = { ...field('isEmailConfirmed').ui, visibleWhen: [{ rule: 'with', fields: ['email'] }] };
+
+      return d;
+    }
+
+    beforeEach(() => {
+      const fallback = request.getMockImplementation()!;
+
+      request.mockImplementation((options: any) =>
+        options.url.includes('/resource-schemas/') ? Promise.resolve(schemaDocument(hinted(), 'users')) : fallback(options)
+      );
+    });
+
+    test('renders help, the group fieldset after the other fields, priority and the required mark; the form is novalidate', async () => {
+      const { out } = await render<ResourceFormModal<User>>(
+        ResourceFormModal,
+        modalAttrs({ definition: new ResourceDefinition<User>('users'), model: null })
+      );
+      const root = out.rootEl as HTMLElement;
+
+      expect(root.querySelector('form')!.hasAttribute('novalidate')).toBe(true);
+      expect(out).toContainRaw('Used for notifications.');
+      expect(root.querySelector('fieldset.ResourceForm-group legend')!.textContent).toBe('Account');
+      expect([...root.querySelectorAll('fieldset.ResourceForm-group input')].map((el) => (el as HTMLInputElement).name)).toEqual([
+        'email',
+        'password',
+      ]);
+      expect(root.querySelector('.ResourceForm-field--password')!.classList.contains('ResourceForm-field--required')).toBe(true);
+
+      const inputs = [...root.querySelectorAll('.Modal-body input[name]')].map((el) => (el as HTMLInputElement).name);
+      expect(inputs.indexOf('username')).toBeLessThan(inputs.indexOf('email'));
+    });
+
+    test('a visibleWhen field is hidden, not validated and not sent until its condition holds; custom messages show', async () => {
+      const { modal } = await render<ResourceFormModal<User>>(
+        ResourceFormModal,
+        modalAttrs({ definition: new ResourceDefinition<User>('users'), model: user })
+      );
+      const state = modal.formState!;
+
+      expect(state.visibleFields().has('isEmailConfirmed')).toBe(true);
+
+      state.stream('email')('');
+      state.stream('isEmailConfirmed')(false);
+
+      expect(state.visibleFields().has('isEmailConfirmed')).toBe(false);
+      expect(state.buildSaveData()).toEqual({ email: '' });
+
+      const creating = await render<ResourceFormModal<User>>(
+        ResourceFormModal,
+        modalAttrs({ definition: new ResourceDefinition<User>('users'), model: null })
+      );
+
+      expect(creating.modal.formState!.validate().username).toEqual(['Every user needs a name.']);
+    });
+  });
+});

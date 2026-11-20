@@ -104,6 +104,28 @@ class ShowTest extends TestCase
         $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
     }
 
+    #[Test]
+    public function says_whether_the_admin_may_edit_and_delete_the_group()
+    {
+        $custom = json_decode((string) $this->send(
+            $this->request('GET', '/api/groups/10', ['authenticatedAs' => 1])
+        )->getBody(), true);
+
+        $this->assertTrue(Arr::get($custom, 'data.attributes.canEdit'));
+        $this->assertTrue(Arr::get($custom, 'data.attributes.canDelete'));
+    }
+
+    #[Test]
+    public function guests_may_neither_edit_nor_delete_the_group()
+    {
+        $data = json_decode((string) $this->send(
+            $this->request('GET', '/api/groups/1')
+        )->getBody(), true);
+
+        $this->assertFalse(Arr::get($data, 'data.attributes.canEdit'));
+        $this->assertFalse(Arr::get($data, 'data.attributes.canDelete'));
+    }
+
     protected function hiddenGroup(): array
     {
         return [

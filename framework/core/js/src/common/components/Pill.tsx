@@ -6,6 +6,8 @@ import classList from '../utils/classList';
 export interface IPillAttrs extends ComponentAttrs {
   deletable?: boolean;
   ondelete?: () => void;
+  /** The delete button's accessible label. */
+  deleteLabel?: string;
 }
 
 export default class Pill<CustomAttrs extends IPillAttrs = IPillAttrs> extends Component<CustomAttrs> {
@@ -13,7 +15,16 @@ export default class Pill<CustomAttrs extends IPillAttrs = IPillAttrs> extends C
     return (
       <span className={classList('Pill', this.attrs.className)}>
         <span className="Pill-content">{vnode.children}</span>
-        {this.attrs.deletable && <Button type="button" className="Button Button--icon" icon="fas fa-times" onclick={this.attrs.ondelete} />}
+        {this.attrs.deletable && (
+          <Button
+            type="button"
+            className="Button Button--icon"
+            icon="fas fa-times"
+            onclick={this.attrs.ondelete}
+            aria-label={this.attrs.deleteLabel}
+            title={this.attrs.deleteLabel}
+          />
+        )}
       </span>
     );
   }

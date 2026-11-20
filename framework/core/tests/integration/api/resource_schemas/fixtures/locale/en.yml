@@ -1,0 +1,17 @@
+core:
+  admin:
+    resource:
+      scratch-hinted:
+        colour:
+          r: Red
+        colour_enum:
+          g: Green
+        filters:
+          colour_enum:
+            b: Blue (filter)
+          convention: Conventional filter
+        group_main: Main settings
+        help_hinted: Some help
+        label_one: Hinted thing
+        label_other: Hinted things
+        message_code: The code must be lowercase letters.

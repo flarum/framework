@@ -34,7 +34,8 @@ class UserResourceFields
                 ->description('When the suspension ends, or null when the user is not suspended. A date far in the future suspends indefinitely.')
                 ->writable($canSuspend)
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $canSuspend($user, $context))
-                ->nullable(),
+                ->nullable()
+                ->ui(['column' => 60]),
         ];
     }
 }
