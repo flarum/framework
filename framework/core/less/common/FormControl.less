@@ -38,15 +38,15 @@
     height: auto;
   }
 
-  // The browser draws a dropdown's open list itself, and options take no
-  // background from the select: give them the colours of the focused field,
-  // or the list can come up light under light text in dark mode. Listboxes
-  // draw their options in the page, so they keep the selection highlight.
+  // Native dropdown lists don't reliably follow the field's colours; listboxes are left out so they keep their selection highlight.
   select&:not([multiple]):not([size]) {
     option,
     optgroup {
-      color: var(--text-color);
       background-color: var(--body-bg);
+
+      &:not(:disabled) {
+        color: var(--text-color);
+      }
     }
   }
 
