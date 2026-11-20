@@ -93,20 +93,18 @@ class UpdateTest extends TestCase
 
         $this->assertEquals(204, $response->getStatusCode(), json_encode(json_decode($response->getBody()->getContents()), JSON_PRETTY_PRINT));
 
-        $state = UserDialogState::query()
-            ->where('dialog_id', 102)
-            ->where('user_id', 3)
-            ->first();
+        // As core does for discussions: a watermark on the member, which
+        // leaves every read position as it was.
+        $this->assertEquals(111, User::query()->whereKey(3)->value('marked_all_dialogs_read_id'));
+        $this->assertEquals(0, User::query()->whereKey(4)->value('marked_all_dialogs_read_id'));
 
-        $nonState = UserDialogState::query()
-            ->where('dialog_id', 102)
-            ->where('user_id', '!=', 3)
-            ->first();
+        $state = UserDialogState::query()->where('dialog_id', 102)->where('user_id', 3)->first();
 
-        $this->assertNotNull($state->last_read_at);
-        $this->assertNull($nonState->last_read_at);
+        $this->assertNull($state->last_read_at);
+        $this->assertEquals(0, $state->last_read_message_id);
 
-        $this->assertEquals(111, $state->last_read_message_id);
-        $this->assertEquals(0, $nonState->last_read_message_id);
+        $response = $this->send($this->request('GET', '/api/dialogs/102', ['authenticatedAs' => 3]));
+
+        $this->assertEquals(0, json_decode((string) $response->getBody(), true)['data']['attributes']['unreadCount']);
     }
 }

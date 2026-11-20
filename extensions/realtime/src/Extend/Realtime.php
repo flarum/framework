@@ -37,6 +37,11 @@ class Realtime implements ExtenderInterface
     protected array $dialogRemovals = [];
 
     /**
+     * @var array<int, array{events: string[], getPayloads: callable}>
+     */
+    protected array $userBroadcasts = [];
+
+    /**
      * @var array<int, array{events: string[], getDiscussion: callable, eventName: string}>
      */
     protected array $flagEvents = [];
@@ -76,6 +81,10 @@ class Realtime implements ExtenderInterface
 
             foreach ($this->dialogRemovals as $entry) {
                 $registry->addDialogRemoval($entry['events'], $entry['getRemoval']);
+            }
+
+            foreach ($this->userBroadcasts as $entry) {
+                $registry->addUserBroadcast($entry['events'], $entry['getPayloads']);
             }
 
             foreach ($this->flagEvents as $entry) {
@@ -267,6 +276,39 @@ class Realtime implements ExtenderInterface
         $this->dialogRemovals[] = [
             'events' => (array) $events,
             'getRemoval' => $getRemoval,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Send a payload of your own to particular users, on their own channels,
+     * under the event's class name.
+     *
+     * The callback returns each user's payload keyed by user ID; empty sends
+     * nothing. It runs when the event is raised and again when the broadcast
+     * is sent (later, with a queue worker), and what it returns then is sent.
+     * The event is queued, so give it SerializesModels if it carries models.
+     *
+     * Realtime checks nothing about these users: the callback must leave out
+     * anyone who may not see the payload.
+     *
+     * Example:
+     *
+     *   (new \Flarum\Realtime\Extend\Realtime())
+     *       ->broadcastToUsers(
+     *           \Acme\Event\TaskAssigned::class,
+     *           fn ($event) => [$event->assignee->id => ['taskId' => (string) $event->task->id]],
+     *       ),
+     *
+     * @param string|string[] $events
+     * @param callable(object): array<int, array<string, mixed>> $getPayloads
+     */
+    public function broadcastToUsers(string|array $events, callable $getPayloads): self
+    {
+        $this->userBroadcasts[] = [
+            'events' => (array) $events,
+            'getPayloads' => $getPayloads,
         ];
 
         return $this;
