@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.8.22](https://github.com/flarum/framework/compare/v1.8.21...v1.8.22)
+### Fixed
+* Hide a discussion's first, last and most relevant post when the actor cannot see it (https://github.com/flarum/framework/pull/5533)
+* Validate avatar URLs without DNS lookups (https://github.com/flarum/framework/pull/5532)
+* Serve the XSLT polyfill with a JavaScript content type (https://github.com/flarum/framework/pull/5531)
+
+## [v1.8.21](https://github.com/flarum/framework/compare/v1.8.20...v1.8.21)
+### Security
+* Privilege escalation to administrator via malformed group id in `editGroups` (https://github.com/flarum/framework/security/advisories/GHSA-fqc7-2f6r-m84c)
+
 ## [v1.8.20](https://github.com/flarum/framework/compare/v1.8.19...v1.8.20)
 ### Added
 * PHPStan rule to catch misaligned extender callback signatures that can leak raw model data to API responses (https://github.com/flarum/framework/pull/5050)
