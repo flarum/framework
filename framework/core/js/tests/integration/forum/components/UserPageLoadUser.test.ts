@@ -93,13 +93,12 @@ describe('UserPage.loadUser', () => {
       expect(find).toHaveBeenCalledWith('users', 'carol', { bySlug: true }, expect.anything());
     });
 
-    it('fetches by the stored slug, not by whatever the route happened to carry', () => {
-      pushAuthor('7', 'dana');
+    it('records them as resolved for their slug', () => {
+      const dana = pushAuthor('7', 'dana');
 
-      // The route may carry the id (`user.id() === username` is matched too).
-      open('7');
+      open('dana');
 
-      expect(find).toHaveBeenCalledWith('users', 'dana', { bySlug: true }, expect.anything());
+      expect(app.current.get('resolvedUser')).toEqual({ slug: 'dana', user: dana });
     });
 
     it('fetches silently: a failure raises no alert', () => {
@@ -153,6 +152,28 @@ describe('UserPage.loadUser', () => {
       expect(second.shown).toHaveLength(1);
       expect(find).toHaveBeenCalledTimes(1);
     });
+
+    it('records the address the server resolved them by', async () => {
+      let judy: any;
+      find.mockImplementation((async () => (judy = pushAuthor('13', 'judy'))) as any);
+
+      await open('13').loaded;
+
+      expect(app.current.get('resolvedUser')).toEqual({ slug: '13', user: judy });
+    });
+
+    it('records nothing on a page the visitor went on to', async () => {
+      let respond: (user: any) => void = () => {};
+      find.mockImplementationOnce((() => new Promise((resolve) => (respond = resolve))) as any);
+
+      const left = open('18');
+      open('oscar');
+      const current = app.current;
+      respond(pushAuthor('18', 'pat'));
+      await left.loaded;
+
+      expect(current.get('resolvedUser')).toBeUndefined();
+    });
   });
 
   describe('for the document the server preloaded', () => {
@@ -164,6 +185,33 @@ describe('UserPage.loadUser', () => {
 
       expect(shown).toEqual([preloaded]);
       expect(find).not.toHaveBeenCalled();
+    });
+
+    it('records the address the server resolved it by', () => {
+      const preloaded = pushAuthor('14', 'kim');
+      jest.spyOn(app, 'preloadedApiDocument').mockReturnValue(preloaded as any);
+
+      open('14');
+
+      expect(app.current.get('resolvedUser')).toEqual({ slug: '14', user: preloaded });
+    });
+  });
+
+  // Under the username slug driver `/u/16` is the user named "16", not user 16.
+  describe('for an address that is not the slug of a user in the store', () => {
+    it('shows the user the server resolves it to', async () => {
+      pushAuthor('16', 'mia');
+      let sixteen: any;
+      find.mockImplementationOnce((async () => (sixteen = pushAuthor('160', '16'))) as any);
+
+      const { shown, loaded } = open('16');
+
+      expect(shown).toEqual([]);
+      await loaded;
+
+      expect(find).toHaveBeenCalledWith('users', '16', { bySlug: true });
+      expect(shown).toEqual([sixteen]);
+      expect(app.current.get('resolvedUser')).toEqual({ slug: '16', user: sixteen });
     });
   });
 });
