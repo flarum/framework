@@ -24,8 +24,9 @@ class LikeServiceProvider extends AbstractServiceProvider
 
         CommentPost::updated(function (CommentPost $post) use ($counts) {
             if ($post->wasChanged('is_private')) {
-                $ids = $post->getConnection()->table('post_likes')->where('post_id', $post->id)
-                    ->lockForUpdate()->pluck('user_id')->all();
+                // Saving holds the post's lock, so Like mutations cannot alter
+                // the pivot while the counters are being refreshed.
+                $ids = $post->getConnection()->table('post_likes')->where('post_id', $post->id)->pluck('user_id')->all();
                 $counts->refresh($ids);
             }
         });

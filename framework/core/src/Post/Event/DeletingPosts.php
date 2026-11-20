@@ -10,8 +10,7 @@
 namespace Flarum\Post\Event;
 
 use Closure;
-use Flarum\Post\Post;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\ConnectionInterface;
 
 /**
  * Covers both model deletion and bulk deletion that skips model events.
@@ -22,9 +21,32 @@ final class DeletingPosts
     /** @var list<Closure(): void> */
     private array $callbacks = [];
 
-    /** @param Builder<Post> $posts */
-    public function __construct(public readonly Builder $posts)
+    /**
+     * @param list<int> $postIds
+     * @param list<int> $userIds
+     */
+    public function __construct(
+        public readonly ConnectionInterface $connection,
+        public readonly array $postIds,
+        private array $userIds = [],
+    ) {
+    }
+
+    /** @param list<int> $ids */
+    public function lockUsers(array $ids): void
     {
+        $this->userIds = array_merge($this->userIds, $ids);
+    }
+
+    /** @internal */
+    public function acquireUserLocks(): void
+    {
+        $ids = array_unique($this->userIds);
+        sort($ids);
+
+        foreach (array_chunk($ids, 1000) as $chunk) {
+            $this->connection->table('users')->whereIn('id', $chunk)->orderBy('id')->lockForUpdate()->get(['id']);
+        }
     }
 
     /** @param Closure(): void $callback */

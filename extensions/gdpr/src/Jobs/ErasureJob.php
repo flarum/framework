@@ -62,7 +62,7 @@ class ErasureJob extends GdprJob
         /** @var User */
         $user = User::find($this->erasureRequest->user_id);
 
-        if (! $user->exists) {
+        if (! $user?->exists) {
             return;
         }
 
@@ -103,6 +103,23 @@ class ErasureJob extends GdprJob
             $user,
             $this->erasureRequest
         ));
+    }
+
+    public function failed(): void
+    {
+        $request = $this->erasureRequest;
+        $user = User::query()->find($request->user_id);
+
+        // A failure sending the completion email must not reopen a completed erasure.
+        if (! $user || ($request->processed_mode === ErasureRequest::MODE_ANONYMIZATION && $user->anonymized)) {
+            return;
+        }
+
+        $request->status = $request->user_confirmed_at
+            ? ErasureRequest::STATUS_USER_CONFIRMED
+            : ErasureRequest::STATUS_MANUAL;
+        $request->processed_at = null;
+        $request->save();
     }
 
     private function deletion(User $user, DataProcessor $processor): void

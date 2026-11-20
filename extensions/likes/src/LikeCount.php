@@ -11,31 +11,36 @@ namespace Flarum\Likes;
 
 use Flarum\Post\Event\DeletingPosts;
 use Flarum\User\User;
-use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Expression;
 
 class LikeCount
 {
     public function prepareDeletion(DeletingPosts $event): void
     {
-        $db = $event->posts->getConnection();
-        $posts = (clone $event->posts)->reorder('id')->lockForUpdate()->get(['id', 'type', 'is_private']);
-        $postIds = $posts->modelKeys();
-        $eligibleIds = $posts->filter(fn ($post) => $post->type === 'comment' && $post->is_private === false)->modelKeys();
+        $db = $event->connection;
+        $postIds = $event->postIds;
         $removedByUser = [];
 
-        foreach (array_chunk($eligibleIds, 1000) as $chunk) {
-            $likes = $db->table('post_likes')->whereIn('post_id', $chunk)
-                ->orderBy('post_id')->orderBy('user_id')->lockForUpdate()->cursor();
+        // Core holds the post locks. Group in SQL so only counts come back.
+        foreach (array_chunk($postIds, 1000) as $chunk) {
+            $counts = $db->table('post_likes')
+                ->join('posts', 'posts.id', '=', 'post_likes.post_id')
+                ->whereIn('post_likes.post_id', $chunk)
+                ->where('posts.type', 'comment')
+                ->where('posts.is_private', false)
+                ->select('post_likes.user_id')
+                ->selectRaw('COUNT(*) as total')
+                ->groupBy('post_likes.user_id')
+                ->pluck('total', 'post_likes.user_id');
 
-            foreach ($likes as $like) {
-                $removedByUser[$like->user_id] = ($removedByUser[$like->user_id] ?? 0) + 1;
+            foreach ($counts as $id => $count) {
+                $removedByUser[$id] = ($removedByUser[$id] ?? 0) + (int) $count;
             }
         }
 
         // Like mutations take the same locks before changing the pivot and counter.
         // Hold these through the SQL deletion as well as the counter update.
-        $this->lockUsers($db, array_keys($removedByUser));
+        $event->lockUsers(array_keys($removedByUser));
 
         $event->afterDeletion(function () use ($db, $postIds, $removedByUser) {
             // SQLite installs without cascading foreign keys still need cleanup.
@@ -58,14 +63,10 @@ class LikeCount
         });
     }
 
-    /** @param int[] $userIds */
-    private function lockUsers(ConnectionInterface $db, array $userIds): void
+    public function refreshAll(): void
     {
-        sort($userIds);
-
-        foreach (array_chunk($userIds, 1000) as $ids) {
-            $db->table('users')->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get(['id']);
-        }
+        User::query()->getConnection()->table('users')->select('id')
+            ->chunkById(1000, fn ($users) => $this->refresh($users->pluck('id')->all()));
     }
 
     /** @param int[] $userIds */

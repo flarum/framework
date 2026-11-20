@@ -26,15 +26,20 @@ class PostResourceFields
     {
         return [
             Schema\Boolean::make('isLiked')
-                ->description('Write-only: set to true to like the post as you, false to unlike it.')
+                ->description('Write-only: on an existing post, set to true to like it as you, false to unlike it.')
                 ->visible(false)
                 ->writable(fn (Post $post, Context $context) => $context->getActor()->can('like', $post))
                 ->set(function (Post $post, bool $liked, Context $context) {
+                    // The create endpoint can receive isLiked before the post exists.
+                    if (! $post->exists) {
+                        return;
+                    }
+
                     $actor = $context->getActor();
                     $db = $post->getConnection();
 
-                    [$changed, $likeCount] = $db->transaction(function () use ($db, $post, $actor, $liked) {
-                        // Use the same post-then-user lock order as deletion.
+                    [$changed, $likeCount] = $post->withDiscussionLock(function () use ($db, $post, $actor, $liked) {
+                        // Match the discussion, post, then user lock order in deletion.
                         $post->newModelQuery()->whereKey($post->id)->lockForUpdate()->firstOrFail(['id']);
                         $db->table('users')->where('id', $actor->id)->lockForUpdate()->get(['id']);
 

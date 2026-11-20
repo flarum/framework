@@ -30,6 +30,7 @@ function postWithoutLikes(id: string): Post {
 }
 
 const likeButton = (post: Post) => CommentPost.prototype.actionItems.call({ attrs: { post } } as any).get('like') as any;
+const countResponse = (likeCount: number) => ({ data: { attributes: { likeCount } } });
 
 // Posts can arrive without their likes, e.g. from a list that named its own
 // includes, which turns off the API's default ones.
@@ -37,26 +38,26 @@ describe('the like button', () => {
   it('likes a post that arrived without its likes', async () => {
     const post = postWithoutLikes('71');
     const save = jest.spyOn(post, 'save').mockResolvedValue(post as any);
-    const find = jest.spyOn(app.store, 'find').mockResolvedValue(app.session.user as any);
+    const request = jest.spyOn(app, 'request').mockResolvedValue(countResponse(1));
 
     expect(() => likeButton(post).attrs.onclick()).not.toThrow();
-    expect(save).toHaveBeenCalledWith({ isLiked: true });
+    expect(save).toHaveBeenCalledWith({ isLiked: true }, expect.any(Object));
     expect((post as any).likes()).toEqual([app.session.user]);
     await Promise.resolve();
-    expect(find).toHaveBeenCalledWith('users', app.session.user.id());
+    expect(request).toHaveBeenCalledWith(expect.objectContaining({ url: expect.stringContaining('/users/' + app.session.user.id()) }));
   });
 
   it('refreshes an already-loaded user after unliking', async () => {
     const post = postWithoutLikes('72');
     post.pushData({ relationships: { likes: { data: [{ type: 'users', id: app.session.user.id() }] } } } as any);
     const save = jest.spyOn(post, 'save').mockResolvedValue(post as any);
-    const find = jest.spyOn(app.store, 'find').mockResolvedValue(app.session.user as any);
+    const request = jest.spyOn(app, 'request').mockResolvedValue(countResponse(0));
 
     likeButton(post).attrs.onclick();
     await Promise.resolve();
 
-    expect(save).toHaveBeenCalledWith({ isLiked: false });
-    expect(find).toHaveBeenCalledWith('users', app.session.user.id());
+    expect(save).toHaveBeenCalledWith({ isLiked: false }, expect.any(Object));
+    expect(request).toHaveBeenCalledWith(expect.objectContaining({ url: expect.stringContaining('/users/' + app.session.user.id()) }));
     expect((post as any).likes()).toEqual([]);
   });
 
@@ -83,10 +84,9 @@ describe('the like button', () => {
     const refresh = new Promise<void>((resolve) => {
       finishRefresh = resolve;
     });
-    jest.spyOn(app.store, 'find').mockImplementation(async () => {
+    jest.spyOn(app, 'request').mockImplementation(async () => {
       await refresh;
-      user.pushAttributes({ likeCount: to });
-      return user as any;
+      return countResponse(to) as any;
     });
     const redrawSync = m.redraw.sync;
     jest.spyOn(globalThis.m, 'redraw').mockImplementation(redrawSync);
@@ -103,5 +103,55 @@ describe('the like button', () => {
       m.mount(root, null);
       root.remove();
     }
+  });
+
+  it('discards an older count response delivered after a newer one', async () => {
+    const user = app.session.user!;
+    user.pushAttributes({ likeCount: 2 });
+    const firstPost = postWithoutLikes('75');
+    const secondPost = postWithoutLikes('76');
+    for (const post of [firstPost, secondPost]) {
+      post.pushData({ relationships: { likes: { data: [{ type: 'users', id: user.id() }] } } } as any);
+      jest.spyOn(post, 'save').mockResolvedValue(post as any);
+    }
+
+    let finishOlder!: (value: ReturnType<typeof countResponse>) => void;
+    const older = new Promise<ReturnType<typeof countResponse>>((resolve) => {
+      finishOlder = resolve;
+    });
+    const request = jest
+      .spyOn(app, 'request')
+      .mockImplementationOnce(() => older as any)
+      .mockResolvedValueOnce(countResponse(0));
+
+    const first = likeButton(firstPost).attrs.onclick();
+    await Promise.resolve();
+    const second = likeButton(secondPost).attrs.onclick();
+    await second;
+    expect(request).toHaveBeenCalledTimes(2);
+    expect(user.likeCount()).toBe(0);
+
+    finishOlder(countResponse(1));
+    await first;
+    expect(user.likeCount()).toBe(0);
+  });
+
+  it('keeps a mutation response from overwriting the actor’s count', async () => {
+    const user = app.session.user!;
+    const post = postWithoutLikes('77');
+    user.pushAttributes({ likeCount: 5 });
+    jest.spyOn(app, 'request').mockResolvedValue(countResponse(5));
+    const save = jest.spyOn(post, 'save').mockResolvedValue(post as any);
+
+    await likeButton(post).attrs.onclick();
+    const modify = save.mock.calls[0][1]?.modifyText!;
+    const included = [
+      { type: 'users', id: user.id(), attributes: { username: 'Actor', likeCount: 4 } },
+      { type: 'users', id: '999', attributes: { likeCount: 8 } },
+    ];
+    const payload = JSON.parse(modify(JSON.stringify({ included })));
+
+    expect(payload.included[0].attributes).toEqual({ username: 'Actor' });
+    expect(payload.included[1]).toEqual(included[1]);
   });
 });

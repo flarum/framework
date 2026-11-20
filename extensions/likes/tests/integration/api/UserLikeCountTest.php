@@ -11,9 +11,13 @@ namespace Flarum\Likes\Tests\integration\api;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Extend\Event;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Gdpr\Data\Posts as GdprPosts;
 use Flarum\Gdpr\Extend\UserData;
 use Flarum\Gdpr\Models\ErasureRequest;
+use Flarum\Post\CommentPost;
+use Flarum\Post\Event\DeletingPosts;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -225,11 +229,22 @@ class UserLikeCountTest extends TestCase
         $this->database()->table('posts')->where('id', 3)->update(['is_approved' => false]);
         $this->like(3, 1);
         $this->assertSame(0, $this->likeCountOf(1));
+        $db = $this->database();
+        $level = $db->transactionLevel();
+        $postTable = $db->getQueryGrammar()->wrapTable('posts');
+        $visibilityUpdateWasTransactional = false;
+        $db->listen(function (QueryExecuted $query) use ($db, $level, $postTable, &$visibilityUpdateWasTransactional) {
+            if (str_starts_with($query->sql, "update $postTable") && str_contains($query->sql, 'is_private')) {
+                $visibilityUpdateWasTransactional = $db->transactionLevel() > $level;
+            }
+        });
+
         $response = $this->send($this->request('PATCH', '/api/posts/3', [
             'authenticatedAs' => 1,
             'json' => ['data' => ['attributes' => ['isApproved' => true]]],
         ]));
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertTrue($visibilityUpdateWasTransactional);
         $this->assertSame(1, $this->likeCountOf(1));
     }
 
@@ -241,6 +256,72 @@ class UserLikeCountTest extends TestCase
         $response = $this->send($this->request('DELETE', '/api/discussions/1', ['authenticatedAs' => 1]));
         $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
         $this->assertSame(0, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function bulk_deletion_does_not_hydrate_posts(): void
+    {
+        $this->like(2, 2);
+        $retrieved = 0;
+        CommentPost::retrieved(function () use (&$retrieved) {
+            $retrieved++;
+        });
+
+        Discussion::query()->findOrFail(1)->delete();
+
+        $this->assertSame(0, $retrieved);
+        $this->assertSame(0, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function rejecting_a_limited_delete_preserves_its_posts_and_likes(): void
+    {
+        $this->like(1, 2);
+        $this->like(2, 2);
+        $posts = Post::query()->whereIn('id', [1, 2])->orderByDesc('id')->limit(1);
+
+        try {
+            Post::deleteWithEvents($posts, $posts->delete(...));
+            $this->fail('Expected the limited query to be rejected');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('unpaginated', $e->getMessage());
+        }
+
+        $this->assertSame(2, Post::query()->whereIn('id', [1, 2])->count());
+        $this->assertSame(2, $this->database()->table('post_likes')->where('user_id', 2)->count());
+        $this->assertSame(2, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function enabling_likes_repairs_counts_after_a_deletion_while_disabled(): void
+    {
+        $this->like(1, 2);
+        $this->like(2, 2);
+
+        // A deletion while Likes is disabled doesn't invoke its listeners.
+        $this->database()->table('posts')->where('id', 2)->delete();
+        $this->assertSame(2, $this->likeCountOf(2));
+
+        $container = $this->app()->getContainer();
+        $container->make(ExtensionManager::class)->getExtension('flarum-likes')->enable($container);
+
+        $this->assertSame(1, $this->likeCountOf(2));
+    }
+
+    #[Test]
+    public function an_admin_can_create_a_reply_with_is_liked_false(): void
+    {
+        $response = $this->send($this->request('POST', '/api/posts', [
+            'authenticatedAs' => 1,
+            'json' => ['data' => [
+                'type' => 'posts',
+                'attributes' => ['content' => 'New reply', 'isLiked' => false],
+                'relationships' => ['discussion' => ['data' => ['type' => 'discussions', 'id' => '1']]],
+            ]],
+        ]));
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(0, $this->likeCountOf(1));
     }
 
     #[Test]
@@ -317,6 +398,44 @@ class UserLikeCountTest extends TestCase
     public static function gdprPostPolicies(): array
     {
         return ['delete posts' => [false], 'retain posts' => [true]];
+    }
+
+    #[Test]
+    public function a_failed_erasure_can_be_retried(): void
+    {
+        $this->extension('flarum-gdpr');
+        $this->setting('flarum-gdpr.allow-deletion', true);
+        $this->setting('mail_driver', 'log');
+        $this->prepareDatabase(['gdpr_erasure' => [[
+            'id' => 1,
+            'user_id' => 3,
+            'status' => ErasureRequest::STATUS_USER_CONFIRMED,
+            'created_at' => Carbon::now(),
+            'user_confirmed_at' => Carbon::now(),
+        ]]]);
+        $fail = true;
+        $this->extend((new Event())->listen(DeletingPosts::class, function () use (&$fail) {
+            if ($fail) {
+                throw new \RuntimeException('Temporary deletion failure');
+            }
+        }));
+        $this->like(1, 2);
+        $request = fn () => $this->request('PATCH', '/api/user-erasure-requests/1', [
+            'authenticatedAs' => 1,
+            'json' => ['data' => ['attributes' => ['processedMode' => ErasureRequest::MODE_DELETION]]],
+        ]);
+
+        $this->assertEquals(500, $this->send($request())->getStatusCode());
+        $erasure = ErasureRequest::query()->findOrFail(1);
+        $this->assertSame(ErasureRequest::STATUS_USER_CONFIRMED, $erasure->status);
+        $this->assertNull($erasure->processed_at);
+        $this->assertNotNull(User::query()->find(3));
+        $this->assertSame(1, $this->likeCountOf(2));
+
+        $fail = false;
+        $this->assertEquals(200, $this->send($request())->getStatusCode());
+        $this->assertNull(User::query()->find(3));
+        $this->assertSame(0, $this->likeCountOf(2));
     }
 
     #[Test]

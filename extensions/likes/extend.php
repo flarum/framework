@@ -95,6 +95,8 @@ return [
     (new Extend\ServiceProvider())
         ->register(LikeServiceProvider::class),
 
+    new RefreshLikesOnEnable(),
+
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(PostSearcher::class, LikedByFilter::class)
         ->addFilter(UserSearcher::class, LikedFilter::class),

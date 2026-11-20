@@ -124,7 +124,8 @@ class Discussion extends AbstractModel
             // Prevent another post from being inserted before the cascade.
             $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->get(['id']);
 
-            return Post::deleteWithEvents($this->posts()->getQuery(), parent::delete(...));
+            // The cascade includes posts whose types are no longer registered.
+            return Post::deleteWithEvents($this->posts()->getQuery()->withoutGlobalScopes(), parent::delete(...));
         });
     }
 

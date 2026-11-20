@@ -63,23 +63,19 @@ class Posts extends Type
         // normally happens when a post is deleted. So note which discussions
         // they were in, and afterwards leave each one as if its posts had
         // been deleted one at a time.
-        $connection = $posts->getConnection();
-        $discussionIds = $connection->transaction(function () use ($connection, $posts) {
-            $connection->table('users')->where('id', $this->user->id)->lockForUpdate()->get(['id']);
+        $discussionIds = Post::deleteWithEvents($posts, function (array $ids) use ($posts) {
+            $targets = (clone $posts)->whereIntegerInRaw('id', $ids);
+            $discussionIds = (clone $targets)->distinct()->pluck('discussion_id')->all();
 
-            return Post::deleteWithEvents($posts, function () use ($posts) {
-                $discussionIds = (clone $posts)->distinct()->pluck('discussion_id')->all();
+            Notification::query()
+                ->whereSubjectModel(Post::class)
+                ->whereIntegerInRaw('subject_id', $ids)
+                ->delete();
 
-                Notification::query()
-                    ->whereSubjectModel(Post::class)
-                    ->whereIn('subject_id', (clone $posts)->select('id')->toBase())
-                    ->delete();
+            $targets->delete();
 
-                $posts->delete();
-
-                return $discussionIds;
-            });
-        });
+            return $discussionIds;
+        }, [$this->user->id]);
 
         foreach (array_chunk($discussionIds, 100) as $ids) {
             Discussion::query()->whereIn('id', $ids)->get()->each($this->refreshDiscussion(...));
