@@ -274,6 +274,10 @@ class RequestUtil
             throw new BadRequestException('filter must be an array');
         }
 
+        if (is_array($filter['q'] ?? null)) {
+            throw (new BadRequestException('filter[q] must be a string'))->setSource(['parameter' => 'filter[q]']);
+        }
+
         return $filter;
     }
 

@@ -10,6 +10,7 @@
 namespace Flarum\Api\Endpoint\Concerns;
 
 use Tobyz\JsonApiServer\Context;
+use Tobyz\JsonApiServer\Exception\BadRequestException;
 
 trait IncludesData
 {
@@ -42,6 +43,10 @@ trait IncludesData
 
         if (isset($query['include']) && filter_var($query['withDefaultIncludes'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
             $include = is_array($query['include']) ? $query['include'] : explode(',', $query['include']);
+
+            if (array_filter($include, fn ($path) => ! is_string($path))) {
+                throw (new BadRequestException('Invalid include'))->setSource(['parameter' => 'include']);
+            }
 
             $query['include'] = implode(',', array_unique(array_filter([...$this->defaultInclude ?? [], ...$include])));
 

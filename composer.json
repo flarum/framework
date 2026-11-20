@@ -140,7 +140,7 @@
         "dragonmantank/cron-expression": "^3.3",
         "fakerphp/faker": "^1.9.1",
         "flarum/font-awesome": "^7.0",
-        "flarum/json-api-server": "^0.1.0",
+        "flarum/json-api-server": "^0.1.3",
         "franzl/whoops-middleware": "2.0",
         "guzzlehttp/guzzle": "*",
         "illuminate/bus": "^13.0",
