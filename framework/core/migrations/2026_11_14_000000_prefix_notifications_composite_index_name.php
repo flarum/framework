@@ -10,37 +10,33 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
-/*
- * The notifications composite index was first created without the table prefix,
- * and index names are schema-wide on PostgreSQL and SQLite, so a second install
- * sharing the database could not be migrated. Give it the prefixed name that
- * fresh installs now get.
- */
-
-$unprefixed = 'notifications_user_unread_type_index';
-
-$rename = function (Builder $schema, string $from, string $to) {
-    if ($from === $to) {
-        return;
-    }
-
-    $names = array_column($schema->getIndexes('notifications'), 'name');
-
-    // Only an index on this install's own table: on PostgreSQL and SQLite the
-    // unprefixed name may belong to another install's notifications table.
-    if (in_array($from, $names, true) && ! in_array($to, $names, true)) {
-        $schema->table('notifications', function (Blueprint $table) use ($from, $to) {
-            $table->renameIndex($from, $to);
-        });
-    }
-};
-
+// Gives installs from 2.0 the index name 2026_03_25_000000 now creates.
 return [
-    'up' => function (Builder $schema) use ($unprefixed, $rename) {
-        $rename($schema, $unprefixed, $schema->getConnection()->getTablePrefix().$unprefixed);
+    'up' => function (Builder $schema) {
+        $connection = $schema->getConnection();
+
+        // Only PostgreSQL and SQLite share index names between installs in one
+        // database. MySQL and MariaDB keep the old name, which MariaDB before
+        // 10.5.2 couldn't rename.
+        if (! in_array($connection->getDriverName(), ['pgsql', 'sqlite'], true)) {
+            return;
+        }
+
+        $columns = ['user_id', 'is_deleted', 'read_at', 'type'];
+
+        // Laravel's name for it, from a blueprint that is never run.
+        $name = (new Blueprint($connection, 'notifications'))->dropIndex($columns)->get('index');
+
+        foreach ($schema->getIndexes('notifications') as $index) {
+            if ($index['columns'] === $columns && strtolower($index['name']) !== $name) {
+                $schema->table('notifications', function (Blueprint $table) use ($index, $name) {
+                    $table->renameIndex($index['name'], $name);
+                });
+            }
+        }
     },
 
-    'down' => function (Builder $schema) use ($unprefixed, $rename) {
-        $rename($schema, $schema->getConnection()->getTablePrefix().$unprefixed, $unprefixed);
+    // 2026_03_25_000000 owns the index, and drops it under whichever name it has.
+    'down' => function () {
     }
 ];

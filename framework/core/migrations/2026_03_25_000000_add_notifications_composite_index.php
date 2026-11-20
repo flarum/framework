@@ -12,12 +12,7 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        // Index names are not prefixed by Laravel when given explicitly, and they
-        // are schema-wide on PostgreSQL and SQLite, so the table prefix is added
-        // to let several installs share one database.
-        $name = $schema->getConnection()->getTablePrefix().'notifications_user_unread_type_index';
-
-        $schema->table('notifications', function (Blueprint $table) use ($name) {
+        $schema->table('notifications', function (Blueprint $table) {
             // Composite index to support the unread/new notification count queries
             // issued on every page load. Without this, MySQL abandons the single-
             // column user_id index when one user owns a large fraction of the table
@@ -32,15 +27,19 @@ return [
             // With this index, the count query can be satisfied with an index range
             // scan on (user_id, is_deleted=0, read_at IS NULL) without touching the
             // table rows, regardless of how many notifications a user has in total.
-            $table->index(['user_id', 'is_deleted', 'read_at', 'type'], $name);
+            $table->index(['user_id', 'is_deleted', 'read_at', 'type']);
         });
     },
 
     'down' => function (Builder $schema) {
-        $name = $schema->getConnection()->getTablePrefix().'notifications_user_unread_type_index';
-
-        $schema->table('notifications', function (Blueprint $table) use ($name) {
-            $table->dropIndex($name);
-        });
+        // Found by its columns: installs from 2.0 may still have the name it was
+        // first created with (see 2026_11_14_000000).
+        foreach ($schema->getIndexes('notifications') as $index) {
+            if ($index['columns'] === ['user_id', 'is_deleted', 'read_at', 'type']) {
+                $schema->table('notifications', function (Blueprint $table) use ($index) {
+                    $table->dropIndex($index['name']);
+                });
+            }
+        }
     }
 ];
