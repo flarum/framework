@@ -47,6 +47,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
             'mail_format' => 'multipart',
             'app_icon_background' => '#ffffff',
             'open_as_app' => true,
+            'app_start_page' => '',
             'mail_suppress_bounced' => false,
             'fontawesome_source' => 'local',
             'fontawesome_forced_style' => '',

@@ -249,6 +249,16 @@ export default class AppearancePage extends AdminPage {
    * The images a theme sets with the Theme extender, with the title of the
    * extension that set each one.
    */
+  themeImages(): Record<string, string | null> {
+    return (app.data.themeImages as Record<string, string | null> | undefined) ?? {};
+  }
+
+  themeImage(name: string): { lockedBy?: string | null } {
+    const themeImages = this.themeImages();
+
+    return name in themeImages ? { lockedBy: themeImages[name] } : {};
+  }
+
   /**
    * The pages the installed app can open to: the forum's home page, or one of
    * the pages it can be set to.
@@ -265,16 +275,6 @@ export default class AppearancePage extends AdminPage {
       });
 
     return options;
-  }
-
-  themeImages(): Record<string, string | null> {
-    return (app.data.themeImages as Record<string, string | null> | undefined) ?? {};
-  }
-
-  themeImage(name: string): { lockedBy?: string | null } {
-    const themeImages = this.themeImages();
-
-    return name in themeImages ? { lockedBy: themeImages[name] } : {};
   }
 
   colorItems() {
