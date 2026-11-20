@@ -221,20 +221,28 @@ class RequestUtil
         return $limit;
     }
 
-    public static function extractOffsetFromNumber(Request $request, int $limit): int
+    public static function extractOffsetFromNumber(Request $request, ?int $limit): int
     {
-        $page = (int) ($request->getQueryParams()['page']['number'] ?? 1);
+        $page = $request->getQueryParams()['page']['number'] ?? 1;
 
-        if ($page < 1) {
-            throw new BadRequestException('page[number] must be at least 1');
+        if (is_string($page) && ctype_digit($page)) {
+            $digits = ltrim($page, '0') ?: '0';
+            // Casting saturates at PHP_INT_MAX instead of failing.
+            $page = (string) (int) $digits === $digits ? (int) $digits : null;
         }
 
-        return ($page - 1) * $limit;
+        // An offset past PHP_INT_MAX would become a float and fail the return type.
+        if (! is_int($page) || $page < 1 || ($limit > 0 && $page - 1 > intdiv(PHP_INT_MAX, $limit))) {
+            throw (new BadRequestException('page[number] must be a positive integer'))
+                ->setSource(['parameter' => 'page[number]']);
+        }
+
+        return ($page - 1) * ($limit ?? 0);
     }
 
     public static function extractOffset(Request $request, ?int $limit = 0): int
     {
-        if ($request->getQueryParams()['page']['number'] ?? false) {
+        if (! in_array($request->getQueryParams()['page']['number'] ?? null, [null, ''], true)) {
             return self::extractOffsetFromNumber($request, $limit);
         }
 
