@@ -220,6 +220,8 @@ flarum-extension-manager:
       abandoned:
         intro: "{count, plural, one {A package} other {# packages}} in this update {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. The update goes ahead; moving to the replacement is worth planning."
         intro_stopped: "{count, plural, one {A package} other {# packages}} this update would bring in {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. That is not why it stopped."
+        intro_undone: "{count, plural, one {A package} other {# packages}} this update brought in {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. The update has been undone."
+        announce: "{count, plural, one {A package} other {# packages}} in this update {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. The list is in the update panel."
         no_replacement: "{package}: no replacement is named"
         replaced: "{package}: its author suggests {replacement}"
       working: Updating

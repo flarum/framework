@@ -166,7 +166,8 @@ class AbandonedPackagesTest extends TestCase
     /**
      * Every shape `abandoned` can take in a lock. Composer writes `true` or a
      * package name; an empty string or `false` is what a hand-edited or
-     * third-party repository might carry, and neither is a replacement.
+     * third-party repository might carry, and Composer reads neither as
+     * abandoned.
      */
     public function test_every_shape_of_abandoned_is_read_the_way_composer_means_it(): void
     {
@@ -186,10 +187,36 @@ class AbandonedPackagesTest extends TestCase
 
         $this->assertSame([
             ['package' => 'a/dev', 'replacement' => 'b/dev-new'],
-            ['package' => 'a/empty', 'replacement' => null],
             ['package' => 'a/named', 'replacement' => 'b/new'],
             ['package' => 'a/self', 'replacement' => null],
             ['package' => 'a/true', 'replacement' => null],
+        ], (new LockDiff())->abandoned($changes, $lock));
+    }
+
+    /**
+     * The same source rule as the installed extension's card
+     * (ExtensionManager::extensionFromJson()): a bare `true` on an archive
+     * from flarum.org/composer is unreliable and left out; a named
+     * replacement counts wherever it comes from.
+     */
+    public function test_a_bare_flag_from_the_flarum_composer_repository_is_left_out_as_core_leaves_it_out(): void
+    {
+        $flarum = ['type' => 'zip', 'url' => 'https://flarum.org/composer/dist/acme/premium/1.0.0.zip'];
+        $packagist = ['type' => 'zip', 'url' => 'https://api.github.com/repos/acme/free/zipball/abc'];
+
+        $lock = ['packages' => [
+            ['name' => 'acme/premium', 'version' => '1.0.0', 'abandoned' => true, 'dist' => $flarum],
+            ['name' => 'acme/premium-old', 'version' => '1.0.0', 'abandoned' => 'acme/premium', 'dist' => $flarum],
+            ['name' => 'acme/free', 'version' => '1.0.0', 'abandoned' => true, 'dist' => $packagist],
+            ['name' => 'acme/odd', 'version' => '1.0.0', 'abandoned' => true, 'dist' => ['url' => ['not', 'a', 'string']]],
+        ]];
+
+        $changes = array_map(fn (string $name) => new Change(Change::REPLACE, $name, '0.9.0', '1.0.0'), ['acme/premium', 'acme/premium-old', 'acme/free', 'acme/odd']);
+
+        $this->assertSame([
+            ['package' => 'acme/free', 'replacement' => null],
+            ['package' => 'acme/odd', 'replacement' => null],
+            ['package' => 'acme/premium-old', 'replacement' => 'acme/premium'],
         ], (new LockDiff())->abandoned($changes, $lock));
     }
 
@@ -269,7 +296,11 @@ class AbandonedPackagesTest extends TestCase
     private function runner(bool $inProcess): ComposerRunner
     {
         $php = new PhpBinary(EnglishTranslator::make(), PHP_BINARY, null, '', null, PHP_BINARY, 'cli', $inProcess ? 'proc_open' : '');
-        $composer = dirname(__DIR__, 4).'/vendor/composer/composer/bin/composer';
+        $composer = dirname((new \ReflectionClass(\Composer\Composer::class))->getFileName(), 3).'/bin/composer';
+
+        if (! $inProcess && ! is_file($composer)) {
+            $this->markTestSkipped('Composer is not installed in this checkout.');
+        }
 
         return (new ComposerRunner(EnglishTranslator::make(), $this->dir.'/project', $inProcess ? __FILE__ : $composer, $this->dir.'/home'))->withPhp($php);
     }

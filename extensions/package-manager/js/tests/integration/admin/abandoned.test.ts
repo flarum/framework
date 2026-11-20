@@ -78,8 +78,47 @@ describe('the abandoned-package notice', () => {
     }
   });
 
+  test('after a finished update is undone, says it was undone, not that it stopped', () => {
+    const notice = panel({ state: 'rolled-back', error: null, abandoned }).find('.ExtensionManager-abandoned')[0];
+
+    expect(notice.textContent).toContain('The update has been undone');
+    expect(notice.textContent).not.toContain('That is not why it stopped');
+    expect(notice.textContent).not.toContain('goes ahead');
+  });
+
   test('is absent when nothing is abandoned, and from a run recorded before the list existed', () => {
     panel({ abandoned: [] }).should.not.have('.ExtensionManager-abandoned');
     panel({}).should.not.have('.ExtensionManager-abandoned');
+  });
+});
+
+/*
+ * A live run's panel cannot be drawn here (see panel() above), so these ask the
+ * panel's live-region sentence directly, as view() does on each redraw.
+ */
+describe('the live region', () => {
+  const running = (over: Record<string, unknown> = {}) =>
+    ({ id: 'r2', state: 'running', phase: 'fetch', items: ['fetch:acme/widget'], index: 0, log: [], packages: ['acme/widget'], ...over }) as any;
+
+  test('announces the abandoned packages once, when the plan brings them, then only progress', () => {
+    const live = Object.create(RunPanel.prototype);
+
+    expect(live.announcement(running({ phase: 'plan', items: [] }))).not.toContain('abandoned');
+
+    const first = live.announcement(running({ abandoned }));
+    expect(first).toContain('2 packages in this update are abandoned');
+    expect(first).toContain('The list is in the update panel');
+
+    const next = live.announcement(running({ abandoned, index: 0 }));
+    expect(next).not.toContain('abandoned');
+    expect(next).not.toBe('');
+  });
+
+  test('announces a new run that has them, and not a run without any', () => {
+    const live = Object.create(RunPanel.prototype);
+
+    live.announcement(running({ abandoned }));
+    expect(live.announcement(running({ id: 'r3', abandoned: [abandoned[0]] }))).toContain('A package in this update is abandoned');
+    expect(live.announcement(running({ id: 'r4', abandoned: [] }))).not.toContain('abandoned');
   });
 });

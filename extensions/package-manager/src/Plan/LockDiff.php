@@ -169,8 +169,14 @@ class LockDiff
      * From the lock Composer just wrote, which records `abandoned` as Composer
      * read it: true, or the replacement's name. Only packages the run adds or
      * moves, dependencies included; one it leaves as it is was already there
-     * before this run and is not news. An empty name, or one naming the
-     * package itself, is not a replacement.
+     * before this run and is not news. An empty name is not abandoned, as
+     * Composer's own isAbandoned() reads it; one naming the package itself is
+     * abandoned without a replacement.
+     *
+     * A bare `true` on an archive from flarum.org/composer is left out, as
+     * core's ExtensionManager::extensionFromJson() leaves it out of the
+     * installed extension's card: those flags are unreliable, and the run
+     * panel and the card should not disagree.
      *
      * @param list<Change> $changes
      * @param array<string,mixed> $after
@@ -191,7 +197,7 @@ class LockDiff
         foreach ($changes as $change) {
             $flag = $locked[strtolower($change->package)]['abandoned'] ?? false;
 
-            if ($change->op === Change::REMOVE || $flag === false) {
+            if ($change->op === Change::REMOVE || ! $flag) {
                 continue;
             }
 
@@ -199,12 +205,29 @@ class LockDiff
                 ? trim($flag)
                 : null;
 
+            if ($replacement === null && $this->unreliableFlag($locked[strtolower($change->package)])) {
+                continue;
+            }
+
             $out[] = ['package' => $change->package, 'replacement' => $replacement];
         }
 
         usort($out, fn (array $a, array $b) => strcmp($a['package'], $b['package']));
 
         return $out;
+    }
+
+    /**
+     * Whether a lock entry's bare abandoned flag is one core ignores: the
+     * same check as ExtensionManager::extensionFromJson().
+     *
+     * @param array<string,mixed> $package
+     */
+    protected function unreliableFlag(array $package): bool
+    {
+        $url = $package['dist']['url'] ?? '';
+
+        return is_string($url) && str_contains($url, 'flarum.org/composer');
     }
 
     /**
