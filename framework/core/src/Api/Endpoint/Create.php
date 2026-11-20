@@ -10,6 +10,7 @@
 namespace Flarum\Api\Endpoint;
 
 use Flarum\Api\Context;
+use Flarum\Api\Endpoint\Concerns\HandlesPrecognition;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\IncludesData;
@@ -31,6 +32,7 @@ class Create extends Endpoint
     use IncludesData;
     use HasAuthorization;
     use HasCustomHooks;
+    use HandlesPrecognition;
 
     public static function make(?string $name = null): static
     {
@@ -84,6 +86,31 @@ class Create extends Endpoint
                     ->withStatus(201)
                     ->withHeader('Location', $document['data']['links']['self']);
             });
+    }
+
+    protected function validatePrecognitive(Context $context): void
+    {
+        $collection = $context->collection;
+
+        if (! $collection instanceof Creatable) {
+            throw new RuntimeException(
+                sprintf('%s must implement %s', get_class($collection), Creatable::class),
+            );
+        }
+
+        $data = $this->parseData($context);
+
+        /** @var AbstractResource $resource */
+        $resource = $context->resource($data['type']);
+
+        $context = $context
+            ->withResource($resource)
+            ->withModel($collection->newModel($context));
+
+        $this->assertFieldsValid($context, $data);
+        $this->fillDefaultValues($context, $data);
+        $this->deserializeValues($context, $data);
+        $this->assertDataValid($context, $data);
     }
 
     final protected function fillDefaultValues(Context $context, array &$data): void
