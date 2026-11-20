@@ -24,6 +24,12 @@ export interface ICommentAttrs extends ComponentAttrs {
 }
 
 export default class Comment<CustomAttrs extends ICommentAttrs = ICommentAttrs> extends Component<CustomAttrs> {
+  /**
+   * The HTML string last handed to Mithril, or null while editing. Mithril
+   * re-inserts the HTML whenever it changes, inert scripts included.
+   */
+  renderedHtml: string | null = null;
+
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
   }
@@ -33,9 +39,9 @@ export default class Comment<CustomAttrs extends ICommentAttrs = ICommentAttrs> 
    * transform the markup: `extend` can't change a string return value.
    *
    * Not called while the post is being edited. The result is rendered as
-   * trusted HTML. Posts and messages only rebuild it when they change, not on
-   * every redraw, so return the same HTML for the same input and cache costly
-   * work on it.
+   * trusted HTML. Posts and messages rebuild it when their own state changes,
+   * not on every redraw, so return the same HTML for the same input and cache
+   * costly work on it.
    */
   contentHtml(): string {
     return this.attrs.contentHtml ?? '';
@@ -45,17 +51,24 @@ export default class Comment<CustomAttrs extends ICommentAttrs = ICommentAttrs> 
     let contentHtml: any = '';
 
     if (!this.attrs.isEditing) {
-      // A failing override returns undefined: keep the post readable without its transform.
+      // override() returns undefined when its callback throws: keep the post readable without its transform.
       contentHtml = this.contentHtml() ?? this.attrs.contentHtml ?? '';
+
+      // CommentPost replaces scripts to run them. Replacing the first node would
+      // detach the one Mithril keeps to remove this HTML later, and the next
+      // render would throw.
+      if (/^(?:<!doctype[^>]*>|<\/?(?:html|head|body)\b[^>]*>)*<script/i.test(contentHtml)) contentHtml = '<!---->' + contentHtml;
     }
 
     if (!this.attrs.isEditing && this.attrs.search) {
       const phrase = escapeRegExp(this.attrs.search);
       const highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
       contentHtml = highlight(contentHtml, highlightRegExp, undefined, true);
-    } else {
-      contentHtml = m.trust(contentHtml);
     }
+
+    if (typeof contentHtml === 'string') contentHtml = m.trust(contentHtml);
+
+    this.renderedHtml = this.attrs.isEditing ? null : contentHtml.children;
 
     return [
       <header className="Post-header">

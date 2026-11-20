@@ -66,29 +66,32 @@ export default class CommentPost extends Post {
   }
 
   content() {
-    return super
-      .content()
-      .concat([
-        <Comment
-          headerItems={this.headerItems()}
-          cardVisible={this.cardVisible}
-          isEditing={this.isEditing()}
-          isHidden={this.attrs.post.isHidden()}
-          contentHtml={this.attrs.post.contentHtml()}
-          user={this.attrs.post.user()}
-          search={this.attrs.params?.q}
-          post={this.attrs.post}
-        />,
-      ]);
+    this.commentVnode = (
+      <Comment
+        headerItems={this.headerItems()}
+        cardVisible={this.cardVisible}
+        isEditing={this.isEditing()}
+        isHidden={this.attrs.post.isHidden()}
+        contentHtml={this.attrs.post.contentHtml()}
+        user={this.attrs.post.user()}
+        search={this.attrs.params?.q}
+        post={this.attrs.post}
+      />
+    );
+
+    return super.content().concat([this.commentVnode]);
   }
 
   refreshContent() {
     const contentHtml = this.isEditing() ? '' : this.attrs.post.contentHtml();
 
-    // If the post content has changed since the last render, we'll run through
-    // all of the <script> tags in the content and evaluate them. This is
-    // necessary because TextFormatter outputs them for e.g. syntax highlighting.
-    if (this.contentHtml !== contentHtml) {
+    const renderedHtml = this.commentVnode?.state?.renderedHtml;
+
+    // TextFormatter outputs scripts, e.g. for syntax highlighting, which don't
+    // run when Mithril inserts the HTML. It does so when the post's HTML
+    // changes, and when a Comment.contentHtml() override or search highlighting
+    // renders it differently.
+    if (this.contentHtml !== contentHtml || this.renderedHtml !== renderedHtml) {
       this.$('.Post-body script').each(function () {
         const script = document.createElement('script');
         script.textContent = this.textContent;
@@ -98,6 +101,7 @@ export default class CommentPost extends Post {
     }
 
     this.contentHtml = contentHtml;
+    this.renderedHtml = renderedHtml;
   }
 
   oncreate(vnode) {
