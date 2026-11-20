@@ -9,6 +9,7 @@ export interface CandidateConnection {
     url?: string;
     region?: string;
     model?: string;
+    include_stream_usage?: boolean;
     guardrail_id?: string;
     guardrail_version?: string;
     key?: string;
@@ -29,6 +30,7 @@ export declare class ConnectionTestState {
     buffering: 'streamed' | 'buffered' | 'unknown';
     /** Each run's number, so a run that's been replaced stops updating. */
     protected run: number;
+    reset(): void;
     start(name: string, candidate?: CandidateConnection): Promise<void>;
     /**
      * Milliseconds from the test starting on the server to its end.
