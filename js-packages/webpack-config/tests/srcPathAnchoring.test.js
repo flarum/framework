@@ -19,14 +19,20 @@ import makeConfig from '../src/index.cjs';
 import autoChunkNameLoader from '../src/autoChunkNameLoader.cjs';
 
 describe('index.cjs: source loaders are anchored to the project `src` directory', () => {
-  const srcDir = path.resolve(process.cwd(), 'src') + path.sep;
+  // The config reads `package.json` and `../composer.json` from the directory
+  // the build runs in, as an extension's `js` directory has them.
+  const extensionJs = path.resolve(__dirname, 'fixtures', 'extension', 'js');
+  const srcDir = path.resolve(extensionJs, 'src') + path.sep;
 
-  // Avoid noise from getEntryPoints() when no forum.ts/admin.ts entry exists.
   const config = (() => {
+    const cwd = process.cwd();
+    // Avoid noise from getEntryPoints() when no forum.ts/admin.ts entry exists.
     const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
     try {
+      process.chdir(extensionJs);
       return makeConfig();
     } finally {
+      process.chdir(cwd);
       spy.mockRestore();
     }
   })();
@@ -52,7 +58,7 @@ describe('index.cjs: source loaders are anchored to the project `src` directory'
     const matches = (resource) => (include instanceof RegExp ? include.test(resource) : resource.startsWith(include));
 
     // The extension's own source is included.
-    expect(matches(path.join(process.cwd(), 'src', 'forum', 'index.ts'))).toBe(true);
+    expect(matches(path.join(srcDir, 'forum', 'index.ts'))).toBe(true);
 
     // A node_modules file whose absolute path contains an unrelated `src`
     // segment must NOT be treated as extension source. A loose /src/ regex
@@ -70,7 +76,7 @@ describe('autoChunkNameLoader: chunk names are relative to the extension `src`',
   const runLoader = (source) =>
     autoChunkNameLoader.call(
       {
-        query: { composerPath: path.resolve(__dirname, 'fixtures', 'composer.json') },
+        query: { composerPath: path.resolve(__dirname, 'fixtures', 'extension', 'composer.json') },
         rootContext: root,
         resourcePath,
         addDependency() {},
