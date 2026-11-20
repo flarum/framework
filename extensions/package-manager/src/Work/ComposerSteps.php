@@ -310,10 +310,12 @@ class ComposerSteps implements Steps
      */
     protected function abandonedNote(array $abandoned): string
     {
-        return implode(' ', array_map(fn (array $a) => $a['replacement'] !== null
+        return implode(' ', array_map(
+            fn (array $a) => $a['replacement'] !== null
             ? $this->translator->trans('flarum-extension-manager.api.composer.abandoned_replaced', ['package' => $a['package'], 'replacement' => $a['replacement']])
             : $this->translator->trans('flarum-extension-manager.api.composer.abandoned_no_replacement', ['package' => $a['package']]),
-            $abandoned));
+            $abandoned
+        ));
     }
 
     /**
