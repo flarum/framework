@@ -16,7 +16,8 @@ use PHPUnit\Framework\Attributes\Test;
 /**
  * An id that is not a whole number cannot be a model's integer key. Passed to
  * the database, MySQL read "1abc" as 1 and returned that record, while
- * PostgreSQL rejected the query with a 500. It is now not found everywhere.
+ * PostgreSQL rejected the query with a 500, as it did for an id beyond the
+ * integer range. It is now not found everywhere.
  */
 class NonIntegerIdTest extends TestCase
 {
@@ -25,7 +26,7 @@ class NonIntegerIdTest extends TestCase
         $cases = [];
 
         foreach (['/api/users', '/api/discussions', '/api/posts', '/api/groups', '/api/notifications'] as $collection) {
-            foreach (['1abc', '1.5', '1e0'] as $id) {
+            foreach (['1abc', '1.5', '1e0', '2147483648', '99999999999999999999'] as $id) {
                 $cases["$collection/$id"] = ["$collection/$id"];
             }
         }
@@ -36,30 +37,6 @@ class NonIntegerIdTest extends TestCase
     #[Test]
     #[DataProvider('paths')]
     public function non_integer_id_is_not_found(string $path)
-    {
-        $response = $this->send(
-            $this->request('GET', $path, ['authenticatedAs' => 1])
-        );
-
-        $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
-    }
-
-    public static function outOfRangePaths(): array
-    {
-        $cases = [];
-
-        foreach (['/api/users', '/api/discussions', '/api/posts', '/api/groups', '/api/notifications'] as $collection) {
-            foreach (['2147483648', '99999999999999999999'] as $id) {
-                $cases["$collection/$id"] = ["$collection/$id"];
-            }
-        }
-
-        return $cases;
-    }
-
-    #[Test]
-    #[DataProvider('outOfRangePaths')]
-    public function id_out_of_integer_range_is_not_found(string $path)
     {
         $response = $this->send(
             $this->request('GET', $path, ['authenticatedAs' => 1])
