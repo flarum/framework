@@ -179,22 +179,23 @@ class Resolver
         return null;
     }
 
+    private static function copyArgumentValue(Arg $arg): Expr
+    {
+        // PHPStan can reuse these parser nodes for diagnostics.
+        $value = clone $arg->value;
+        $value->setAttributes([]);
+
+        return $value;
+    }
+
     private function resolveExtenderNew(New_ $var, array $methodCalls = []): Extender
     {
-        return new Extender($var->class->toString(), array_map(function (Arg $arg) {
-            $arg->value->setAttributes([]);
-
-            return $arg->value;
-        }, $var->args), $methodCalls);
+        return new Extender($var->class->toString(), array_map(self::copyArgumentValue(...), $var->args), $methodCalls);
     }
 
     private function resolveMethod(MethodCall $var): ExtenderMethodCall
     {
-        return new ExtenderMethodCall($var->name->toString(), array_map(function (Arg $arg) {
-            $arg->value->setAttributes([]);
-
-            return $arg->value;
-        }, $var->args));
+        return new ExtenderMethodCall($var->name->toString(), array_map(self::copyArgumentValue(...), $var->args));
     }
 
     private function resolveExtender(MethodCall $value): Extender

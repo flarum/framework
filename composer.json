@@ -208,7 +208,7 @@
         "flarum/testing-tests": "*@dev",
         "larastan/larastan": "^3.8 <3.12",
         "mockery/mockery": "^1.5",
-        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan": "^2.1.7",
         "phpunit/phpunit": "^12.5.22",
         "symfony/var-dumper": "^7.4"
     },
