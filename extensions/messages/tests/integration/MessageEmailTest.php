@@ -136,6 +136,18 @@ class MessageEmailTest extends TestCase
     }
 
     #[Test]
+    public function the_email_footer_names_the_notification_type(): void
+    {
+        $this->captureSentMail();
+
+        $this->sendMessage(3, 'Hello Bob', to: 4);
+
+        $email = $this->sent[0];
+        $this->assertStringContainsString('"Messages sent to you"', $email->getTextBody());
+        $this->assertStringNotContainsString('messageReceived', $email->getTextBody());
+    }
+
+    #[Test]
     public function more_messages_are_not_emailed_until_the_conversation_is_read(): void
     {
         $this->captureSentMail();

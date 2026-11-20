@@ -1375,11 +1375,14 @@ core:
       footer_plain: "This email was sent to {userEmail} as an informational service related to your account on {forumTitle}."
 
     # These translations are used by the "notification" email template.
+    # Notification types are named under core.email.notification.types.<type>, in the locale file of the extension that registers them.
     notification:
         default_title: "Notification"
         footer:
-          main_text: "This email was sent to {email} because you are subscribed to \"{type}\" notifications on [{forumTitle}]({forumUrl})."
-          main_text_plain: "This email was sent to {email} because you are subscribed to \"{type}\" notifications on {forumTitle}."
+          main_text: "This email was sent to {email} because email notifications for \"{type}\" are turned on for your account on [{forumTitle}]({forumUrl})."
+          main_text_plain: "This email was sent to {email} because email notifications for \"{type}\" are turned on for your account on {forumTitle}."
+          main_text_generic: "This email was sent to {email} because email notifications are turned on for your account on [{forumTitle}]({forumUrl})."
+          main_text_generic_plain: "This email was sent to {email} because email notifications are turned on for your account on {forumTitle}."
           unsubscribe_text: "If you'd like to stop receiving this type of notification, [unsubscribe here]({unsubscribeLink})."
           unsubscribe_text_plain: "If you'd like to stop receiving this type of notification, unsubscribe here: {unsubscribeLink}"
           settings_text: "Manage your notification settings [here]({settingsLink})."

@@ -214,3 +214,9 @@ flarum-statistics:
     statistics:
       dialogs_heading: PM started
       dialog_replies_heading: PM replies
+
+core:
+  email:
+    notification:
+      types:
+        messageReceived: Messages sent to you
