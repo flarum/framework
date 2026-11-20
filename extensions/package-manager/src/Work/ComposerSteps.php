@@ -266,11 +266,13 @@ class ComposerSteps implements Steps
         $changes = (new LockDiff())->between($before, $after);
         $sources = (new LockDiff())->sources($after);
         $reasons = (new LockDiff())->reasons($changes, $after, $this->requested);
+        $abandoned = (new LockDiff())->abandoned($changes, $after);
 
         $plan = (string) json_encode([
             'changes' => array_map(fn (Change $c) => $c->toArray(), $changes),
             'sources' => $sources,
             'reasons' => $reasons,
+            'abandoned' => $abandoned,
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         /*
@@ -295,7 +297,23 @@ class ComposerSteps implements Steps
         $note = $this->translator->trans('flarum-extension-manager.api.composer.will_change', ['count' => count($changes), 'list' => implode(', ', $shown)])
             .(count($changes) > 5 ? $this->translator->trans('flarum-extension-manager.api.composer.and_more', ['count' => count($changes) - 5]) : '');
 
-        return $raised === [] ? $note : implode('; ', $raised).'. '.$note;
+        $note = $raised === [] ? $note : implode('; ', $raised).'. '.$note;
+
+        return $abandoned === [] ? $note : $note.'. '.$this->abandonedNote($abandoned);
+    }
+
+    /**
+     * Composer's abandoned notices, in the run's own words, before anything is
+     * downloaded or swapped. A notice, never a refusal: the admin decides.
+     *
+     * @param list<array{package:string, replacement:?string}> $abandoned
+     */
+    protected function abandonedNote(array $abandoned): string
+    {
+        return implode(' ', array_map(fn (array $a) => $a['replacement'] !== null
+            ? $this->translator->trans('flarum-extension-manager.api.composer.abandoned_replaced', ['package' => $a['package'], 'replacement' => $a['replacement']])
+            : $this->translator->trans('flarum-extension-manager.api.composer.abandoned_no_replacement', ['package' => $a['package']]),
+            $abandoned));
     }
 
     /**

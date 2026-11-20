@@ -217,6 +217,11 @@ flarum-extension-manager:
       failed: The release notes could not be loaded from GitHub just now.
 
     run:
+      abandoned:
+        intro: "{count, plural, one {A package} other {# packages}} in this update {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. The update goes ahead; moving to the replacement is worth planning."
+        intro_stopped: "{count, plural, one {A package} other {# packages}} this update would bring in {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. That is not why it stopped."
+        no_replacement: "{package}: no replacement is named"
+        replaced: "{package}: its author suggests {replacement}"
       working: Updating
       done: Update finished
       failed: The update stopped
@@ -574,6 +579,8 @@ flarum-extension-manager:
     check:
       no_lock: "The Extension Manager could not read composer.lock, so it cannot tell what is installed."
     composer:
+      abandoned_no_replacement: "{package} is abandoned, and its author names no replacement."
+      abandoned_replaced: "{package} is abandoned; its author suggests {replacement} instead."
       advice_memory: "Ask your host to raise memory_limit for this site (256 MB is plenty), or update fewer extensions at once."
       advice_time: "Composer keeps what it downloads, so pressing Update again later often gets further. If it keeps stopping, ask your host to raise max_execution_time for this site (120 seconds is plenty), or to allow proc_open so Composer can run in its own process."
       and_more: ", and {count} more"

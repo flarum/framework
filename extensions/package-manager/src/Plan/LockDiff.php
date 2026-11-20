@@ -163,6 +163,51 @@ class LockDiff
     }
 
     /**
+     * The abandoned packages among what a run brings in, and what each one's
+     * author suggests instead (flarum/framework#3993).
+     *
+     * From the lock Composer just wrote, which records `abandoned` as Composer
+     * read it: true, or the replacement's name. Only packages the run adds or
+     * moves, dependencies included; one it leaves as it is was already there
+     * before this run and is not news. An empty name, or one naming the
+     * package itself, is not a replacement.
+     *
+     * @param list<Change> $changes
+     * @param array<string,mixed> $after
+     * @return list<array{package:string, replacement:?string}> sorted by package
+     */
+    public function abandoned(array $changes, array $after): array
+    {
+        $locked = [];
+
+        foreach ($this->packages($after) as $package) {
+            if (isset($package['name'])) {
+                $locked[strtolower((string) $package['name'])] = $package;
+            }
+        }
+
+        $out = [];
+
+        foreach ($changes as $change) {
+            $flag = $locked[strtolower($change->package)]['abandoned'] ?? false;
+
+            if ($change->op === Change::REMOVE || $flag === false) {
+                continue;
+            }
+
+            $replacement = is_string($flag) && trim($flag) !== '' && strtolower(trim($flag)) !== strtolower($change->package)
+                ? trim($flag)
+                : null;
+
+            $out[] = ['package' => $change->package, 'replacement' => $replacement];
+        }
+
+        usort($out, fn (array $a, array $b) => strcmp($a['package'], $b['package']));
+
+        return $out;
+    }
+
+    /**
      * @return array<string,array{0:string,1:?string}> package => [version, commit]
      *
      * The commit only for a development version, where it is the only thing

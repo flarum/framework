@@ -25,6 +25,14 @@ export interface Run extends RunLike {
   mode: RunMode;
   /** The database changes undoing this run would reverse. */
   migrations: string[];
+  /** Packages this run brings in that their authors have abandoned, from the plan (#3993). */
+  abandoned?: AbandonedPackage[];
+}
+
+export interface AbandonedPackage {
+  package: string;
+  /** What the author suggests instead; null when they name nothing. */
+  replacement: string | null;
 }
 
 export interface UpdateHint {

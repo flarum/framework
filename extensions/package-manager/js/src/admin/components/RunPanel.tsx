@@ -147,6 +147,45 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     );
   }
 
+  /**
+   * Composer's abandoned notices for what this run brings in, dependencies
+   * included, with each replacement (flarum/framework#3993). Shown from the
+   * moment the plan is worked out, before anything is downloaded, and kept on
+   * a finished or failed run. A notice only: the run carries on.
+   */
+  abandoned(run: Run) {
+    const abandoned = run.abandoned || [];
+
+    if (!abandoned.length) return null;
+
+    return (
+      <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice ExtensionManager-abandoned">
+        <p>
+          {app.translator.trans(
+            // On a run that stopped, "the update goes ahead" would be false, and the
+            // notice must not read as the reason it stopped: it never is.
+            ['failed', 'rolled-back'].includes(run.state)
+              ? 'flarum-extension-manager.admin.run.abandoned.intro_stopped'
+              : 'flarum-extension-manager.admin.run.abandoned.intro',
+            { count: abandoned.length }
+          )}
+        </p>
+        <ul>
+          {abandoned.map((a) => (
+            <li key={a.package}>
+              {a.replacement
+                ? app.translator.trans('flarum-extension-manager.admin.run.abandoned.replaced', {
+                    package: <code>{a.package}</code>,
+                    replacement: <code>{a.replacement}</code>,
+                  })
+                : app.translator.trans('flarum-extension-manager.admin.run.abandoned.no_replacement', { package: <code>{a.package}</code> })}
+            </li>
+          ))}
+        </ul>
+      </Alert>
+    );
+  }
+
   view() {
     const run = this.attrs.run;
     if (!run) return null;
@@ -188,6 +227,8 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
         {!done && !failed && !rolled ? this.phases(run) : null}
         {!done && !failed && !rolled ? this.bar(run) : null}
+
+        {this.abandoned(run)}
 
         {failed ? (
           <div className="ExtensionManager-error">
