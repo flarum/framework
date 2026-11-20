@@ -24,8 +24,25 @@ export default class Comment<CustomAttrs extends ICommentAttrs = ICommentAttrs> 
     super.oninit(vnode);
   }
 
+  /**
+   * The post HTML to render, before search highlighting. Override it to
+   * transform the markup: `extend` can't change a string return value.
+   *
+   * Not called while the post is being edited. The result is rendered as
+   * trusted HTML. It runs each time the post is rebuilt, not on every redraw,
+   * so return the same HTML for the same input and cache costly work on it.
+   */
+  contentHtml(): string {
+    return this.attrs.contentHtml ?? '';
+  }
+
   view() {
-    let contentHtml: any = this.attrs.isEditing ? '' : this.attrs.contentHtml;
+    let contentHtml: any = '';
+
+    if (!this.attrs.isEditing) {
+      // A failing override returns undefined: keep the post readable without its transform.
+      contentHtml = this.contentHtml() ?? this.attrs.contentHtml ?? '';
+    }
 
     if (!this.attrs.isEditing && this.attrs.search) {
       const phrase = escapeRegExp(this.attrs.search);
