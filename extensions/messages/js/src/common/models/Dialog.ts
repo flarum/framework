@@ -4,6 +4,14 @@ import type Group from 'flarum/common/models/Group';
 import DialogMessage from './DialogMessage';
 import app from 'flarum/common/app';
 
+export interface DialogReadReceipts {
+  /** Null until the viewer has written something with receipts. */
+  members: number | null;
+  /** Messages up to this one predate read receipts. */
+  after: number;
+  readers: { userId: string; messageId: number }[];
+}
+
 export default class Dialog extends Model {
   title() {
     return Model.attribute<string>('title').call(this);
@@ -60,6 +68,15 @@ export default class Dialog extends Model {
   }
   lastReadAt() {
     return Model.attribute<Date, string>('lastReadAt', Model.transformDate).call(this);
+  }
+
+  /** Null when the viewer doesn't share theirs; loaded only with the conversation's messages. */
+  readReceipts() {
+    return Model.attribute<DialogReadReceipts | null | undefined>('readReceipts').call(this);
+  }
+  /** Only with `include=readers`. */
+  readers() {
+    return Model.hasMany<User>('readers').call(this);
   }
 
   /** Everyone in it can reply: someone allowed to message users without messaging permission has. */

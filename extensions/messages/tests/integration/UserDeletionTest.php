@@ -91,7 +91,7 @@ class UserDeletionTest extends TestCase
 
         $this->assertEquals(204, $response->getStatusCode(), $response->getBody()->getContents());
 
-        $this->assertEquals(103, UserDialogState::where('dialog_id', 102)->where('user_id', 3)->value('last_read_message_id'));
+        $this->assertEquals(103, User::query()->whereKey(3)->value('marked_all_dialogs_read_id'));
         $this->assertEquals(0, UserDialogState::where('dialog_id', 103)->where('user_id', 3)->value('last_read_message_id'));
     }
 }

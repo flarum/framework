@@ -14,6 +14,7 @@ use Flarum\Gdpr\Testing\InteractsWithGdpr;
 use Flarum\Messages\Data\Messages;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
+use Flarum\Messages\UserDialogState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -49,8 +50,8 @@ class GdprTest extends TestCase
                 ['id' => 103, 'dialog_id' => 102, 'user_id' => 3, 'content' => 'Hi Bob', 'number' => 2, 'ip_address' => '198.51.100.7'],
             ],
             'dialog_user' => [
-                ['dialog_id' => 102, 'user_id' => 3, 'joined_at' => Carbon::now()],
-                ['dialog_id' => 102, 'user_id' => 4, 'joined_at' => Carbon::now()],
+                ['dialog_id' => 102, 'user_id' => 3, 'joined_at' => Carbon::now(), 'last_read_message_id' => 103],
+                ['dialog_id' => 102, 'user_id' => 4, 'joined_at' => Carbon::now(), 'last_read_message_id' => 103, 'last_read_at' => Carbon::now()],
             ],
         ]);
     }
@@ -83,6 +84,31 @@ class GdprTest extends TestCase
         $this->assertEquals('203.0.113.9', '203.0.113.9');
         $this->assertEquals('198.51.100.7', DialogMessage::find(103)->ip_address, "The other member's address is not theirs to anonymise.");
         $this->assertEquals('Hi Alice', DialogMessage::find(102)->content);
+    }
+
+    // Anonymising resets preferences, so read positions would be shared even after an opt-out.
+    #[Test]
+    public function anonymising_forgets_how_far_the_member_read(): void
+    {
+        $this->database()->table('users')->where('id', 4)->update(['marked_all_dialogs_read_id' => 103]);
+
+        $this->gdprDataType(Messages::class, 4)->anonymize();
+
+        $this->assertEquals(0, UserDialogState::query()->where('dialog_id', 102)->where('user_id', 4)->value('last_read_message_id'));
+        $this->assertNull(UserDialogState::query()->where('dialog_id', 102)->where('user_id', 4)->value('last_read_at'));
+        $this->assertEquals(103, UserDialogState::query()->where('dialog_id', 102)->where('user_id', 3)->value('last_read_message_id'), "The other member's is not theirs.");
+        $this->assertEquals(0, User::query()->whereKey(4)->value('marked_all_dialogs_read_id'));
+    }
+
+    #[Test]
+    public function an_anonymised_member_is_not_counted_among_those_who_could_read(): void
+    {
+        $this->database()->table('users')->where('id', 4)->update(['anonymized' => true]);
+
+        $response = $this->send($this->request('GET', '/api/dialog-messages', ['authenticatedAs' => 3])->withQueryParams(['filter' => ['dialog' => '102']]));
+        $dialog = collect(json_decode((string) $response->getBody(), true)['included'] ?? [])->firstWhere('type', 'dialogs');
+
+        $this->assertSame(0, $dialog['attributes']['readReceipts']['members']);
     }
 
     #[Test]

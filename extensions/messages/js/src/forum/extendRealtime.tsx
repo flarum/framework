@@ -10,6 +10,7 @@ import onMessageLikesChanged from './onMessageLikesChanged';
 import onMessageChanged from './onMessageChanged';
 import onMessageDeleted from './onMessageDeleted';
 import { forgetDialog } from './utils/removeMessage';
+import { onReadSignal, refreshReceipts } from './utils/readReceipts';
 import type DialogMessage from '../common/models/DialogMessage';
 import type MessageStream from './components/MessageStream';
 
@@ -24,6 +25,8 @@ const MESSAGE_CHANGED_EVENTS = [
 ];
 /** Deleted for good. */
 const MESSAGE_DELETED_EVENT = 'Flarum\\Messages\\DialogMessage\\Event\\Deleted';
+/** Sent to the authors of what was read. */
+const USER_READ_EVENT = 'Flarum\\Messages\\Dialog\\Event\\UserRead';
 
 /** The conversation open on screen, if any, for removals to take messages out of. */
 let openStream: MessageStream | null = null;
@@ -41,6 +44,7 @@ export default function extendRealtime() {
 
   MESSAGE_CHANGED_EVENTS.forEach((event) => realtime.onUserChannelEvent(event, onMessageChanged));
   realtime.onUserChannelEvent(MESSAGE_DELETED_EVENT, (data: unknown) => onMessageDeleted(data as any, openStream?.attrs.state));
+  realtime.onUserChannelEvent(USER_READ_EVENT, (data: unknown) => onReadSignal(data, (dialog) => openStream?.attrs.dialog === dialog));
 
   if ('flarum-likes' in flarum.extensions) {
     MESSAGE_LIKE_EVENTS.forEach((event) => realtime.onUserChannelEvent(event, onMessageLikesChanged));
@@ -92,6 +96,8 @@ export default function extendRealtime() {
         // Messages already shown change too, edited, deleted or liked, and
         // those changes were missed as well.
         .then(() => this.attrs.state.refreshHeld())
+        // After catchUp, whose answer may be older than reads heard meanwhile.
+        .then(() => (this.attrs.dialog ? refreshReceipts(this.attrs.dialog) : undefined))
         // Nothing left of it: deleted meanwhile, perhaps with the conversation.
         .then(() => {
           const dialog = this.attrs.dialog;
