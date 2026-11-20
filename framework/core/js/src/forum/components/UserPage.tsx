@@ -97,6 +97,10 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
    * Given a username, load the user's profile from the store, or make a request
    * if we don't have it yet. Then initialize the profile page with that user.
    *
+   * Only the server knows which user an address means under the active slug
+   * driver, so a user in the store is only taken for the address that is their
+   * slug. The page state's `resolvedUser` (`{ slug, user }`) records that pairing.
+   *
    * A user in the store is shown straight away, but the record may have arrived in
    * another endpoint's payload, carrying only the relationships that endpoint
    * included. Every user has `joinTime` whichever endpoint it came from, so that
@@ -110,7 +114,9 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
    * does not wait for that background fetch.
    */
   loadUser(username: string): Promise<void> {
-    const lowercaseUsername = username.toLowerCase();
+    // A response that arrives after the visitor has left must not reach the next page's state.
+    const state = app.current;
+    const resolved = (user: User) => state.set('resolvedUser', { slug: username, user });
 
     // On initial render the server preloads the target user as the primary
     // resource of the API document, so prefer that. It stays correct under
@@ -122,21 +128,17 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
       // It is the profile itself, with the profile's includes.
       profileLoaded.add(preloaded);
 
+      resolved(preloaded);
       this.show(preloaded);
       return Promise.resolve();
     }
 
-    app.store.all<User>('users').some((user) => {
-      if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username || user.slug() === username) && user.joinTime()) {
-        this.show(user);
-        return true;
-      }
+    const stored = app.store.all<User>('users').find((user) => user.slug() === username && user.joinTime());
 
-      return false;
-    });
-
-    if (this.user) {
-      this.completeUser(this.user);
+    if (stored) {
+      resolved(stored);
+      this.show(stored);
+      this.completeUser(stored);
 
       return Promise.resolve();
     }
@@ -144,6 +146,7 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
     return app.store.find<User>('users', username, { bySlug: true }).then((user) => {
       profileLoaded.add(user);
 
+      resolved(user);
       this.show(user);
     });
   }
