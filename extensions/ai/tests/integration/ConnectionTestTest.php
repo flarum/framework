@@ -103,6 +103,46 @@ class ConnectionTestTest extends TestCase
         $this->assertSame(['saved-key', 'claude-test', self::URL.'/messages'], $this->sentToProvider());
     }
 
+    #[Test]
+    public function streamed_usage_is_requested_unless_disabled_on_the_connection(): void
+    {
+        $this->app();
+        Http::fake(['llm.test/v1/chat/completions' => function ($request) {
+            $reply = "data: {\"choices\":[{\"delta\":{\"content\":\"1\"},\"finish_reason\":\"stop\"}]}\n\n";
+
+            if (($request->data()['stream_options']['include_usage'] ?? null) === true) {
+                $reply .= "data: {\"choices\":[],\"usage\":{\"prompt_tokens\":12,\"completion_tokens\":6}}\n\n";
+            }
+
+            return Http::response($reply."data: [DONE]\n\n");
+        }]);
+
+        $connection = ['driver' => 'openai-compatible', 'url' => 'https://llm.test/v1', 'model' => 'local-test'];
+        $disabled = $connection + ['include_stream_usage' => false];
+
+        $candidate = $this->events($this->postTest(['name' => 'local', 'connection' => $connection]));
+        $this->assertSame(12, end($candidate)['inputTokens']);
+        $this->assertSame(6, end($candidate)['outputTokens']);
+
+        $candidate = $this->events($this->postTest(['name' => 'opt-out', 'connection' => $disabled]));
+        $this->assertSame(0, end($candidate)['inputTokens']);
+        $this->assertArrayNotHasKey('stream_options', Http::recorded()->last()[0]->data());
+
+        $response = $this->send($this->request('POST', '/api/settings', [
+            'authenticatedAs' => 1,
+            'json' => ['flarum-ai.connections' => json_encode(['local' => $connection, 'opt-out' => $disabled])],
+        ]));
+        $this->assertSame(204, $response->getStatusCode());
+
+        $saved = $this->events($this->postTest(['name' => 'local']));
+        $this->assertSame(12, end($saved)['inputTokens']);
+        $this->assertSame(6, end($saved)['outputTokens']);
+
+        $optOut = $this->events($this->postTest(['name' => 'opt-out']));
+        $this->assertSame(0, end($optOut)['inputTokens']);
+        $this->assertArrayNotHasKey('stream_options', Http::recorded()->last()[0]->data());
+    }
+
     /**
      * Tests cost tokens like any call: counted for the connection, for no feature.
      */

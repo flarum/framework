@@ -17,6 +17,7 @@ export interface CandidateConnection {
   url?: string;
   region?: string;
   model?: string;
+  include_stream_usage?: boolean;
   guardrail_id?: string;
   guardrail_version?: string;
   key?: string;
@@ -39,15 +40,21 @@ export class ConnectionTestState {
   /** Each run's number, so a run that's been replaced stops updating. */
   protected run = 0;
 
-  start(name: string, candidate?: CandidateConnection): Promise<void> {
-    const run = ++this.run;
-
-    this.status = 'running';
+  reset(): void {
+    ++this.run;
+    this.status = 'idle';
     this.text = '';
     this.arrivals = [];
     this.done = this.error = null;
     this.refused = null;
     this.buffering = 'unknown';
+  }
+
+  start(name: string, candidate?: CandidateConnection): Promise<void> {
+    this.reset();
+    const run = this.run;
+
+    this.status = 'running';
     m.redraw();
 
     const body = candidate ? { name, connection: candidate } : { name };
@@ -155,17 +162,24 @@ export default class ConnectionTest extends Component<ConnectionTestAttrs> {
     const model = String(done.model || extractMessage('flarum-ai.admin.test.default_model_text'));
 
     return (
-      <p className="AiConnectionTest-result">
-        <Icon name="fas fa-circle-check" />{' '}
-        {state.text.trim()
-          ? app.translator.trans('flarum-ai.admin.test.passed_text', {
-              model,
-              first: formatMs(Number(done.firstTextMs ?? done.ms)),
-              total: formatMs(state.totalMs() ?? 0),
-              tokens: formatTokens(tokens),
-            })
-          : app.translator.trans('flarum-ai.admin.test.passed_empty_text', { model, tokens: formatTokens(tokens) })}
-      </p>
+      <>
+        <p className="AiConnectionTest-result">
+          <Icon name="fas fa-circle-check" />{' '}
+          {state.text.trim()
+            ? app.translator.trans('flarum-ai.admin.test.passed_text', {
+                model,
+                first: formatMs(Number(done.firstTextMs ?? done.ms)),
+                total: formatMs(state.totalMs() ?? 0),
+              })
+            : app.translator.trans('flarum-ai.admin.test.passed_empty_text', { model })}
+          {tokens > 0 && <> {app.translator.trans('flarum-ai.admin.test.usage_text', { tokens: formatTokens(tokens) })}</>}
+        </p>
+        {tokens === 0 && (
+          <Alert type="warning" dismissible={false}>
+            {app.translator.trans('flarum-ai.admin.test.no_usage_text')}
+          </Alert>
+        )}
+      </>
     );
   }
 
