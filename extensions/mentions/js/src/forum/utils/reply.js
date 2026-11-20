@@ -6,13 +6,16 @@ import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 // or "\<" does not count). This is Litedown's own rule.
 const BLOCK_SPOILER_START = /^>!(?!(?:\\[^\n]|[^\\\n>])*?!<)/;
 
-// A quote that starts with a block spoiler goes on the line after the mention:
-// ">!" only starts a block spoiler at the start of a line. An inline spoiler
-// stays on the mention line.
+// A quote of a quote, or of a code block, only starts at the start of a line.
+const BLOCK_START = /^(?:>(?!!)|`{3,}|~{3,})/;
+
+// A quote that starts with a block spoiler, a quote or a code block goes on
+// the line after the mention: they only start at the start of a line. An
+// inline spoiler stays on the mention line.
 function quoteBody(quote) {
   const body = quote.trim().replace(/\n/g, '\n> ');
 
-  return BLOCK_SPOILER_START.test(body) ? '\n> ' + body : body;
+  return BLOCK_SPOILER_START.test(body) || BLOCK_START.test(body) ? '\n> ' + body : body;
 }
 
 export async function insertMention(post, composer, quote) {

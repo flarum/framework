@@ -38,4 +38,12 @@ describe('insertMention', () => {
     expect(await inserted('>!secret!< public')).toBe('> @"User"#p12 >!secret!< public\n\n');
     expect(await inserted('>!2 \\> 1!< public')).toBe('> @"User"#p12 >!2 \\> 1!< public\n\n');
   });
+
+  test('starts a quote that opens with a quote on its own line, one level deeper', async () => {
+    expect(await inserted('> @"Admin"#p1 First\n>\n> > Inner')).toBe('> @"User"#p12 \n> > @"Admin"#p1 First\n> >\n> > > Inner\n\n');
+  });
+
+  test('starts a quote that opens with a code block on its own line', async () => {
+    expect(await inserted('```php\necho 1;\n```')).toBe('> @"User"#p12 \n> ```php\n> echo 1;\n> ```\n\n');
+  });
 });

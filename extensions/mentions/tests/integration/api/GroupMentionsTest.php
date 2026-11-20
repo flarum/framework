@@ -79,6 +79,8 @@ class GroupMentionsTest extends TestCase
 
         $this->assertStringContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('#80349E', $response['data']['attributes']['contentHtml']);
+        // The ID lets the Quote button write the mention back as it was written.
+        $this->assertStringContainsString('data-id="4"', $response['data']['attributes']['contentHtml']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsGroups->find(4));
     }
 
@@ -161,6 +163,7 @@ class GroupMentionsTest extends TestCase
         $this->assertStringContainsString("@$deleted_text", $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('GroupMention--deleted', $response['data']['attributes']['contentHtml']);
+        $this->assertStringContainsString('data-id="100"', $response['data']['attributes']['contentHtml']);
         $this->assertStringNotContainsString('@OldGroupName', $response['data']['attributes']['contentHtml']);
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
     }

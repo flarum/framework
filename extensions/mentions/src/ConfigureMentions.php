@@ -105,10 +105,10 @@ class ConfigureMentions
         $tag->template = '
             <xsl:choose>
                 <xsl:when test="@deleted != 1">
-                    <a href="{$PROFILE_URL}{@slug}" class="UserMention">@<xsl:value-of select="@displayname"/></a>
+                    <a href="{$PROFILE_URL}{@slug}" class="UserMention" data-id="{@id}">@<xsl:value-of select="@displayname"/></a>
                 </xsl:when>
                 <xsl:otherwise>
-                    <span class="UserMention UserMention--deleted">@<xsl:value-of select="@displayname"/></span>
+                    <span class="UserMention UserMention--deleted" data-id="{@id}">@<xsl:value-of select="@displayname"/></span>
                 </xsl:otherwise>
             </xsl:choose>';
 
@@ -234,13 +234,13 @@ class ConfigureMentions
                 <xsl:when test="@deleted != 1">
                     <xsl:choose>
                         <xsl:when test="string(@color) != \'\'">
-                            <span class="GroupMention GroupMention--colored" style="--color:{@color};">
+                            <span class="GroupMention GroupMention--colored" style="--color:{@color};" data-id="{@id}">
                                 <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
                                 '.self::ICON_TEMPLATE.'
                             </span>
                         </xsl:when>
                         <xsl:otherwise>
-                            <span class="GroupMention">
+                            <span class="GroupMention" data-id="{@id}">
                                 <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
                                 '.self::ICON_TEMPLATE.'
                             </span>
@@ -248,7 +248,7 @@ class ConfigureMentions
                     </xsl:choose>
                 </xsl:when>
                 <xsl:otherwise>
-                    <span class="GroupMention GroupMention--deleted">
+                    <span class="GroupMention GroupMention--deleted" data-id="{@id}">
                         <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
                         '.self::ICON_TEMPLATE.'
                     </span>
