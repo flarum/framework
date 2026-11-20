@@ -1,101 +1,79 @@
 /**
  * @jest-environment node
- *
- * Regression tests for the "checkout path contains a `src` segment" bug.
- *
- * The config detects an extension's own source files by anchoring to the
- * project's `src` directory. Earlier versions matched the substring "src"
- * anywhere in a module's absolute path, which broke when the project itself was
- * checked out under a path containing a `src` segment (e.g. `~/src/my-ext`):
- *
- *  - the auto-export loader ran on `node_modules` (e.g. `@babel/runtime`
- *    helpers) and emitted invalid `flarum.reg.add(...)`, failing the build;
- *  - `autoChunkNameLoader` produced chunk names that leaked the checkout path.
- *
- * These tests pin the anchored behaviour so it can't regress to loose matching.
  */
+import { execFileSync } from 'child_process';
+import fs from 'fs';
+import os from 'os';
 import path from 'path';
-import makeConfig from '../src/index.cjs';
-import autoChunkNameLoader from '../src/autoChunkNameLoader.cjs';
 
-describe('index.cjs: source loaders are anchored to the project `src` directory', () => {
-  // The config reads `package.json` and `../composer.json` from the directory
-  // the build runs in, as an extension's `js` directory has them.
-  const extensionJs = path.resolve(__dirname, 'fixtures', 'extension', 'js');
-  const srcDir = path.resolve(extensionJs, 'src') + path.sep;
+let tmpDir;
+let extensionDir;
 
-  const config = (() => {
-    const cwd = process.cwd();
-    // Avoid noise from getEntryPoints() when no forum.ts/admin.ts entry exists.
-    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    try {
-      process.chdir(extensionJs);
-      return makeConfig();
-    } finally {
-      process.chdir(cwd);
-      spy.mockRestore();
-    }
-  })();
+/**
+ * Lays out an extension checked out under a directory named `src`, so every
+ * path in the build, its node_modules included, contains a `src` segment.
+ */
+beforeEach(() => {
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'flarum-webpack-config-'));
+  extensionDir = path.join(tmpDir, 'src', 'acme-ext');
 
-  const sourceLoaderRules = config.module.rules.filter(
-    (rule) => typeof rule.loader === 'string' && /(autoExportLoader|autoChunkNameLoader)\.cjs$/.test(rule.loader)
-  );
+  const files = {
+    'composer.json': JSON.stringify({ name: 'acme/flarum-ext' }),
+    'js/package.json': JSON.stringify({ name: '@acme/flarum-ext', private: true }),
+    'js/forum.js': "export * from './src/forum';\n",
+    'js/src/forum/index.js':
+      "import helper from 'helper';\n\nexport function boot() {\n  helper();\n  import('./components/ModalA');\n  import('./components/ModalB');\n}\n",
+    'js/src/forum/components/ModalA.js': "export default () => 'a';\n",
+    'js/src/forum/components/ModalB.js': "export default () => 'b';\n",
+    'js/node_modules/helper/package.json': JSON.stringify({ name: 'helper', main: 'index.js' }),
+    'js/node_modules/helper/index.js': 'function helper() {\n  return 1;\n}\n\nexport { helper as default };\n',
+  };
 
-  test('both source loaders use an absolute `src` path include, not a loose /src/ regex', () => {
-    expect(sourceLoaderRules).toHaveLength(2);
-
-    for (const rule of sourceLoaderRules) {
-      expect(rule.include instanceof RegExp).toBe(false);
-      expect(rule.include).toBe(srcDir);
-    }
-  });
-
-  test('the include matches extension source but not node_modules under an unrelated "src" path', () => {
-    const include = sourceLoaderRules[0].include;
-
-    // Mirror webpack's own condition matching: a RegExp uses `.test()`, a
-    // string matches by directory prefix.
-    const matches = (resource) => (include instanceof RegExp ? include.test(resource) : resource.startsWith(include));
-
-    // The extension's own source is included.
-    expect(matches(path.join(srcDir, 'forum', 'index.ts'))).toBe(true);
-
-    // A node_modules file whose absolute path contains an unrelated `src`
-    // segment must NOT be treated as extension source. A loose /src/ regex
-    // wrongly matches this — that was the bug.
-    expect(matches(path.join(path.sep + 'home', 'src', 'proj', 'node_modules', '@babel', 'runtime', 'defineProperty.js'))).toBe(false);
-  });
+  for (const [file, contents] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(path.join(extensionDir, file)), { recursive: true });
+    fs.writeFileSync(path.join(extensionDir, file), contents);
+  }
 });
 
-describe('autoChunkNameLoader: chunk names are relative to the extension `src`', () => {
-  // Simulate a project checked out under a path that itself contains a `src`
-  // segment. The extension's own source lives at `<root>/src`.
-  const root = path.resolve(path.sep + 'home', 'src', 'acme', 'js');
-  const resourcePath = path.join(root, 'src', 'forum', 'index.ts');
+afterEach(() => {
+  fs.rmSync(tmpDir, { recursive: true, force: true });
+});
 
-  const runLoader = (source) =>
-    autoChunkNameLoader.call(
-      {
-        query: { composerPath: path.resolve(__dirname, 'fixtures', 'extension', 'composer.json') },
-        rootContext: root,
-        resourcePath,
-        addDependency() {},
-      },
-      source
-    );
+/**
+ * Builds the extension with the real config in production mode, from its js/
+ * folder. It runs in a separate node process because babel-loader's dynamic
+ * import fails inside Jest's module sandbox.
+ */
+function build() {
+  const script = `
+    const webpack = require(${JSON.stringify(require.resolve('webpack'))});
+    const config = require(${JSON.stringify(path.resolve(__dirname, '../src/index.cjs'))})();
 
-  test('internal dynamic import gets a chunk name relative to <root>/src', () => {
-    const output = runLoader("export function load() {\n  return import('./Lazy');\n}\n");
+    webpack({ ...config, mode: 'production', optimization: { ...config.optimization, minimize: false } }, (err, stats) => {
+      if (err || stats.hasErrors()) {
+        console.error(err || stats.toString('errors-only'));
+        process.exit(1);
+      }
+    });
+  `;
 
-    // Relative to `<root>/src` -> `forum/Lazy`, NOT polluted by the leading
-    // `/home/src/...` segment of the checkout path (old output was `acme/js/`).
-    expect(output).toContain("webpackChunkName: 'forum/Lazy'");
-    expect(output).not.toContain('acme/js');
-  });
+  execFileSync(process.execPath, ['-e', script], { cwd: path.join(extensionDir, 'js'), stdio: 'pipe' });
 
-  test('external (flarum/ and ext:) imports are converted to async module imports', () => {
-    const output = runLoader("export function load() {\n  return import('ext:flarum/tags/forum/components/TagsPage');\n}\n");
+  return path.join(extensionDir, 'js/dist');
+}
 
-    expect(output).toContain("flarum.reg.asyncModuleImport('ext:flarum/tags/forum/components/TagsPage')");
-  });
+test('builds an extension whose dependencies are under a path containing src', () => {
+  const forum = fs.readFileSync(path.join(build(), 'forum.js'), 'utf8');
+
+  expect(forum).not.toMatch(/flarum\.reg\.add\('acme-ext', '[^']*helper/);
+});
+
+test('names lazy chunks after their path inside the extension src', () => {
+  const dist = build();
+  const forum = fs.readFileSync(path.join(dist, 'forum.js'), 'utf8');
+
+  expect(fs.existsSync(path.join(dist, 'forum/components/ModalA.js'))).toBe(true);
+  expect(fs.existsSync(path.join(dist, 'forum/components/ModalB.js'))).toBe(true);
+  expect(forum).toContain("'acme-ext', 'forum/components/ModalA'");
+  expect(forum).toContain("'acme-ext', 'forum/components/ModalB'");
 });

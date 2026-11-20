@@ -114,14 +114,14 @@ class RegisterAsyncChunksPlugin {
               modulesToCheck[chunk.id] = modulesToCheck[chunk.id] || [];
 
               // A normal module.
-              if (this.moduleUrlPath(module, sourceRoot) && module._source?._value?.includes('webpackChunkName: ')) {
+              if (this.moduleUrlPath(module, sourceRoot) && module._source?._value.includes('webpackChunkName: ')) {
                 modulesToCheck[chunk.id].push(module);
               }
 
               // A ConcatenatedModule.
               if (module?.modules) {
                 module.modules.forEach((module) => {
-                  if (this.moduleUrlPath(module, sourceRoot) && module._source?._value?.includes('webpackChunkName: ')) {
+                  if (this.moduleUrlPath(module, sourceRoot) && module._source?._value.includes('webpackChunkName: ')) {
                     modulesToCheck[chunk.id].push(module);
                   }
                 });
