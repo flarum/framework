@@ -77,6 +77,7 @@ export default class CommentPost extends Post {
           contentHtml={this.attrs.post.contentHtml()}
           user={this.attrs.post.user()}
           search={this.attrs.params?.q}
+          post={this.attrs.post}
         />,
       ]);
   }

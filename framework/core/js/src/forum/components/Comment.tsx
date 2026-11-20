@@ -6,6 +6,8 @@ import ComposerPostPreview from './ComposerPostPreview';
 import app from '../app';
 import type ItemList from '../../common/utils/ItemList';
 import type User from '../../common/models/User';
+import type Model from '../../common/Model';
+import type Post from '../../common/models/Post';
 import escapeRegExp from '../../common/utils/escapeRegExp';
 import highlight from '../../common/helpers/highlight';
 
@@ -17,6 +19,8 @@ export interface ICommentAttrs extends ComponentAttrs {
   isHidden: boolean;
   contentHtml: string;
   search?: string;
+  /** The post the HTML belongs to, or a similar model like a private message. */
+  post?: Post | Model;
 }
 
 export default class Comment<CustomAttrs extends ICommentAttrs = ICommentAttrs> extends Component<CustomAttrs> {
@@ -29,8 +33,9 @@ export default class Comment<CustomAttrs extends ICommentAttrs = ICommentAttrs> 
    * transform the markup: `extend` can't change a string return value.
    *
    * Not called while the post is being edited. The result is rendered as
-   * trusted HTML. It runs each time the post is rebuilt, not on every redraw,
-   * so return the same HTML for the same input and cache costly work on it.
+   * trusted HTML. Posts and messages only rebuild it when they change, not on
+   * every redraw, so return the same HTML for the same input and cache costly
+   * work on it.
    */
   contentHtml(): string {
     return this.attrs.contentHtml ?? '';
