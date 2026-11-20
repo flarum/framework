@@ -49,8 +49,7 @@ on:
         description: The type of runner to use for the jobs. This should be one of the types supported by the `runs-on` keyword.
         type: string
         required: false
-        # Ubuntu 26.04's MySQL no longer loads `mysql_native_password`, which the PHP 7.3 tests need.
-        default: 'ubuntu-24.04'
+        default: 'ubuntu-latest'
 
     secrets:
       composer_auth:
@@ -104,12 +103,24 @@ jobs:
           # Include testing PHP 8.2+ with deprecation warnings disabled.
           - php: 8.2
             php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
+            service: 'mysql:8.0.30'
+            db: MySQL 8.0
+            iniStr: (no deprecations)
           - php: 8.3
             php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
+            service: 'mysql:8.0.30'
+            db: MySQL 8.0
+            iniStr: (no deprecations)
           - php: 8.4
             php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
+            service: 'mysql:8.0.30'
+            db: MySQL 8.0
+            iniStr: (no deprecations)
           - php: 8.5
             php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
+            service: 'mysql:8.0.30'
+            db: MySQL 8.0
+            iniStr: (no deprecations)
 
         # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
         exclude:
@@ -131,13 +142,26 @@ jobs:
           - php: 8.5
             php_ini_values: error_reporting=E_ALL
 
+    # Only one of these starts per job: a service with an empty image is skipped.
     services:
       mysql:
-        image: ${{ matrix.service }}
+        image: ${{ !contains(matrix.service, 'mariadb') && matrix.service || '' }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
         ports:
           - 13306:3306
+        # Over TCP, so the entrypoint's temporary init server (socket only) doesn't count as ready.
+        options: --health-cmd="mysqladmin ping -h 127.0.0.1" --health-interval=10s --health-timeout=5s --health-retries=10
+      mariadb:
+        image: ${{ contains(matrix.service, 'mariadb') && matrix.service || '' }}
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 13306:3306
+        # `mysqladmin` for tags older than 10.4, which have neither `mariadb-admin` nor `healthcheck.sh`.
+        options: --health-cmd="mariadb-admin ping -h 127.0.0.1 || mysqladmin ping -h 127.0.0.1" --health-interval=10s --health-timeout=5s --health-retries=10
 
-    name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
+    name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}${{ matrix.iniStr }}'
 
     if: >-
       inputs.enable_backend_testing &&
@@ -157,15 +181,13 @@ jobs:
 
       - name: Create MySQL Database
         run: |
-          sudo systemctl start mysql
-          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
+          mysql -h127.0.0.1 -P13306 -uroot -proot -e 'CREATE DATABASE flarum_test;'
 
       # Newer mysql versions use the `caching_sha2_password` driver, which isn't supported prior to PHP7.4.
-      # Scoped to PHP7.3 because Ubuntu 26.04's MySQL no longer loads `mysql_native_password` at all.
       # When we drop support for PHP7.3, we should remove this from the setup.
       - name: Switch MySQL root to mysql_native_password
-        if: matrix.php == '7.3'
-        run: mysql -uroot -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';" --port 13306
+        if: matrix.php == '7.3' && !contains(matrix.service, 'mariadb')
+        run: mysql -h127.0.0.1 -P13306 -uroot -proot -e "ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'root';"
 
       - name: Install Composer dependencies
         run: composer install
@@ -175,9 +197,31 @@ jobs:
         run: composer test:setup
         working-directory: ${{ inputs.backend_directory }}
         env:
+          DB_HOST: 127.0.0.1
           DB_PORT: 13306
           DB_PASSWORD: root
           DB_PREFIX: ${{ matrix.prefix }}
+
+      # Connects the way the tests do (their generated config, pdo_mysql), so a job that
+      # reaches a different server than its matrix entry names fails here.
+      - name: Check the database server
+        run: |
+          php -r '
+            $db = (require getenv("FLARUM_TEST_TMP_DIR_LOCAL")."/config.php")["database"];
+            $pdo = new PDO("mysql:host={$db["host"]};port={$db["port"]}", $db["username"], $db["password"]);
+            $version = $pdo->query("SELECT VERSION()")->fetchColumn();
+            $service = getenv("SERVICE");
+            echo "$service: {$db["host"]}:{$db["port"]} is $version\n";
+            $image = explode("@", $service)[0];
+            $tag = explode(":", substr(strrchr("/".$image, "/"), 1))[1] ?? "";
+            $ok = $db["host"] === "127.0.0.1" && (int) $db["port"] === 13306
+              && (stripos($service, "mariadb") !== false) === (stripos($version, "mariadb") !== false)
+              && (!preg_match("/^\d+(\.\d+)*/", $tag, $m) || $version === $m[0] || preg_match("/^".preg_quote($m[0])."[.-]/", $version));
+            exit($ok ? 0 : 1);
+          '
+        working-directory: ${{ inputs.backend_directory }}
+        env:
+          SERVICE: ${{ matrix.service }}
 
       - name: Run Composer tests
         run: composer test
