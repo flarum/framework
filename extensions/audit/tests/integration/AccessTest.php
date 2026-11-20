@@ -9,6 +9,7 @@
 
 namespace Flarum\Audit\Tests\integration;
 
+use Flarum\Audit\Testing\TestCase;
 use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\User\User;

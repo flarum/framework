@@ -15,7 +15,7 @@ use Flarum\OAuthProvider\Extend\Resource;
 use Flarum\OAuthProvider\Extend\Scope;
 use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\RefreshToken;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -56,7 +56,7 @@ class ResourceIndicatorTest extends TestCase
     {
         $tokens = $this->publicClientTokens('public-client', ['scope' => 'mcp:read', 'resource' => self::RESOURCE]);
 
-        $claims = $this->jwtClaims($tokens['access_token']);
+        $claims = $this->oauthJwtClaims($tokens['access_token']);
         $this->assertSame([self::RESOURCE], (array) $claims['aud']);
         $this->assertSame(self::RESOURCE, AccessToken::query()->find($claims['jti'])->resource);
     }
@@ -66,7 +66,7 @@ class ResourceIndicatorTest extends TestCase
     {
         $tokens = $this->publicClientTokens('public-client');
 
-        $claims = $this->jwtClaims($tokens['access_token']);
+        $claims = $this->oauthJwtClaims($tokens['access_token']);
         $this->assertSame(['public-client'], (array) $claims['aud']);
         $this->assertNull(AccessToken::query()->find($claims['jti'])->resource);
     }
@@ -76,7 +76,7 @@ class ResourceIndicatorTest extends TestCase
     {
         $tokens = $this->publicClientTokens('public-client', ['scope' => 'mcp:read'], ['resource' => self::RESOURCE]);
 
-        $this->assertSame([self::RESOURCE], (array) $this->jwtClaims($tokens['access_token'])['aud']);
+        $this->assertSame([self::RESOURCE], (array) $this->oauthJwtClaims($tokens['access_token'])['aud']);
     }
 
     #[Test]
@@ -136,7 +136,7 @@ class ResourceIndicatorTest extends TestCase
         ]);
 
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame('invalid_target', $this->json($response)['error']);
+        $this->assertSame('invalid_target', $this->oauthJson($response)['error']);
     }
 
     #[Test]
@@ -152,7 +152,7 @@ class ResourceIndicatorTest extends TestCase
         ]);
 
         $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
-        $claims = $this->jwtClaims($this->json($response)['access_token']);
+        $claims = $this->oauthJwtClaims($this->oauthJson($response)['access_token']);
 
         $this->assertSame([self::RESOURCE], (array) $claims['aud']);
         $this->assertSame(['mcp:read'], $claims['scopes']);
@@ -165,7 +165,7 @@ class ResourceIndicatorTest extends TestCase
         $tokens = $this->publicClientTokens('public-client', ['scope' => 'mcp:read', 'resource' => self::RESOURCE]);
 
         // The refresh token outlives the row of the access token it came with.
-        $previous = AccessToken::query()->findOrFail($this->jwtClaims($tokens['access_token'])['jti']);
+        $previous = AccessToken::query()->findOrFail($this->oauthJwtClaims($tokens['access_token'])['jti']);
         $standIn = $previous->replicate();
         $standIn->id = 'stand-in';
         $standIn->save();
@@ -175,7 +175,7 @@ class ResourceIndicatorTest extends TestCase
         $response = $this->refresh('public-client', $tokens['refresh_token']);
 
         $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
-        $claims = $this->jwtClaims($this->json($response)['access_token']);
+        $claims = $this->oauthJwtClaims($this->oauthJson($response)['access_token']);
         $this->assertSame([self::RESOURCE], (array) $claims['aud'], 'The refreshed token must stay bound to the granted resource');
     }
 
@@ -191,7 +191,7 @@ class ResourceIndicatorTest extends TestCase
             'resource' => 'https://elsewhere.example.com/mcp',
         ]);
 
-        $this->assertSame('invalid_target', $this->json($response)['error']);
+        $this->assertSame('invalid_target', $this->oauthJson($response)['error']);
     }
 
     #[Test]
@@ -202,10 +202,10 @@ class ResourceIndicatorTest extends TestCase
 
         $refused = $this->send($this->request('GET', '/oauth/userinfo')->withHeader('Authorization', 'Bearer '.$bound['access_token']));
         $this->assertSame(401, $refused->getStatusCode());
-        $this->assertSame('access_denied', $this->json($refused)['error']);
+        $this->assertSame('access_denied', $this->oauthJson($refused)['error']);
 
         $allowed = $this->send($this->request('GET', '/oauth/userinfo')->withHeader('Authorization', 'Bearer '.$oidc['access_token']));
         $this->assertSame(200, $allowed->getStatusCode());
-        $this->assertSame('2', $this->json($allowed)['sub']);
+        $this->assertSame('2', $this->oauthJson($allowed)['sub']);
     }
 }

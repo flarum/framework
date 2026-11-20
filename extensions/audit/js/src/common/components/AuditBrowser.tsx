@@ -5,6 +5,8 @@ import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Placeholder from 'flarum/common/components/Placeholder';
 import extractText from 'flarum/common/utils/extractText';
+import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
+import generateElementId from 'flarum/common/utils/generateElementId';
 import AuditItem from './AuditItem';
 import AuditLog from '../models/AuditLog';
 
@@ -30,9 +32,30 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
   showHelp: boolean = false;
   caret: number = 0;
   autocompleteFocused: boolean = false;
+  suggestionIndex: number = -1;
+  navigator!: KeyboardNavigatable;
+  escapeHandled: boolean = false;
+  requestId: number = 0;
+  listId: string = generateElementId();
 
   oninit(vnode: any) {
     super.oninit(vnode);
+
+    this.navigator = new KeyboardNavigatable()
+      .when((event) => {
+        if (event.isComposing) return false;
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          const modified = event.shiftKey || event.altKey || event.ctrlKey || event.metaKey;
+          return !modified && !!this.autocompleteGroups();
+        }
+        // An Escape with nothing to close or clear falls through, so it still closes a surrounding modal.
+        if (event.key === 'Escape') return !!this.autocompleteGroups() || this.q !== '';
+        return true;
+      })
+      .onUp(() => this.moveSuggestion(-1))
+      .onDown(() => this.moveSuggestion(1))
+      .onSelect(() => this.select(), true)
+      .onCancel(() => this.cancel());
 
     this.refresh();
   }
@@ -50,26 +73,55 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
       );
     }
 
+    const groups = this.autocompleteGroups();
+
     return (
       <div>
         <div className="AuditSearch">
           <div className="AuditSearchWrapper">
             <input
               className="FormControl"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={groups ? 'true' : 'false'}
+              aria-controls={this.listId}
+              aria-activedescendant={groups && this.suggestionIndex >= 0 ? this.optionId(this.suggestionIndex) : undefined}
               value={this.q}
               oninput={(event: InputEvent) => {
                 const el = event.target as HTMLInputElement;
                 this.q = el.value;
                 this.caret = el.selectionStart ?? el.value.length;
+                this.autocompleteFocused = true;
+                this.suggestionIndex = -1;
+              }}
+              onkeydown={(event: KeyboardEvent) => {
+                // A held key would otherwise resend the request, or step Escape through closing the
+                // suggestions, clearing the filter and then closing the surrounding modal.
+                if (event.repeat && (event.key === 'Enter' || event.key === 'Escape')) {
+                  if (event.key === 'Enter' || this.escapeHandled) event.preventDefault();
+                  return;
+                }
+
+                this.navigator.navigate(event);
+
+                if (event.key === 'Escape') this.escapeHandled = event.defaultPrevented;
+                // moveSuggestion() has already redrawn, to scroll the highlight into view.
+                if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && event.defaultPrevented) (event as any).redraw = false;
               }}
               onkeyup={(event: KeyboardEvent) => {
-                this.caret = (event.target as HTMLInputElement).selectionStart ?? this.q.length;
+                // ModalManager closes the modal on a body keyup when CloseWatcher is unavailable.
+                if (event.key === 'Escape' && this.escapeHandled) {
+                  event.stopPropagation();
+                  this.escapeHandled = false;
+                }
+                this.setCaret((event.target as HTMLInputElement).selectionStart ?? this.q.length);
               }}
               onclick={(event: MouseEvent) => {
-                this.caret = (event.target as HTMLInputElement).selectionStart ?? this.q.length;
+                this.setCaret((event.target as HTMLInputElement).selectionStart ?? this.q.length);
               }}
               onfocus={() => {
                 this.autocompleteFocused = true;
+                this.suggestionIndex = -1;
               }}
               onblur={() => {
                 // Delay so a click on a suggestion registers before the dropdown closes.
@@ -85,13 +137,10 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
                 className="Search-clear Button Button--icon Button--link"
                 icon="fas fa-times-circle"
                 aria-label={app.translator.trans(translationPrefix + 'filterClear')}
-                onclick={() => {
-                  this.q = '';
-                  this.refresh();
-                }}
+                onclick={() => this.clear()}
               />
             ) : null}
-            {this.autocomplete()}
+            {this.autocomplete(groups)}
           </div>
           <Button className="Button" onclick={() => this.refresh()}>
             {app.translator.trans(translationPrefix + 'filterApply')}
@@ -173,24 +222,112 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
     return groups.length ? groups : null;
   }
 
-  autocomplete() {
-    const groups = this.autocompleteGroups();
+  suggestions(): { key: string; value: string }[] {
+    return (this.autocompleteGroups() || []).flatMap((group) => group.values.map((value) => ({ key: group.key, value })));
+  }
+
+  optionId(index: number) {
+    return `${this.listId}-${index}`;
+  }
+
+  autocomplete(groups: ReturnType<AuditBrowser['autocompleteGroups']>) {
     if (!groups) return null;
 
+    let index = 0;
+
+    const options = (group: (typeof groups)[number]) =>
+      group.values.map((value) => {
+        const optionIndex = index++;
+        const active = optionIndex === this.suggestionIndex;
+
+        return (
+          <li role="presentation">
+            <button
+              type="button"
+              id={this.optionId(optionIndex)}
+              role="option"
+              aria-selected={active ? 'true' : 'false'}
+              tabindex="-1"
+              className={'AuditAutocomplete-item' + (active ? ' active' : '')}
+              // Not mouseenter: scrolling the list with the arrow keys moves options under a resting pointer.
+              onmousemove={() => (this.suggestionIndex = optionIndex)}
+              onclick={() => this.applySuggestion(group.key, value)}
+            >
+              <code>{value}</code>
+            </button>
+          </li>
+        );
+      });
+
     return (
-      <ul className="AuditAutocomplete">
-        {groups.map((group) => [
-          group.extension ? <li className="AuditAutocomplete-group">{group.extension}</li> : null,
-          ...group.values.map((value) => (
-            <li>
-              <button type="button" className="AuditAutocomplete-item" onclick={() => this.applySuggestion(group.key, value)}>
-                <code>{value}</code>
-              </button>
+      <ul className="AuditAutocomplete" id={this.listId} role="listbox">
+        {groups.map((group) => {
+          if (!group.extension) return options(group);
+
+          const headerId = `${this.listId}-${group.extension}`;
+
+          return (
+            <li role="group" aria-labelledby={headerId}>
+              <div className="AuditAutocomplete-group" id={headerId}>
+                {group.extension}
+              </div>
+              <ul className="AuditAutocomplete-options" role="presentation">
+                {options(group)}
+              </ul>
             </li>
-          )),
-        ])}
+          );
+        })}
       </ul>
     );
+  }
+
+  moveSuggestion(delta: number) {
+    const count = this.suggestions().length;
+    if (!count) return;
+
+    this.suggestionIndex = this.suggestionIndex < 0 && delta < 0 ? count - 1 : (this.suggestionIndex + delta + count) % count;
+
+    m.redraw.sync();
+    this.element.querySelector('.AuditAutocomplete-item.active')?.scrollIntoView({ block: 'nearest' });
+  }
+
+  select() {
+    const suggestion = this.suggestions()[this.suggestionIndex];
+
+    if (suggestion) {
+      this.applySuggestion(suggestion.key, suggestion.value);
+      return;
+    }
+
+    this.autocompleteFocused = false;
+    this.refresh();
+  }
+
+  cancel() {
+    if (this.autocompleteGroups()) {
+      this.autocompleteFocused = false;
+      this.suggestionIndex = -1;
+      return;
+    }
+
+    this.clear();
+  }
+
+  /**
+   * Moving to another token drops the highlight, which belonged to the old token's suggestions.
+   */
+  setCaret(caret: number) {
+    const token = this.activeToken().start;
+    this.caret = caret;
+
+    if (this.activeToken().start !== token) this.suggestionIndex = -1;
+  }
+
+  clear() {
+    this.q = '';
+    this.caret = 0;
+    this.suggestionIndex = -1;
+    this.refresh();
   }
 
   applySuggestion(key: string, value: string) {
@@ -200,14 +337,16 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
 
     this.q = this.q.slice(0, start) + completed + this.q.slice(end);
     this.caret = start + completed.length;
+    this.suggestionIndex = -1;
+    this.autocompleteFocused = true;
+    // Write the completed value first: setting it afterwards would move the caret to the end.
+    m.redraw.sync();
 
     const input = this.element.querySelector<HTMLInputElement>('.AuditSearch .FormControl');
     if (input) {
       input.focus();
       input.setSelectionRange(this.caret, this.caret);
     }
-    this.autocompleteFocused = true;
-    m.redraw();
   }
 
   filterHints() {
@@ -298,6 +437,7 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
     const prefix = key + ':';
     this.q = prefix;
     this.caret = prefix.length;
+    this.suggestionIndex = -1;
     this.autocompleteFocused = true;
 
     const input = this.element.querySelector<HTMLInputElement>('.AuditSearch .FormControl');
@@ -381,29 +521,47 @@ export default class AuditBrowser extends Component<AuditBrowserAttrs> {
       this.logs = [];
     }
 
-    return this.loadResults().then(
+    // Only the latest query's results are shown, whatever order the responses arrive in.
+    const requestId = ++this.requestId;
+
+    return this.loadResults(undefined, requestId).then(
       (results) => {
+        if (requestId !== this.requestId) return;
         this.logs = [];
         this.parseResults(results);
       },
       () => {
+        if (requestId !== this.requestId) return;
         this.loading = false;
         m.redraw();
       }
     );
   }
 
-  loadResults(offset: number | undefined = undefined) {
+  loadResults(offset: number | undefined = undefined, requestId: number = this.requestId) {
     const params = this.requestParams();
     params.page = { offset };
 
-    return app.store.find<AuditLog[]>('audit', params);
+    return app.store.find<AuditLog[]>('audit', params, undefined, {
+      // Returning false falls back to core's error alert; a superseded request fails silently.
+      errorHandler: () => (requestId === this.requestId ? false : undefined),
+    });
   }
 
   loadMore() {
     this.loading = true;
+    const requestId = this.requestId;
 
-    this.loadResults(this.logs.length).then(this.parseResults.bind(this));
+    this.loadResults(this.logs.length, requestId).then(
+      (results) => {
+        if (requestId === this.requestId) this.parseResults(results);
+      },
+      () => {
+        if (requestId !== this.requestId) return;
+        this.loading = false;
+        m.redraw();
+      }
+    );
   }
 
   parseResults(results: ApiResponsePlural<AuditLog>) {

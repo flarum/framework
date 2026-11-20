@@ -11,8 +11,8 @@ namespace Flarum\Mcp\Tests\integration\tools;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
-use Flarum\Mcp\Tests\integration\IssuesOAuthTokens;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\IssuesOAuthTokens;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -114,7 +114,7 @@ class NotificationsTest extends McpTestCase
         $tools = array_column($this->rpcResult($this->modern('tools/list', [], $auth))['tools'], null, 'name');
         $this->assertNotContains('notifications', $tools['list_resources']['inputSchema']['properties']['type']['enum']);
 
-        $response = $this->json($this->callTool('list_resources', ['type' => 'notifications'], $auth));
+        $response = $this->mcpJson($this->callTool('list_resources', ['type' => 'notifications'], $auth));
         $this->assertArrayNotHasKey('result', $response, (string) json_encode($response));
 
         // Reading one still works: Show has no side effect.

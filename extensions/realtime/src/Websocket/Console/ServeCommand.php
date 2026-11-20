@@ -10,6 +10,7 @@
 namespace Flarum\Realtime\Websocket\Console;
 
 use Flarum\Frontend\Compiler\AssetsRevision;
+use Flarum\Group\PermissionCache;
 use Flarum\Realtime\Websocket\Channel\Manager;
 use Flarum\Realtime\Websocket\IndexTypingPresence;
 use Flarum\Realtime\Websocket\Logger\ConnectionLogger;
@@ -44,10 +45,7 @@ class ServeCommand extends Command
 
         $loop = Loop::get();
 
-        $this->restartOnCachedSignal($loop, $cache);
-        $this->restartOnExtensionChanges($loop);
-        $this->sweepIndexTyping($loop);
-        $this->broadcastAssetsRevisionOnStartup($loop);
+        $this->registerTimers($loop, $cache);
 
         $this->getLaravel()->instance(LoopInterface::class, $loop);
 
@@ -88,6 +86,15 @@ class ServeCommand extends Command
         $this->info("Max connections $settings->maxConnections");
 
         $io->run();
+    }
+
+    protected function registerTimers(LoopInterface $loop, Repository $cache): void
+    {
+        $this->restartOnCachedSignal($loop, $cache);
+        $this->restartOnExtensionChanges($loop);
+        $this->sweepIndexTyping($loop);
+        $this->refreshPermissionCache($loop);
+        $this->broadcastAssetsRevisionOnStartup($loop);
     }
 
     protected function loggers(): void
@@ -170,6 +177,17 @@ class ServeCommand extends Command
                 }
             });
         });
+    }
+
+    /**
+     * Permission changes made by other processes never reach the daemon's copy
+     * of core's permission cache.
+     */
+    protected function refreshPermissionCache(LoopInterface $loop): void
+    {
+        $permissions = $this->getLaravel()->make(PermissionCache::class);
+
+        $loop->addPeriodicTimer(10, fn () => $permissions->flush());
     }
 
     protected function restartOnCachedSignal(LoopInterface $loop, Repository $cache): void

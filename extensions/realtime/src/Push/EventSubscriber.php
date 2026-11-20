@@ -17,6 +17,7 @@ use Flarum\Realtime\Push\Jobs\SendDialogMessageJob;
 use Flarum\Realtime\Push\Jobs\SendDialogRemovalJob;
 use Flarum\Realtime\Push\Jobs\SendFlaggedJob;
 use Flarum\Realtime\Push\Jobs\SendTriggerJob;
+use Flarum\Realtime\Push\Jobs\SendUserPayloadsJob;
 use Illuminate\Contracts\Events\Dispatcher;
 
 /**
@@ -72,6 +73,14 @@ class EventSubscriber extends Subscriber
                     (bool) ($removal['dialogDeleted'] ?? false),
                     array_map('intval', $removal['userIds'] ?? []),
                 ));
+            });
+        }
+
+        // Extension-registered payloads for particular users, worked out when
+        // the job runs, so a queue delay can't reach someone who lost access.
+        foreach ($this->registry->getUserBroadcasts() as $index => $entry) {
+            $this->listen($entry['events'], function (object $event) use ($index) {
+                $this->queue()->push(new SendUserPayloadsJob(get_class($event), $event, $index));
             });
         }
 

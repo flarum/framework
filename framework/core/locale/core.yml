@@ -100,7 +100,9 @@ core:
           default: Default database search
         no_other_drivers: No search drivers are available yet. Install a search driver extension to be able to configure it.
         cjk_mode_label: Optimise search for CJK languages
-        cjk_mode_help: Enable if your forum is primarily in Chinese, Japanese, or Korean. The database's word-based search cannot match parts of CJK text, so this switches to a substring match that can. It is slower on very large forums, where configuring a CJK-aware fulltext parser at the database level (such as MySQL/MariaDB's ngram parser) is a faster alternative.
+        cjk_mode_help: Enable if your forum is primarily in Chinese, Japanese, or Korean. The database's word-based search cannot match parts of CJK text, so this switches to a substring match that can. It is slower on very large forums, where configuring a CJK-aware fulltext parser at the database level (such as MySQL/MariaDB's ngram parser) is a faster alternative. A single CJK character is often a whole word, so you may also want to lower the minimum search length.
+        min_length_label: Minimum Search Length
+        min_length_help: The number of characters a search needs before results are loaded. Default is 3. Lower values suit languages with short words, such as Chinese, Japanese, or Korean, but match more loosely. On MySQL/MariaDB's default word-based search, discussion and post searches do not find words shorter than the database's minimum word length (3 by default) unless CJK search is enabled.
       sessions:
         section_label: Sessions
         lifetime_label: Session Length (minutes)
@@ -1373,11 +1375,14 @@ core:
       footer_plain: "This email was sent to {userEmail} as an informational service related to your account on {forumTitle}."
 
     # These translations are used by the "notification" email template.
+    # Notification types are named under core.email.notification.types.<type>, in the locale file of the extension that registers them.
     notification:
         default_title: "Notification"
         footer:
-          main_text: "This email was sent to {email} because you are subscribed to \"{type}\" notifications on [{forumTitle}]({forumUrl})."
-          main_text_plain: "This email was sent to {email} because you are subscribed to \"{type}\" notifications on {forumTitle}."
+          main_text: "This email was sent to {email} because email notifications for \"{type}\" are turned on for your account on [{forumTitle}]({forumUrl})."
+          main_text_plain: "This email was sent to {email} because email notifications for \"{type}\" are turned on for your account on {forumTitle}."
+          main_text_generic: "This email was sent to {email} because email notifications are turned on for your account on [{forumTitle}]({forumUrl})."
+          main_text_generic_plain: "This email was sent to {email} because email notifications are turned on for your account on {forumTitle}."
           unsubscribe_text: "If you'd like to stop receiving this type of notification, [unsubscribe here]({unsubscribeLink})."
           unsubscribe_text_plain: "If you'd like to stop receiving this type of notification, unsubscribe here: {unsubscribeLink}"
           settings_text: "Manage your notification settings [here]({settingsLink})."

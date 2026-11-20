@@ -11,6 +11,7 @@ namespace Flarum\Messages\Data;
 
 use Flarum\Gdpr\Data\Type;
 use Flarum\Messages\DialogMessage;
+use Flarum\Messages\UserDialogState;
 use Illuminate\Support\Arr;
 
 /**
@@ -49,6 +50,15 @@ class Messages extends Type
         DialogMessage::query()
             ->where('user_id', $this->user->id)
             ->update(['ip_address' => null]);
+
+        // Anonymising resets preferences, which would share receipts they had opted out of.
+        UserDialogState::query()
+            ->where('user_id', $this->user->id)
+            ->update(['last_read_message_id' => 0, 'last_read_at' => null]);
+
+        // A NOT NULL column, which GDPR's own user anonymising leaves alone.
+        $this->user->newQuery()->whereKey($this->user->id)->update(['marked_all_dialogs_read_id' => 0]);
+        $this->user->setAttribute('marked_all_dialogs_read_id', 0)->syncOriginalAttribute('marked_all_dialogs_read_id');
     }
 
     public function delete(): void

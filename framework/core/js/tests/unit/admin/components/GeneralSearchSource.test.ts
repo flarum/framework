@@ -1,6 +1,8 @@
 import bootstrapAdmin from '@flarum/jest-config/src/bootstrap/admin';
 import mq from 'mithril-query';
 import GeneralSearchSource, { GeneralSearchResult } from '../../../../src/admin/components/GeneralSearchSource';
+import SearchManager from '../../../../src/common/SearchManager';
+import app from '../../../../src/admin/app';
 
 beforeAll(() => bootstrapAdmin());
 
@@ -32,5 +34,25 @@ describe('GeneralSearchSource highlighting', () => {
 
     expect(marks(rendered)).toEqual(['amp']);
     expect(rendered.find('.GeneralSearchResult-tree')[0].textContent).toContain('Tom & Jerry amp');
+  });
+});
+
+describe('GeneralSearchSource minimum search length', () => {
+  it('does not follow a raised forum minimum', () => {
+    app.forum = app.store.createRecord('forums', { attributes: { searchMinLength: 6 } });
+
+    expect(new GeneralSearchSource().minSearchLength()).toBe(SearchManager.MIN_SEARCH_LEN);
+  });
+
+  it('searches from one character in CJK mode', () => {
+    app.forum = app.store.createRecord('forums', { attributes: { searchMinLength: 3, searchCjkMode: true } });
+
+    expect(new GeneralSearchSource().minSearchLength()).toBe(1);
+  });
+
+  it('follows a lowered forum minimum', () => {
+    app.forum = app.store.createRecord('forums', { attributes: { searchMinLength: 1 } });
+
+    expect(new GeneralSearchSource().minSearchLength()).toBe(1);
   });
 });

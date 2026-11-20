@@ -47,12 +47,13 @@ export interface SearchAttrs extends ComponentAttrs {
  */
 export default class Search<T extends SearchAttrs = SearchAttrs> extends Component<T, SearchState> {
     /**
-     * The minimum query length before sources are searched.
+     * A subclass may set its own minimum query length, which then takes
+     * precedence over the forum's configured minimum.
      */
     protected static MIN_SEARCH_LEN: number;
     /**
-     * The minimum query length for the current forum. Experimental CJK search mode
-     * drops it to 1; otherwise the (subclass-overridable) MIN_SEARCH_LEN applies.
+     * The minimum query length before sources are searched: a subclass's own
+     * MIN_SEARCH_LEN if it sets one, otherwise the forum's configured minimum.
      */
     static minSearchLength(): number;
     /**

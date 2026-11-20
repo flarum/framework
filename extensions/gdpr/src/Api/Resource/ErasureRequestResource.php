@@ -67,7 +67,10 @@ class ErasureRequestResource extends Resource\AbstractDatabaseResource
     public function query(OriginalContext $context): object
     {
         if ($context->listing(self::class)) {
-            return parent::query($context)->where('status', ErasureRequest::STATUS_USER_CONFIRMED);
+            // A request whose user has since been deleted has nothing left to erase or to show.
+            return parent::query($context)
+                ->where('status', ErasureRequest::STATUS_USER_CONFIRMED)
+                ->whereHas('user');
         }
 
         return parent::query($context);

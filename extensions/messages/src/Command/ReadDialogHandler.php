@@ -39,13 +39,33 @@ class ReadDialogHandler
             ['dialog_id' => $dialog->id, 'user_id' => $actor->id],
             ['joined_at' => Carbon::now(), 'is_recipient' => false]
         );
+        $state->setRelation('user', $actor)->setRelation('dialog', $dialog);
+
         $state->read($command->lastReadMessageId);
 
         $this->events->dispatch(
             new UserDataSaving($state)
         );
 
-        $state->save();
+        if (! $state->isDirty('last_read_message_id')) {
+            $state->save();
+
+            return $state;
+        }
+
+        // Conditional, so a concurrent request can't move the position back.
+        $moved = UserDialogState::query()
+            ->whereKey($state->getKey())
+            ->where('last_read_message_id', '<', $state->last_read_message_id)
+            ->update($state->getDirty());
+
+        if (! $moved) {
+            $state->releaseEvents();
+
+            return $state->refresh();
+        }
+
+        $state->syncOriginal();
 
         $this->dispatchEventsFor($state);
 

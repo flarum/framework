@@ -10,8 +10,7 @@
 namespace Flarum\Group;
 
 /**
- * Caches the permission lists of group-ID sets for the lifetime of the
- * application instance.
+ * Caches the permission lists of group-ID sets.
  *
  * The permissions a user has are fully determined by the set of group IDs
  * they belong to, so users sharing a group set can share one `group_permission`
@@ -19,11 +18,14 @@ namespace Flarum\Group;
  * user — extension serializer flags, policies, visibility scopers — issues one
  * identical query per user instance.
  *
- * The cache is a container singleton, so its lifetime is one request under
- * PHP-FPM. Entries are invalidated when permissions change: per affected group
- * for model writes, and wholesale for the admin permission endpoint (which
- * writes through the query builder and bypasses model events). Code that
- * modifies the `group_permission` table directly should call `flush()`.
+ * The cache is a container singleton, so its entries last one request under
+ * PHP-FPM; a queue worker flushes it as each job starts. Changes made by
+ * another process never reach it, so other long-running processes must flush
+ * it themselves. Within a process, entries are invalidated when permissions
+ * change: per affected group for model writes, and wholesale for the admin
+ * permission endpoint (which writes through the query builder and bypasses
+ * model events). Code that modifies the `group_permission` table directly
+ * should call `flush()`.
  */
 class PermissionCache
 {

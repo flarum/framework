@@ -10,9 +10,11 @@
 namespace Flarum\Messages\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Gdpr\Testing\InteractsWithGdpr;
 use Flarum\Messages\Data\Messages;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
+use Flarum\Messages\UserDialogState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -26,6 +28,7 @@ use PHPUnit\Framework\Attributes\Test;
 class GdprTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use InteractsWithGdpr;
 
     protected function setUp(): void
     {
@@ -47,15 +50,10 @@ class GdprTest extends TestCase
                 ['id' => 103, 'dialog_id' => 102, 'user_id' => 3, 'content' => 'Hi Bob', 'number' => 2, 'ip_address' => '198.51.100.7'],
             ],
             'dialog_user' => [
-                ['dialog_id' => 102, 'user_id' => 3, 'joined_at' => Carbon::now()],
-                ['dialog_id' => 102, 'user_id' => 4, 'joined_at' => Carbon::now()],
+                ['dialog_id' => 102, 'user_id' => 3, 'joined_at' => Carbon::now(), 'last_read_message_id' => 103],
+                ['dialog_id' => 102, 'user_id' => 4, 'joined_at' => Carbon::now(), 'last_read_message_id' => 103, 'last_read_at' => Carbon::now()],
             ],
         ]);
-    }
-
-    private function type(int $userId): Messages
-    {
-        return $this->app()->getContainer()->make(Messages::class, ['user' => User::find($userId), 'erasureRequest' => null]);
     }
 
     #[Test]
@@ -70,7 +68,7 @@ class GdprTest extends TestCase
     #[Test]
     public function exports_only_the_members_own_messages(): void
     {
-        $export = $this->type(4)->export();
+        $export = $this->gdprDataType(Messages::class, 4)->export();
 
         $this->assertCount(1, $export);
         $this->assertArrayHasKey('messages/message-102.json', $export[0]);
@@ -80,7 +78,7 @@ class GdprTest extends TestCase
     #[Test]
     public function anonymising_removes_the_members_addresses_and_keeps_the_rest(): void
     {
-        $this->type(4)->anonymize();
+        $this->gdprDataType(Messages::class, 4)->anonymize();
 
         $this->assertNull(DialogMessage::find(102)->ip_address);
         $this->assertEquals('203.0.113.9', '203.0.113.9');
@@ -88,10 +86,35 @@ class GdprTest extends TestCase
         $this->assertEquals('Hi Alice', DialogMessage::find(102)->content);
     }
 
+    // Anonymising resets preferences, so read positions would be shared even after an opt-out.
+    #[Test]
+    public function anonymising_forgets_how_far_the_member_read(): void
+    {
+        $this->database()->table('users')->where('id', 4)->update(['marked_all_dialogs_read_id' => 103]);
+
+        $this->gdprDataType(Messages::class, 4)->anonymize();
+
+        $this->assertEquals(0, UserDialogState::query()->where('dialog_id', 102)->where('user_id', 4)->value('last_read_message_id'));
+        $this->assertNull(UserDialogState::query()->where('dialog_id', 102)->where('user_id', 4)->value('last_read_at'));
+        $this->assertEquals(103, UserDialogState::query()->where('dialog_id', 102)->where('user_id', 3)->value('last_read_message_id'), "The other member's is not theirs.");
+        $this->assertEquals(0, User::query()->whereKey(4)->value('marked_all_dialogs_read_id'));
+    }
+
+    #[Test]
+    public function an_anonymised_member_is_not_counted_among_those_who_could_read(): void
+    {
+        $this->database()->table('users')->where('id', 4)->update(['anonymized' => true]);
+
+        $response = $this->send($this->request('GET', '/api/dialog-messages', ['authenticatedAs' => 3])->withQueryParams(['filter' => ['dialog' => '102']]));
+        $dialog = collect(json_decode((string) $response->getBody(), true)['included'] ?? [])->firstWhere('type', 'dialogs');
+
+        $this->assertSame(0, $dialog['attributes']['readReceipts']['members']);
+    }
+
     #[Test]
     public function erasing_removes_the_members_messages_and_repairs_the_dialog(): void
     {
-        $this->type(4)->delete();
+        $this->gdprDataType(Messages::class, 4)->delete();
 
         $this->assertNull(DialogMessage::find(102));
         $this->assertNotNull(DialogMessage::find(103));
@@ -119,7 +142,7 @@ class GdprTest extends TestCase
             }
         });
 
-        $this->type(4)->delete();
+        $this->gdprDataType(Messages::class, 4)->delete();
 
         $this->assertEquals([3], $this->database()->table('notifications')->pluck('id')->all());
         $this->assertEquals(1, $deletes, 'One statement for all of their messages, not one per message.');

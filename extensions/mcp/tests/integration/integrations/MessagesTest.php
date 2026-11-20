@@ -10,7 +10,7 @@
 namespace Flarum\Mcp\Tests\integration\integrations;
 
 use Carbon\Carbon;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\User\User;
@@ -261,8 +261,11 @@ class MessagesTest extends McpTestCase
 
         $this->database()->table('dialog_user')->where(['dialog_id' => 1, 'user_id' => 2])->update(['last_read_message_id' => 1]);
 
+        // Marking all works as core's does for discussions: nothing is left
+        // unread, and no read position moves, so nobody gets a read receipt.
         $this->assertSame(['marked' => 'all'], $this->toolOutput($this->callTool('mark_conversations_read', [], $auth)));
-        $this->assertSame(3, $this->lastRead(1, 2));
+        $this->assertSame(0, $this->toolOutput($this->callTool('list_conversations', [], $auth))['data'][0]['unreadCount']);
+        $this->assertSame(1, $this->lastRead(1, 2));
     }
 
     #[Test]

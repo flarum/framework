@@ -14,7 +14,7 @@ use Flarum\OAuthProvider\Models\AccessToken;
 use Flarum\OAuthProvider\Models\AuthCode;
 use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Models\RefreshToken;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -81,7 +81,7 @@ class ConsentResourceTest extends TestCase
         $response = $this->send($this->request('GET', '/api/oauth-consents', ['authenticatedAs' => 2]));
 
         $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
-        $data = $this->json($response)['data'];
+        $data = $this->oauthJson($response)['data'];
 
         $this->assertCount(1, $data);
         $this->assertSame('1', $data[0]['id']);
@@ -115,7 +115,7 @@ class ConsentResourceTest extends TestCase
         $response = $this->send($this->request('GET', '/api/oauth-consents', ['authenticatedAs' => 3]));
 
         $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
-        $hosts = array_column(array_column($this->json($response)['data'], 'attributes'), 'clientSourceHost', 'clientId');
+        $hosts = array_column(array_column($this->oauthJson($response)['data'], 'attributes'), 'clientSourceHost', 'clientId');
         $this->assertSame('collector.example.net', $hosts['dcr-client']);
     }
 
@@ -124,7 +124,7 @@ class ConsentResourceTest extends TestCase
     {
         $response = $this->send($this->request('GET', '/api/oauth-consents', ['authenticatedAs' => 1]));
 
-        $ids = array_column($this->json($response)['data'], 'id');
+        $ids = array_column($this->oauthJson($response)['data'], 'id');
         $this->assertSame(['4'], $ids);
     }
 
@@ -204,7 +204,7 @@ class ConsentResourceTest extends TestCase
         $response = $this->send($this->request('GET', '/api/oauth-consents', ['authenticatedAs' => 3]));
 
         $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
-        $attributes = array_column(array_column($this->json($response)['data'], 'attributes'), null, 'clientId')['admin-client'];
+        $attributes = array_column(array_column($this->oauthJson($response)['data'], 'attributes'), null, 'clientId')['admin-client'];
 
         $this->assertEqualsWithDelta(Carbon::now()->subMinutes(30)->getTimestamp(), Carbon::parse($attributes['lastUsedAt'])->getTimestamp(), 5);
     }

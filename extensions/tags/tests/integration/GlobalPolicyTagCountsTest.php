@@ -9,6 +9,7 @@
 
 namespace Flarum\Tags\Tests\integration;
 
+use Flarum\Tags\Testing\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;

@@ -11,7 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Plan\Change;
 use Flarum\ExtensionManager\Run\Run;
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerStepsFactory;
 use Flarum\ExtensionManager\Work\Permissions;
 use Flarum\ExtensionManager\Work\StaleCache;

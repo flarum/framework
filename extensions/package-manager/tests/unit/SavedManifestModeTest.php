@@ -9,7 +9,7 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
-use Flarum\ExtensionManager\Tests\unit\EnglishTranslator;
+use Flarum\ExtensionManager\Testing\EnglishTranslator;
 use Flarum\ExtensionManager\Work\ComposerSteps;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;

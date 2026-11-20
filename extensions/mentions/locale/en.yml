@@ -127,3 +127,11 @@ flarum-mentions:
         mentioned:
           key: mentioned
           hint: The ID or username of the mentioned user
+
+core:
+  email:
+    notification:
+      types:
+        groupMentioned: Mentions of your groups
+        postMentioned: Replies to your posts
+        userMentioned: Mentions of you

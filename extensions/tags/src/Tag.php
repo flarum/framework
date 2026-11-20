@@ -246,9 +246,15 @@ class Tag extends AbstractModel
         }
     }
 
-    public function scopeWhereHasPermission(Builder $query, User $user, string $currPermission): Builder
+    /**
+     * A tag qualifies when the user has the permission in it and in its
+     * parent. With `$openParents`, an unrestricted parent qualifies as well,
+     * for callers that, like the tags DiscussionPolicy, only look at
+     * restricted tags.
+     */
+    public function scopeWhereHasPermission(Builder $query, User $user, string $currPermission, bool $openParents = false): Builder
     {
-        $hasGlobalPermission = $user->hasPermission($currPermission);
+        $hasGlobalPermission = $user->hasPermission($currPermission) || $user->hasPermission("discussion.$currPermission");
         $isAdmin = $user->isAdmin();
 
         // A tag permission is stored as `tag{id}.{permission}`. Discussion
@@ -262,7 +268,7 @@ class Tag extends AbstractModel
             ->values();
 
         return $query
-            ->where(function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
+            ->where(function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission, $openParents) {
                 $query
                     ->whereIn('tags.id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
                         static::buildPermissionSubquery($query, $isAdmin, $hasGlobalPermission, $tagIdsWithPermission);
@@ -273,6 +279,9 @@ class Tag extends AbstractModel
                                 static::buildPermissionSubquery($query, $isAdmin, $hasGlobalPermission, $tagIdsWithPermission);
                             })
                             ->orWhereNull('tags.parent_id')
+                            ->when($openParents, fn ($query) => $query->orWhereIn('tags.parent_id', function ($query) {
+                                $query->select('open_parents.id')->from('tags as open_parents')->where('open_parents.is_restricted', false);
+                            }))
                     );
             });
     }

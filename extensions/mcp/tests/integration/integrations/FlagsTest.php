@@ -11,8 +11,8 @@ namespace Flarum\Mcp\Tests\integration\integrations;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Flags\Flag;
-use Flarum\Mcp\Tests\integration\IssuesOAuthTokens;
-use Flarum\Mcp\Tests\integration\McpTestCase;
+use Flarum\Mcp\Testing\IssuesOAuthTokens;
+use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
@@ -51,7 +51,7 @@ class FlagsTest extends McpTestCase
         $response = $this->callTool('list_resources', ['type' => 'flags'], $auth);
 
         $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame(-32602, $this->json($response)['error']['code']);
+        $this->assertSame(-32602, $this->mcpJson($response)['error']['code']);
         $this->assertNull(User::findOrFail(2)->read_flags_at);
         $this->assertSame('1', $this->toolOutput($this->callTool('list_flags', [], $auth))['data'][0]['postId']);
         $this->assertNull(User::findOrFail(2)->read_flags_at);

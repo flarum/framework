@@ -11,7 +11,7 @@ namespace Flarum\OAuthProvider\Tests\integration\forum;
 
 use Flarum\Extend;
 use Flarum\OAuthProvider\Models\Consent;
-use Flarum\OAuthProvider\Tests\integration\InteractsWithOAuth;
+use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Event\LoggedOut;
@@ -63,7 +63,7 @@ class GlobalLogoutTest extends TestCase
         // A revoked refresh token presented again is refused as a reuse.
         $refreshed = $this->refresh('public-client', $tokens['refresh_token']);
         $this->assertSame(400, $refreshed->getStatusCode(), (string) $refreshed->getBody());
-        $this->assertSame('invalid_grant', $this->json($refreshed)['error']);
+        $this->assertSame('invalid_grant', $this->oauthJson($refreshed)['error']);
     }
 
     #[Test]

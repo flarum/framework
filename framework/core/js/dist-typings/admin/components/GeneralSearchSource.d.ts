@@ -23,6 +23,13 @@ export declare class GeneralSearchResult {
 export default class GeneralSearchSource implements GlobalSearchSource {
     protected results: Map<string, GeneralSearchResult[]>;
     resource: string;
+    /**
+     * Admin settings search runs in the browser and sends no requests, so a
+     * raised forum minimum does not apply to it. It searches from one character
+     * in CJK mode, where a single character is often a whole word, and follows
+     * a lowered forum minimum otherwise.
+     */
+    minSearchLength(): number;
     title(): string;
     isCached(query: string): boolean;
     search(query: string, limit: number): Promise<void>;

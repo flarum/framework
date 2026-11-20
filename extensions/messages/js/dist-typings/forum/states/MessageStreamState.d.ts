@@ -26,6 +26,13 @@ export default class MessageStreamState<P extends MessageStreamParams = MessageS
      */
     push(message: DialogMessage): void;
     /**
+     * Lets go of a message that was deleted for good, push() in reverse: every
+     * page further from the newest end than the one it was on is now one nearer,
+     * so the next load starts where it should rather than skipping a message.
+     * The page keeps its array, and with it what the server said about it.
+     */
+    remove(message: DialogMessage): void;
+    /**
      * Brings in what arrived while events were not being received, after a
      * reconnect: the newest page is fetched and whatever it holds that this
      * doesn't is taken in, oldest first. When none of it is held already, more
@@ -38,7 +45,8 @@ export default class MessageStreamState<P extends MessageStreamParams = MessageS
     static REFRESH_BATCH: number;
     /**
      * Fetches the messages held again, after a reconnect, for what changed on
-     * them while events were not being received, such as likes. They are asked
+     * them while events were not being received: likes, edits, deletions. One
+     * that doesn't come back was deleted for good, and is let go of. They are asked
      * for by id, so each one held is fetched however the pages around it moved:
      * messages that arrived live, or meanwhile, or were deleted. The store takes
      * in what comes back, and the pages stay as they are. Messages that arrived

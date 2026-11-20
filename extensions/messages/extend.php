@@ -43,13 +43,18 @@ return [
         ->default(RecipientLimit::SETTING, RecipientLimit::DEFAULT)
         ->default(GroupNames::SETTING, false)
         ->default(RecipientGroups::SETTING, '[]')
+        ->default(ReadReceipts::AFTER_SETTING, 0)
         ->default(Access\DialogMessagePolicy::EDIT_OWN, 'reply')
         ->default(Access\DialogMessagePolicy::DELETE_OWN, 'reply')
         ->serializeToForum('messagesMaxRecipients', RecipientLimit::SETTING, RecipientLimit::clamp(...)),
 
     (new Extend\Model(User::class))
         ->belongsToMany('dialogs', Dialog::class, 'dialog_user')
-        ->hasMany('dialogMessages', DialogMessage::class, 'user_id'),
+        ->hasMany('dialogMessages', DialogMessage::class, 'user_id')
+        ->cast('marked_all_dialogs_read_id', 'integer'),
+
+    (new Extend\User())
+        ->registerPreference(ReadReceipts::PREFERENCE, 'boolval', true),
 
     (new Extend\ModelVisibility(Dialog::class))
         ->scope(Access\ScopeDialogVisibility::class),
@@ -170,6 +175,10 @@ return [
                         'dialogDeleted' => $event->dialogDeleted,
                         'userIds' => $event->memberIds,
                     ],
+                )
+                ->broadcastToUsers(
+                    Dialog\Event\UserRead::class,
+                    fn (Dialog\Event\UserRead $event) => resolve(ReadReceipts::class)->signals($event),
                 )
                 ->registerModelEndpoint(DialogMessage::class, 'dialog-messages')
                 ->registerModelEndpoint(Dialog::class, 'dialogs'),

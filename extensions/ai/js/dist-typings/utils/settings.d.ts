@@ -19,6 +19,7 @@ export interface Connection {
     guardrail_version?: string;
     model?: string;
     monthly_tokens?: number;
+    include_stream_usage?: boolean;
     hasKey?: boolean;
     key?: string;
 }

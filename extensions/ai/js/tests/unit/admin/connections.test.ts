@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import app from 'flarum/admin/app';
 import AiPage from '../../../src/admin/components/AiPage';
+import ConnectionTest, { ConnectionTestState } from '../../../src/admin/components/ConnectionTest';
 import EditConnectionModal from '../../../src/admin/components/EditConnectionModal';
 import { CONNECTIONS_SETTING, DEFAULT_SETTING } from '../../../src/admin/utils/settings';
 import { bootAdmin } from './setup';
@@ -65,6 +66,26 @@ describe('testing a saved connection', () => {
 
   it("is possible while it's as saved", () => {
     expect(page().connectionChanged('claude')).toBe(false);
+  });
+
+  it('warns when a successful streamed reply has no reported usage', () => {
+    const state = new ConnectionTestState();
+    state.status = 'passed';
+    state.text = '1';
+    state.done = { type: 'done', ms: 100, model: 'claude-x', inputTokens: 0, outputTokens: 0 };
+    const container = document.createElement('div');
+    const render = () => m.render(container, m(ConnectionTest, { state }));
+
+    render();
+    expect(container.querySelector('.AiConnectionTest--passed .Alert--warning')?.textContent).toContain(
+      'flarum-ai.admin.test.no_usage_text'
+    );
+
+    state.done.outputTokens = 6;
+    render();
+    expect(container.querySelector('.AiConnectionTest--passed .Alert--warning')).toBeNull();
+    expect(container.textContent).toContain('flarum-ai.admin.test.usage_text');
+    m.render(container, null);
   });
 
   it('waits for changes to be saved', () => {

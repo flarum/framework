@@ -22,7 +22,7 @@ class ForumResourceFields
                 ->get(fn (object $model, Context $context) => $context->getActor()->can('processErasure')),
             Schema\Number::make('erasureRequestCount')
                 ->visible(fn (object $model, Context $context) => $context->getActor()->can('processErasure'))
-                ->get(fn () => ErasureRequest::query()->where('status', ErasureRequest::STATUS_USER_CONFIRMED)->count()),
+                ->get(fn () => ErasureRequest::query()->where('status', ErasureRequest::STATUS_USER_CONFIRMED)->whereHas('user')->count()),
         ];
     }
 }

@@ -8,6 +8,7 @@
     "homepage": "https://flarum.org/",
     "license": "MIT",
     "require": {
+        "composer-runtime-api": "^2.0",
         "ext-json": "*",
         "mockery/mockery": "^1.5",
         "phpunit/phpunit": "^12.5.22"
@@ -42,5 +43,8 @@
         }
     ],
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "suggest": {
+        "flarum/core": "Required for integration tests and CompiledColors (including core LESS sources)."
+    }
 }

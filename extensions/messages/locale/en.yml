@@ -78,6 +78,11 @@ flarum-messages:
       deleted_text: This message was deleted.
       edited_text: => core.forum.post.edited_text
       edited_tooltip: => core.forum.post.edited_tooltip
+      read_status:
+        read_by_everyone_tooltip: Read by everyone
+        read_by_some_tooltip: "Read by {count} of {total}"
+        read_tooltip: Read
+        sent_tooltip: Sent
 
     message_controls:
       delete_button: => core.ref.delete
@@ -106,6 +111,9 @@ flarum-messages:
         time_lapsed_text: => core.forum.post_stream.time_lapsed_text
       title: Messages
 
+    read_by_modal:
+      title: Read by
+
     rename_dialog_modal:
       help_text: Everyone in the conversation sees this name. Leave it empty to show who is in it instead.
       name_label: Name
@@ -125,6 +133,7 @@ flarum-messages:
     settings:
       notify_message_liked_label: Someone likes one of my messages
       notify_message_received_label: Someone sends me a message
+      privacy_disclose_read_receipts_label: Show others when I've read their messages (and see when they've read mine)
 
     user_controls:
       send_message_button: Send a message
@@ -180,7 +189,7 @@ flarum-gdpr:
     data:
       messages:
         export_description: Your private messages, with when they were sent and from which address.
-        anonymize_description: The addresses your private messages were sent from are removed. The messages stay.
+        anonymize_description: The addresses your private messages were sent from, and how far you have read each conversation, are removed. The messages stay.
         delete_description: Your private messages are deleted.
 
 # Labels for the audit log entries this extension produces, shown by the
@@ -205,3 +214,9 @@ flarum-statistics:
     statistics:
       dialogs_heading: PM started
       dialog_replies_heading: PM replies
+
+core:
+  email:
+    notification:
+      types:
+        messageReceived: Messages sent to you

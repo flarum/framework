@@ -59,9 +59,10 @@ class ErasureJob extends GdprJob
 
         $this->schema = $connection->getSchemaBuilder();
 
-        /** @var User */
+        /** @var User|null */
         $user = User::find($this->erasureRequest->user_id);
 
+        // The user may have been deleted since the request was made.
         if (! $user?->exists) {
             return;
         }

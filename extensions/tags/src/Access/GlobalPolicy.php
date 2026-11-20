@@ -13,22 +13,25 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
+use WeakMap;
 
 class GlobalPolicy extends AbstractPolicy
 {
     /**
-     * Verdicts per "{actor id}:{ability}", so repeated checks within a
-     * request (e.g. canStartDiscussion serialized per tag) don't re-count.
-     * An instance property rather than a function static: policies live for
-     * one container, so this can never leak across requests — or tests.
+     * Verdicts per ability, held for as long as the actor instance, so
+     * repeated checks within a request don't re-count. Keyed by instance, not
+     * ID: the gate keeps policies for the whole process, and a queue worker or
+     * the realtime daemon loads users afresh to see their current groups and
+     * permissions.
      *
-     * @var array<string, bool>
+     * @var WeakMap<User, array<string, bool>>
      */
-    protected array $enoughTags = [];
+    protected WeakMap $enoughTags;
 
     public function __construct(
         protected SettingsRepositoryInterface $settings
     ) {
+        $this->enoughTags = new WeakMap();
     }
 
     public function can(User $actor, string $ability): ?string
@@ -54,14 +57,18 @@ class GlobalPolicy extends AbstractPolicy
                 return null;
             }
 
-            $this->enoughTags["$actor->id:$ability"] ??= Tag::whereHasPermission($actor, $ability)->exists();
+            $verdicts = $this->enoughTags[$actor] ?? [];
+            $verdicts[$ability] ??= Tag::whereHasPermission($actor, $ability)->exists();
+            $this->enoughTags[$actor] = $verdicts;
 
-            return $this->enoughTags["$actor->id:$ability"] ? $this->allow() : null;
+            return $verdicts[$ability] ? $this->allow() : null;
         }
 
-        $this->enoughTags["$actor->id:$ability"] ??= $this->enoughTagsWithPermission($actor, $ability, $minPrimary, $minSecondary);
+        $verdicts = $this->enoughTags[$actor] ?? [];
+        $verdicts[$ability] ??= $this->enoughTagsWithPermission($actor, $ability, $minPrimary, $minSecondary);
+        $this->enoughTags[$actor] = $verdicts;
 
-        return $this->enoughTags["$actor->id:$ability"] ? $this->allow() : $this->deny();
+        return $verdicts[$ability] ? $this->allow() : $this->deny();
     }
 
     /**

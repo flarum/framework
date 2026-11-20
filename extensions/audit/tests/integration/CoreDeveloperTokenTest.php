@@ -9,6 +9,7 @@
 
 namespace Flarum\Audit\Tests\integration;
 
+use Flarum\Audit\Testing\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 class CoreDeveloperTokenTest extends TestCase
