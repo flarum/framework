@@ -51,3 +51,15 @@ services:
 		arguments:
 			- @Flarum\PHPStan\Extender\FilesProvider
 			- @defaultAnalysisParser
+	-
+		class: Flarum\PHPStan\Extender\InstalledExtensions
+		tags:
+			- phpstan.resultCacheMetaExtension
+	-
+		class: Flarum\PHPStan\Extender\OptionalExtensionVisitor
+		tags:
+			- phpstan.parser.richParserNodeVisitor
+	-
+		class: Flarum\PHPStan\Extender\OptionalExtensionClassIgnore
+		tags:
+			- phpstan.ignoreErrorExtension
