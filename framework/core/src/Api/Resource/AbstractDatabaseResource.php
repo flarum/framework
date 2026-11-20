@@ -237,7 +237,7 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
      * Whether the id can be a key of the model. An integer key only matches
      * digits: databases treat anything else differently (MySQL reads "2abc"
      * as 2, PostgreSQL rejects the query), so it is answered as not found.
-     * PostgreSQL also rejects digits beyond the integer column range.
+     * So are digits beyond the integer range on PostgreSQL, which rejects them.
      */
     protected function idCanBeKey(Model $model, string $id): bool
     {
