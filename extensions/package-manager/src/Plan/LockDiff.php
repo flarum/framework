@@ -163,6 +163,74 @@ class LockDiff
     }
 
     /**
+     * The abandoned packages among what a run brings in, and what each one's
+     * author suggests instead (flarum/framework#3993).
+     *
+     * From the lock Composer just wrote, which records `abandoned` as Composer
+     * read it: true, or the replacement's name. Only packages the run adds or
+     * moves, dependencies included; one it leaves as it is was already there
+     * before this run and is not news. An empty name is not abandoned, as
+     * Composer's own isAbandoned() reads it; one naming the package itself is
+     * abandoned without a replacement.
+     *
+     * A bare `true` on an archive from flarum.org/composer is left out, as
+     * core's ExtensionManager::extensionFromJson() leaves it out of the
+     * installed extension's card: those flags are unreliable, and the run
+     * panel and the card should not disagree.
+     *
+     * @param list<Change> $changes
+     * @param array<string,mixed> $after
+     * @return list<array{package:string, replacement:?string}> sorted by package
+     */
+    public function abandoned(array $changes, array $after): array
+    {
+        $locked = [];
+
+        foreach ($this->packages($after) as $package) {
+            if (isset($package['name'])) {
+                $locked[strtolower((string) $package['name'])] = $package;
+            }
+        }
+
+        $out = [];
+
+        foreach ($changes as $change) {
+            $flag = $locked[strtolower($change->package)]['abandoned'] ?? false;
+
+            if ($change->op === Change::REMOVE || ! $flag) {
+                continue;
+            }
+
+            $replacement = is_string($flag) && trim($flag) !== '' && strtolower(trim($flag)) !== strtolower($change->package)
+                ? trim($flag)
+                : null;
+
+            if ($replacement === null && $this->unreliableFlag($locked[strtolower($change->package)])) {
+                continue;
+            }
+
+            $out[] = ['package' => $change->package, 'replacement' => $replacement];
+        }
+
+        usort($out, fn (array $a, array $b) => strcmp($a['package'], $b['package']));
+
+        return $out;
+    }
+
+    /**
+     * Whether a lock entry's bare abandoned flag is one core ignores: the
+     * same check as ExtensionManager::extensionFromJson().
+     *
+     * @param array<string,mixed> $package
+     */
+    protected function unreliableFlag(array $package): bool
+    {
+        $url = $package['dist']['url'] ?? '';
+
+        return is_string($url) && str_contains($url, 'flarum.org/composer');
+    }
+
+    /**
      * @return array<string,array{0:string,1:?string}> package => [version, commit]
      *
      * The commit only for a development version, where it is the only thing

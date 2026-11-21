@@ -96,6 +96,9 @@ export default class RunPanel extends Component<RunPanelAttrs> {
   /** The run the loop is following, so a new one starts with a clean slate. */
   protected following: string | null = null;
 
+  /** The run whose abandoned packages the live region has already announced. */
+  protected abandonedSaid: string | null = null;
+
   oncreate(vnode: Mithril.VnodeDOM<RunPanelAttrs, this>) {
     super.oncreate(vnode);
     this.follow();
@@ -147,6 +150,48 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     );
   }
 
+  /**
+   * Composer's abandoned notices for what this run brings in, dependencies
+   * included, with each replacement (flarum/framework#3993). Shown from the
+   * moment the plan is worked out, before anything is downloaded, and kept on
+   * a finished or failed run. A notice only: the run carries on.
+   */
+  abandoned(run: Run) {
+    const abandoned = run.abandoned || [];
+
+    if (!abandoned.length) return null;
+
+    return (
+      <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice ExtensionManager-abandoned">
+        <p>{app.translator.trans('flarum-extension-manager.admin.run.abandoned.' + this.abandonedIntro(run), { count: abandoned.length })}</p>
+        <ul>
+          {abandoned.map((a) => (
+            <li key={a.package}>
+              {a.replacement
+                ? app.translator.trans('flarum-extension-manager.admin.run.abandoned.replaced', {
+                    package: <code>{a.package}</code>,
+                    replacement: <code>{a.replacement}</code>,
+                  })
+                : app.translator.trans('flarum-extension-manager.admin.run.abandoned.no_replacement', { package: <code>{a.package}</code> })}
+            </li>
+          ))}
+        </ul>
+      </Alert>
+    );
+  }
+
+  /**
+   * On a run that stopped, "the update goes ahead" would be false, and the
+   * notice must not read as the reason it stopped: it never is. A finished
+   * update the admin undid is rolled back too, but without an error, and
+   * there "it stopped" would be false.
+   */
+  abandonedIntro(run: Run): 'intro' | 'intro_stopped' | 'intro_undone' {
+    if (run.state === 'failed' || (run.state === 'rolled-back' && run.error)) return 'intro_stopped';
+
+    return run.state === 'rolled-back' ? 'intro_undone' : 'intro';
+  }
+
   view() {
     const run = this.attrs.run;
     if (!run) return null;
@@ -188,6 +233,8 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
         {!done && !failed && !rolled ? this.phases(run) : null}
         {!done && !failed && !rolled ? this.bar(run) : null}
+
+        {this.abandoned(run)}
 
         {failed ? (
           <div className="ExtensionManager-error">
@@ -325,12 +372,35 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     );
   }
 
-  /** The live region's sentence: progress while running, the outcome once it ends, nothing for a failure (the alert says it). */
+  /**
+   * The live region's sentence: progress while running, the outcome once it
+   * ends, nothing for a failure (the alert says it). While running, the
+   * abandoned packages are announced once, when the plan brings them; the
+   * list stays in the panel to be read at leisure.
+   */
   announcement(run: Run): string {
     if (run.state === 'done') return app.translator.trans('flarum-extension-manager.admin.run.done', {}, true);
     if (run.state === 'rolled-back') return app.translator.trans('flarum-extension-manager.admin.run.rolled_back', {}, true);
     if (run.state === 'failed') return '';
 
+    const news = this.abandonedNews(run);
+    const progress = this.progress(run);
+
+    return news && progress ? news + ' ' + progress : news || progress;
+  }
+
+  /** The abandoned packages' sentence, the first time this run has any, and never again. */
+  abandonedNews(run: Run): string {
+    const count = (run.abandoned || []).length;
+
+    if (!count || this.abandonedSaid === run.id) return '';
+
+    this.abandonedSaid = run.id;
+
+    return app.translator.trans('flarum-extension-manager.admin.run.abandoned.announce', { count }, true);
+  }
+
+  progress(run: Run): string {
     const total = (run.items || []).length;
 
     if (!total) return run.phase === 'plan' ? app.translator.trans('flarum-extension-manager.admin.run.working_out', {}, true) : '';
