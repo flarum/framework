@@ -26,6 +26,11 @@ export function bsTooltip(element: Element) {
   return ($(element) as any).data('bs.tooltip');
 }
 
+/** Whether a tooltip is currently on screen. */
+export function tooltipShown() {
+  return $('.tooltip.in').length > 0;
+}
+
 /** Removes the tips Bootstrap appended to the document. */
 export function removeTooltips() {
   $('.tooltip').remove();

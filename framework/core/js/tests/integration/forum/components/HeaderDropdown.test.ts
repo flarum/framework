@@ -4,7 +4,7 @@ import mq from 'mithril-query';
 import app from '../../../../src/forum/app';
 // Imported before HeaderDropdown so the app's component registry is set up
 // first, which avoids the circular import with NotificationsDropdown.
-import { bsTooltip, removeTooltips, useRealBootstrapTooltips } from '../../common/tooltips';
+import { bsTooltip, removeTooltips, tooltipShown, useRealBootstrapTooltips } from '../../common/tooltips';
 import HeaderDropdown from '../../../../src/forum/components/HeaderDropdown';
 
 class TestHeaderDropdown extends HeaderDropdown {
@@ -81,7 +81,7 @@ test('does not show a tooltip while the phone drawer is open', () => {
   // visible; a tooltip would cover the user menu row below it.
   const button = root.querySelector<HTMLElement>('button.Dropdown-toggle')!;
   $(button).trigger('mouseenter');
-  expect($('.tooltip.in').length).toBe(0);
+  expect(tooltipShown()).toBe(false);
 
   // The control keeps its tooltip for the header, without a redraw.
   app.drawer.hide();

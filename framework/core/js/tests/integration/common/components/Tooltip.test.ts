@@ -1,7 +1,7 @@
 import Tooltip, { type TooltipAttrs } from '../../../../src/common/components/Tooltip';
 import m from 'mithril';
 import { jest } from '@jest/globals';
-import { bsTooltip, removeTooltips, useRealBootstrapTooltips } from '../tooltips';
+import { bsTooltip, removeTooltips, tooltipShown, useRealBootstrapTooltips } from '../tooltips';
 
 beforeAll(useRealBootstrapTooltips);
 
@@ -22,10 +22,6 @@ function mount(attrs: Partial<TooltipAttrs> | (() => Partial<TooltipAttrs>)): HT
   m.mount(root, { view: () => m(Tooltip, getAttrs() as TooltipAttrs, m('button', 'Hi')) });
 
   return root.querySelector('button')!;
-}
-
-function shown(): boolean {
-  return $('.tooltip.in').length > 0;
 }
 
 describe('Tooltip', () => {
@@ -55,7 +51,7 @@ describe('Tooltip', () => {
     expect(bsTooltip(button).options.trigger).toBe('hover focus');
 
     $(button).trigger('mouseenter');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
   });
 
   it('returns to manual control when tooltipVisible changes from undefined to a boolean', () => {
@@ -67,12 +63,12 @@ describe('Tooltip', () => {
     m.redraw.sync();
 
     expect(bsTooltip(button).options.trigger).toBe('manual');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     attrs.tooltipVisible = false;
     m.redraw.sync();
 
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('applies a changed showOnFocus', () => {
@@ -94,11 +90,11 @@ describe('Tooltip', () => {
     button.dispatchEvent(new Event('touchstart', { bubbles: true }));
     $(button).trigger('mouseenter');
     button.focus();
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }));
 
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('leaves the tooltip up when the control is activated from the keyboard', () => {
@@ -106,19 +102,19 @@ describe('Tooltip', () => {
     const button = mount(attrs);
 
     button.focus();
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     // Enter and Space produce a click with no pointer detail. Bootstrap does
     // not fire `focusin` again while the element keeps focus, so hiding here
     // would take the tooltip away from the keyboard user for good.
     button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }));
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     // It still behaves like a hover/focus tooltip afterwards.
     button.blur();
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
     button.focus();
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
   });
 
   it('hides a tooltip when a tap turns into a scroll', () => {
@@ -126,11 +122,11 @@ describe('Tooltip', () => {
 
     button.dispatchEvent(new Event('touchstart', { bubbles: true }));
     $(button).trigger('mouseenter');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     button.dispatchEvent(new Event('touchmove', { bubbles: true }));
 
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('hides a tooltip when the browser takes over a touch gesture', () => {
@@ -138,11 +134,11 @@ describe('Tooltip', () => {
 
     button.dispatchEvent(new Event('touchstart', { bubbles: true }));
     $(button).trigger('mouseenter');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     button.dispatchEvent(new Event('pointercancel', { bubbles: true }));
 
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('hides a tooltip on a touch long press', () => {
@@ -150,23 +146,23 @@ describe('Tooltip', () => {
 
     button.dispatchEvent(new Event('touchstart', { bubbles: true }));
     $(button).trigger('mouseenter');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     button.dispatchEvent(new Event('contextmenu', { bubbles: true }));
 
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('keeps a manually shown tooltip shown when it is rebuilt for a new position', () => {
     const attrs: Partial<TooltipAttrs> = { text: 'Hello', tooltipVisible: true };
     const button = mount(attrs);
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     attrs.position = 'bottom';
     m.redraw.sync();
 
     expect(bsTooltip(button).options.placement).toBe('bottom');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
   });
 
   it('shows no tooltip when the text becomes empty', () => {
@@ -180,7 +176,7 @@ describe('Tooltip', () => {
     expect(button.hasAttribute('aria-label')).toBe(false);
 
     $(button).trigger('mouseenter');
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
 
     attrs.text = 'Back again';
     m.redraw.sync();
@@ -192,33 +188,33 @@ describe('Tooltip', () => {
   it('hides a manually shown tooltip when the text becomes empty, and shows it when text returns', async () => {
     const attrs: Partial<TooltipAttrs> = { text: 'Hello', tooltipVisible: true };
     mount(attrs);
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     attrs.text = '';
     m.redraw.sync();
 
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
 
     attrs.text = 'Back again';
     m.redraw.sync();
 
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
     expect($('.tooltip.in .tooltip-inner').text()).toBe('Back again');
 
     // Past the fade, so a pending hide would have detached it by now.
     await new Promise((resolve) => setTimeout(resolve, 200));
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
   });
 
   it('shows a manually visible tooltip once it gets text', () => {
     const attrs: Partial<TooltipAttrs> = { text: '', tooltipVisible: true };
     mount(attrs);
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
 
     attrs.text = 'Hello';
     m.redraw.sync();
 
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
   });
 
   it('keeps a hovered or focused tooltip shown when it is rebuilt for a new position', () => {
@@ -226,16 +222,16 @@ describe('Tooltip', () => {
     const button = mount(attrs);
 
     button.focus();
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     attrs.position = 'bottom';
     m.redraw.sync();
 
     expect(bsTooltip(button).options.placement).toBe('bottom');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     button.blur();
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('does not show a hovered tooltip early when it is rebuilt during its show delay', () => {
@@ -243,12 +239,12 @@ describe('Tooltip', () => {
     const button = mount(attrs);
 
     button.focus();
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
 
     attrs.position = 'bottom';
     m.redraw.sync();
 
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('does not show again a tooltip that other code hid', () => {
@@ -257,38 +253,38 @@ describe('Tooltip', () => {
 
     button.focus();
     bsTooltip(button).hide();
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
 
     attrs.position = 'bottom';
     m.redraw.sync();
 
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('hides a tooltip appended to the body when the page scrolls', () => {
     const button = mount({ text: 'Hello', container: 'body' });
 
     $(button).trigger('mouseenter');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     // Bootstrap positions the tip against the page when it opens, so on a
     // fixed header it would otherwise stay behind as the page scrolls.
     window.dispatchEvent(new Event('wheel'));
     window.dispatchEvent(new Event('scroll'));
 
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('leaves a tooltip beside its control alone when the page scrolls', () => {
     const button = mount({ text: 'Hello' });
 
     $(button).trigger('mouseenter');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     window.dispatchEvent(new Event('wheel'));
     window.dispatchEvent(new Event('scroll'));
 
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
   });
 
   it('keeps a container tooltip up when focus scrolls its control into view', () => {
@@ -298,7 +294,7 @@ describe('Tooltip', () => {
     button.focus();
     window.dispatchEvent(new Event('scroll'));
 
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
   });
 
   it('watches for scrolling only while a container tooltip is showing', async () => {
@@ -312,7 +308,7 @@ describe('Tooltip', () => {
     expect(scrollAdds()).toBe(0);
 
     $(button).trigger('mouseenter');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
     expect(scrollAdds()).toBe(1);
 
     $(button).trigger('mouseleave');
@@ -328,7 +324,7 @@ describe('Tooltip', () => {
     const button = mount({ text: 'Hello' });
 
     $(button).trigger('mouseenter');
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     expect(add.mock.calls.filter(([type]) => type === 'scroll')).toHaveLength(0);
   });
@@ -360,26 +356,26 @@ describe('Tooltip', () => {
     const attrs: Partial<TooltipAttrs> = { text: 'Hello', tooltipVisible: true };
     const button = mount(attrs);
     button.focus();
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     attrs.tooltipVisible = undefined;
     m.redraw.sync();
 
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     button.blur();
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('hides a manually shown tooltip when it switches to hover/focus while not hovered or focused', () => {
     const attrs: Partial<TooltipAttrs> = { text: 'Hello', tooltipVisible: true };
     mount(attrs);
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
 
     attrs.tooltipVisible = undefined;
     m.redraw.sync();
 
-    expect(shown()).toBe(false);
+    expect(tooltipShown()).toBe(false);
   });
 
   it('does not throw when rebuilt while fading in', async () => {
@@ -408,6 +404,6 @@ describe('Tooltip', () => {
     m.redraw.sync();
 
     expect(bsTooltip(button) === tooltip).toBe(true);
-    expect(shown()).toBe(true);
+    expect(tooltipShown()).toBe(true);
   });
 });
