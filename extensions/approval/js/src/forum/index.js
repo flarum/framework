@@ -9,6 +9,7 @@ import CommentPost from 'flarum/forum/components/CommentPost';
 import Button from 'flarum/common/components/Button';
 import PostControls from 'flarum/forum/utils/PostControls';
 import haptic from 'flarum/common/utils/haptic';
+import classList from 'flarum/common/utils/classList';
 
 app.initializers.add(
   'flarum-approval',
@@ -40,7 +41,7 @@ app.initializers.add(
 
     extend(PostComponent.prototype, 'elementAttrs', function (attrs) {
       if (!this.attrs.post.isApproved()) {
-        attrs.className += ' Post--unapproved';
+        attrs.className = classList(attrs.className, 'Post--unapproved');
       }
     });
 
