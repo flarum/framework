@@ -613,7 +613,10 @@ class ExtensionManager
         $extension->setInstalled(true);
         $extension->setVersion($version);
 
-        if (self::isDevVersion($version)) {
+        $normalizedVersion = Arr::get($package, 'version_normalized');
+        $versionForDevCheck = is_string($normalizedVersion) && $normalizedVersion !== '' ? $normalizedVersion : $version;
+
+        if (self::isDevVersion($versionForDevCheck)) {
             $extension->setCommit(self::extractCommit($package));
         }
 
@@ -650,6 +653,8 @@ class ExtensionManager
 
     protected static function isDevVersion(string $version): bool
     {
+        $version = strtolower($version);
+
         return str_starts_with($version, 'dev-') || str_ends_with($version, '-dev');
     }
 
@@ -685,7 +690,7 @@ class ExtensionManager
         $subExtConfs = [];
 
         foreach ($subExtPaths as $subExtPath) {
-            if (! is_string($subExtPath) || $subExtPath === '' || str_contains($subExtPath, '..')) {
+            if (! is_string($subExtPath) || $subExtPath === '' || in_array('..', explode('/', str_replace('\\', '/', $subExtPath)), true)) {
                 continue;
             }
 
