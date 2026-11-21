@@ -25,7 +25,27 @@ class TestHeaderDropdown extends HeaderDropdown {
 
 beforeAll(useRealBootstrapTooltips);
 
-afterEach(removeTooltips);
+let root: HTMLElement | undefined;
+
+beforeEach(() => {
+  // The test DOM has no drawer element, which the focus trap would need.
+  jest.spyOn(app.drawer.focusTrap, 'activate').mockImplementation(() => {});
+  jest.spyOn(app.drawer.focusTrap, 'deactivate').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  if (root) {
+    m.mount(root, null);
+    root.remove();
+    root = undefined;
+  }
+
+  // Also runs when an assertion fails, so the drawer cannot leak into the
+  // next test.
+  app.drawer.hide();
+  removeTooltips();
+  jest.restoreAllMocks();
+});
 
 test('keeps the new indicator, accessible name, and click handler with a custom tooltip', () => {
   const load = jest.fn();
@@ -51,12 +71,11 @@ test('keeps the new indicator, accessible name, and click handler with a custom 
 });
 
 test('does not show a tooltip while the phone drawer is open', () => {
-  const appElement = document.getElementById('app')!;
-  const root = document.createElement('div');
+  root = document.createElement('div');
   document.body.appendChild(root);
-
-  appElement.classList.add('drawerOpen');
   m.mount(root, { view: () => m(TestHeaderDropdown, { label: 'Notifications', state: { load: () => {} } }) });
+
+  app.drawer.show();
 
   // The drawer stacks the controls, and the label on this one is already
   // visible; a tooltip would cover the user menu row below it.
@@ -65,11 +84,8 @@ test('does not show a tooltip while the phone drawer is open', () => {
   expect($('.tooltip.in').length).toBe(0);
 
   // The control keeps its tooltip for the header, without a redraw.
-  appElement.classList.remove('drawerOpen');
+  app.drawer.hide();
   $(button).trigger('mouseleave');
   $(button).trigger('mouseenter');
   expect($('.tooltip.in .tooltip-inner').text()).toBe('Notifications');
-
-  m.mount(root, null);
-  root.remove();
 });
