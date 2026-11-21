@@ -296,12 +296,14 @@ class ErrorPageTest extends TestCase
             'white' => ['#ffffff', '#536F90', '#ffffff', 'hsl(212,20%,10%)', $themeText, '#ffffff'],
             'short white' => ['#fff', '#536F90', '#fff', 'hsl(212,20%,10%)', $themeText, '#fff'],
             'black' => ['#000', '#536F90', '#000', '#fff', '#000', '#828282'],
-            'blue' => ['#536F90', '#536F90', '#536F90', '#fff', '#536F90', '#6583a6'],
+            'blue' => ['#536F90', '#536F90', '#536F90', '#fff', '#536F90', '#6986a8'],
+            'default install colors' => ['#4D698E', '#4D698E', '#4D698E', '#fff', '#4D698E', '#6785ac'],
             'mid-grey prefers white text like the forum' => ['#777', '#536F90', '#777', '#fff', $themeText, '#818181'],
             'mid-light grey on a blue secondary' => ['#818181', '#00f', '#818181', 'hsl(240,20%,10%)', $themeText, '#818181'],
             'mid-light grey on a yellow secondary' => ['#818181', '#ff0', '#818181', 'hsl(60,20%,10%)', $themeText, '#868686'],
             'yellow on a blue secondary' => ['#ff0', '#00f', '#ff0', 'hsl(240,20%,10%)', $themeText, '#ff0'],
             'invalid secondary falls back to the dark body background' => ['#ffffff', 'red', '#ffffff', '#1a2333', $themeText, '#ffffff'],
+            'secondary with leading space uses the same fallback as the page' => ['#777', ' #536F90', '#777', '#fff', $themeText, '#898989'],
             'unset' => ['', '#536F90', '#000', '#fff', '#000', $themeText],
             'named colour falls back to black' => ['red', '#536F90', '#000', '#fff', '#000', $themeText],
             'rgb() falls back to black' => ['rgb(1, 2, 3)', '#536F90', '#000', '#fff', '#000', $themeText],
@@ -309,6 +311,31 @@ class ErrorPageTest extends TestCase
             '4-digit hex falls back to black' => ['#abcd', '#536F90', '#000', '#fff', '#000', $themeText],
             '8-digit hex falls back to black' => ['#aabbccdd', '#536F90', '#000', '#fff', '#000', $themeText],
         ];
+    }
+
+    #[Test]
+    public function rendered_dark_link_color_meets_the_minimum_contrast_ratio(): void
+    {
+        $this->setting('color_scheme', 'dark');
+        $this->setting('theme_primary_color', '#536F90');
+
+        $this->assertSame(1, preg_match(
+            '/--body-bg: hsl\(212,20%,10%\);\s+--text-color: #ddd;\s+--link-color: #([0-9a-f]{6});/i',
+            $this->render(),
+            $matches,
+        ));
+
+        $linearize = static fn (float $channel): float => $channel <= 0.04045
+            ? $channel / 12.92
+            : (($channel + 0.055) / 1.055) ** 2.4;
+        $luminance = static fn (float $red, float $green, float $blue): float =>
+            0.2126 * $linearize($red) + 0.7152 * $linearize($green) + 0.0722 * $linearize($blue);
+
+        // The declared CSS background is rgb(20.4, 25.16, 30.6) before byte rounding.
+        $background = $luminance(20.4 / 255, 25.16 / 255, 30.6 / 255);
+        $link = $luminance(...array_map(static fn (string $channel): float => hexdec($channel) / 255, str_split($matches[1], 2)));
+
+        $this->assertGreaterThanOrEqual(4.5, ($link + 0.05) / ($background + 0.05));
     }
 
     #[Test]
@@ -327,11 +354,13 @@ class ErrorPageTest extends TestCase
     public function error_page_is_dark_when_the_forum_is_dark_high_contrast(): void
     {
         $this->setting('color_scheme', 'dark-hc');
+        $this->setting('theme_primary_color', '#777');
 
         $html = $this->render();
 
         $this->assertStringContainsString('@media all', $html);
         $this->assertStringNotContainsString('prefers-color-scheme', $html);
+        $this->assertMatchesRegularExpression('/background: #777;\s+color: #000;/', $html);
     }
 
     #[Test]

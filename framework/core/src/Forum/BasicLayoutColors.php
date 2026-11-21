@@ -21,21 +21,22 @@ final class BasicLayoutColors
     private const FALLBACK_DARK_BACKGROUND = '1a2333';
 
     /** @return array{primaryColor: string, buttonTextColor: string, lightLinkColor: string, darkLinkColor: string} */
-    public static function forPrimaryColor(string $primary, string $secondary, string $darkBackground): array
+    public static function forPrimaryColor(string $primary, string $secondary, string $darkBackground, bool $highContrast): array
     {
         $primary = ltrim(trim($primary), '#');
         $primaryHex = self::expandHex($primary);
         $primaryColor = $primaryHex === null ? '#000' : '#'.$primary;
         $primaryLuminance = $primaryHex === null ? 0.0 : self::hexLuminance($primaryHex);
         $darkLuminance = self::darkBackgroundLuminance($secondary);
+        $darkTextLuminance = $highContrast ? 0.0 : $darkLuminance;
 
         return [
             'primaryColor' => $primaryColor,
             // The forum's primary buttons choose between white and --text-on-light,
-            // the dark body background (see the JS isDark utility).
-            'buttonTextColor' => self::contrast($primaryLuminance, 1.0) >= self::contrast($primaryLuminance, $darkLuminance)
+            // which is black in high-contrast themes and the dark body background otherwise.
+            'buttonTextColor' => self::contrast($primaryLuminance, 1.0) >= self::contrast($primaryLuminance, $darkTextLuminance)
                 ? '#fff'
-                : $darkBackground,
+                : ($highContrast ? '#000' : $darkBackground),
             'lightLinkColor' => self::contrast($primaryLuminance, 1.0) >= self::MIN_TEXT_CONTRAST
                 ? $primaryColor
                 : 'var(--text-color)',
@@ -59,9 +60,12 @@ final class BasicLayoutColors
 
         for ($step = 1; $step <= 100; $step++) {
             $rgb = self::hslRgb($hue, $saturation, min(1.0, $lightness + $step / 100));
+            // The browser receives hex, so measure the same rounded channels we emit.
+            $bytes = array_map(static fn (float $channel): int => (int) round($channel * 255), $rgb);
+            [$red, $green, $blue] = $bytes;
 
-            if (self::contrast(self::rgbLuminance($rgb), $backgroundLuminance) >= self::MIN_TEXT_CONTRAST) {
-                return sprintf('#%02x%02x%02x', ...$rgb);
+            if (self::contrast(self::luminance($red / 255, $green / 255, $blue / 255), $backgroundLuminance) >= self::MIN_TEXT_CONTRAST) {
+                return sprintf('#%02x%02x%02x', ...$bytes);
             }
         }
 
@@ -93,7 +97,7 @@ final class BasicLayoutColors
      */
     private static function darkBackgroundLuminance(string $secondary): float
     {
-        $hex = self::expandHex(ltrim(trim($secondary), '#'));
+        $hex = self::expandHex(ltrim($secondary, '#'));
 
         if ($hex === null) {
             // computeDarkBodyBg() falls back to this colour too.
@@ -103,7 +107,7 @@ final class BasicLayoutColors
         [$hue, $saturation] = self::hexToHsl($hex);
 
         // computeDarkBodyBg() rounds the hue and saturation to whole numbers.
-        return self::rgbLuminance(self::hslRgb(
+        return self::luminance(...self::hslRgb(
             round($hue),
             round(min(self::DARK_BACKGROUND_MAX_SATURATION, $saturation) * 100) / 100,
             self::DARK_BACKGROUND_LIGHTNESS
@@ -136,25 +140,19 @@ final class BasicLayoutColors
         return [$hue < 0 ? $hue + 360 : $hue, $saturation, $lightness];
     }
 
-    /** @return array{int, int, int} */
+    /** @return array{float, float, float} */
     private static function hslRgb(float $hue, float $saturation, float $lightness): array
     {
         $amplitude = $saturation * min($lightness, 1 - $lightness);
 
         // Convert HSL to sRGB using the CSS Color channel formula.
-        $channel = static function (int $offset) use ($hue, $lightness, $amplitude): int {
+        $channel = static function (int $offset) use ($hue, $lightness, $amplitude): float {
             $position = fmod($offset + $hue / 30, 12);
 
-            return (int) round(255 * ($lightness - $amplitude * max(-1, min($position - 3, 9 - $position, 1))));
+            return $lightness - $amplitude * max(-1, min($position - 3, 9 - $position, 1));
         };
 
         return [$channel(0), $channel(8), $channel(4)];
-    }
-
-    /** @param array{int, int, int} $rgb */
-    private static function rgbLuminance(array $rgb): float
-    {
-        return self::luminance($rgb[0] / 255, $rgb[1] / 255, $rgb[2] / 255);
     }
 
     private static function luminance(float $red, float $green, float $blue): float
