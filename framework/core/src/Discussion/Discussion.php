@@ -114,6 +114,21 @@ class Discussion extends AbstractModel
         });
     }
 
+    public function delete()
+    {
+        if (! $this->exists) {
+            return parent::delete();
+        }
+
+        return $this->getConnection()->transaction(function () {
+            // Prevent another post from being inserted before the cascade.
+            $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->get(['id']);
+
+            // The cascade includes posts whose types are no longer registered.
+            return Post::deleteWithEvents($this->posts()->getQuery()->withoutGlobalScopes(), parent::delete(...));
+        });
+    }
+
     /**
      * Start a new discussion. Raises the DiscussionWasStarted event.
      */

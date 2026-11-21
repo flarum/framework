@@ -15,7 +15,9 @@ use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\DeletingPosts;
 use Flarum\User\User;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -113,6 +115,89 @@ class Post extends AbstractModel
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
+    }
+
+    public function delete()
+    {
+        if (! $this->exists) {
+            return parent::delete();
+        }
+
+        return self::deleteWithEvents(
+            $this->newModelQuery()->whereKey($this->getKey()),
+            fn (array $ids) => $ids ? parent::delete() : false,
+        );
+    }
+
+    public function save(array $options = [])
+    {
+        // ModelPrivate checkers can change visibility during the saving event.
+        // Keep the update and dependent listeners in the same transaction.
+        if ($this->exists) {
+            return $this->withDiscussionLock(fn () => parent::save($options));
+        }
+
+        return parent::save($options);
+    }
+
+    /**
+     * Run a post mutation with its discussion locked before the post.
+     *
+     * @template T
+     * @param \Closure(): T $callback
+     * @return T
+     */
+    public function withDiscussionLock(\Closure $callback, int $attempts = 1): mixed
+    {
+        $db = $this->getConnection();
+
+        return $db->transaction(function () use ($db, $callback) {
+            $db->table('discussions')->where('id', $this->discussion_id)->lockForUpdate()->first(['id']);
+
+            return $callback();
+        }, $attempts);
+    }
+
+    /**
+     * @template T
+     * @param Builder<Post> $posts A single-table, unpaginated filter on posts.
+     * @param \Closure(list<int>): T $delete Delete the supplied locked post IDs, or return false to cancel.
+     * @param list<int> $userIds Other users to lock alongside those requested by deletion listeners.
+     * @return T
+     */
+    public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = []): mixed
+    {
+        $query = $posts->toBase();
+        if ($query->from !== 'posts' || $query->limit !== null || $query->offset !== null ||
+            $query->orders || $query->joins || $query->groups || $query->havings || $query->unions ||
+            $query->groupLimit || $query->distinct) {
+            throw new \InvalidArgumentException('Post deletion requires an unordered, unpaginated query on posts.');
+        }
+
+        $db = $query->getConnection();
+
+        return $db->transaction(function () use ($query, $db, $delete, $userIds) {
+            $discussionIds = $db->table('discussions')
+                ->whereIn('id', (clone $query)->select('posts.discussion_id'))
+                ->orderBy('id')->lockForUpdate()->pluck('id');
+
+            $ids = (clone $query)
+                ->whereIntegerInRaw('posts.discussion_id', $discussionIds)
+                ->orderBy('posts.id')->lockForUpdate()->pluck('posts.id')
+                ->map(fn ($id) => (int) $id)->all();
+
+            $event = new DeletingPosts($db, $ids, $userIds);
+            resolve(Dispatcher::class)->dispatch($event);
+            $event->acquireUserLocks();
+
+            $result = $delete($ids);
+
+            if ($result !== false) {
+                $event->complete();
+            }
+
+            return $result;
+        });
     }
 
     /**

@@ -13,6 +13,7 @@ use Flarum\Api\Context;
 use Flarum\Api\Schema;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
+use Flarum\Likes\LikeCount;
 use Flarum\Post\Post;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Expression;
@@ -25,22 +26,42 @@ class PostResourceFields
     {
         return [
             Schema\Boolean::make('isLiked')
-                ->description('Write-only: set to true to like the post as you, false to unlike it.')
+                ->description('Write-only: on an existing post, set to true to like it as you, false to unlike it.')
                 ->visible(false)
                 ->writable(fn (Post $post, Context $context) => $context->getActor()->can('like', $post))
                 ->set(function (Post $post, bool $liked, Context $context) {
+                    // The create endpoint can receive isLiked before the post exists.
+                    if (! $post->exists) {
+                        return;
+                    }
+
                     $actor = $context->getActor();
+                    $db = $post->getConnection();
 
-                    $currentlyLiked = $post->likes()->where('user_id', $actor->id)->exists();
+                    [$changed, $likeCount] = $post->withDiscussionLock(function () use ($db, $post, $actor, $liked) {
+                        // Match the discussion, post, then user lock order in deletion.
+                        $post->newModelQuery()->whereKey($post->id)->lockForUpdate()->firstOrFail(['id']);
+                        $db->table('users')->where('id', $actor->id)->lockForUpdate()->get(['id']);
 
-                    if ($liked && ! $currentlyLiked) {
-                        $post->likes()->attach($actor->id);
+                        $currentlyLiked = $db->table('post_likes')->where('post_id', $post->id)
+                            ->where('user_id', $actor->id)->lockForUpdate()->first(['user_id']) !== null;
 
-                        $post->raise(new PostWasLiked($post, $actor));
-                    } elseif (! $liked && $currentlyLiked) {
-                        $post->likes()->detach($actor->id);
+                        if ($liked && ! $currentlyLiked) {
+                            $post->likes()->attach($actor->id);
+                        } elseif (! $liked && $currentlyLiked) {
+                            $post->likes()->detach($actor->id);
+                        }
 
-                        $post->raise(new PostWasUnliked($post, $actor));
+                        resolve(LikeCount::class)->refresh([$actor->id]);
+
+                        return [$liked !== $currentlyLiked, $db->table('users')->where('id', $actor->id)->value('like_count')];
+                    }, 3);
+
+                    $actor->like_count = (int) $likeCount;
+                    $actor->syncOriginalAttribute('like_count');
+
+                    if ($changed) {
+                        $post->raise($liked ? new PostWasLiked($post, $actor) : new PostWasUnliked($post, $actor));
                     }
                 }),
 

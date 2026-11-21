@@ -106,6 +106,23 @@ class ErasureJob extends GdprJob
         ));
     }
 
+    public function failed(): void
+    {
+        $request = $this->erasureRequest;
+        $user = User::query()->find($request->user_id);
+
+        // A failure sending the completion email must not reopen a completed erasure.
+        if (! $user || ($request->processed_mode === ErasureRequest::MODE_ANONYMIZATION && $user->anonymized)) {
+            return;
+        }
+
+        $request->status = $request->user_confirmed_at
+            ? ErasureRequest::STATUS_USER_CONFIRMED
+            : ErasureRequest::STATUS_MANUAL;
+        $request->processed_at = null;
+        $request->save();
+    }
+
     private function deletion(User $user, DataProcessor $processor): void
     {
         foreach ($processor->types() as $type => $extension) {
