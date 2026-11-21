@@ -63,10 +63,12 @@ class StickyExcerptTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $table = 'from '.$db->getTablePrefix().'posts';
+        // Only statements that select from posts; the discussion list's own
+        // query may reference posts in a subquery.
+        $table = preg_quote($db->getTablePrefix().'posts', '/');
         $postsQueries = array_values(array_filter(
             array_column($db->getQueryLog(), 'query'),
-            fn (string $sql) => str_contains(str_replace(['`', '"'], '', $sql), $table)
+            fn (string $sql) => (bool) preg_match('/^select [^(]*? from '.$table.'\b/', str_replace(['`', '"'], '', $sql))
         ));
         $db->flushQueryLog();
 
