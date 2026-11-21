@@ -328,8 +328,7 @@ class ErrorPageTest extends TestCase
         $linearize = static fn (float $channel): float => $channel <= 0.04045
             ? $channel / 12.92
             : (($channel + 0.055) / 1.055) ** 2.4;
-        $luminance = static fn (float $red, float $green, float $blue): float =>
-            0.2126 * $linearize($red) + 0.7152 * $linearize($green) + 0.0722 * $linearize($blue);
+        $luminance = static fn (float $red, float $green, float $blue): float => 0.2126 * $linearize($red) + 0.7152 * $linearize($green) + 0.0722 * $linearize($blue);
 
         // The declared CSS background is rgb(20.4, 25.16, 30.6) before byte rounding.
         $background = $luminance(20.4 / 255, 25.16 / 255, 30.6 / 255);
