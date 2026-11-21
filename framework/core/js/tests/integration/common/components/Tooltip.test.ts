@@ -224,6 +224,30 @@ describe('Tooltip', () => {
     expect(shown()).toBe(false);
   });
 
+  it('hides a tooltip appended to the body when the page scrolls', () => {
+    const button = mount({ text: 'Hello', container: 'body' });
+
+    $(button).trigger('mouseenter');
+    expect(shown()).toBe(true);
+
+    // Bootstrap positions the tip against the page when it opens, so on a
+    // fixed header it would otherwise stay behind as the page scrolls.
+    window.dispatchEvent(new Event('scroll'));
+
+    expect(shown()).toBe(false);
+  });
+
+  it('leaves a tooltip beside its control alone when the page scrolls', () => {
+    const button = mount({ text: 'Hello' });
+
+    $(button).trigger('mouseenter');
+    expect(shown()).toBe(true);
+
+    window.dispatchEvent(new Event('scroll'));
+
+    expect(shown()).toBe(true);
+  });
+
   it('applies changed html and container options', () => {
     const attrs: Partial<TooltipAttrs> = { text: 'Hello' };
     const button = mount(attrs);

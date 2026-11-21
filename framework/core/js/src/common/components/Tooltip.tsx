@@ -219,6 +219,8 @@ export default class Tooltip extends Component<TooltipAttrs> {
     this.checkDomNodeChanged();
     this.bindActivation();
     this.recreateTooltip();
+
+    window.addEventListener('scroll', this.onScroll, { passive: true });
   }
 
   onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
@@ -238,6 +240,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
   onremove(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
     super.onremove(vnode);
 
+    window.removeEventListener('scroll', this.onScroll);
     this.destroyTooltip();
   }
 
@@ -250,6 +253,24 @@ export default class Tooltip extends Component<TooltipAttrs> {
    */
   private hideOnActivate = () => {
     // Manually controlled tooltips are left to the code that manages them.
+    if (typeof this.attrs.tooltipVisible === 'boolean') return;
+    if (this.childDomNode === null) return;
+
+    const tooltip = $(this.childDomNode).data('bs.tooltip');
+    if (tooltip?.$tip?.hasClass('in')) this.hideTooltip();
+  };
+
+  /**
+   * Hides a tooltip that was appended to a container on scroll.
+   *
+   * Bootstrap 3 positions such a tooltip against the page when it opens, and
+   * does not move it again. For a trigger in the fixed header that leaves the
+   * tooltip behind over the content as the page scrolls; hiding it is better
+   * than pointing at the wrong control. Tooltips left beside their trigger move
+   * with it and need no handling.
+   */
+  private onScroll = () => {
+    if (!this.attrs.container) return;
     if (typeof this.attrs.tooltipVisible === 'boolean') return;
     if (this.childDomNode === null) return;
 
