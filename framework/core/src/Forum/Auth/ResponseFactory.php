@@ -33,8 +33,11 @@ class ResponseFactory
      * @param string   $identifier            The provider's unique identifier for this user.
      * @param callable $configureRegistration Callback that populates a {@see Registration} instance
      *                                        with data from the provider (email, username, avatar, etc.).
-     * @param string   $returnTo              Validated same-origin URL to redirect to after login.
-     *                                        Must be validated by the caller before being passed here.
+     * @param string   $returnTo              Validated same-origin path to redirect to after login.
+     *                                        Must be validated by the caller — see
+     *                                        {@see \Flarum\Http\ReturnUrlValidator::validatePath()}, or
+     *                                        {@see \Flarum\Http\ReturnUrlValidator::validate()} for an
+     *                                        absolute URL on a host listed under `redirectDomains`.
      */
     public function make(
         string $provider,
