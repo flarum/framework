@@ -14,7 +14,7 @@ use Flarum\User\User;
 
 /**
  * Some or all of a post's flags are gone: dismissed, the post deleted, or the post
- * approved (its approval flag). Fired once per removal, after the flags are gone,
+ * approved (its approval or Akismet flag). Fired once per removal, after the flags are gone,
  * unlike Deleting, which fires for each dismissed flag beforehand.
  */
 class Cleared
