@@ -58,7 +58,7 @@ class IdWithSlugDriver implements SlugDriverInterface, BatchSlugDriverInterface
             $idToInput[$this->id($slug)] = $slug;
         }
 
-        $ids = array_filter(array_keys($idToInput), fn (int $id) => IntegerKey::fits(new Tag, $id));
+        $ids = IntegerKey::filter(new Tag, array_keys($idToInput));
 
         $tags = $this->repository
             ->queryVisibleTo($actor)

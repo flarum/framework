@@ -50,6 +50,37 @@ class BigIntegerIdTest extends TestCase
     }
 
     #[Test]
+    public function id_beyond_the_32_bit_range_finds_a_record_in_a_later_schema()
+    {
+        $db = $this->database();
+
+        if ($db->getDriverName() !== 'pgsql') {
+            $this->markTestSkipped('Schemas are a PostgreSQL feature.');
+        }
+
+        $table = $db->getTablePrefix().'unsubscribe_tokens';
+
+        $db->statement('create schema if not exists later_schema');
+        $db->statement("create table later_schema.\"$table\" (like public.\"$table\" including all)");
+        $db->statement("insert into later_schema.\"$table\" (id, user_id, email_type, token, created_at) values (2147483649, 1, 'test', 'def', now())");
+
+        try {
+            $db->statement("alter table public.\"$table\" rename to \"{$table}_hidden\"");
+            $db->statement('set search_path to public, later_schema');
+
+            $response = $this->send(
+                $this->request('GET', '/api/big-integer-keys/2147483649', ['authenticatedAs' => 1])
+            );
+
+            $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        } finally {
+            $db->statement('set search_path to public');
+            $db->statement("alter table public.\"{$table}_hidden\" rename to \"$table\"");
+            $db->statement('drop schema later_schema cascade');
+        }
+    }
+
+    #[Test]
     public function id_beyond_the_bigint_range_is_not_found()
     {
         $response = $this->send(
