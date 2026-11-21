@@ -130,6 +130,7 @@ class InfoCommand extends AbstractCommand
 
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
             $abandoned = $extension->getAbandoned();
+            $commit = $this->findPackageVersion($extension->getPath()) ?? $extension->getCommit();
             $notesText = '';
 
             if ($abandoned) {
@@ -140,7 +141,7 @@ class InfoCommand extends AbstractCommand
                     $table->addRow([
                         "<error>{$extension->getId()}</error>",
                         "<error>{$extension->getVersion()}</error>",
-                        "<error>{$this->findPackageVersion($extension->getPath())}</error>",
+                        "<error>{$commit}</error>",
                         "<error>{$notesText}</error>"
                     ]);
                 } else {
@@ -149,7 +150,7 @@ class InfoCommand extends AbstractCommand
                     $table->addRow([
                         "<comment>{$extension->getId()}</comment>",
                         "<comment>{$extension->getVersion()}</comment>",
-                        "<comment>{$this->findPackageVersion($extension->getPath())}</comment>",
+                        "<comment>{$commit}</comment>",
                         "<comment>{$notesText}</comment>"
                     ]);
                 }
@@ -157,7 +158,7 @@ class InfoCommand extends AbstractCommand
                 $table->addRow([
                     $extension->getId(),
                     $extension->getVersion(),
-                    $this->findPackageVersion($extension->getPath()),
+                    $commit,
                     $notesText
                 ]);
             }

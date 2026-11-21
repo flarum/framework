@@ -20,6 +20,7 @@ export interface Extension {
   id: string;
   name: string;
   version: string;
+  commit?: string | null;
   description?: string;
   icon?: {
     name: string;

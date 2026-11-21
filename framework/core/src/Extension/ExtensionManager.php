@@ -606,9 +606,19 @@ class ExtensionManager
         // Instantiates an Extension object using the package path and composer.json file.
         $extension = new Extension($path, $package);
 
+        $version = Arr::get($package, 'version', '0.0');
+        $version = is_string($version) ? $version : '0.0';
+
         // Per default all extensions are installed if they are registered in composer.
         $extension->setInstalled(true);
-        $extension->setVersion(Arr::get($package, 'version', '0.0'));
+        $extension->setVersion($version);
+
+        $normalizedVersion = Arr::get($package, 'version_normalized');
+        $versionForDevCheck = is_string($normalizedVersion) && $normalizedVersion !== '' ? $normalizedVersion : $version;
+
+        if (self::isDevVersion($versionForDevCheck)) {
+            $extension->setCommit(self::extractCommit($package));
+        }
 
         $packageName = Arr::get($package, 'name');
 
@@ -641,6 +651,36 @@ class ExtensionManager
         return $extension;
     }
 
+    protected static function isDevVersion(string $version): bool
+    {
+        $version = strtolower($version);
+
+        return str_starts_with($version, 'dev-') || str_ends_with($version, '-dev');
+    }
+
+    /**
+     * Resolve the commit SHA for the actual installation source, ignoring
+     * `dist.reference` on `path` repositories (which may be a config hash).
+     */
+    protected static function extractCommit(array $package): ?string
+    {
+        $sourceRef = Extension::sanitizeCommit(Arr::get($package, 'source.reference'));
+
+        if (Arr::get($package, 'installation-source') === 'source') {
+            return $sourceRef;
+        }
+
+        if (Arr::get($package, 'dist.type') !== 'path') {
+            $distRef = Extension::sanitizeCommit(Arr::get($package, 'dist.reference'));
+
+            if ($distRef !== null) {
+                return $distRef;
+            }
+        }
+
+        return $sourceRef;
+    }
+
     protected function subExtensionConfsFromJson(array $package, string $packagePath): ?array
     {
         if (! ($subExtPaths = Arr::get($package, 'extra.flarum-subextensions', []))) {
@@ -650,10 +690,25 @@ class ExtensionManager
         $subExtConfs = [];
 
         foreach ($subExtPaths as $subExtPath) {
+            if (! is_string($subExtPath) || $subExtPath === '' || in_array('..', explode('/', str_replace('\\', '/', $subExtPath)), true)) {
+                continue;
+            }
+
             $subPackagePath = "$packagePath/$subExtPath";
             $conf = json_decode($this->filesystem->get("$subPackagePath/composer.json"), true);
 
-            if (Arr::get($conf, 'type') === 'flarum-extension' && str_contains((string) Arr::get($conf, 'name', ''), '/')) {
+            if (is_array($conf) && Arr::get($conf, 'type') === 'flarum-extension' && str_contains((string) Arr::get($conf, 'name', ''), '/')) {
+                // Inherit the parent monorepo version and commit reference when the
+                // sub-extension's composer.json omits them, without copying parent URLs.
+                if (! isset($conf['version']) && isset($package['version']) && is_string($package['version'])) {
+                    $conf['version'] = $package['version'];
+                }
+
+                $parentRef = self::extractCommit($package);
+                if ($parentRef !== null && ! Arr::has($conf, 'dist.reference') && ! Arr::has($conf, 'source.reference')) {
+                    $conf['dist']['reference'] = $parentRef;
+                }
+
                 $subExtConfs[$subPackagePath] = $conf;
             }
         }
