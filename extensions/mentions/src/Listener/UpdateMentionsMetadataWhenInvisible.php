@@ -15,6 +15,7 @@ use Flarum\Mentions\UserMentionCount;
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
+use Flarum\User\User;
 
 class UpdateMentionsMetadataWhenInvisible
 {
@@ -37,7 +38,18 @@ class UpdateMentionsMetadataWhenInvisible
         $changes = $event->post->mentionsUsers()->sync([]);
         $this->notifications->sync(new UserMentionedBlueprint($event->post), []);
 
-        $this->mentionCount->refresh(array_merge($mentioned, $changes['detached']));
+        $affected = array_merge($mentioned, $changes['detached']);
+        $this->mentionCount->refresh($affected);
+
+        // A hiding request's response reports the users whose count changed so
+        // the forum can refresh them. A deletion has no response to fill.
+        if ($event instanceof Hidden && $affected && $event->actor) {
+            $event->post->setRelation('affectedMentionUsers', User::query()
+                ->whereKey($affected)
+                ->whereVisibleTo($event->actor)
+                ->with('groups')
+                ->get());
+        }
 
         // Remove post mentions
         $event->post->mentionsPosts()->sync([]);

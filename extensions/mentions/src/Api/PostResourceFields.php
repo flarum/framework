@@ -63,7 +63,7 @@ class PostResourceFields
                 // The composer uses the updated users to refresh its store.
                 ->visible(fn (Post $post, Context $context) => $context->creating()),
             Schema\Relationship\ToMany::make('affectedMentionUsers')
-                ->description('Users whose mention was added or removed by this edit.')
+                ->description('Users whose mention count this update changed.')
                 ->type('users')
                 ->includable()
                 ->visible(fn (Post $post, Context $context) => $context->updating())

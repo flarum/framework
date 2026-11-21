@@ -57,9 +57,12 @@ class UpdateMentionsMetadataWhenVisible
         );
         $this->mentionCount->refresh($affected);
 
-        if ($event instanceof Revised && $affected) {
-            // Removed mentions no longer appear in mentionsUsers. Include both
-            // sides of the edit so the composer can refresh its user models.
+        // Removed mentions no longer appear in mentionsUsers, so the update
+        // response reports both sides. Restoring or approving a post changes
+        // counts without changing its mentions, and those responses need the
+        // users too. A new post's response includes its mentioned users
+        // instead, and a restore outside a request has no response to fill.
+        if ($affected && $event->actor && ! ($event instanceof Posted)) {
             $event->post->setRelation('affectedMentionUsers', User::query()
                 ->whereKey($affected)
                 ->whereVisibleTo($event->actor)

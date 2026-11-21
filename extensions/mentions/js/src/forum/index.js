@@ -10,6 +10,7 @@ import addPostReplyAction from './addPostReplyAction';
 import addPostQuoteButton from './addPostQuoteButton';
 import addComposerAutocomplete from './addComposerAutocomplete';
 import MentionFormats from './mentionables/formats/MentionFormats';
+import refreshMentionsOnPostSave from './utils/refreshMentionsOnPostSave';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
 
@@ -72,6 +73,12 @@ app.initializers.add('flarum-mentions', () => {
 
   // Remove post mentions when rendering post previews.
   getPlainContent.removeSelectors.push('a.PostMention');
+
+  // A saved post can mention, or stop mentioning, users: editing, hiding,
+  // restoring and approving all change who a post mentions or whether its
+  // mentions count. The response carries their new counts, and a Mentions tab
+  // that is open reloads its list so the two cannot disagree.
+  refreshMentionsOnPostSave();
 
   // Apply color contrast fix on group mentions.
   extend(Post.prototype, 'oncreate', function () {

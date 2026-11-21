@@ -249,6 +249,38 @@ class UserMentionCountTest extends TestCase
     }
 
     #[Test]
+    #[DataProvider('postEditors')]
+    public function removing_the_only_mention_reports_the_users_new_count(int $editorId): void
+    {
+        $postId = $this->reply('@"potato"#3 hello', $editorId);
+        $this->assertSame(1, $this->mentionCountOf(3));
+
+        $payload = $this->patchPost($postId, $editorId, ['content' => 'hello']);
+
+        $this->assertSame([3 => 0], $this->affectedMentionCounts($payload));
+        $this->assertSame(0, $this->mentionCountOf(3));
+    }
+
+    #[Test]
+    #[DataProvider('postModerators')]
+    public function hiding_and_restoring_a_post_reports_the_users_new_counts(int $moderatorId): void
+    {
+        $postId = $this->reply('@"potato"#3 hello');
+
+        $payload = $this->patchPost($postId, $moderatorId, ['isHidden' => true]);
+        $this->assertSame([3 => 0], $this->affectedMentionCounts($payload));
+
+        $payload = $this->patchPost($postId, $moderatorId, ['isHidden' => false]);
+        $this->assertSame([3 => 1], $this->affectedMentionCounts($payload));
+    }
+
+    public static function postModerators(): iterable
+    {
+        yield 'admin' => [1];
+        yield 'moderator' => [4];
+    }
+
+    #[Test]
     public function approving_an_already_synced_mention_updates_the_count()
     {
         $this->extension('flarum-approval', 'flarum-flags');
@@ -257,7 +289,8 @@ class UserMentionCountTest extends TestCase
         $this->app()->getContainer()->make(\Flarum\Mentions\UserMentionCount::class)->refresh([3]);
         $this->assertSame(0, $this->mentionCountOf(3));
 
-        $this->patchPost($postId, 1, ['isApproved' => true]);
+        $payload = $this->patchPost($postId, 1, ['isApproved' => true]);
+        $this->assertSame([3 => 1], $this->affectedMentionCounts($payload));
         $this->assertSame(1, $this->mentionCountOf(3));
         $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 3]));
         $this->assertEquals(200, $response->getStatusCode());
@@ -317,6 +350,27 @@ class UserMentionCountTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
 
         return json_decode((string) $response->getBody(), true);
+    }
+
+    /**
+     * The mention counts an update reported for the users it changed, by id.
+     *
+     * @return array<int, int>
+     */
+    protected function affectedMentionCounts(array $payload): array
+    {
+        $affected = array_column($payload['data']['relationships']['affectedMentionUsers']['data'] ?? [], 'id');
+        $counts = [];
+
+        foreach ($payload['included'] ?? [] as $item) {
+            if ($item['type'] === 'users' && in_array($item['id'], $affected, true)) {
+                $counts[(int) $item['id']] = $item['attributes']['mentionCount'];
+            }
+        }
+
+        ksort($counts);
+
+        return $counts;
     }
 
     protected function mentionCountOf(int $userId): int
