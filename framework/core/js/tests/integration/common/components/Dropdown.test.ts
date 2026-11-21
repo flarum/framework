@@ -12,9 +12,10 @@ beforeAll(() => bootstrapForum());
 
 describe('Dropdown displays as expected', () => {
   it('renders a split dropdown with a tooltip on its primary action', () => {
-    const dropdown = mq(m(SplitDropdown, { tooltip: 'Follow this discussion' }, [m(Button, 'Follow'), m(Button, 'Ignore')]));
+    const dropdown = mq(m(SplitDropdown, { tooltip: 'Get an email when there are new posts' }, [m(Button, 'Follow'), m(Button, 'Ignore')]));
 
-    expect(dropdown).toHaveElement('button.SplitDropdown-button[aria-label="Follow this discussion"]');
+    // The tooltip describes the action; the button is named after its label.
+    expect(dropdown).toHaveElement('button.SplitDropdown-button[aria-label="Follow"]');
     expect(dropdown).toHaveElement('button.Dropdown-toggle');
   });
 

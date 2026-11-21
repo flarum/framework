@@ -1,19 +1,21 @@
-import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import m from 'mithril';
 import mq from 'mithril-query';
 import { jest } from '@jest/globals';
 import GlobalSearch from '../../../../src/forum/components/GlobalSearch';
 import SearchState from '../../../../src/common/states/SearchState';
 import app from '../../../../src/forum/app';
+import { bsTooltip, removeTooltips, useRealBootstrapTooltips } from '../../common/tooltips';
 
-beforeAll(() => {
-  bootstrapForum();
+beforeAll(async () => {
+  await useRealBootstrapTooltips();
   app.boot();
 
   // The component only renders once it has somewhere to search, and the
   // sources it offers depend on what the actor is allowed to see.
   app.forum.pushAttributes({ canViewForum: true, canSearchUsers: true });
 });
+
+afterEach(removeTooltips);
 
 /**
  * Searching happens in a modal. The control in the header used to be a
@@ -41,6 +43,13 @@ describe('GlobalSearch renders a button, not a text field', () => {
   it('gives the button an accessible name', () => {
     // Its label is hidden in the header, so the name has to come from aria.
     expect(search()).toHaveElement('button.Search-input[aria-label]');
+  });
+
+  it('describes the control with the standard tooltip', () => {
+    const rendered = search();
+    const button = rendered.find('button.Search-input')[0] as HTMLElement;
+
+    expect(bsTooltip(button).getTitle()).toBe('Search Forum');
   });
 
   it('does not add a native tooltip alongside the standard tooltip', () => {
