@@ -260,6 +260,40 @@ class ErrorPageTest extends TestCase
     }
 
     #[Test]
+    #[DataProvider('standaloneContrastColors')]
+    public function error_page_uses_readable_button_and_link_colors(
+        string $primary,
+        string $buttonBackground,
+        string $buttonText,
+        string $lightLink,
+        string $darkLink,
+    ): void {
+        $this->setting('color_scheme', 'auto');
+        $this->setting('theme_primary_color', $primary);
+
+        $html = $this->render();
+
+        $this->assertMatchesRegularExpression('/background: '.preg_quote($buttonBackground, '/').';\s+color: '.preg_quote($buttonText, '/').';/', $html);
+        $this->assertMatchesRegularExpression('/--text-color: #333;\s+--link-color: '.preg_quote($lightLink, '/').';/', $html);
+        $this->assertMatchesRegularExpression('/--text-color: #ddd;\s+--link-color: '.preg_quote($darkLink, '/').';/', $html);
+    }
+
+    /** @return array<string, array{string, string, string, string, string}> */
+    public static function standaloneContrastColors(): array
+    {
+        $themeText = 'var(--text-color)';
+
+        return [
+            'white' => ['#ffffff', '#ffffff', '#000', $themeText, '#ffffff'],
+            'short white' => ['#fff', '#fff', '#000', $themeText, '#fff'],
+            'black' => ['#000', '#000', '#fff', '#000', $themeText],
+            'blue' => ['#536F90', '#536F90', '#fff', '#536F90', $themeText],
+            'mid-grey prefers black text' => ['#777', '#777', '#000', $themeText, $themeText],
+            'unset' => ['', '#000', '#fff', '#000', $themeText],
+        ];
+    }
+
+    #[Test]
     public function error_page_is_dark_when_the_forum_is(): void
     {
         $this->setting('color_scheme', 'dark');
