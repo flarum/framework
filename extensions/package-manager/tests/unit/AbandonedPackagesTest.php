@@ -23,19 +23,6 @@ use Flarum\ExtensionManager\Work\Fetcher;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Abandoned packages, flarum/framework#3993.
- *
- * Composer says which packages are abandoned, and by whom they are replaced,
- * in the lock it writes: `"abandoned": true`, or the replacement's name.
- * The plan reads that for everything the run would bring in, dependencies
- * included, so the admin is told before anything is downloaded or swapped.
- *
- * And an abandoned package must never be the reason a run fails. Composer
- * 2.9 and later can refuse them while resolving (`audit.block-abandoned`,
- * `policy.abandoned.block`); a forum with that set could not install or
- * update anything that depended on one.
- */
 class AbandonedPackagesTest extends TestCase
 {
     private string $dir;
@@ -84,12 +71,7 @@ class AbandonedPackagesTest extends TestCase
         );
     }
 
-    /**
-     * Only what the run moves. An abandoned package that is already installed
-     * and stays as it is was flagged before (core's abandoned-extensions list
-     * covers extensions); repeating it on every update of something else
-     * would be noise.
-     */
+    /** Left out on purpose: an installed package the run leaves alone was there before it. */
     public function test_an_update_names_what_it_moves_and_not_what_it_leaves_alone(): void
     {
         $this->project(installed: ['acme/widget' => '1.0.0', 'acme/old-lib' => '1.0.0', 'acme/gone' => '1.0.0']);
@@ -111,7 +93,6 @@ class AbandonedPackagesTest extends TestCase
         $this->assertStringContainsString('acme/old-lib is abandoned; its author suggests acme/new-lib instead', $note);
     }
 
-    /** The admin screen reads the list from the run, on every state including a failed one. */
     public function test_the_run_carries_the_list_to_the_screen(): void
     {
         $store = new RunStore(EnglishTranslator::make(), $this->dir.'/runs');
@@ -125,7 +106,7 @@ class AbandonedPackagesTest extends TestCase
         $this->assertSame([['package' => 'acme/old-lib', 'replacement' => 'acme/new-lib']], $store->present($store->load('r1'))['abandoned']);
     }
 
-    // ── never the reason a run fails ────────────────────────────────────
+    // ── a forum that blocks abandoned packages ──────────────────────────
 
     /** @return array<string, array{0: bool, 1: array<string,mixed>}> */
     public static function blockingConfigs(): array
@@ -140,25 +121,54 @@ class AbandonedPackagesTest extends TestCase
 
     /** @param array<string,mixed> $config */
     #[DataProvider('blockingConfigs')]
-    public function test_a_forum_that_blocks_abandoned_packages_can_still_install(bool $inProcess, array $config): void
+    public function test_a_blocked_resolve_names_the_packages_and_the_setting_that_allows_them(bool $inProcess, array $config): void
     {
         $this->project(config: $config);
 
-        $note = $this->steps(['acme/widget'], 'install', $inProcess)->doItem('plan', 'work out what changes', new Run('r1'));
+        try {
+            $this->steps(['acme/widget'], 'install', $inProcess)->doItem('plan', 'work out what changes', new Run('r1'));
+            $this->fail('The block was not applied.');
+        } catch (\RuntimeException $e) {
+            $this->assertStringStartsWith(
+                "This forum's Composer settings block abandoned packages, and the install needs acme/old-lib, which is abandoned. To allow it, list it under \"config.policy.abandoned.ignore\" in composer.json.",
+                str_replace("\n", ' ', $e->getMessage())
+            );
+            $this->assertStringContainsString('because they are abandoned', $e->getMessage());
+        }
+    }
 
-        $this->assertStringContainsString('3 packages will change', $note);
+    /** @param array<string,mixed> $config */
+    #[DataProvider('blockingConfigs')]
+    public function test_the_block_is_left_to_pick_an_older_version_without_abandoned_dependencies(bool $inProcess, array $config): void
+    {
+        $this->project(config: $config, cleanOldWidget: true);
+
+        $this->steps(['acme/widget'], 'install', $inProcess)->doItem('plan', 'work out what changes', new Run('r1'));
+
+        $this->assertSame(['acme/widget' => '0.5.0'], array_column($this->plan()['changes'], 'to', 'package'));
+        $this->assertSame([], $this->plan()['abandoned']);
+    }
+
+    public function test_listing_the_packages_under_policy_abandoned_ignore_lets_the_install_through(): void
+    {
+        $this->project(config: ['policy' => ['abandoned' => ['block' => true, 'ignore' => ['acme/old-lib' => 'test', 'acme/gone' => 'test']]]]);
+
+        $this->steps(['acme/widget'], 'install', inProcess: true)->doItem('plan', 'work out what changes', new Run('r1'));
+
         $this->assertCount(2, $this->plan()['abandoned']);
     }
 
-    public function test_composers_own_abandoned_notices_do_not_fail_the_run(): void
+    public function test_both_ways_composer_words_a_blocked_package_are_read(): void
     {
-        // Composer prints its notices; only its exit code decides failure.
-        $this->project();
-        $this->steps(['acme/widget'], 'install', inProcess: false)->doItem('plan', 'work out what changes', new Run('r1'));
+        $output = <<<'OUT'
+              - Root composer.json requires acme/widget * -> satisfiable by acme/widget[1.0.0].
+              - acme/widget 1.0.0 requires acme/old-lib 1.0.0 -> found acme/old-lib[1.0.0, 1.1.0] but these were not loaded, because they are abandoned. To turn the feature off entirely, you can set "policy.abandoned.block" to false.
+              - Package acme/gone 1.0.0 (in the lock file) was not loaded, because it is abandoned. To turn the feature off entirely, you can set "policy.abandoned.block" to false.
+              - acme/other[2.0.0] require acme/x -> found acme/x[1.0.0] but these were not loaded, because they are affected by security advisories ("PKSA-1").
+            OUT;
 
-        $lock = json_decode((string) file_get_contents($this->dir.'/project/composer.lock'), true);
-        $this->assertSame('acme/new-lib', $this->find($lock, 'acme/old-lib')['abandoned'] ?? null);
-        $this->assertTrue($this->find($lock, 'acme/gone')['abandoned'] ?? null);
+        $this->assertSame(['acme/gone', 'acme/old-lib'], ComposerSteps::blockedAsAbandoned($output));
+        $this->assertSame([], ComposerSteps::blockedAsAbandoned('Your requirements could not be resolved.'));
     }
 
     // ── reading the lock ────────────────────────────────────────────────
@@ -223,14 +233,13 @@ class AbandonedPackagesTest extends TestCase
     // ── helpers ─────────────────────────────────────────────────────────
 
     /**
-     * A project whose only source is a local package repository. acme/widget
-     * needs acme/old-lib (abandoned for acme/new-lib) and acme/gone (abandoned,
-     * no replacement).
+     * acme/widget needs acme/old-lib (abandoned for acme/new-lib) and acme/gone
+     * (abandoned, no replacement); with $cleanOldWidget, a 0.5.0 needs neither.
      *
      * @param array<string,string> $installed package => version already in the lock
      * @param array<string,mixed> $config
      */
-    private function project(array $installed = [], array $config = [], string $widgetNeeds = '1.0.0'): void
+    private function project(array $installed = [], array $config = [], string $widgetNeeds = '1.0.0', bool $cleanOldWidget = false): void
     {
         $dist = $this->dir.'/empty.zip';
         $zip = new \ZipArchive();
@@ -249,6 +258,7 @@ class AbandonedPackagesTest extends TestCase
             $package('acme/old-lib', '0.9.0', ['abandoned' => 'acme/new-lib']),
             $package('acme/old-lib', '1.0.0', ['abandoned' => 'acme/new-lib']),
             $package('acme/gone', '1.0.0', ['abandoned' => true]),
+            ...($cleanOldWidget ? [$package('acme/widget', '0.5.0')] : []),
         ];
 
         $this->writeJson('project/composer.json', [
@@ -309,18 +319,6 @@ class AbandonedPackagesTest extends TestCase
     private function plan(): array
     {
         return (array) json_decode((string) file_get_contents($this->dir.'/work/plan.json'), true);
-    }
-
-    /** @return array<string,mixed> */
-    private function find(array $lock, string $name): array
-    {
-        foreach ([...($lock['packages'] ?? []), ...($lock['packages-dev'] ?? [])] as $p) {
-            if (($p['name'] ?? null) === $name) {
-                return $p;
-            }
-        }
-
-        return [];
     }
 
     private function writeJson(string $relative, array $data): void

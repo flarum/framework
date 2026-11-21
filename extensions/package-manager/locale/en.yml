@@ -218,10 +218,9 @@ flarum-extension-manager:
 
     run:
       abandoned:
-        intro: "{count, plural, one {A package} other {# packages}} in this update {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. The update goes ahead; moving to the replacement is worth planning."
-        intro_stopped: "{count, plural, one {A package} other {# packages}} this update would bring in {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. That is not why it stopped."
-        intro_undone: "{count, plural, one {A package} other {# packages}} this update brought in {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. The update has been undone."
-        announce: "{count, plural, one {A package} other {# packages}} in this update {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. The list is in the update panel."
+        intro: "{count, plural, one {A package} other {# packages}} in this {mode, select, install {install} other {update}} {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}."
+        intro_stopped: "{count, plural, one {A package} other {# packages}} this {mode, select, install {install} other {update}} would bring in {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. That is not why it stopped."
+        announce: "{count, plural, one {A package} other {# packages}} in this {mode, select, install {install} other {update}} {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. The list is in the update panel."
         no_replacement: "{package}: no replacement is named"
         replaced: "{package}: its author suggests {replacement}"
       working: Updating
@@ -631,6 +630,7 @@ flarum-extension-manager:
       registered: "Composer now knows about the change"
       reread_done: "The web server has re-read the new files."
       resolve_failed: "Composer could not work out an update:"
+      abandoned_blocked: "This forum's Composer settings block abandoned packages, and {mode, select, install {the install} other {the update}} needs {packages}, which {count, plural, one {is} other {are}} abandoned. To allow {count, plural, one {it} other {them}}, list {count, plural, one {it} other {them}} under \"config.policy.abandoned.ignore\" in composer.json. Composer's own words:"
       resolve_gave_up: "Nothing was changed. {how} — {attempts} times in a row, before Composer finished working out this update."
       resolve_retrying: "{how} before Composer finished. Nothing was changed. Trying again (attempt {attempt} of {attempts}); Composer kept what it had already downloaded, so this attempt starts further along."
       save_before_resolve_failed: "Could not save a copy of {file} before resolving, so nothing was started."

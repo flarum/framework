@@ -150,20 +150,20 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     );
   }
 
-  /**
-   * Composer's abandoned notices for what this run brings in, dependencies
-   * included, with each replacement (flarum/framework#3993). Shown from the
-   * moment the plan is worked out, before anything is downloaded, and kept on
-   * a finished or failed run. A notice only: the run carries on.
-   */
   abandoned(run: Run) {
     const abandoned = run.abandoned || [];
 
-    if (!abandoned.length) return null;
+    // Undone, or put back after failing: the packages are gone again.
+    if (!abandoned.length || run.state === 'rolled-back') return null;
 
     return (
       <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice ExtensionManager-abandoned">
-        <p>{app.translator.trans('flarum-extension-manager.admin.run.abandoned.' + this.abandonedIntro(run), { count: abandoned.length })}</p>
+        <p>
+          {app.translator.trans('flarum-extension-manager.admin.run.abandoned.' + (run.state === 'failed' ? 'intro_stopped' : 'intro'), {
+            count: abandoned.length,
+            mode: run.mode,
+          })}
+        </p>
         <ul>
           {abandoned.map((a) => (
             <li key={a.package}>
@@ -178,18 +178,6 @@ export default class RunPanel extends Component<RunPanelAttrs> {
         </ul>
       </Alert>
     );
-  }
-
-  /**
-   * On a run that stopped, "the update goes ahead" would be false, and the
-   * notice must not read as the reason it stopped: it never is. A finished
-   * update the admin undid is rolled back too, but without an error, and
-   * there "it stopped" would be false.
-   */
-  abandonedIntro(run: Run): 'intro' | 'intro_stopped' | 'intro_undone' {
-    if (run.state === 'failed' || (run.state === 'rolled-back' && run.error)) return 'intro_stopped';
-
-    return run.state === 'rolled-back' ? 'intro_undone' : 'intro';
   }
 
   view() {
@@ -372,12 +360,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     );
   }
 
-  /**
-   * The live region's sentence: progress while running, the outcome once it
-   * ends, nothing for a failure (the alert says it). While running, the
-   * abandoned packages are announced once, when the plan brings them; the
-   * list stays in the panel to be read at leisure.
-   */
+  /** The live region's sentence: progress while running, the outcome once it ends, nothing for a failure (the alert says it). */
   announcement(run: Run): string {
     if (run.state === 'done') return app.translator.trans('flarum-extension-manager.admin.run.done', {}, true);
     if (run.state === 'rolled-back') return app.translator.trans('flarum-extension-manager.admin.run.rolled_back', {}, true);
@@ -389,7 +372,6 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     return news && progress ? news + ' ' + progress : news || progress;
   }
 
-  /** The abandoned packages' sentence, the first time this run has any, and never again. */
   abandonedNews(run: Run): string {
     const count = (run.abandoned || []).length;
 
@@ -397,7 +379,7 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
     this.abandonedSaid = run.id;
 
-    return app.translator.trans('flarum-extension-manager.admin.run.abandoned.announce', { count }, true);
+    return app.translator.trans('flarum-extension-manager.admin.run.abandoned.announce', { count, mode: run.mode }, true);
   }
 
   progress(run: Run): string {

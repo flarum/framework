@@ -119,25 +119,6 @@ class ComposerRunner
     }
 
     /**
-     * An abandoned package is never a reason to fail (flarum/framework#3993).
-     *
-     * Composer 2.9 and later can refuse abandoned packages while resolving,
-     * when a forum's composer.json sets `audit.block-abandoned` or
-     * `policy.abandoned.block`. On such a forum nothing that depends on an
-     * abandoned library could be installed or updated. The run names every
-     * abandoned package it brings in, with its replacement, so the admin
-     * decides; these switch off only the abandoned block. Malware and
-     * security-advisory blocking are left as the forum has them.
-     *
-     * Both names: COMPOSER_POLICY_ABANDONED_BLOCK is 2.10's, and
-     * COMPOSER_SECURITY_BLOCKING_ABANDONED is 2.9's, kept by 2.10 as an alias.
-     */
-    protected const ABANDONED_NOT_BLOCKING = [
-        'COMPOSER_POLICY_ABANDONED_BLOCK' => '0',
-        'COMPOSER_SECURITY_BLOCKING_ABANDONED' => '0',
-    ];
-
-    /**
      * The subprocess's whole environment: replaced, not inherited, so what
      * Composer does depends on this list and not on whatever the web server
      * happened to set.
@@ -165,7 +146,7 @@ class ComposerRunner
             'COMPOSER_MEMORY_LIMIT' => '-1',
             'COMPOSER_HOME' => $this->composerHome(),
             'HOME' => getenv('HOME') ?: $this->installPath,
-        ] + static::ABANDONED_NOT_BLOCKING;
+        ];
 
         foreach (static::NETWORK_ENV as $name) {
             $value = getenv($name, true);
@@ -252,7 +233,7 @@ class ComposerRunner
             // Symfony measures the terminal with `stty` when these are absent.
             'COLUMNS' => '120',
             'LINES' => '50',
-        ] + static::ABANDONED_NOT_BLOCKING;
+        ];
 
         if (getenv('COMPOSER_ROOT_VERSION') === false && ! isset($_SERVER['COMPOSER_ROOT_VERSION'])) {
             $env['COMPOSER_ROOT_VERSION'] = '1.0.0';

@@ -163,20 +163,8 @@ class LockDiff
     }
 
     /**
-     * The abandoned packages among what a run brings in, and what each one's
-     * author suggests instead (flarum/framework#3993).
-     *
-     * From the lock Composer just wrote, which records `abandoned` as Composer
-     * read it: true, or the replacement's name. Only packages the run adds or
-     * moves, dependencies included; one it leaves as it is was already there
-     * before this run and is not news. An empty name is not abandoned, as
-     * Composer's own isAbandoned() reads it; one naming the package itself is
-     * abandoned without a replacement.
-     *
-     * A bare `true` on an archive from flarum.org/composer is left out, as
-     * core's ExtensionManager::extensionFromJson() leaves it out of the
-     * installed extension's card: those flags are unreliable, and the run
-     * panel and the card should not disagree.
+     * Packages the run leaves unchanged are left out on purpose: they were
+     * there before it. A replacement naming the package itself doesn't count.
      *
      * @param list<Change> $changes
      * @param array<string,mixed> $after
@@ -218,8 +206,7 @@ class LockDiff
     }
 
     /**
-     * Whether a lock entry's bare abandoned flag is one core ignores: the
-     * same check as ExtensionManager::extensionFromJson().
+     * Core's card ignores these too: see ExtensionManager::extensionFromJson().
      *
      * @param array<string,mixed> $package
      */

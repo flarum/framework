@@ -253,7 +253,7 @@ class ComposerSteps implements Steps
             // Composer's own words, not a summary of them: it is usually precise
             // about which constraint could not be satisfied, and paraphrasing
             // that loses the only part anyone can act on.
-            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.resolve_failed')."\n".$result['output']);
+            throw new RuntimeException($this->resolveFailure($result['output']));
         }
 
         /*
@@ -302,12 +302,42 @@ class ComposerSteps implements Steps
         return $abandoned === [] ? $note : $note.'. '.$this->abandonedNote($abandoned);
     }
 
+    protected function resolveFailure(string $output): string
+    {
+        $blocked = static::blockedAsAbandoned($output);
+
+        $why = $blocked === []
+            ? $this->translator->trans('flarum-extension-manager.api.composer.resolve_failed')
+            : $this->translator->trans('flarum-extension-manager.api.composer.abandoned_blocked', ['count' => count($blocked), 'packages' => implode(', ', $blocked), 'mode' => $this->mode]);
+
+        // The error box doesn't wrap, so Composer's lines keep their exact text; this one is ours.
+        return wordwrap($why, 80)."\n".$output;
+    }
+
     /**
-     * Composer's abandoned notices, in the run's own words, before anything is
-     * downloaded or swapped. A notice, never a refusal: the admin decides.
+     * The packages a forum's `policy.abandoned.block` kept out of a failed
+     * resolve. Composer words it two ways: for a requirement ("found a/b[1.0]
+     * but these were not loaded, because they are abandoned") and for a locked
+     * package ("Package a/b 1.0 (in the lock file) was not loaded, because it
+     * is abandoned").
      *
-     * @param list<array{package:string, replacement:?string}> $abandoned
+     * @return list<string>
      */
+    public static function blockedAsAbandoned(string $output): array
+    {
+        preg_match_all(
+            '~(?:found ([a-z0-9][a-z0-9_.-]*/[a-z0-9][a-z0-9_.-]*)\[[^\]]*\] but these were|Package ([a-z0-9][a-z0-9_.-]*/[a-z0-9][a-z0-9_.-]*) \S+ \(in the lock file\) was) not loaded, because (?:they are|it is) abandoned\b~i',
+            $output,
+            $m
+        );
+
+        $names = array_unique(array_filter(array_merge($m[1], $m[2])));
+        sort($names);
+
+        return $names;
+    }
+
+    /** @param list<array{package:string, replacement:?string}> $abandoned */
     protected function abandonedNote(array $abandoned): string
     {
         return implode(' ', array_map(

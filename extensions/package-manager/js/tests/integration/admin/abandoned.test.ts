@@ -6,12 +6,7 @@ import jsYaml from 'js-yaml';
 import fs from 'fs';
 import path from 'path';
 import RunPanel from '../../../src/admin/components/RunPanel';
-
-/*
- * The abandoned-package notice on the run panel (flarum/framework#3993): the
- * packages a run brings in that their authors abandoned, with each
- * replacement, and wording that stays true whether the run went on or stopped.
- */
+import { reloadAfter } from '../../../src/admin/runState';
 
 beforeAll(() => {
   bootstrapAdmin();
@@ -28,8 +23,7 @@ function panel(over: Record<string, unknown>) {
   return mq(RunPanel, {
     run: {
       id: 'r1',
-      // Ended runs only: a live one draws a progress bar whose inline style
-      // the test DOM's CSS parser cannot read. A finished run says the same.
+      // Ended runs only: the test DOM can't parse a live run's progress bar style.
       state: 'done',
       phase: 'finalise',
       items: [],
@@ -59,31 +53,30 @@ const abandoned = [
 ];
 
 describe('the abandoned-package notice', () => {
-  test('names each package and its replacement, and says the update went ahead', () => {
-    const out = panel({ abandoned });
-    const notice = out.find('.ExtensionManager-abandoned')[0];
+  test('names each package and its replacement, and says install on an install', () => {
+    const notice = panel({ abandoned }).find('.ExtensionManager-abandoned')[0];
 
-    expect(notice.textContent).toContain('2 packages in this update are abandoned');
-    expect(notice.textContent).toContain('The update goes ahead');
+    expect(notice.textContent).toContain('2 packages in this install are abandoned');
     expect(notice.textContent).toContain('acme/old-lib: its author suggests acme/new-lib');
     expect(notice.textContent).toContain('acme/gone: no replacement is named');
   });
 
-  test('on a run that stopped, says it is not why it stopped', () => {
-    for (const state of ['failed', 'rolled-back']) {
-      const notice = panel({ state, error: 'boom', abandoned }).find('.ExtensionManager-abandoned')[0];
-
-      expect(notice.textContent).toContain('That is not why it stopped');
-      expect(notice.textContent).not.toContain('goes ahead');
-    }
+  test('says update on an update', () => {
+    expect(panel({ mode: 'update', abandoned }).find('.ExtensionManager-abandoned')[0].textContent).toContain(
+      '2 packages in this update are abandoned'
+    );
   });
 
-  test('after a finished update is undone, says it was undone, not that it stopped', () => {
-    const notice = panel({ state: 'rolled-back', error: null, abandoned }).find('.ExtensionManager-abandoned')[0];
+  test('on a failed run, says it is not why it stopped', () => {
+    const notice = panel({ state: 'failed', error: 'boom', abandoned }).find('.ExtensionManager-abandoned')[0];
 
-    expect(notice.textContent).toContain('The update has been undone');
-    expect(notice.textContent).not.toContain('That is not why it stopped');
-    expect(notice.textContent).not.toContain('goes ahead');
+    expect(notice.textContent).toContain('this install would bring in are abandoned');
+    expect(notice.textContent).toContain('That is not why it stopped');
+  });
+
+  test('is gone once the run is undone, or put back after failing', () => {
+    panel({ state: 'rolled-back', error: null, abandoned }).should.not.have('.ExtensionManager-abandoned');
+    panel({ state: 'rolled-back', error: 'boom', abandoned }).should.not.have('.ExtensionManager-abandoned');
   });
 
   test('is absent when nothing is abandoned, and from a run recorded before the list existed', () => {
@@ -93,9 +86,27 @@ describe('the abandoned-package notice', () => {
 });
 
 /*
- * A live run's panel cannot be drawn here (see panel() above), so these ask the
- * panel's live-region sentence directly, as view() does on each redraw.
+ * A single-package install reloads onto the new extension's page and dismisses
+ * its run. Here the run finished between two polls, so the admin never saw it.
  */
+describe('after a single-package install', () => {
+  const finished = (over: Record<string, unknown> = {}) => ({ id: 'r5', state: 'done', mode: 'install', packages: ['acme/widget'], ...over });
+
+  test('with abandoned packages, the page reloads onto the run panel instead of the extension', () => {
+    expect(reloadAfter(finished({ abandoned }), 'flarum/extension-manager')).toEqual({ reload: true, open: null });
+  });
+
+  test('without any, it still opens the new extension', () => {
+    expect(reloadAfter(finished({ abandoned: [] }), 'flarum/extension-manager')).toEqual({ reload: true, open: 'acme/widget' });
+    expect(reloadAfter(finished(), 'flarum/extension-manager')).toEqual({ reload: true, open: 'acme/widget' });
+  });
+
+  test('nothing reloads while the run is going, or for an ordinary update', () => {
+    expect(reloadAfter(finished({ state: 'running', abandoned }), 'flarum/extension-manager').reload).toBe(false);
+    expect(reloadAfter(finished({ mode: 'update', abandoned }), 'flarum/extension-manager').reload).toBe(false);
+  });
+});
+
 describe('the live region', () => {
   const running = (over: Record<string, unknown> = {}) =>
     ({ id: 'r2', state: 'running', phase: 'fetch', items: ['fetch:acme/widget'], index: 0, log: [], packages: ['acme/widget'], ...over }) as any;

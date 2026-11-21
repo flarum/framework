@@ -25,6 +25,25 @@ export interface RunLike {
   index?: number;
 }
 
+/**
+ * Whether a run that just ended reloads the page, and which installed
+ * package's page it opens. Not when the run has abandoned packages: the page
+ * reloads onto the run's panel instead, where they are listed, since a run
+ * that finished between two polls showed them nowhere else.
+ */
+export function reloadAfter(
+  run: (RunLike & { packages?: string[]; mode?: string; abandoned?: unknown[] }) | null,
+  self: string
+): { reload: boolean; open: string | null } {
+  const packages = run?.packages || [];
+  const reloads = packages.some((p) => p === self || p === 'flarum/core');
+  const installed = run?.state === 'done' && run.mode === 'install' && packages.length === 1 ? packages[0] : null;
+
+  if (!run || !['done', 'rolled-back'].includes(run.state || '') || (!reloads && !installed)) return { reload: false, open: null };
+
+  return { reload: true, open: (run.abandoned || []).length ? null : installed };
+}
+
 /** States in which work is still being done. */
 const LIVE: string[] = ['pending', 'running'];
 

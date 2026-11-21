@@ -148,7 +148,6 @@ class RunStore
             'mode' => (string) ($manifest['mode'] ?? 'update'),
             // The database changes undoing would reverse; see MigrationLedger.
             'migrations' => array_values(array_map(fn ($m) => (string) ($m['migration'] ?? ''), (array) $migrations)),
-            // What the plan found abandoned, with each replacement; see LockDiff::abandoned().
             'abandoned' => array_values(array_filter((array) ($plan['abandoned'] ?? []), fn ($a) => is_array($a) && is_string($a['package'] ?? null))),
         ];
     }
