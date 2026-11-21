@@ -297,6 +297,36 @@ describe('Tooltip', () => {
     expect(tooltipShown()).toBe(true);
   });
 
+  it('hides a container tooltip when the page is scrolled from the keyboard', () => {
+    const button = mount({ text: 'Hello', container: 'body' });
+
+    button.focus();
+    expect(tooltipShown()).toBe(true);
+
+    // Page Down, the arrow keys and Space move the page with no pointer
+    // activity at all, so the tooltip has to go even though it only just
+    // appeared for the focus.
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageDown' }));
+    window.dispatchEvent(new Event('scroll'));
+
+    expect(tooltipShown()).toBe(false);
+  });
+
+  it('hides a container tooltip when the page is scrolled by its scrollbar after the focus', () => {
+    const now = jest.spyOn(Date, 'now').mockReturnValue(1_000_000);
+    const button = mount({ text: 'Hello', container: 'body' });
+
+    button.focus();
+    expect(tooltipShown()).toBe(true);
+
+    // A scrollbar drag produces no pointer activity that reaches the page, so
+    // only the time since the focus can tell it from the focus scroll.
+    now.mockReturnValue(1_000_000 + 1000);
+    window.dispatchEvent(new Event('scroll'));
+
+    expect(tooltipShown()).toBe(false);
+  });
+
   it('watches for scrolling only while a container tooltip is showing', async () => {
     const add = jest.spyOn(window, 'addEventListener');
     const remove = jest.spyOn(window, 'removeEventListener');

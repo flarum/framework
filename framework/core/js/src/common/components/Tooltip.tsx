@@ -3,6 +3,15 @@ import type Mithril from 'mithril';
 import classList from '../utils/classList';
 import extractText from '../utils/extractText';
 
+/**
+ * How long after a control gets focus the browser may scroll it into view.
+ * A scroll within that window is not the page being moved by the user.
+ */
+const FOCUS_SCROLL_GRACE_MS = 250;
+
+/** Keys that scroll the page without any pointer activity. */
+const SCROLL_KEYS = ['PageUp', 'PageDown', 'ArrowUp', 'ArrowDown', 'Home', 'End', ' '];
+
 export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Tooltip> {
   /**
    * Tooltip textual content.
@@ -121,7 +130,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
   private shouldChangeTooltipVisibility: boolean = false;
 
   private scrollBound: boolean = false;
-  private pointerActive: boolean = false;
+  private focusedAt: number = 0;
 
   view(vnode: Mithril.Vnode<TooltipAttrs, this>) {
     /**
@@ -280,12 +289,14 @@ export default class Tooltip extends Component<TooltipAttrs> {
    * tooltip behind over the content as the page scrolls; hiding it is better
    * than pointing at the wrong control. Tooltips left beside their trigger move
    * with it and need no handling.
+   *
+   * A scroll that arrives just after the trigger is focused is the browser
+   * bringing it into view, not the page moving, so it leaves the tooltip up.
+   * Any later scroll, whether from Page Down, an arrow key, a scrollbar drag
+   * or a wheel, hides it.
    */
   private onScroll = () => {
-    // A scroll from a keyboard action, such as an element being scrolled into
-    // view when it gets focus, is not the page moving under the pointer;
-    // leave the tooltip up for it.
-    if (!this.pointerActive) return;
+    if (Date.now() - this.focusedAt < FOCUS_SCROLL_GRACE_MS) return;
 
     this.hideIfShown();
   };
@@ -311,6 +322,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
       // click, so the tooltip has to be hidden on those gestures as well.
       .on('pointercancel.flarumTooltip contextmenu.flarumTooltip', this.hideOnActivate)
       .on('touchmove.flarumTooltip', this.hideOnActivate)
+      .on('focusin.flarumTooltip', this.markFocused)
       // Only container tooltips have to be hidden on scroll, and only while
       // they are showing, so the listener is bound from those events.
       // `inserted` fires once the tip is really in the page, after any
@@ -322,9 +334,9 @@ export default class Tooltip extends Component<TooltipAttrs> {
   /**
    * Watches for scrolling while a container tooltip is showing.
    *
-   * Pointer activity is recorded too, so that a scroll that never involved the
-   * pointer, such as focus scrolling the triggering element into view, does
-   * not hide a tooltip that was just shown.
+   * The time of the focus is recorded too, so that the scroll that brings the
+   * triggering control into view when it gets focus does not hide the tooltip
+   * that the focus just showed.
    */
   private bindScroll = () => {
     if (this.scrollBound) return;
@@ -332,28 +344,32 @@ export default class Tooltip extends Component<TooltipAttrs> {
     if (typeof this.attrs.tooltipVisible === 'boolean') return;
 
     this.scrollBound = true;
-    this.pointerActive = false;
 
     window.addEventListener('scroll', this.onScroll, { passive: true });
-    window.addEventListener('wheel', this.markPointerActive, { passive: true });
-    window.addEventListener('mousedown', this.markPointerActive, { passive: true });
-    window.addEventListener('touchmove', this.markPointerActive, { passive: true });
+    window.addEventListener('keydown', this.onScrollKey);
   };
 
   private unbindScroll = () => {
     if (!this.scrollBound) return;
 
     this.scrollBound = false;
-    this.pointerActive = false;
 
     window.removeEventListener('scroll', this.onScroll);
-    window.removeEventListener('wheel', this.markPointerActive);
-    window.removeEventListener('mousedown', this.markPointerActive);
-    window.removeEventListener('touchmove', this.markPointerActive);
+    window.removeEventListener('keydown', this.onScrollKey);
   };
 
-  private markPointerActive = () => {
-    this.pointerActive = true;
+  private markFocused = () => {
+    this.focusedAt = Date.now();
+  };
+
+  /**
+   * Keyboard scrolling moves the page with no pointer activity at all, so the
+   * scroll that follows a page key must not be taken for the browser bringing
+   * the focused control into view. Space counts here only when it scrolls:
+   * activating the focused control with it does not.
+   */
+  private onScrollKey = (e: KeyboardEvent) => {
+    if (SCROLL_KEYS.includes(e.key)) this.focusedAt = 0;
   };
 
   private hideTooltip() {
