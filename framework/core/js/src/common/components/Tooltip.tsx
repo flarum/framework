@@ -130,6 +130,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
   private shouldChangeTooltipVisibility: boolean = false;
 
   private scrollBound: boolean = false;
+  private touchMoveNode: HTMLElement | null = null;
   private focusedAt: number = 0;
 
   view(vnode: Mithril.Vnode<TooltipAttrs, this>) {
@@ -254,6 +255,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
       $(this.childDomNode).off('.flarumTooltip');
     }
 
+    this.unbindTouchMove();
     this.unbindScroll();
     this.destroyTooltip();
   }
@@ -268,7 +270,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
    * A long press, or a tap that turns into a scroll, never ends in a click, so
    * those gestures are handled here too.
    */
-  private hideOnActivate = (e: JQuery.TriggeredEvent) => {
+  private hideOnActivate = (e: Event) => {
     // Manually controlled tooltips are left to the code that manages them.
     if (typeof this.attrs.tooltipVisible === 'boolean') return;
 
@@ -276,7 +278,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
     // detail. Bootstrap does not re-run `focusin` while the element is still
     // focused, so hiding here would take the tooltip away from a keyboard user
     // until they moved focus away and back; leave it up instead.
-    if (e.type === 'click' && (e.originalEvent as MouseEvent | undefined)?.detail === 0) return;
+    if (e.type === 'click' && (e as MouseEvent).detail === 0) return;
 
     this.hideIfShown();
   };
@@ -321,7 +323,6 @@ export default class Tooltip extends Component<TooltipAttrs> {
       // A long press, or a press that turns into a scroll, never ends in a
       // click, so the tooltip has to be hidden on those gestures as well.
       .on('pointercancel.flarumTooltip contextmenu.flarumTooltip', this.hideOnActivate)
-      .on('touchmove.flarumTooltip', this.hideOnActivate)
       .on('focusin.flarumTooltip', this.markFocused)
       // Only container tooltips have to be hidden on scroll, and only while
       // they are showing, so the listener is bound from those events.
@@ -329,6 +330,27 @@ export default class Tooltip extends Component<TooltipAttrs> {
       // `show.bs.tooltip` handler has had the chance to cancel it.
       .on('inserted.bs.tooltip.flarumTooltip', this.bindScroll)
       .on('hidden.bs.tooltip.flarumTooltip', this.unbindScroll);
+
+    this.bindTouchMove();
+  }
+
+  /**
+   * Binds the touch gesture check directly and passively. jQuery adds a
+   * non-passive listener, which would make the first scroll after touching a
+   * control wait on it.
+   */
+  private bindTouchMove() {
+    if (this.childDomNode === null || this.touchMoveNode === this.childDomNode) return;
+
+    this.unbindTouchMove();
+
+    this.touchMoveNode = this.childDomNode;
+    this.touchMoveNode.addEventListener('touchmove', this.hideOnActivate, { passive: true });
+  }
+
+  private unbindTouchMove() {
+    this.touchMoveNode?.removeEventListener('touchmove', this.hideOnActivate);
+    this.touchMoveNode = null;
   }
 
   /**
