@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\forum\Auth;
 
 use Flarum\Forum\Auth\ResponseFactory;
+use Flarum\Http\Rememberer;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\LoginProvider;
@@ -121,6 +122,49 @@ class ResponseFactoryTest extends TestCase
                 ->where('user_id', 2)
                 ->exists()
         );
+    }
+
+    #[Test]
+    public function a_subclass_can_turn_off_linking_by_email(): void
+    {
+        $factory = new class($this->app()->getContainer()->make(Rememberer::class)) extends ResponseFactory {
+            public array $calls = [];
+
+            protected function findUserToLink(string $provider, string $identifier, array $provided): ?User
+            {
+                $this->calls[] = [$provider, $identifier, $provided];
+
+                return null;
+            }
+        };
+
+        $response = $factory->make(
+            'google',
+            'google-new-identifier',
+            function ($registration) {
+                $registration->provideTrustedEmail('normal@machine.local');
+            },
+            '/settings'
+        );
+
+        $this->assertSame([['google', 'google-new-identifier', ['email' => 'normal@machine.local']]], $factory->calls);
+        $this->assertStringContainsString('_flarum_auth=', $response->getHeaderLine('Location'));
+        $this->assertFalse(LoginProvider::where('provider', 'google')->exists());
+    }
+
+    #[Test]
+    public function an_existing_provider_link_is_used_before_looking_for_an_account_to_link(): void
+    {
+        $factory = new class($this->app()->getContainer()->make(Rememberer::class)) extends ResponseFactory {
+            protected function findUserToLink(string $provider, string $identifier, array $provided): ?User
+            {
+                throw new \LogicException('An existing link must not reach the email match.');
+            }
+        };
+
+        $response = $factory->make('github', 'gh-user-existing', fn ($reg) => null, '/');
+
+        $this->assertStringContainsString('remember=', $response->getHeaderLine('Set-Cookie'));
     }
 
     // -------------------------------------------------------------------------

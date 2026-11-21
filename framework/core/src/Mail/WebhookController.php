@@ -12,10 +12,12 @@ namespace Flarum\Mail;
 use Flarum\Mail\Event\EmailBounced;
 use Flarum\Mail\Event\EmailComplained;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Uri;
@@ -128,19 +130,25 @@ class WebhookController implements RequestHandlerInterface
 
             $email = $event->getRecipientEmail();
             $reason = $event->getReason();
-            $recipient = $email ? $this->users->findByEmail($email) : null;
 
-            $this->dispatchOnce($driver, $event, new EmailBounced($email, $reason, $recipient, $event->getPayload()));
+            $this->dispatchOnce($driver, $event, new EmailBounced($email, $reason, $this->recipients($email), $event->getPayload()));
 
             return;
         }
 
         if ($event instanceof MailerEngagementEvent && $event->getName() === MailerEngagementEvent::SPAM) {
             $email = $event->getRecipientEmail();
-            $recipient = $email ? $this->users->findByEmail($email) : null;
 
-            $this->dispatchOnce($driver, $event, new EmailComplained($email, 'complaint', $recipient, $event->getPayload()));
+            $this->dispatchOnce($driver, $event, new EmailComplained($email, 'complaint', $this->recipients($email), $event->getPayload()));
         }
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    protected function recipients(string $email): Collection
+    {
+        return $email !== '' ? $this->users->findAllByEmail($email) : new Collection();
     }
 
     protected function dispatchOnce(HandlesWebhooks $driver, MailerDeliveryEvent|MailerEngagementEvent $remote, EmailBounced|EmailComplained $event): void
