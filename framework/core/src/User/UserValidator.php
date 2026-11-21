@@ -11,6 +11,10 @@ namespace Flarum\User;
 
 use Flarum\Foundation\AbstractValidator;
 
+/**
+ * The `email` rule stops checking uniqueness in 3.0, when email addresses
+ * aren't unique any more (flarum/framework#4426).
+ */
 class UserValidator extends AbstractValidator
 {
     protected ?User $user = null;

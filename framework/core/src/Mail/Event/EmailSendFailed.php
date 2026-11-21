@@ -18,6 +18,7 @@ class EmailSendFailed
         public readonly ?string $recipientEmail,
         public readonly ?string $recipientName,
         public readonly Throwable $exception,
+        /** The account the mail was addressed to, when known: the mail data's `user` if it has that address, else the account with that address. */
         public readonly ?User $recipient = null,
     ) {
     }

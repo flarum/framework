@@ -11,6 +11,7 @@ namespace Flarum\Mail;
 
 use Flarum\Mail\Event\EmailSendFailed;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
@@ -60,7 +61,13 @@ class Mailer extends IlluminateMailer
                 'exception_class' => get_class($e),
             ]);
 
-            $recipient = $recipientEmail ? $this->users->findByEmail($recipientEmail) : null;
+            $recipient = Arr::get($data, 'user');
+
+            // A view's `user` isn't always the recipient, e.g. the subject of an admin alert.
+            if (! $recipient instanceof User || strcasecmp($recipient->email, (string) $recipientEmail) !== 0) {
+                // With several accounts on one address from 3.0, this can't tell which was meant (flarum/framework#4426).
+                $recipient = $recipientEmail ? $this->users->findAllByEmail($recipientEmail)->first() : null;
+            }
 
             $this->events?->dispatch(new EmailSendFailed($recipientEmail, $recipientName, $e, $recipient));
 

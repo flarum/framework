@@ -10,6 +10,7 @@
 namespace Flarum\User;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -65,6 +66,8 @@ class UserRepository
     /**
      * Find a user by an identification (username or email).
      *
+     * Email addresses may match several accounts from 3.0 (flarum/framework#4426).
+     *
      * @return ?T
      */
     public function findByIdentification(string $identification): ?Model
@@ -75,11 +78,23 @@ class UserRepository
     }
 
     /**
+     * @deprecated 2.1 Email addresses won't be unique from 3.0. Use {@see findAllByEmail()}.
+     *
      * @return ?T
      */
     public function findByEmail(string $email): ?Model
     {
         return $this->query()->where('email', $email)->first();
+    }
+
+    /**
+     * The unique index limits this to one user until 3.0 (flarum/framework#4426).
+     *
+     * @return Collection<int, User>
+     */
+    public function findAllByEmail(string $email): Collection
+    {
+        return $this->query()->where('email', $email)->orderBy('id')->get();
     }
 
     public function getIdForUsername(string $username, ?User $actor = null): ?int

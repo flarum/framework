@@ -34,7 +34,8 @@ class RequestPasswordResetJob extends AbstractJob
         UserRepository $users,
         Queue $queue
     ): void {
-        $user = $users->findByEmail($this->email);
+        // 3.0 decides how a reset treats an address that several accounts use (flarum/framework#4426).
+        $user = $users->findAllByEmail($this->email)->first();
 
         if (! $user) {
             return;
