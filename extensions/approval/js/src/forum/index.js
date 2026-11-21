@@ -9,6 +9,7 @@ import CommentPost from 'flarum/forum/components/CommentPost';
 import Button from 'flarum/common/components/Button';
 import PostControls from 'flarum/forum/utils/PostControls';
 import haptic from 'flarum/common/utils/haptic';
+import classList from 'flarum/common/utils/classList';
 
 app.initializers.add(
   'flarum-approval',
@@ -40,7 +41,7 @@ app.initializers.add(
 
     extend(PostComponent.prototype, 'elementAttrs', function (attrs) {
       if (!this.attrs.post.isApproved()) {
-        attrs.className += ' Post--unapproved';
+        attrs.className = classList(attrs.className, 'Post--unapproved');
       }
     });
 
@@ -70,14 +71,35 @@ app.initializers.add(
       }
     });
 
+    // Flag types the server removes once a post is approved; other extensions add theirs.
+    (PostControls.flagTypesRemovedOnApproval ??= []).push('approval');
+
     PostControls.approveAction = function () {
       haptic('success');
-      this.save({ isApproved: true });
+
+      const saving = this.save({ isApproved: true }).then(() => forgetFlagsRemovedOnApproval(this));
 
       if (this.number() === 1) {
         this.discussion().pushAttributes({ isApproved: true });
       }
+
+      return saving;
     };
   },
   -10
 ); // set initializer priority to run after reports
+
+/**
+ * The update's response leaves out flags, and asking for them would bring back any the flag
+ * bar dismisses at the same time, so drop the removed ones locally.
+ */
+function forgetFlagsRemovedOnApproval(post) {
+  const types = PostControls.flagTypesRemovedOnApproval;
+  const flags = post.flags?.();
+
+  if (!flags || !flags.some((flag) => flag && types.includes(flag.type()))) return;
+
+  post.pushData({ relationships: { flags: flags.filter((flag) => flag && !types.includes(flag.type())) } });
+  app.flags?.clear();
+  m.redraw();
+}

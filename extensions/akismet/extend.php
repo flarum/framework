@@ -29,6 +29,7 @@ return [
         ->listen(Hidden::class, Listener\SubmitSpam::class)
         ->listen(PostWasApproved::class, Listener\SubmitHam::class)
         ->listen(Saving::class, Listener\ValidatePost::class)
+        ->listen(Saving::class, Listener\RemoveFlagWhenApproved::class)
         ->listen(SettingsSaving::class, Listener\ValidateApiKey::class),
 
     (new Extend\ServiceProvider())

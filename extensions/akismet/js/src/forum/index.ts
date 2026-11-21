@@ -8,6 +8,9 @@ import PostComponent from 'flarum/forum/components/Post';
 import type Mithril from 'mithril';
 
 app.initializers.add('flarum-akismet', () => {
+  // Approving a post Akismet held removes its Akismet flag (see RemoveFlagWhenApproved).
+  ((PostControls as any).flagTypesRemovedOnApproval ??= []).push('akismet');
+
   extend(PostControls, 'destructiveControls', function (items: ItemList<Mithril.Children>, post: Post) {
     if (items.has('approve')) {
       const flags = post.flags();
