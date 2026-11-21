@@ -54,6 +54,24 @@ describe('dropdown tooltips', () => {
     expect(bsTooltip(button).getTitle()).toBe('Change how discussions are sorted');
   });
 
+  it('uses the text of a translated aria-label on the toggle', () => {
+    /** A toggle whose accessible name is a translation array. */
+    class TranslatedLabelDropdown extends Dropdown {
+      getButton(children: m.ChildArray): m.Vnode<any, any> {
+        return m('button', { className: 'Dropdown-toggle', 'aria-label': ['Sorting', ' options'] }, children);
+      }
+    }
+
+    mount(() => m(TranslatedLabelDropdown, { label: 'Sorting', tooltip: 'Change how discussions are sorted' }, [m(Button, 'Latest')]));
+
+    const button = root.querySelector<HTMLButtonElement>('button.Dropdown-toggle')!;
+
+    // `Button` accepts translation arrays; passing one straight to
+    // `setAttribute` would have joined it with a comma.
+    expect(button.getAttribute('aria-label')).toBe('Sorting options');
+    expect(bsTooltip(button).getTitle()).toBe('Change how discussions are sorted');
+  });
+
   it('names the primary action of a split dropdown after its own label', () => {
     mount(() => m(SplitDropdown, { tooltip: 'Get an email when there are new posts' }, [m(Button, 'Follow'), m(Button, 'Ignore')]));
 
