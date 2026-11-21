@@ -37,9 +37,14 @@ export default class SplitDropdown<CustomAttrs extends ISplitDropdownAttrs = ISp
     // The tooltip usually describes the action ("Get an email when there are new
     // posts"), whereas the button shows its own label: name the button after
     // that label, not after the description.
+    //
+    // `Button` accepts translation arrays for `aria-label`, so flatten it the
+    // way `Button` does: an array passed straight to `setAttribute` would be
+    // comma-joined, and an empty one would wipe the name.
     const label = extractText(button.children as Mithril.Children).trim();
+    const ariaLabel = extractText(button.attrs['aria-label']).trim();
 
-    return { ...tooltip, ariaLabel: button.attrs['aria-label'] || label || undefined };
+    return { ...tooltip, ariaLabel: ariaLabel || label || undefined };
   }
 
   getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {

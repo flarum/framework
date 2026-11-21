@@ -85,10 +85,12 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
     );
   }
 
-  protected getButtonTooltip(_button: Mithril.Vnode<any, any>): TooltipAttrs | undefined {
+  protected getButtonTooltip(button: Mithril.Vnode<any, any>): TooltipAttrs | undefined {
     const { tooltip } = this.attrs;
 
-    return tooltip ? { text: tooltip } : undefined;
+    // The tooltip describes the toggle, so it must not replace the toggle's
+    // own accessible name when it has one.
+    return tooltip ? { text: tooltip, ariaLabel: button.attrs['aria-label'] } : undefined;
   }
 
   oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
