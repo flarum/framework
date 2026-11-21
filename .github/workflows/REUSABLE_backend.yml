@@ -51,6 +51,16 @@ on:
         required: false
         default: '.'
 
+      test_script:
+        description: >-
+          The Composer script that runs the tests, optionally followed by arguments, e.g.
+          'test:integration:external -- --fail-on-skipped'. `composer test:setup` always runs first.
+          Arguments are split on whitespace and quotes are not interpreted; for arguments that
+          need quoting, define a Composer script and name it here.
+        type: string
+        required: false
+        default: 'test'
+
       # Only relevant in mono-repos.
       monorepo_tests:
         description: "The list of directories to test in a monorepo. This should be a space-separated list of directories relative to the backend directory."
@@ -122,6 +132,15 @@ on:
         required: false
         default: 'flarum_p'
 
+      enable_prefixed_runs:
+        description: >-
+          Run the newest version of each database driver with a table prefix. Turn this off to
+          get exactly one job from a single PHP version and database, e.g. for tests that call
+          a live external API.
+        type: boolean
+        required: false
+        default: true
+
       php_ini_values:
         description: PHP ini values
         type: string
@@ -155,6 +174,16 @@ on:
     secrets:
       composer_auth:
         description: The Composer auth tokens to use for private packages. Defaults to authenticating GitHub downloads with the workflow's token.
+        required: false
+
+      test_env:
+        description: >-
+          Extra environment variables for the tests, one NAME=value per line, such as API keys
+          for tests against live services. Each value is masked in the logs, but only as
+          written: a test printing it encoded (base64, URL, JSON) still reveals it. Names
+          already set in the job, and ones that hook the shell, loader, PHP, Composer or git,
+          are rejected. Every Composer script and test in the checkout can read these values,
+          so only pass them from workflows that do not run untrusted pull request code.
         required: false
 
 env:
@@ -200,6 +229,7 @@ jobs:
           DB_PREFIX: ${{ inputs.db_prefix }}
           DB_PREFIX_PGSQL: ${{ inputs.db_prefix_pgsql }}
           REDUCE_DRAFTS: ${{ inputs.reduce_drafts }}
+          PREFIXED_RUNS: ${{ inputs.enable_prefixed_runs }}
           PR_DRAFT: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft }}
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -222,6 +252,7 @@ jobs:
             --argjson redis "$REDIS_CLIENTS" \
             --arg prefix "$DB_PREFIX" \
             --arg prefixPgsql "$DB_PREFIX_PGSQL" \
+            --argjson prefixed "$PREFIXED_RUNS" \
             --argjson draft "$draft" '
             def vkey: [splits("[.:-]") | tonumber? // 0];
             def driver: (split(":")[0]) as $i
@@ -258,6 +289,9 @@ jobs:
                 | $jobs + [ $phps[] | select(. as $v | $covered | index($v) | not)
                             | job(.; ($sqlite // $dbs[0]); false) ]
               end)
+            # Without prefixed runs, a driver with a single version and a single PHP version
+            # would get the same job twice.
+            | (if $prefixed then . else map(.prefix = "" | .prefixStr = "") | unique end)
             | [ .[] as $j | $redis[] as $r | $j + {redis_client: $r} ]
             | {include: .}')
 
@@ -332,6 +366,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
@@ -418,18 +453,58 @@ jobs:
       # database, and each directory's output is printed once every lane has finished.
       - name: Run tests
         run: |
-          if [ -z "${{ inputs.monorepo_tests }}" ]; then
+          # A caller passing an unset variable sends an empty string, which skips the default
+          # and would run bare `composer`: it prints its help and passes without testing.
+          if [ -z "${TEST_SCRIPT//[[:space:]]/}" ]; then
+            echo "::error::test_script must name a Composer script"
+            exit 1
+          fi
+          # Split on whitespace; unlike an unquoted expansion, `read -a` expands no globs.
+          read -ra test_script <<< "$TEST_SCRIPT"
+          unset TEST_SCRIPT
+
+          while IFS= read -r line; do
+            line="${line%$'\r'}"
+            [ -z "$line" ] && continue
+            name="${line%%=*}"
+            value="${line#*=}"
+            if [[ ! "$name" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || [ "$name" = "$line" ]; then
+              echo "::error::test_env lines must be NAME=value"
+              exit 1
+            fi
+            [ -n "$value" ] && echo "::add-mask::$value"
+            # test_env adds variables for the tests; it must not reconfigure the job (PATH,
+            # DB_*, GITHUB_*, an earlier test_env line...) or hook the shell, the dynamic
+            # loader, PHP, Composer or git.
+            if [ -n "${!name+set}" ]; then
+              echo "::error::test_env cannot set $name: it is already set"
+              exit 1
+            fi
+            case "$name" in
+              LD_*|BASH_ENV|ENV|PHPRC|PHP_INI_SCAN_DIR|COMPOSER_*|GIT_*|GITHUB_*|RUNNER_*|ACTIONS_*)
+                echo "::error::test_env cannot set $name"
+                exit 1
+                ;;
+            esac
+            export "$name=$value"
+          done <<< "$TEST_ENV"
+          unset TEST_ENV
+
+          # Read from the environment rather than pasted into the script, and split without
+          # expanding globs.
+          read -ra tests <<< "$MONOREPO_TESTS"
+
+          if [ "${#tests[@]}" -eq 0 ]; then
             composer test:setup
-            composer test
+            composer "${test_script[@]}"
           elif [ "$MONOREPO_LANES" -le 1 ]; then
-            for test in ${{ inputs.monorepo_tests }}; do
+            for test in "${tests[@]}"; do
               echo "::group::Running tests for $test"
-              composer test:setup --working-dir=$test
-              composer test --working-dir=$test
+              composer test:setup --working-dir="$test"
+              composer --working-dir="$test" "${test_script[@]}"
               echo "::endgroup::"
             done
           else
-            tests=(${{ inputs.monorepo_tests }})
             lanes=$MONOREPO_LANES
             logs="${{ runner.temp }}/monorepo-tests"
             mkdir -p "$logs"
@@ -472,7 +547,7 @@ jobs:
               for i in "${!tests[@]}"; do
                 [ "${lane[$i]}" -eq "$n" ] || continue
                 start=$SECONDS
-                if ! { composer test:setup --working-dir="${tests[$i]}" && composer test --working-dir="${tests[$i]}"; } > "$logs/$i.log" 2>&1; then
+                if ! { composer test:setup --working-dir="${tests[$i]}" && composer --working-dir="${tests[$i]}" "${test_script[@]}"; } > "$logs/$i.log" 2>&1; then
                   echo "$(( SECONDS - start ))s, failed" > "$logs/$i.result"
                   return 1
                 fi
@@ -522,6 +597,9 @@ jobs:
           DB_DRIVER: ${{ matrix.driver }}
           COMPOSER_PROCESS_TIMEOUT: 600
           MONOREPO_LANES: ${{ inputs.monorepo_lanes }}
+          MONOREPO_TESTS: ${{ inputs.monorepo_tests }}
+          TEST_SCRIPT: ${{ inputs.test_script }}
+          TEST_ENV: ${{ secrets.test_env }}
 
       # Surface the query findings on the pull request itself. A developer who
       # only ever looks at the checks page would otherwise never see the
