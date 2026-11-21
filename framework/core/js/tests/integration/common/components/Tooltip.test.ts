@@ -100,6 +100,22 @@ describe('Tooltip', () => {
     expect(bsTooltip(button).options.trigger).toBe('hover');
   });
 
+  it('hides when the control is activated, so a tap does not leave it up', () => {
+    const attrs = { text: 'Hello' };
+    const button = mount(attrs);
+
+    // A tap reaches the control as a hover, a focus and then a click, so the
+    // tooltip is already showing by the time the button is activated.
+    button.dispatchEvent(new Event('touchstart', { bubbles: true }));
+    $(button).trigger('mouseenter');
+    button.focus();
+    expect(shown()).toBe(true);
+
+    button.click();
+
+    expect(shown()).toBe(false);
+  });
+
   it('keeps a manually shown tooltip shown when it is rebuilt for a new position', () => {
     const attrs: Partial<TooltipAttrs> = { text: 'Hello', tooltipVisible: true };
     const button = mount(attrs);

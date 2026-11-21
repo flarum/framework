@@ -217,6 +217,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
     super.oncreate(vnode);
 
     this.checkDomNodeChanged();
+    this.bindActivation();
     this.recreateTooltip();
   }
 
@@ -224,6 +225,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
     super.onupdate(vnode);
 
     this.checkDomNodeChanged();
+    this.bindActivation();
 
     if (this.shouldUpdateText) {
       this.updateText();
@@ -237,6 +239,42 @@ export default class Tooltip extends Component<TooltipAttrs> {
     super.onremove(vnode);
 
     this.destroyTooltip();
+  }
+
+  /**
+   * Hides the tooltip when its element is activated.
+   *
+   * A touch screen turns a tap into a hover and a focus as well as a click, so
+   * Bootstrap would otherwise keep the tooltip up until the pointer and focus
+   * both left, leaving it over the modal or the next control that was tapped.
+   */
+  private hideOnActivate = () => {
+    // Manually controlled tooltips are left to the code that manages them.
+    if (typeof this.attrs.tooltipVisible === 'boolean') return;
+    if (this.childDomNode === null) return;
+
+    const tooltip = $(this.childDomNode).data('bs.tooltip');
+    if (tooltip?.$tip?.hasClass('in')) this.hideTooltip();
+  };
+
+  /**
+   * Listens for activation on the current child element, dropping the listener
+   * from the previous one when Mithril replaces it.
+   */
+  private bindActivation() {
+    if (this.childDomNode === null) return;
+
+    $(this.childDomNode).off('click.flarumTooltip').on('click.flarumTooltip', this.hideOnActivate);
+  }
+
+  private hideTooltip() {
+    if (this.childDomNode === null) return;
+
+    $(this.childDomNode).tooltip(
+      'hide',
+      // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
+      'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
+    );
   }
 
   private recreateTooltip() {
@@ -297,11 +335,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
         'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
       );
     } else if (this.attrs.tooltipVisible === false) {
-      $(this.childDomNode).tooltip(
-        'hide',
-        // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
-        'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
-      );
+      this.hideTooltip();
     }
   }
 
