@@ -26,7 +26,7 @@ class UpdateDiscussionAfterPostApproval
             $discussion->is_approved = true;
 
             $discussion->afterSave(function () use ($user) {
-                $user->refreshDiscussionCount();
+                $user?->refreshDiscussionCount();
             });
         }
 

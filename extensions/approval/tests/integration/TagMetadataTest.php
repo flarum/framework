@@ -73,4 +73,24 @@ class TagMetadataTest extends TestCase
         $this->assertEquals(1, $tag->discussion_count);
         $this->assertEquals(1, $tag->last_posted_discussion_id);
     }
+
+    #[Test]
+    public function hiding_then_restoring_a_pending_first_post_counts_the_discussion_once()
+    {
+        foreach ([true, false] as $isHidden) {
+            $response = $this->send(
+                $this->request('PATCH', '/api/posts/2', [
+                    'authenticatedAs' => 1,
+                    'json' => ['data' => ['attributes' => ['isHidden' => $isHidden]]],
+                ])
+            );
+
+            $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+            $tag = $this->database()->table('tags')->where('id', 1)->first();
+            $this->assertEquals($isHidden ? 0 : 1, $tag->discussion_count);
+        }
+
+        $this->assertEquals(1, $tag->last_posted_discussion_id);
+    }
 }

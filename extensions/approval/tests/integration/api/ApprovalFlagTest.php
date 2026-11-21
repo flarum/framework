@@ -90,37 +90,42 @@ class ApprovalFlagTest extends TestCase
     }
 
     #[Test]
-    public function hiding_and_restoring_a_post_awaiting_approval_removes_its_approval_flag()
+    public function hiding_a_post_awaiting_approval_removes_its_approval_flag()
     {
-        $postId = $this->replyAwaitingApproval();
+        $postId = $this->replyAwaitingApprovalWithUserFlag();
 
-        $this->database()->table('flags')->insert(
-            ['post_id' => $postId, 'user_id' => 3, 'type' => 'user', 'reason' => 'spam', 'created_at' => Carbon::now()]
-        );
+        $this->patchPost($postId, 3, ['isHidden' => true]);
 
-        foreach ([true, false] as $isHidden) {
-            $response = $this->send(
-                $this->request('PATCH', "/api/posts/$postId", [
-                    'authenticatedAs' => 3,
-                    'json' => ['data' => ['attributes' => ['isHidden' => $isHidden]]],
-                ])
-            );
-
-            $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
-            $this->assertEquals(0, Flag::query()->where('post_id', $postId)->where('type', 'approval')->count());
-            $this->assertEquals(1, Flag::query()->where('post_id', $postId)->where('type', 'user')->count());
-        }
+        $this->assertEquals(0, Flag::query()->where('post_id', $postId)->where('type', 'approval')->count());
+        $this->assertEquals(1, Flag::query()->where('post_id', $postId)->where('type', 'user')->count());
     }
 
     #[Test]
-    public function a_post_held_again_while_being_approved_keeps_its_approval_flag()
+    public function restoring_a_post_awaiting_approval_removes_its_approval_flag()
+    {
+        $postId = $this->replyAwaitingApprovalWithUserFlag();
+
+        // Hidden but still pending, as when its author hides it.
+        $this->database()->table('posts')->where('id', $postId)->update(['hidden_at' => Carbon::now()]);
+
+        $this->patchPost($postId, 3, ['isHidden' => false]);
+
+        $this->assertTrue((bool) Post::query()->findOrFail($postId)->is_approved);
+        $this->assertEquals(0, Flag::query()->where('post_id', $postId)->where('type', 'approval')->count());
+        $this->assertEquals(1, Flag::query()->where('post_id', $postId)->where('type', 'user')->count());
+    }
+
+    #[Test]
+    public function a_post_held_again_while_being_approved_is_not_announced_and_keeps_its_approval_flag()
     {
         $postId = $this->replyAwaitingApproval();
 
-        $this->app()->getContainer()->make(Dispatcher::class)->listen(
-            Saving::class,
-            fn (Saving $event) => $event->post->is_approved = false
-        );
+        $approved = false;
+        $dispatcher = $this->app()->getContainer()->make(Dispatcher::class);
+        $dispatcher->listen(Saving::class, fn (Saving $event) => $event->post->is_approved = false);
+        $dispatcher->listen(PostWasApproved::class, function () use (&$approved) {
+            $approved = true;
+        });
 
         $response = $this->send(
             $this->request('PATCH', "/api/posts/$postId", [
@@ -131,6 +136,7 @@ class ApprovalFlagTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
         $this->assertEquals(1, Flag::query()->where('post_id', $postId)->where('type', 'approval')->count());
+        $this->assertFalse($approved);
     }
 
     #[Test]
@@ -200,5 +206,28 @@ class ApprovalFlagTest extends TestCase
         $this->assertFalse((bool) Post::query()->findOrFail($postId)->is_approved);
 
         return $postId;
+    }
+
+    protected function replyAwaitingApprovalWithUserFlag(): int
+    {
+        $postId = $this->replyAwaitingApproval();
+
+        $this->database()->table('flags')->insert(
+            ['post_id' => $postId, 'user_id' => 3, 'type' => 'user', 'reason' => 'spam', 'created_at' => Carbon::now()]
+        );
+
+        return $postId;
+    }
+
+    protected function patchPost(int $postId, int $actor, array $attributes): void
+    {
+        $response = $this->send(
+            $this->request('PATCH', "/api/posts/$postId", [
+                'authenticatedAs' => $actor,
+                'json' => ['data' => ['attributes' => $attributes]],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
     }
 }

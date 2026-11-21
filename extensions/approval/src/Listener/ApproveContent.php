@@ -33,17 +33,16 @@ class ApproveContent
         $attributes = $event->data['attributes'];
         $post = $event->post;
 
-        // Nothing to do if it is already approved.
-        if ($post->is_approved) {
+        if (! isset($attributes['isApproved']) && ! isset($attributes['isHidden'])) {
             return;
         }
 
-        /*
-         * We approve a post in one of two cases:
-         * - The post was unapproved and the allowed action is approving it. We trigger an event.
-         * - The post was unapproved and the allowed actor is hiding or un-hiding it.
-         *   We approve it silently if the action is hiding.
-         */
+        // Hiding a discussion's pending first post approves the post silently but leaves
+        // the discussion pending, so restoring or approving the post must still approve it.
+        if ($post->is_approved && ($post->number !== 1 || $post->discussion->is_approved)) {
+            return;
+        }
+
         $approvingSilently = false;
 
         if (isset($attributes['isApproved'])) {
@@ -52,31 +51,34 @@ class ApproveContent
             $isApproved = (bool) $attributes['isApproved'];
         } elseif (isset($attributes['isHidden']) && $event->actor->can('approve', $post)) {
             $isApproved = true;
+            // Hiding a pending post rejects it: it is approved, but not announced.
             $approvingSilently = $attributes['isHidden'];
         }
 
         if (! empty($isApproved)) {
             $post->is_approved = true;
 
-            if (! $approvingSilently) {
-                $post->raise(new PostWasApproved($post, $event->actor));
-            }
+            $post->afterSave(function (Post $post) use ($event, $approvingSilently) {
+                // Another Saving listener (Akismet) may have held the post again.
+                if (! $post->is_approved) {
+                    return;
+                }
 
-            $post->afterSave(fn (Post $post) => $this->removeApprovalFlag($post, $event->actor));
+                if (! $approvingSilently) {
+                    $post->raise(new PostWasApproved($post, $event->actor));
+                }
+
+                // After PostWasApproved, so a failing Cleared broadcast can't stop the
+                // discussion's approval.
+                $this->removeApprovalFlag($post, $event->actor);
+            });
         }
     }
 
     protected function removeApprovalFlag(Post $post, User $actor): void
     {
-        // Another Saving listener (Akismet) may have held the post again.
-        if (! $post->is_approved) {
-            return;
-        }
-
-        // A query, not $post->flags()->delete(): flags' audit integration logs that as a
-        // moderator dismissing the post's flags.
-        // Raised, not dispatched: it then follows PostWasApproved, so a failing broadcast
-        // can't stop the discussion's approval.
+        // A query, not $post->flags()->delete(), which flags' audit logs as a moderator
+        // dismissing flags.
         if (Flag::query()->where('post_id', $post->id)->where('type', 'approval')->delete()) {
             $post->raise(new Cleared($post, $actor));
         }
