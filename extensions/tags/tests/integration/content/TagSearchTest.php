@@ -38,7 +38,7 @@ class TagSearchTest extends TestCase
                 $this->normalUser(),
             ],
             Tag::class => [
-                ['id' => 1, 'name' => 'General', 'slug' => 'general', 'position' => 0],
+                ['id' => 1, 'name' => 'General', 'slug' => 'general', 'is_primary' => true, 'position' => 0],
             ],
         ]);
 

@@ -50,7 +50,7 @@ class ShowTest extends TestCase
     {
         $this->prepareDatabase([
             Tag::class => [
-                ['id' => 155, 'name' => '测试', 'slug' => '测试', 'position' => 0, 'parent_id' => null]
+                ['id' => 155, 'name' => '测试', 'slug' => '测试', 'is_primary' => true, 'position' => 0, 'parent_id' => null]
             ]
         ]);
 
@@ -72,7 +72,7 @@ class ShowTest extends TestCase
     {
         $this->prepareDatabase([
             Tag::class => [
-                ['id' => 155, 'name' => '测试', 'slug' => '测试', 'position' => 0, 'parent_id' => null]
+                ['id' => 155, 'name' => '测试', 'slug' => '测试', 'is_primary' => true, 'position' => 0, 'parent_id' => null]
             ]
         ]);
 

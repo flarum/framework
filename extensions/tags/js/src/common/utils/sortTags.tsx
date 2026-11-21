@@ -2,17 +2,17 @@ import Tag from '../models/Tag';
 
 export default function sortTags(tags: Tag[]) {
   return tags.slice(0).sort((a, b) => {
-    const aPos = a.position();
-    const bPos = b.position();
-
     // If they're both secondary tags, sort them by their discussions count,
     // descending.
-    if (aPos === null && bPos === null) return b.discussionCount() - a.discussionCount();
+    if (a.isSecondary() && b.isSecondary()) return b.discussionCount() - a.discussionCount();
 
     // If just one is a secondary tag, then the primary tag should
     // come first.
-    if (bPos === null) return -1;
-    if (aPos === null) return 1;
+    if (b.isSecondary()) return -1;
+    if (a.isSecondary()) return 1;
+
+    const aPos = a.position() ?? 0;
+    const bPos = b.position() ?? 0;
 
     // If we've made it this far, we know they're both primary tags. So we'll
     // need to see if they have parents.

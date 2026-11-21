@@ -31,8 +31,8 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property string $description
  * @property string $color
  * @property bool $is_primary
- * @property int $position
- * @property int $parent_id
+ * @property int|null $position
+ * @property int|null $parent_id
  * @property string|null $default_sort
  * @property bool $is_restricted
  * @property bool $is_hidden
@@ -106,6 +106,57 @@ class Tag extends AbstractModel
         $tag->is_hidden = (bool) $isHidden;
 
         return $tag;
+    }
+
+    /**
+     * Whether this is a primary tag: a top-level primary tag, or a child of one.
+     *
+     * Use this rather than checking `position`. Secondary tags have no position
+     * in 2.x, but that is an implementation detail which may change.
+     */
+    public function isPrimary(): bool
+    {
+        return (bool) $this->is_primary;
+    }
+
+    /**
+     * Whether this is a secondary tag.
+     */
+    public function isSecondary(): bool
+    {
+        return ! $this->isPrimary();
+    }
+
+    /**
+     * Whether this is a child of a primary tag.
+     */
+    public function isChild(): bool
+    {
+        return $this->parent_id !== null;
+    }
+
+    /**
+     * Whether this is a primary tag without a parent.
+     */
+    public function isPrimaryParent(): bool
+    {
+        return $this->isPrimary() && ! $this->isChild();
+    }
+
+    /**
+     * Limit the query to primary tags, children of primary tags included.
+     */
+    public function scopePrimary(Builder $query): Builder
+    {
+        return $query->where('is_primary', true);
+    }
+
+    /**
+     * Limit the query to secondary tags.
+     */
+    public function scopeSecondary(Builder $query): Builder
+    {
+        return $query->where('is_primary', false);
     }
 
     public function parent(): BelongsTo

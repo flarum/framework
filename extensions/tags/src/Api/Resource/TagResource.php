@@ -176,7 +176,7 @@ class TagResource extends AbstractDatabaseResource
                 ->nullable(),
             Schema\Boolean::make('isChild')
                 ->description('Whether the tag is a child of a primary tag.')
-                ->get(fn (Tag $tag) => (bool) $tag->parent_id),
+                ->get(fn (Tag $tag) => $tag->isChild()),
             Schema\DateTime::make('lastPostedAt'),
             Schema\Boolean::make('canStartDiscussion')
                 ->description('Whether you can start a discussion with this tag.')

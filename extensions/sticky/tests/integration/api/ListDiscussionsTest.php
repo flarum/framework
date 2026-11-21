@@ -47,8 +47,8 @@ class ListDiscussionsTest extends TestCase
                 ['discussion_id' => 3, 'user_id' => 3, 'last_read_post_number' => 1],
             ],
             Tag::class => [
-                ['id' => 1, 'slug' => 'general', 'position' => 0, 'parent_id' => null],
-                ['id' => 2, 'slug' => 'hidden', 'position' => 1, 'parent_id' => null, 'is_hidden' => true],
+                ['id' => 1, 'slug' => 'general', 'is_primary' => true, 'position' => 0, 'parent_id' => null],
+                ['id' => 2, 'slug' => 'hidden', 'is_primary' => true, 'position' => 1, 'parent_id' => null, 'is_hidden' => true],
             ],
             'discussion_tag' => [
                 ['discussion_id' => 1, 'tag_id' => 1],

@@ -73,7 +73,10 @@ class DiscussionResourceFields
                             throw new PermissionDeniedException;
                         }
 
-                        if ($tag->position !== null && $tag->parent_id === null) {
+                        // Top-level primary tags count as primary; every other
+                        // tag, children of primary tags included, counts towards
+                        // the secondary limits.
+                        if ($tag->isPrimaryParent()) {
                             $primaryParentCount++;
                         } else {
                             $secondaryOrPrimaryChildCount++;
