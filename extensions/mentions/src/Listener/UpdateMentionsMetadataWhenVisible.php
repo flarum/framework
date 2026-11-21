@@ -12,11 +12,13 @@ namespace Flarum\Mentions\Listener;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Mentions\Job\SendMentionsNotificationsJob;
+use Flarum\Mentions\UserMentionCount;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Post;
+use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
 use s9e\TextFormatter\Utils;
 
@@ -24,7 +26,8 @@ class UpdateMentionsMetadataWhenVisible
 {
     public function __construct(
         protected ExtensionManager $extensions,
-        protected Queue $queue
+        protected Queue $queue,
+        protected UserMentionCount $mentionCount
     ) {
     }
 
@@ -40,10 +43,43 @@ class UpdateMentionsMetadataWhenVisible
             return;
         }
 
-        $this->syncUserMentions(
+        $changes = $this->syncUserMentions(
             $event->post,
             $userMentions = Utils::getAttributeValues($content, 'USERMENTION', 'id')
         );
+
+        // An approved post was already synced while it was private, so its
+        // mentions start counting now even though none of them changed.
+        $affected = array_merge(
+            $changes['attached'],
+            $changes['detached'],
+            ($event instanceof PostWasApproved || $event instanceof Restored) ? $userMentions : []
+        );
+        $this->mentionCount->refresh($affected);
+
+        if ($event instanceof Revised && $affected) {
+            // Removed mentions no longer appear in mentionsUsers. Include both
+            // sides of the edit so the composer can refresh its user models.
+            $event->post->setRelation('affectedMentionUsers', User::query()
+                ->whereKey($affected)
+                ->whereVisibleTo($event->actor)
+                ->with('groups')
+                ->get());
+        }
+
+        // A new discussion caches the request actor as its author. The post
+        // can have a separate author instance, so keep both models current.
+        $actor = $event instanceof Posted ? $event->actor : null;
+        $author = $event->post->relationLoaded('user') ? $event->post->user : null;
+        $counts = [];
+
+        foreach ([$actor, $author] as $user) {
+            if ($user && in_array($user->id, $affected)) {
+                $counts[$user->id] ??= $user->newQuery()->whereKey($user->id)->value('mention_count');
+                $user->mention_count = $counts[$user->id];
+                $user->syncOriginalAttribute('mention_count');
+            }
+        }
 
         $this->syncPostMentions(
             $event->post,
@@ -65,10 +101,12 @@ class UpdateMentionsMetadataWhenVisible
         $this->queue->push(new SendMentionsNotificationsJob($event->post, $userMentions, $postMentions, $groupMentions));
     }
 
-    protected function syncUserMentions(Post $post, array $mentioned): void
+    protected function syncUserMentions(Post $post, array $mentioned): array
     {
-        $post->mentionsUsers()->sync($mentioned);
+        $changes = $post->mentionsUsers()->sync($mentioned);
         $post->unsetRelation('mentionsUsers');
+
+        return $changes;
     }
 
     protected function syncPostMentions(Post $reply, array $mentioned): void

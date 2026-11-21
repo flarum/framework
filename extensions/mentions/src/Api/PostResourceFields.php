@@ -11,6 +11,7 @@ namespace Flarum\Mentions\Api;
 
 use Flarum\Api\Context;
 use Flarum\Api\Schema;
+use Flarum\Post\Post;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -57,7 +58,16 @@ class PostResourceFields
             Schema\Relationship\ToMany::make('mentionsPosts')
                 ->type('posts'),
             Schema\Relationship\ToMany::make('mentionsUsers')
-                ->type('users'),
+                ->type('users')
+                ->includable()
+                // The composer uses the updated users to refresh its store.
+                ->visible(fn (Post $post, Context $context) => $context->creating()),
+            Schema\Relationship\ToMany::make('affectedMentionUsers')
+                ->description('Users whose mention was added or removed by this edit.')
+                ->type('users')
+                ->includable()
+                ->visible(fn (Post $post, Context $context) => $context->updating())
+                ->get(fn (Post $post) => $post->relationLoaded('affectedMentionUsers') ? $post->getRelation('affectedMentionUsers')->all() : []),
             Schema\Relationship\ToMany::make('mentionsGroups')
                 ->type('groups'),
         ];
