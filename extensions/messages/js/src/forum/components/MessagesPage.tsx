@@ -14,6 +14,7 @@ import listItems from 'flarum/common/helpers/listItems';
 import ItemList from 'flarum/common/utils/ItemList';
 import Dropdown from 'flarum/common/components/Dropdown';
 import Button from 'flarum/common/components/Button';
+import Tooltip from 'flarum/common/components/Tooltip';
 import classList from 'flarum/common/utils/classList';
 
 export interface IMessagesPageAttrs extends IPageAttrs {}
@@ -224,27 +225,23 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
 
     items.add(
       'refresh',
-      <Button
-        title={app.translator.trans('flarum-messages.forum.messages_page.refresh_tooltip')}
-        aria-label={app.translator.trans('flarum-messages.forum.messages_page.refresh_tooltip')}
-        icon="fas fa-sync"
-        className="Button Button--icon"
-        onclick={() => {
-          app.dialogs.refresh();
-        }}
-      />
+      <Tooltip text={app.translator.trans('flarum-messages.forum.messages_page.refresh_tooltip')} container="body">
+        <Button
+          icon="fas fa-sync"
+          className="Button Button--icon"
+          onclick={() => {
+            app.dialogs.refresh();
+          }}
+        />
+      </Tooltip>
     );
 
     if (app.session.user) {
       items.add(
         'markAllAsRead',
-        <Button
-          title={app.translator.trans('flarum-messages.forum.messages_page.mark_all_as_read_tooltip')}
-          aria-label={app.translator.trans('flarum-messages.forum.messages_page.mark_all_as_read_tooltip')}
-          icon="fas fa-check"
-          className="Button Button--icon"
-          onclick={() => app.dialogs.markAllAsRead()}
-        />
+        <Tooltip text={app.translator.trans('flarum-messages.forum.messages_page.mark_all_as_read_tooltip')} container="body">
+          <Button icon="fas fa-check" className="Button Button--icon" onclick={() => app.dialogs.markAllAsRead()} />
+        </Tooltip>
       );
     }
 
