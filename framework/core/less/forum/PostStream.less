@@ -76,6 +76,19 @@
 .flash {
   animation: pulsate 0.2s ease-in-out;
 }
+// Pulse the opacity instead of the size when the user asks for less motion.
+// `.flash` still needs an animation, as PostStream removes it on `animationend`.
+@keyframes pulsateOpacity {
+  0% {opacity: 1}
+  50% {opacity: 0.6}
+  100% {opacity: 1}
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulsate,
+  .flash {
+    animation-name: pulsateOpacity;
+  }
+}
 
 @keyframes fadeIn {
   0% {opacity: 0}

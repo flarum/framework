@@ -203,6 +203,13 @@
     transform: translate(0, 70vh);
     transition: transform 0.3s, visibility 0s 0.3s;
 
+    // Fade in place instead of sliding up when the user asks for less motion.
+    @media (prefers-reduced-motion: reduce) {
+      transform: none;
+      opacity: 0;
+      transition: opacity 0.3s, visibility 0s 0.3s;
+    }
+
     > li {
       > a, > button {
         background: var(--body-bg);
@@ -232,6 +239,7 @@
     .open& {
       -webkit-transform: none;
               transform: none;
+      opacity: 1;
       visibility: visible;
       transition-delay: 0s;
     }

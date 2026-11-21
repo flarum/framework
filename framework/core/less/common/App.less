@@ -176,9 +176,31 @@
       transform: translateX(calc(~"6px + var(--drawer-width)"));
     }
 
+    // Fade in place instead of sliding in when the user asks for less motion.
+    @media (prefers-reduced-motion: reduce) {
+      opacity: 0;
+      // Without the slide the closed drawer stays over the page, so hide it once it
+      // has faded out. `!important` beats the inline `visibility: visible` that
+      // `Drawer.hide()` sets for the exit animation, which is never cleared when the
+      // drawer closes before it starts fading in and no `transitionend` fires.
+      visibility: hidden !important;
+      transition: opacity 0.2s, visibility 0s 0.2s;
+
+      &,
+      &:dir(rtl) {
+        transform: none;
+      }
+
+      .drawerOpen & {
+        visibility: visible !important;
+        transition-delay: 0s;
+      }
+    }
+
     .drawerOpen & {
       -webkit-transform: none !important;
               transform: none !important;
+      opacity: 1;
     }
   }
   .drawer-backdrop {
