@@ -219,9 +219,12 @@ class ForumServiceProvider extends AbstractServiceProvider
         $view->composer('flarum.forum::layouts.basic', function (View $layout) use ($container) {
             /** @var SettingsRepositoryInterface $settings */
             $settings = $container->make(SettingsRepositoryInterface::class);
+            $secondaryColor = $settings->get('theme_secondary_color') ?? '#536F90';
+            $darkBodyBg = FrontendServiceProvider::computeDarkBodyBg($secondaryColor);
             $layout->with([
                 'colorScheme' => $settings->get('color_scheme') ?? 'auto',
-                'darkBodyBg' => FrontendServiceProvider::computeDarkBodyBg($settings->get('theme_secondary_color') ?? '#536F90'),
+                'darkBodyBg' => $darkBodyBg,
+                ...BasicLayoutColors::forPrimaryColor($settings->get('theme_primary_color') ?? '#000', $secondaryColor, $darkBodyBg),
                 'faviconUrl' => $container->make(Branding::class)->faviconUrl(),
                 'faviconIcoUrl' => $container->make(Branding::class)->faviconIcoUrl(),
                 'faviconSvgUrl' => $container->make(Branding::class)->faviconSvgUrl(),

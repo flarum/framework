@@ -1,6 +1,4 @@
 @php
-  $primaryColor = $settings->get('theme_primary_color', '#000');
-
   // Follow the forum's color scheme: always dark for a dark one (dark, dark-hc),
   // the visitor's system setting for auto, and light otherwise.
   $darkMedia = match (true) {
@@ -8,16 +6,6 @@
     $colorScheme === 'auto' => '(prefers-color-scheme: dark)',
     default => null,
   };
-
-  // Same YIQ check as the forum's primary buttons (root.less): light primary colors get dark text.
-  $hex = ltrim($primaryColor, '#');
-  if (strlen($hex) === 3) {
-    $hex = preg_replace('/./', '$0$0', $hex);
-  }
-  $isLight = strlen($hex) === 6 && ctype_xdigit($hex)
-    && (hexdec(substr($hex, 0, 2)) * 299 + hexdec(substr($hex, 2, 2)) * 587 + hexdec(substr($hex, 4, 2)) * 114) >= 128000;
-  $buttonTextColor = $isLight ? '#333' : '#fff';
-  $linkColor = $isLight ? '#333' : $primaryColor;
 @endphp
 
 <!DOCTYPE html>
@@ -44,6 +32,7 @@
         color-scheme: light;
         --body-bg: #fff;
         --text-color: #333;
+        --link-color: {{ $lightLinkColor }};
         --control-bg: #fff;
         --control-border-color: #eee;
       }
@@ -53,6 +42,7 @@
           color-scheme: dark;
           --body-bg: {{ $darkBodyBg }};
           --text-color: #ddd;
+          --link-color: {{ $darkLinkColor }};
           --control-bg: rgba(255, 255, 255, .05);
           --control-border-color: rgba(255, 255, 255, .15);
         }
@@ -79,7 +69,7 @@
       }
       a {
         cursor: pointer;
-        color: {{ $linkColor }};
+        color: var(--link-color);
         text-decoration: none;
         font-weight: bold;
       }

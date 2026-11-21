@@ -260,6 +260,58 @@ class ErrorPageTest extends TestCase
     }
 
     #[Test]
+    #[DataProvider('standaloneContrastColors')]
+    public function error_page_uses_readable_button_and_link_colors(
+        string $primary,
+        string $secondary,
+        string $buttonBackground,
+        string $buttonText,
+        string $lightLink,
+        string $darkLink,
+    ): void {
+        $this->setting('color_scheme', 'auto');
+        $this->setting('theme_primary_color', $primary);
+        $this->setting('theme_secondary_color', $secondary);
+
+        $html = $this->render();
+
+        $this->assertMatchesRegularExpression('/background: '.preg_quote($buttonBackground, '/').';\s+color: '.preg_quote($buttonText, '/').';/', $html);
+        $this->assertMatchesRegularExpression('/--text-color: #333;\s+--link-color: '.preg_quote($lightLink, '/').';/', $html);
+        $this->assertMatchesRegularExpression('/--text-color: #ddd;\s+--link-color: '.preg_quote($darkLink, '/').';/', $html);
+        $this->assertMatchesRegularExpression('/a \{\s+cursor: pointer;\s+color: var\(--link-color\);/', $html);
+    }
+
+    /**
+     * Dark-mode links keep the primary colour, lightened until they are readable
+     * rather than falling back to the text colour. Buttons pick their label the
+     * way the forum does: white or the dark body background.
+     *
+     * @return array<string, array{string, string, string, string, string, string}>
+     */
+    public static function standaloneContrastColors(): array
+    {
+        $themeText = 'var(--text-color)';
+
+        return [
+            'white' => ['#ffffff', '#536F90', '#ffffff', 'hsl(212,20%,10%)', $themeText, '#ffffff'],
+            'short white' => ['#fff', '#536F90', '#fff', 'hsl(212,20%,10%)', $themeText, '#fff'],
+            'black' => ['#000', '#536F90', '#000', '#fff', '#000', '#828282'],
+            'blue' => ['#536F90', '#536F90', '#536F90', '#fff', '#536F90', '#6583a6'],
+            'mid-grey prefers white text like the forum' => ['#777', '#536F90', '#777', '#fff', $themeText, '#818181'],
+            'mid-light grey on a blue secondary' => ['#818181', '#00f', '#818181', 'hsl(240,20%,10%)', $themeText, '#818181'],
+            'mid-light grey on a yellow secondary' => ['#818181', '#ff0', '#818181', 'hsl(60,20%,10%)', $themeText, '#868686'],
+            'yellow on a blue secondary' => ['#ff0', '#00f', '#ff0', 'hsl(240,20%,10%)', $themeText, '#ff0'],
+            'invalid secondary falls back to the dark body background' => ['#ffffff', 'red', '#ffffff', '#1a2333', $themeText, '#ffffff'],
+            'unset' => ['', '#536F90', '#000', '#fff', '#000', $themeText],
+            'named colour falls back to black' => ['red', '#536F90', '#000', '#fff', '#000', $themeText],
+            'rgb() falls back to black' => ['rgb(1, 2, 3)', '#536F90', '#000', '#fff', '#000', $themeText],
+            'hsl() falls back to black' => ['hsl(1, 2%, 3%)', '#536F90', '#000', '#fff', '#000', $themeText],
+            '4-digit hex falls back to black' => ['#abcd', '#536F90', '#000', '#fff', '#000', $themeText],
+            '8-digit hex falls back to black' => ['#aabbccdd', '#536F90', '#000', '#fff', '#000', $themeText],
+        ];
+    }
+
+    #[Test]
     public function error_page_is_dark_when_the_forum_is(): void
     {
         $this->setting('color_scheme', 'dark');
