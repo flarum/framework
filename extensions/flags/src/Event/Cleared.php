@@ -13,9 +13,9 @@ use Flarum\Post\Post;
 use Flarum\User\User;
 
 /**
- * A post's flags are gone: dismissed, or the post deleted. Fired once per post,
- * after the flags have been removed, unlike Deleting, which fires for each flag
- * beforehand.
+ * Some or all of a post's flags are gone: dismissed, the post deleted, or the post
+ * approved (its approval flag). Fired once per removal, after the flags are gone,
+ * unlike Deleting, which fires for each dismissed flag beforehand.
  */
 class Cleared
 {

@@ -70,14 +70,35 @@ app.initializers.add(
       }
     });
 
+    // Flag types the server removes once a post is approved; other extensions add theirs.
+    (PostControls.flagTypesRemovedOnApproval ??= []).push('approval');
+
     PostControls.approveAction = function () {
       haptic('success');
-      this.save({ isApproved: true });
+
+      const saving = this.save({ isApproved: true }).then(() => forgetFlagsRemovedOnApproval(this));
 
       if (this.number() === 1) {
         this.discussion().pushAttributes({ isApproved: true });
       }
+
+      return saving;
     };
   },
   -10
 ); // set initializer priority to run after reports
+
+/**
+ * The update's response leaves out flags, and asking for them would bring back any the flag
+ * bar dismisses at the same time, so drop the removed ones locally.
+ */
+function forgetFlagsRemovedOnApproval(post) {
+  const types = PostControls.flagTypesRemovedOnApproval;
+  const flags = post.flags?.();
+
+  if (!flags || !flags.some((flag) => flag && types.includes(flag.type()))) return;
+
+  post.pushData({ relationships: { flags: flags.filter((flag) => flag && !types.includes(flag.type())) } });
+  app.flags?.clear();
+  m.redraw();
+}
