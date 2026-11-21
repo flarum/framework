@@ -1,21 +1,9 @@
-import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import Tooltip, { type TooltipAttrs } from '../../../../src/common/components/Tooltip';
 import m from 'mithril';
+import { jest } from '@jest/globals';
+import { bsTooltip, removeTooltips, useRealBootstrapTooltips } from '../tooltips';
 
-beforeAll(async () => {
-  bootstrapForum();
-
-  // The test environment stubs `$.fn.tooltip`; these tests need Bootstrap's,
-  // with the transition plugin the forum loads, so tooltips fade.
-  (global as any).jQuery = (window as any).jQuery = $;
-
-  // jsdom has no CSS transitions, so make Bootstrap's feature detection find
-  // them; it runs on DOM ready, after the import.
-  Object.defineProperty((window as any).CSSStyleDeclaration.prototype, 'transition', { get: () => '', configurable: true });
-  await import('bootstrap/js/transition');
-  await new Promise((resolve) => $(resolve));
-  await import('bootstrap/js/tooltip');
-});
+beforeAll(useRealBootstrapTooltips);
 
 let root: HTMLElement;
 
@@ -23,7 +11,8 @@ afterEach(() => {
   m.mount(root, null);
   root.remove();
   (document.activeElement as HTMLElement | null)?.blur();
-  $('.tooltip').remove();
+  removeTooltips();
+  jest.restoreAllMocks();
 });
 
 function mount(attrs: Partial<TooltipAttrs> | (() => Partial<TooltipAttrs>)): HTMLButtonElement {
@@ -33,10 +22,6 @@ function mount(attrs: Partial<TooltipAttrs> | (() => Partial<TooltipAttrs>)): HT
   m.mount(root, { view: () => m(Tooltip, getAttrs() as TooltipAttrs, m('button', 'Hi')) });
 
   return root.querySelector('button')!;
-}
-
-function bsTooltip(button: HTMLElement) {
-  return ($(button) as any).data('bs.tooltip');
 }
 
 function shown(): boolean {
@@ -111,7 +96,63 @@ describe('Tooltip', () => {
     button.focus();
     expect(shown()).toBe(true);
 
-    button.click();
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }));
+
+    expect(shown()).toBe(false);
+  });
+
+  it('leaves the tooltip up when the control is activated from the keyboard', () => {
+    const attrs = { text: 'Hello' };
+    const button = mount(attrs);
+
+    button.focus();
+    expect(shown()).toBe(true);
+
+    // Enter and Space produce a click with no pointer detail. Bootstrap does
+    // not fire `focusin` again while the element keeps focus, so hiding here
+    // would take the tooltip away from the keyboard user for good.
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }));
+    expect(shown()).toBe(true);
+
+    // It still behaves like a hover/focus tooltip afterwards.
+    button.blur();
+    expect(shown()).toBe(false);
+    button.focus();
+    expect(shown()).toBe(true);
+  });
+
+  it('hides a tooltip when a tap turns into a scroll', () => {
+    const button = mount({ text: 'Hello' });
+
+    button.dispatchEvent(new Event('touchstart', { bubbles: true }));
+    $(button).trigger('mouseenter');
+    expect(shown()).toBe(true);
+
+    button.dispatchEvent(new Event('touchmove', { bubbles: true }));
+
+    expect(shown()).toBe(false);
+  });
+
+  it('hides a tooltip when the browser takes over a touch gesture', () => {
+    const button = mount({ text: 'Hello' });
+
+    button.dispatchEvent(new Event('touchstart', { bubbles: true }));
+    $(button).trigger('mouseenter');
+    expect(shown()).toBe(true);
+
+    button.dispatchEvent(new Event('pointercancel', { bubbles: true }));
+
+    expect(shown()).toBe(false);
+  });
+
+  it('hides a tooltip on a touch long press', () => {
+    const button = mount({ text: 'Hello' });
+
+    button.dispatchEvent(new Event('touchstart', { bubbles: true }));
+    $(button).trigger('mouseenter');
+    expect(shown()).toBe(true);
+
+    button.dispatchEvent(new Event('contextmenu', { bubbles: true }));
 
     expect(shown()).toBe(false);
   });
@@ -232,6 +273,7 @@ describe('Tooltip', () => {
 
     // Bootstrap positions the tip against the page when it opens, so on a
     // fixed header it would otherwise stay behind as the page scrolls.
+    window.dispatchEvent(new Event('wheel'));
     window.dispatchEvent(new Event('scroll'));
 
     expect(shown()).toBe(false);
@@ -243,9 +285,52 @@ describe('Tooltip', () => {
     $(button).trigger('mouseenter');
     expect(shown()).toBe(true);
 
+    window.dispatchEvent(new Event('wheel'));
     window.dispatchEvent(new Event('scroll'));
 
     expect(shown()).toBe(true);
+  });
+
+  it('keeps a container tooltip up when focus scrolls its control into view', () => {
+    const button = mount({ text: 'Hello', container: 'body' });
+
+    // A focus that scrolls the page is not the page moving under the pointer.
+    button.focus();
+    window.dispatchEvent(new Event('scroll'));
+
+    expect(shown()).toBe(true);
+  });
+
+  it('watches for scrolling only while a container tooltip is showing', async () => {
+    const add = jest.spyOn(window, 'addEventListener');
+    const remove = jest.spyOn(window, 'removeEventListener');
+    const scrollAdds = () => add.mock.calls.filter(([type]) => type === 'scroll').length;
+    const scrollRemoves = () => remove.mock.calls.filter(([type]) => type === 'scroll').length;
+
+    const button = mount({ text: 'Hello', container: 'body' });
+
+    expect(scrollAdds()).toBe(0);
+
+    $(button).trigger('mouseenter');
+    expect(shown()).toBe(true);
+    expect(scrollAdds()).toBe(1);
+
+    $(button).trigger('mouseleave');
+
+    // The listener goes away once the tip has finished fading out.
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    expect(scrollRemoves()).toBe(1);
+  });
+
+  it('does not watch for scrolling for a tooltip beside its control', () => {
+    const add = jest.spyOn(window, 'addEventListener');
+    const button = mount({ text: 'Hello' });
+
+    $(button).trigger('mouseenter');
+    expect(shown()).toBe(true);
+
+    expect(add.mock.calls.filter(([type]) => type === 'scroll')).toHaveLength(0);
   });
 
   it('applies changed html and container options', () => {

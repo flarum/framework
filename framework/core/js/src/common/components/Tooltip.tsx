@@ -120,6 +120,9 @@ export default class Tooltip extends Component<TooltipAttrs> {
   private shouldUpdateText: boolean = false;
   private shouldChangeTooltipVisibility: boolean = false;
 
+  private scrollBound: boolean = false;
+  private pointerActive: boolean = false;
+
   view(vnode: Mithril.Vnode<TooltipAttrs, this>) {
     /**
      * We know this will be a ChildArray and not a primitive as this
@@ -217,17 +220,15 @@ export default class Tooltip extends Component<TooltipAttrs> {
     super.oncreate(vnode);
 
     this.checkDomNodeChanged();
-    this.bindActivation();
+    this.bindChildEvents();
     this.recreateTooltip();
-
-    window.addEventListener('scroll', this.onScroll, { passive: true });
   }
 
   onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
     super.onupdate(vnode);
 
     this.checkDomNodeChanged();
-    this.bindActivation();
+    this.bindChildEvents();
 
     if (this.shouldUpdateText) {
       this.updateText();
@@ -240,24 +241,35 @@ export default class Tooltip extends Component<TooltipAttrs> {
   onremove(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
     super.onremove(vnode);
 
-    window.removeEventListener('scroll', this.onScroll);
+    if (this.childDomNode !== null) {
+      $(this.childDomNode).off('.flarumTooltip');
+    }
+
+    this.unbindScroll();
     this.destroyTooltip();
   }
 
   /**
-   * Hides the tooltip when its element is activated.
+   * Hides the tooltip when its element is activated, or when a touch gesture
+   * starts to scroll or is taken over by the browser.
    *
    * A touch screen turns a tap into a hover and a focus as well as a click, so
    * Bootstrap would otherwise keep the tooltip up until the pointer and focus
    * both left, leaving it over the modal or the next control that was tapped.
+   * A long press, or a tap that turns into a scroll, never ends in a click, so
+   * those gestures are handled here too.
    */
-  private hideOnActivate = () => {
+  private hideOnActivate = (e: JQuery.TriggeredEvent) => {
     // Manually controlled tooltips are left to the code that manages them.
     if (typeof this.attrs.tooltipVisible === 'boolean') return;
-    if (this.childDomNode === null) return;
 
-    const tooltip = $(this.childDomNode).data('bs.tooltip');
-    if (tooltip?.$tip?.hasClass('in')) this.hideTooltip();
+    // Enter and Space activate a button with a click that has no pointer
+    // detail. Bootstrap does not re-run `focusin` while the element is still
+    // focused, so hiding here would take the tooltip away from a keyboard user
+    // until they moved focus away and back; leave it up instead.
+    if (e.type === 'click' && (e.originalEvent as MouseEvent | undefined)?.detail === 0) return;
+
+    this.hideIfShown();
   };
 
   /**
@@ -270,23 +282,79 @@ export default class Tooltip extends Component<TooltipAttrs> {
    * with it and need no handling.
    */
   private onScroll = () => {
-    if (!this.attrs.container) return;
-    if (typeof this.attrs.tooltipVisible === 'boolean') return;
+    // A scroll from a keyboard action, such as an element being scrolled into
+    // view when it gets focus, is not the page moving under the pointer;
+    // leave the tooltip up for it.
+    if (!this.pointerActive) return;
+
+    this.hideIfShown();
+  };
+
+  private hideIfShown() {
     if (this.childDomNode === null) return;
 
     const tooltip = $(this.childDomNode).data('bs.tooltip');
     if (tooltip?.$tip?.hasClass('in')) this.hideTooltip();
-  };
+  }
 
   /**
-   * Listens for activation on the current child element, dropping the listener
-   * from the previous one when Mithril replaces it.
+   * Listens on the current child element, dropping the listeners from the
+   * previous one when Mithril replaces it.
    */
-  private bindActivation() {
+  private bindChildEvents() {
     if (this.childDomNode === null) return;
 
-    $(this.childDomNode).off('click.flarumTooltip').on('click.flarumTooltip', this.hideOnActivate);
+    $(this.childDomNode)
+      .off('.flarumTooltip')
+      .on('click.flarumTooltip', this.hideOnActivate)
+      // A long press, or a press that turns into a scroll, never ends in a
+      // click, so the tooltip has to be hidden on those gestures as well.
+      .on('pointercancel.flarumTooltip contextmenu.flarumTooltip', this.hideOnActivate)
+      .on('touchmove.flarumTooltip', this.hideOnActivate)
+      // Only container tooltips have to be hidden on scroll, and only while
+      // they are showing, so the listener is bound from those events.
+      // `inserted` fires once the tip is really in the page, after any
+      // `show.bs.tooltip` handler has had the chance to cancel it.
+      .on('inserted.bs.tooltip.flarumTooltip', this.bindScroll)
+      .on('hidden.bs.tooltip.flarumTooltip', this.unbindScroll);
   }
+
+  /**
+   * Watches for scrolling while a container tooltip is showing.
+   *
+   * Pointer activity is recorded too, so that a scroll that never involved the
+   * pointer, such as focus scrolling the triggering element into view, does
+   * not hide a tooltip that was just shown.
+   */
+  private bindScroll = () => {
+    if (this.scrollBound) return;
+    if (!this.attrs.container) return;
+    if (typeof this.attrs.tooltipVisible === 'boolean') return;
+
+    this.scrollBound = true;
+    this.pointerActive = false;
+
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('wheel', this.markPointerActive, { passive: true });
+    window.addEventListener('mousedown', this.markPointerActive, { passive: true });
+    window.addEventListener('touchmove', this.markPointerActive, { passive: true });
+  };
+
+  private unbindScroll = () => {
+    if (!this.scrollBound) return;
+
+    this.scrollBound = false;
+    this.pointerActive = false;
+
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('wheel', this.markPointerActive);
+    window.removeEventListener('mousedown', this.markPointerActive);
+    window.removeEventListener('touchmove', this.markPointerActive);
+  };
+
+  private markPointerActive = () => {
+    this.pointerActive = true;
+  };
 
   private hideTooltip() {
     if (this.childDomNode === null) return;
@@ -396,6 +464,8 @@ export default class Tooltip extends Component<TooltipAttrs> {
    * Destroys the Bootstrap tooltip at once, returning whether it was shown.
    */
   private destroyTooltip(): boolean {
+    this.unbindScroll();
+
     if (this.childDomNode === null) return false;
 
     const tooltip = $(this.childDomNode).data('bs.tooltip');
