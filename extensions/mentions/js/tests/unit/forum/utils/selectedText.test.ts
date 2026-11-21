@@ -103,10 +103,10 @@ describe('selectedText', () => {
       expect(selectedText($body)).toBe('@Fans');
     });
 
-    test('a tag mention keeps its link without quoting its icon as an image', () => {
+    test('a tag mention is quoted as a tag mention, without quoting its icon as an image', () => {
       expect(
         quote(`<p>See <a href="https://example.com/t/lions" class="TagMention"><span class="TagMention-text">${crest}Lions</span></a></p>`)
-      ).toBe('See [Lions](https://example.com/t/lions)');
+      ).toBe('See #lions');
     });
   });
 
@@ -157,8 +157,7 @@ describe('selectedText', () => {
 describe('spoilers', () => {
   // What the markdown extension renders: see its ispoiler template and
   // Litedown's block spoiler. Keep in step with them.
-  const inline = (inner: string) =>
-    `<span class="spoiler" data-spoiler="" onclick="removeAttribute('class')">${inner}</span>`;
+  const inline = (inner: string) => `<span class="spoiler" data-spoiler="" onclick="removeAttribute('class')">${inner}</span>`;
   const revealed = (inner: string) => `<span data-spoiler="" onclick="removeAttribute('class')">${inner}</span>`;
   const block = (inner: string) => `<details class="spoiler">${inner}</details>`;
 
@@ -195,9 +194,11 @@ describe('spoilers', () => {
   });
 
   test('keeps images, emoji and links', () => {
-    expect(quote(`<p>${inline('<img src="https://example.com/a.png"> <img class="emoji" alt="😀" src="e.png"> <a href="https://example.com/">site</a>')}</p>`)).toBe(
-      '>!![](https://example.com/a.png) 😀 [site](https://example.com/)!<'
-    );
+    expect(
+      quote(
+        `<p>${inline('<img src="https://example.com/a.png"> <img class="emoji" alt="😀" src="e.png"> <a href="https://example.com/">site</a>')}</p>`
+      )
+    ).toBe('>!![](https://example.com/a.png) 😀 [site](https://example.com/)!<');
     expect(quote(block('<p><img src="https://example.com/a.png"></p>'))).toBe('>! ![](https://example.com/a.png)\n');
   });
 
@@ -400,7 +401,9 @@ describe('a selection that runs past the post body', () => {
   // the start of the footer's text instead.
   test("quotes a triple click on the last paragraph of a post with a footer, which Chrome ends at the footer's start", () => {
     const { $first } = posts();
-    document.querySelector('#first .Post-actions')!.insertAdjacentHTML('afterend', '<footer class="Post-footer"><ul><li>You like this.</li></ul></footer>');
+    document
+      .querySelector('#first .Post-actions')!
+      .insertAdjacentHTML('afterend', '<footer class="Post-footer"><ul><li>You like this.</li></ul></footer>');
 
     select((range) => {
       range.setStart($first.find('p')[1].firstChild!, 0);
@@ -514,5 +517,161 @@ describe('a selection that runs past the post body', () => {
     selectedText($first);
 
     expect(window.getSelection()!.getRangeAt(0).endContainer).toBe(next);
+  });
+});
+
+// What the server renders, as on a 2.x forum with Mentions, Markdown and
+// BBCode: blockquotes wrap their content in a div, and paragraphs are
+// separated by blank lines. Keep in step with ConfigureMentions.
+const postMention = (id: number, name: string, deleted = false) =>
+  deleted
+    ? `<span class="PostMention PostMention--deleted" data-id="${id}"><i class="icon fas fa-reply"></i>${name}</span>`
+    : `<a href="https://example.com/d/1-test/1" class="PostMention" data-id="${id}"><i class="icon fas fa-reply"></i>${name}</a>`;
+const userMention = (id: number, name: string) => `<a href="https://example.com/u/${name}" class="UserMention" data-id="${id}">@${name}</a>`;
+const quoted = (...blocks: string[]) => `<blockquote class="uncited"><div>${blocks.join('\n\n')}</div></blockquote>`;
+
+describe('selectedText keeps what a post quotes and mentions', () => {
+  test('a quote of a quote keeps its depth, three levels down', () => {
+    const html = [quoted(`<p>${postMention(1, 'Admin')} First</p>`, quoted('<p>Second</p>', quoted('<p>Third</p>'))), '<p>Reply</p>'].join('\n\n');
+
+    expect(quote(html)).toBe('> @"Admin"#p1 First\n>\n> > Second\n> >\n> > > Third\n\nReply');
+  });
+
+  test('a quote with several paragraphs keeps them apart', () => {
+    expect(quote(quoted('<p>One</p>', '<p>Two</p>'))).toBe('> One\n>\n> Two');
+  });
+
+  test('a selection that starts inside a quote of a quote keeps the depth from there', () => {
+    const $body = postBody([quoted('<p>Outer</p>', quoted('<p>Inner text</p>')), '<p>After</p>'].join('\n\n'));
+    const inner = $body.find('blockquote blockquote p')[0].firstChild!;
+
+    select((range) => {
+      range.setStart(inner, 6);
+      range.setEnd($body.find('> p')[0].firstChild!, 5);
+    });
+
+    expect(selectedText($body)).toBe('> > text\n\nAfter');
+  });
+
+  test('a selection entirely inside one quote is quoted as its text', () => {
+    const $body = postBody(quoted('<p>Outer</p>', quoted('<p>Inner text</p>')));
+
+    select((range) => range.selectNodeContents($body.find('blockquote blockquote p')[0]));
+
+    expect(selectedText($body)).toBe('Inner text');
+  });
+
+  test('a post mention is quoted as a mention, not a link', () => {
+    expect(quote(`<p>${postMention(12, 'Ben Smith')} agreed</p>`)).toBe('@"Ben Smith"#p12 agreed');
+  });
+
+  test('a mention of a deleted post keeps its ID, so it stays a mention', () => {
+    expect(quote(`<p>${postMention(99, '[deleted]', true)} said so</p>`)).toBe('@"[deleted]"#p99 said so');
+  });
+
+  test('a selection that starts inside a mention still quotes the mention', () => {
+    const $body = postBody(`<p>${postMention(12, 'Ben Smith')} agreed</p>`);
+
+    select((range) => {
+      range.setStart($body.find('.PostMention')[0].lastChild!, 4);
+      range.setEnd($body.find('p')[0].lastChild!, 7);
+    });
+
+    expect(selectedText($body)).toBe('@"Smith"#p12 agreed');
+  });
+
+  test('user, deleted user and group mentions are quoted as they are written', () => {
+    const deleted = '<span class="UserMention UserMention--deleted" data-id="7">@[deleted]</span>';
+    const group =
+      '<span class="GroupMention GroupMention--colored" style="--color:#80349E;" data-id="4"><span class="GroupMention-name">@Mods</span><i class="icon fas fa-bolt"></i></span>';
+
+    expect(quote(`<p>Hi ${userMention(3, 'Ben')}, ${deleted} and ${group}</p>`)).toBe('Hi @"Ben"#3, @"[deleted]"#7 and @"Mods"#g4');
+  });
+
+  test('a tag mention is quoted by its slug', () => {
+    const tag = '<a href="https://example.com/t/how-to" class="TagMention" data-id="5"><span class="TagMention-text">How to</span></a>';
+
+    expect(quote(`<p>See ${tag}</p>`)).toBe('See #how-to');
+  });
+
+  test('a mention rendered before mentions carried their ID is quoted as its name', () => {
+    expect(quote('<p><a href="https://example.com/u/ben" class="UserMention">@Ben</a> hi</p>')).toBe('@Ben hi');
+  });
+
+  test('a code block keeps its fence and language, without the highlighter script', () => {
+    const pre =
+      '<pre><code class="language-php">echo "code";</code><script async src="https://cdn.example/loader.min.js"></script><script>window.hljsLoader.highlightBlocks();</script></pre>';
+
+    expect(quote(`<p>Before</p>\n\n${pre}\n\n<p>After</p>`)).toBe('Before\n\n```php\necho "code";\n```\n\nAfter');
+  });
+
+  test('a code block that holds a fence gets a longer one', () => {
+    expect(quote('<pre><code>```\nnested\n```</code></pre>')).toBe('````\n```\nnested\n```\n````');
+  });
+
+  test('inline code keeps its backticks, even around a backtick', () => {
+    expect(quote('<p>Use <code>a`b</code> and <code>`x</code></p>')).toBe('Use ``a`b`` and `` `x ``');
+  });
+
+  test('a selection entirely inside code is quoted as code', () => {
+    const $body = postBody('<pre><code class="language-js">let a = 1;\nlet b = 2;</code></pre>\n\n<p>Use <code>npm ci</code> here</p>');
+
+    select((range) => range.selectNodeContents($body.find('pre code')[0]));
+    expect(selectedText($body)).toBe('```js\nlet a = 1;\nlet b = 2;\n```');
+
+    select((range) => range.selectNodeContents($body.find('p code')[0]));
+    expect(selectedText($body)).toBe('`npm ci`');
+  });
+
+  test('a code block inside a quote stays code, one level down', () => {
+    expect(quote(quoted('<p>Try:</p>', '<pre><code>one\ntwo</code></pre>'))).toBe('> Try:\n>\n> ```\n> one\n> two\n> ```');
+  });
+
+  test('emoji, images and links in a quote of a quote are kept', () => {
+    const html = quoted(
+      '<p><img class="emoji" alt="😀" src="https://example.com/1f600.png"> <img src="https://example.com/a.png"> <a href="https://example.com/x">x</a></p>'
+    );
+
+    expect(quote(html)).toBe('> 😀 ![](https://example.com/a.png) [x](https://example.com/x)');
+  });
+
+  test('a name holding "#p1 cannot make the quote mention another post or user', () => {
+    expect(quote(`<p>${postMention(5, 'a"#p1 b')}</p>`)).toBe('@"a_ b"#p5');
+    expect(quote(`<p>${userMention(5, 'x"#7')}</p>`)).toBe('@"x_"#5');
+  });
+
+  test('code inside a spoiler is not escaped, since backslashes are literal in code', () => {
+    expect(quote('<p><span class="spoiler"><code>a\\b&lt;c&gt;</code> and a&lt;b</span></p>')).toBe('>!`a\\b<c>` and a\\<b!<');
+    expect(quote('<details class="spoiler"><summary>S</summary><pre><code>if (a &lt; b) "\\n"</code></pre></details>')).toBe(
+      '>! S\n>! \n>! ```\n>! if (a < b) "\\n"\n>! ```\n'
+    );
+  });
+
+  test('a selection entirely inside code inside a spoiler stays code, inside the spoiler', () => {
+    const $body = postBody('<p><span class="spoiler">see <code>a&lt;b</code></span></p>');
+
+    select((range) => range.selectNodeContents($body.find('code')[0]));
+
+    expect(selectedText($body)).toBe('>!`a<b`!<');
+  });
+
+  test('a quote inside a block spoiler keeps its marker', () => {
+    expect(quote('<details class="spoiler"><p>x</p>\n\n<blockquote class="uncited"><div><p>inner</p></div></blockquote></details>')).toBe(
+      '>! x\n>! \n>! > inner\n'
+    );
+  });
+
+  test('a BBCode quote keeps its citation on its own line', () => {
+    expect(quote('<blockquote><div><cite>Bob wrote:</cite>hello</div></blockquote>')).toBe('> Bob wrote:\n> hello');
+  });
+
+  test('a quote or code block with no blank line around it still starts and ends a block', () => {
+    expect(quote('before<blockquote class="uncited"><div>x</div></blockquote>after')).toBe('before\n\n> x\n\nafter');
+    expect(quote('before<pre><code>x</code></pre>after')).toBe('before\n\n```\nx\n```\n\nafter');
+  });
+
+  test('a code block keeps the language it was written with, not one highlight.js guessed', () => {
+    expect(quote('<pre><code class="language-php hljs">echo 1;</code></pre>')).toBe('```php\necho 1;\n```');
+    expect(quote('<pre><code class="hljs language-perl">no language</code></pre>')).toBe('```\nno language\n```');
   });
 });

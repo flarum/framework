@@ -278,6 +278,8 @@ class UserMentionsTest extends TestCase
         $this->assertCount(0, $post->mentionsGroups);
         $this->assertCount(0, $post->mentionsPosts);
         $this->assertStringContainsString('class="UserMention"', $data['attributes']['contentHtml']);
+        // The ID lets the Quote button write the mention back as it was written.
+        $this->assertStringContainsString('class="UserMention" data-id="3"', $data['attributes']['contentHtml']);
     }
 
     #[Test]
@@ -436,6 +438,7 @@ class UserMentionsTest extends TestCase
         $this->assertStringContainsString('@"'.$deleted_text.'"#2021', $response['data']['attributes']['content']);
         $this->assertStringContainsString('UserMention', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('UserMention--deleted', $response['data']['attributes']['contentHtml']);
+        $this->assertStringContainsString('class="UserMention UserMention--deleted" data-id="2021"', $response['data']['attributes']['contentHtml']);
         $this->assertStringNotContainsString('i_am_a_deleted_user', $response['data']['attributes']['contentHtml']);
         $this->assertStringNotContainsString('i_am_a_deleted_user', $response['data']['attributes']['content']);
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsUsers);

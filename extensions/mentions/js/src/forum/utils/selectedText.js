@@ -22,6 +22,79 @@ const inlineSpoiler = (text) => (text ? `>!${text.startsWith('[') ? ' ' : ''}${t
 
 const blockSpoiler = (text) => (text.trim() ? `>! ${text.trim().replace(/\n/g, '\n>! ')}\n` : '');
 
+// The longest run of backticks in the text, so that a code span or fence
+// around it can be one longer and not be closed early.
+const longestBacktickRun = (text) => Math.max(0, ...(text.match(/`+/g) || []).map((run) => run.length));
+
+// A code span around the text. A space keeps a backtick at either end of the
+// code from joining the fence.
+function codeSpan(text) {
+  const fence = '`'.repeat(longestBacktickRun(text) + 1);
+  const pad = text.startsWith('`') || text.endsWith('`') ? ' ' : '';
+
+  return fence + pad + text + pad + fence;
+}
+
+// A fenced code block, in the language the block was highlighted as.
+function codeBlock(pre) {
+  const code = pre.querySelector('code');
+  // The server's language class comes first. highlight.js adds "hljs" and,
+  // for a block written without a language, the one it guessed, after it.
+  const language = ((code && code.className.match(/^language-([\w+#.-]+)/)) || [])[1] || '';
+  const text = (code || pre).textContent.replace(/\n$/, '');
+  const fence = '`'.repeat(Math.max(3, longestBacktickRun(text) + 1));
+
+  return `${fence}${language}\n${text}\n${fence}`;
+}
+
+// A quote's lines, each marked as quoted once more, so that a quote inside it
+// keeps its depth. A blank line is marked too, so the quote doesn't end there.
+const blockquote = (text) =>
+  text
+    .replace(/^\n+|\s+$/g, '')
+    .split('\n')
+    .map((line) => (line ? `> ${line}` : '>'))
+    .join('\n');
+
+// A block's text, with a blank line on each side where the text around it has
+// none, so that the block starts and ends on lines of its own.
+function asBlock(node, text) {
+  const blankBefore = (sibling) => !sibling || /(^|\n)\n$/.test(sibling.textContent) || sibling.textContent === '';
+  const before = node.previousSibling;
+  const after = node.nextSibling;
+  const lead = blankBefore(before) ? '' : /\n$/.test(before.textContent) ? '\n' : '\n\n';
+  const trail = !after || /^\n\n/.test(after.textContent) || after.textContent === '' ? '' : /^\n/.test(after.textContent) ? '\n' : '\n\n';
+
+  return lead + text + trail;
+}
+
+// A mention as it is written, so that the quote still mentions what the post
+// did. The name is the one shown: the mention's own formatter looks it up again
+// by its ID. Keep in step with ConfigureMentions.
+function mentionSource(element) {
+  const id = element.getAttribute('data-id');
+  // Cleaned as getCleanDisplayName does: a name holding "#p1 would otherwise
+  // end the mention early, and mention another post.
+  const name = (element.querySelector('.GroupMention-name') || element).textContent
+    .trim()
+    .replace(/^@/, '')
+    .replace(/[\r\n\u2028\u2029]+/g, ' ')
+    .replace(/"#[a-z]{0,3}[0-9]+/g, '_');
+
+  if (element.matches('.PostMention') && id) return `@"${name}"#p${id}`;
+  if (element.matches('.UserMention') && id) return `@"${name}"#${id}`;
+  if (element.matches('.GroupMention') && id) return `@"${name}"#g${id}`;
+
+  if (element.matches('a.TagMention')) {
+    const slug = decodeURIComponent((element.getAttribute('href') || '').split('/').pop() || '');
+
+    if (slug) return `#${slug}`;
+  }
+
+  // Rendered before mentions carried their ID, or deleted: the name as text.
+  return element.textContent.trim();
+}
+
 // The text nodes before the node in the clone, outside it.
 function textsBefore(node, root) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -151,6 +224,10 @@ export default function selectedText(body) {
   const around = found && $.contains(body[0], found) ? found : null;
   const aroundInline = around && !around.matches(BLOCK_SPOILER);
 
+  // Likewise for a selection entirely inside code.
+  const foundCode = element.closest('pre, code');
+  const aroundCode = foundCode && $.contains(body[0], foundCode) ? foundCode : null;
+
   // An inline spoiler inside another is already hidden by it, and its "!<"
   // would close the outer one early: keep only its contents.
   clone
@@ -163,6 +240,10 @@ export default function selectedText(body) {
   while (walker.nextNode()) {
     const text = walker.currentNode;
     const container = text.parentElement;
+
+    // Backslashes are literal in code, which is read before spoilers: code
+    // needs no escaping, and would show it.
+    if (aroundCode || container.closest('code, pre')) continue;
 
     if (aroundInline || container.closest(INLINE_SPOILER)) text.data = escapeInline(text.data);
     else if (around || container.closest(BLOCK_SPOILER)) text.data = escapeBlock(text.data);
@@ -179,6 +260,24 @@ export default function selectedText(body) {
 
   // The replacements below are text nodes: a string returned to
   // replaceWith() is parsed as HTML, and the post's text must stay text.
+
+  // Scripts and styles in the post, such as the code highlighter's loader in
+  // a code block, are not text the reader sees.
+  clone.find('script, style').remove();
+
+  // Mentions are quoted as they were written, not as links to them. Before the
+  // icons are removed below, since a mention's name is its text.
+  clone.find('.PostMention, .UserMention, .GroupMention, .TagMention').replaceWith(function () {
+    return document.createTextNode(mentionSource(this));
+  });
+
+  // Code keeps its fences, so it stays code in the quote.
+  clone.find('pre').replaceWith(function () {
+    return document.createTextNode(asBlock(this, codeBlock(this)));
+  });
+  clone.find('code').replaceWith(function () {
+    return document.createTextNode(codeSpan(this.textContent));
+  });
 
   // Replace emoji images with their shortcode (found in alt attribute)
   clone.find('img.emoji').replaceWith(function () {
@@ -214,13 +313,44 @@ export default function selectedText(body) {
 
     return document.createTextNode(inlineSpoiler(this.textContent));
   });
-  clone.find(BLOCK_SPOILER).replaceWith(function () {
-    return document.createTextNode(blockSpoiler(this.textContent));
+  // A quote's citation, as BBCode's [quote=Name] shows it, goes on a line of
+  // its own above what was quoted.
+  clone.find('blockquote cite').replaceWith(function () {
+    return document.createTextNode(this.textContent.trim() + '\n');
   });
 
-  if (around) {
-    return aroundInline ? inlineSpoiler(clone.text()) : blockSpoiler(clone.text());
+  // Quotes and block spoilers keep their depth: the innermost first, so that
+  // each one around it marks the lines of the ones inside it again.
+  clone
+    .find(`blockquote, ${BLOCK_SPOILER}`)
+    .toArray()
+    .reverse()
+    .forEach((block) => {
+      const text = block.matches('blockquote') ? blockquote(block.textContent) : blockSpoiler(block.textContent);
+
+      block.replaceWith(document.createTextNode(asBlock(block, text)));
+    });
+
+  let text = clone.text();
+
+  // A selection entirely inside code has none of the code element in its
+  // fragment: it is wrapped in the kind of code it was taken from, and then in
+  // the spoiler around that.
+  if (aroundCode) {
+    const pre = aroundCode.closest('pre');
+
+    if (pre) {
+      const block = pre.cloneNode(false);
+      const code = pre.querySelector('code');
+
+      block.appendChild(code ? Object.assign(code.cloneNode(false), { textContent: text }) : document.createTextNode(text));
+      text = codeBlock(block);
+    } else {
+      text = codeSpan(text);
+    }
   }
 
-  return clone.text();
+  if (around) return aroundInline ? inlineSpoiler(text) : blockSpoiler(text);
+
+  return text;
 }
