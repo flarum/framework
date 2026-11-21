@@ -43,8 +43,8 @@ describe('GlobalSearch renders a button, not a text field', () => {
     expect(search()).toHaveElement('button.Search-input[aria-label]');
   });
 
-  it('describes the control on hover, as the controls beside it do', () => {
-    expect(search()).toHaveElement('button.Search-input[title]');
+  it('does not add a native tooltip alongside the standard tooltip', () => {
+    expect(search()).not.toHaveElement('button.Search-input[title]:not([title=""])');
   });
 
   it('marks the surrounding element as a search landmark', () => {

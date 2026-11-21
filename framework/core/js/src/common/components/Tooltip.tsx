@@ -11,6 +11,8 @@ export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Too
    * into strings.
    */
   text: string | string[];
+  /** Accessible name for the child when it differs from the tooltip text. */
+  ariaLabel?: string;
   /**
    * Use to manually show or hide the tooltip. `undefined` will show based on cursor events.
    *
@@ -110,6 +112,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
   private childDomNode: HTMLElement | null = null;
 
   private oldText: string = '';
+  private oldAriaLabel?: string;
   private oldVisibility: boolean | undefined;
   private oldOptions: unknown[] | null = null;
 
@@ -145,9 +148,9 @@ export default class Tooltip extends Component<TooltipAttrs> {
 
     const realText = this.getRealText();
 
-    // We need to update the tooltip text if it has changed
-    if (realText !== this.oldText) {
+    if (realText !== this.oldText || this.attrs.ariaLabel !== this.oldAriaLabel) {
       this.oldText = realText;
+      this.oldAriaLabel = this.attrs.ariaLabel;
       this.shouldUpdateText = true;
     }
 
@@ -396,8 +399,10 @@ export default class Tooltip extends Component<TooltipAttrs> {
   private setAriaLabel(text: string) {
     if (this.childDomNode === null) return;
 
-    if (text) {
-      this.childDomNode.setAttribute('aria-label', text);
+    const ariaLabel = this.attrs.ariaLabel ?? text;
+
+    if (ariaLabel) {
+      this.childDomNode.setAttribute('aria-label', ariaLabel);
     } else {
       this.childDomNode.removeAttribute('aria-label');
     }

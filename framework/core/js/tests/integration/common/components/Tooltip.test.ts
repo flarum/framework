@@ -44,6 +44,20 @@ function shown(): boolean {
 }
 
 describe('Tooltip', () => {
+  it('keeps the tooltip text and accessible name independent', () => {
+    const attrs = { text: 'Notifications', ariaLabel: 'View notifications' };
+    const button = mount(attrs);
+
+    expect(button.getAttribute('aria-label')).toBe('View notifications');
+    expect(bsTooltip(button).getTitle()).toBe('Notifications');
+
+    attrs.ariaLabel = 'View unread notifications';
+    m.redraw.sync();
+
+    expect(button.getAttribute('aria-label')).toBe('View unread notifications');
+    expect(bsTooltip(button).getTitle()).toBe('Notifications');
+  });
+
   it('shows on hover once tooltipVisible changes from a boolean to undefined, on the same element', () => {
     const attrs: Partial<TooltipAttrs> = { text: 'Hello', tooltipVisible: false };
     const button = mount(attrs);
