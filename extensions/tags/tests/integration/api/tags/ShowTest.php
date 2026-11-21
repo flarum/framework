@@ -10,11 +10,13 @@
 namespace Flarum\Tags\Tests\integration\api\tags;
 
 use Flarum\Group\Group;
+use Flarum\Tags\IdWithSlugDriver;
 use Flarum\Tags\Tag;
 use Flarum\Tags\Testing\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -180,6 +182,27 @@ class ShowTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
         $this->assertSame('156', json_decode((string) $response->getBody(), true)['data']['id']);
+    }
+
+    #[Test]
+    public function batched_slugs_read_the_key_column_type_once(): void
+    {
+        $this->setting('slug_driver_'.Tag::class, 'id_with_slug');
+        $this->app();
+
+        $queries = 0;
+        $db = resolve(ConnectionInterface::class);
+        $db->listen(function ($query) use (&$queries) {
+            if (str_contains($query->sql, 'pg_attribute')) {
+                $queries++;
+            }
+        });
+
+        $slugs = ['2147483648', '2147483649', '2147483650', '2147483651'];
+        $found = resolve(IdWithSlugDriver::class)->fromSlugs($slugs, User::find(1));
+
+        $this->assertCount(0, $found);
+        $this->assertLessThanOrEqual(1, $queries);
     }
 
     #[Test]

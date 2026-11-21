@@ -26,21 +26,51 @@ class IntegerKey
 
     public static function fits(Model $model, int|string $id): bool
     {
-        $id = (string) $id;
+        return self::filter($model, [$id]) !== [];
+    }
 
-        if (! ctype_digit($id)) {
-            return false;
+    /**
+     * Keeps the ids that fit the key column, reading the column type once.
+     *
+     * @param  array<int|string>  $ids
+     * @return array<int|string>
+     */
+    public static function filter(Model $model, array $ids): array
+    {
+        $ids = array_filter($ids, fn ($id) => ctype_digit((string) $id));
+
+        if ($model->getConnection()->getDriverName() !== 'pgsql') {
+            return $ids;
         }
 
-        if ($model->getConnection()->getDriverName() !== 'pgsql' || self::atMost($id, self::INT_MAX)) {
-            return true;
+        $outOfRange = array_filter($ids, fn ($id) => ! self::atMost((string) $id, self::INT_MAX));
+
+        if ($outOfRange === []) {
+            return $ids;
         }
 
-        return match ($model->getConnection()->getSchemaBuilder()->getColumnType($model->getTable(), $model->getKeyName())) {
-            'int2', 'int4' => false,
-            'int8' => self::atMost($id, self::BIGINT_MAX),
-            default => true,
+        $max = match (self::columnType($model)) {
+            'int2', 'int4' => self::INT_MAX,
+            'int8' => self::BIGINT_MAX,
+            default => null,
         };
+
+        return array_filter($ids, fn ($id) => $max === null || self::atMost((string) $id, $max));
+    }
+
+    /**
+     * Reads the type through the connection's search_path, as the query does.
+     */
+    private static function columnType(Model $model): ?string
+    {
+        $connection = $model->getConnection();
+        $table = '"'.str_replace('"', '""', $connection->getTablePrefix().$model->getTable()).'"';
+
+        return $connection->selectOne(
+            'select t.typname as type from pg_attribute a join pg_type t on t.oid = a.atttypid '
+            .'where a.attrelid = to_regclass(?) and a.attname = ? and not a.attisdropped',
+            [$table, $model->getKeyName()]
+        )?->type;
     }
 
     /**
