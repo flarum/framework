@@ -206,8 +206,6 @@ class InfoCommand extends AbstractCommand
         return [
             "/usr/bin/php-fpm{$phpVersion}",
             "/usr/sbin/php-fpm{$phpVersion}",
-            // Official Docker PHP-FPM image
-            '/usr/local/sbin/php-fpm',
         ];
     }
 
@@ -229,7 +227,7 @@ class InfoCommand extends AbstractCommand
             if (file_exists($phpBinary) && is_executable($phpBinary)) {
                 $output = [];
                 $status = null;
-                exec("$phpBinary -v 2>&1 | head -n 1", $output, $status);
+                exec(escapeshellarg($phpBinary).' -v 2>&1 | head -n 1', $output, $status);
 
                 if ($status === 0 && ! empty($output[0])) {
                     // Extract version from output like "PHP 8.3.1 (fpm-fcgi) ..."

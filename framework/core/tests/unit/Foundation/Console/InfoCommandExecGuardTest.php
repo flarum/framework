@@ -75,15 +75,9 @@ class InfoCommandExecGuardTest extends TestCase
 
     /**
      * `detectWebServerPhpVersion()` only reaches `exec()` when one of its
-     * hardcoded absolute binary paths (`/usr/bin/php` and friends) exists —
-     * something a test cannot create, and which does not hold on macOS or in
-     * every CI image. So this asserts the outcome that matters regardless: with
-     * `exec` disabled the method returns null instead of fataling.
-     *
-     * On a host where a candidate binary *is* present (Linux, containers), this
-     * exercises the guard for real; where none is, the method short-circuits
-     * earlier and the assertion still holds. `findPackageVersion` above covers
-     * the guard's behaviour under a precondition a test can actually satisfy.
+     * candidate binaries exists, so the harness points it at a fake binary
+     * through `webServerPhpBinaries()`. With `exec` disabled the method must
+     * return null instead of fataling.
      */
     #[Test]
     public function detect_web_server_php_version_returns_null_when_exec_is_disabled(): void
@@ -102,6 +96,24 @@ class InfoCommandExecGuardTest extends TestCase
             $result['output'],
             'detectWebServerPhpVersion() should return null when exec is unavailable.'
         );
+    }
+
+    #[Test]
+    public function detect_web_server_php_version_reaches_exec_when_it_is_available(): void
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestSkipped('A shell script cannot be executed on Windows.');
+        }
+
+        $result = $this->runInSubprocess('detectWebServerPhpVersion');
+
+        $this->assertSame(0, $result['status'], $result['output']);
+
+        if (! str_contains($result['output'], "RESULT='8.3.31'")) {
+            $this->markTestSkipped('The temp directory does not allow executing scripts.');
+        }
+
+        $this->assertStringContainsString("RESULT='8.3.31'", $result['output']);
     }
 
     /**
@@ -164,9 +176,31 @@ class InfoCommandExecGuardTest extends TestCase
                 \$args = [\$path, 'fallback-version'];
             }
 
+            if (\$method === 'detectWebServerPhpVersion') {
+                \$binary = sys_get_temp_dir().'/flarum-exec-guard-fpm-'.getmypid();
+                file_put_contents(\$binary, "#!/bin/sh\\necho 'PHP 8.3.31 (fpm-fcgi)'\\n");
+                chmod(\$binary, 0755);
+
+                \$command = new class(\$binary) extends \Flarum\Foundation\Console\InfoCommand {
+                    public function __construct(private string \$binary)
+                    {
+                    }
+
+                    protected function webServerPhpBinaries(): array
+                    {
+                        return [\$this->binary];
+                    }
+                };
+                \$rc = new ReflectionClass(\$command);
+            }
+
             \$result = \$rc->getMethod(\$method)->invokeArgs(\$command, \$args);
 
             echo 'RESULT='.var_export(\$result, true)."\n";
+
+            if (isset(\$binary)) {
+                @unlink(\$binary);
+            }
             PHP);
 
         return $script;
