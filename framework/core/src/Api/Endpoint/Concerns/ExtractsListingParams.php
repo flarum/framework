@@ -98,12 +98,16 @@ trait ExtractsListingParams
             : $defaultExtracts['offset'];
     }
 
-    public function defaultExtracts(Context $context): array
+    /**
+     * @param int|null $defaultLimit The page size to use when the request gives none,
+     *                               in place of the endpoint's own default.
+     */
+    public function defaultExtracts(Context $context, ?int $defaultLimit = null): array
     {
         return [
             'filter' => RequestUtil::extractFilter($context->request),
             'sort' => RequestUtil::extractSort($context->request, $this->defaultSort, $this->getAvailableSorts($context)),
-            'limit' => $limit = RequestUtil::extractLimit($context->request, $this->limit, $this->maxLimit),
+            'limit' => $limit = RequestUtil::extractLimit($context->request, $defaultLimit ?? $this->limit, $this->maxLimit),
             'offset' => RequestUtil::extractOffset($context->request, $limit),
         ];
     }
