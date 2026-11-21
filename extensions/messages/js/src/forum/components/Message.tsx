@@ -118,6 +118,7 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
           isHidden={false}
           contentHtml={message.contentHtml() || ''}
           user={message.user()}
+          post={message}
         />,
       ]);
   }
