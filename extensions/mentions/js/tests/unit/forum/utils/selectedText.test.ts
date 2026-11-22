@@ -620,4 +620,22 @@ describe('selectedText keeps code as code', () => {
 
     expect(quote('<p>Spaces <code></code> and <code>a</code></p>')).toBe('Spaces  and `a`');
   });
+
+  test('a code span over two lines stays on one, so it cannot break an inline spoiler', () => {
+    expect(quote('<p>Before <span class="spoiler"><code>a<br>\nb</code></span> public</p>')).toBe('Before >!`a b`!< public');
+  });
+
+  test('code holding "!<" in a block spoiler stays escaped text, or Litedown would read it as a spoiler', () => {
+    expect(quote(`<details class="spoiler"><p>Text</p>\n\n${pre('a !&lt; b')}</details>`)).toBe('>! Text\n>! \n>! a !\\< b\n');
+  });
+
+  test('a code block between images still starts and ends a block', () => {
+    const img = (name: string) => `<p><img src="https://example.com/${name}.png" alt=""></p>`;
+
+    expect(quote(`${img('a')}${pre('x')}${img('b')}`)).toBe('![](https://example.com/a.png)\n\n```\nx\n```\n\n![](https://example.com/b.png)');
+  });
+
+  test('a backslash just before a code span does not escape its backtick', () => {
+    expect(quote('<p>Folder \\<code>file</code> here</p>')).toBe('Folder \\\\`file` here');
+  });
 });

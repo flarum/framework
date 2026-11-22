@@ -37,6 +37,10 @@ function codeSpan(text) {
   // holding only spaces (which renders empty), quotes as nothing.
   if (!text.trim()) return '';
 
+  // A line break in a code span is shown as a space. Kept on one line, the
+  // span can't end a line early, such as the first line of an inline spoiler.
+  text = text.replace(/\n/g, ' ');
+
   const fence = '`'.repeat(longestBacktickRun(text) + 1);
   const pad = text.startsWith('`') || text.endsWith('`') ? ' ' : '';
 
@@ -57,8 +61,11 @@ function codeBlock(pre, text = (pre.querySelector('code') || pre).textContent) {
 // A block on lines of its own: a blank line on each side where the text
 // around it has none.
 function asBlock(node, text) {
-  const before = node.previousSibling?.textContent || '';
-  const after = node.nextSibling?.textContent || '';
+  // An element with no text, such as an image, is still written out.
+  const content = (sibling) =>
+    !sibling ? '' : sibling.textContent || (sibling.nodeType === Node.ELEMENT_NODE && sibling.nodeName !== 'BR' ? '.' : '');
+  const before = content(node.previousSibling);
+  const after = content(node.nextSibling);
   const lead = !before || /\n\n$/.test(before) ? '' : before.endsWith('\n') ? '\n' : '\n\n';
   const trail = !after || /^\n\n/.test(after) ? '' : after.startsWith('\n') ? '\n' : '\n\n';
 
@@ -199,7 +206,12 @@ export default function selectedText(body) {
   // Code is quoted as code, except where it can't be: without Markdown, and
   // in an inline spoiler when it holds a ">", which Litedown would read as
   // the end of a block spoiler's first line. That code stays escaped text.
-  const keepsCode = (code) => markdown && !((aroundInline || code.closest(INLINE_SPOILER)) && code.textContent.includes('>'));
+  // The same goes for a "!<" in a block spoiler, which Litedown reads as
+  // inline spoiler syntax on a line that starts with ">!".
+  const keepsCode = (code) =>
+    markdown &&
+    !((aroundInline || code.closest(INLINE_SPOILER)) && code.textContent.includes('>')) &&
+    !(((around && !aroundInline) || code.closest(BLOCK_SPOILER)) && code.textContent.includes('!<'));
 
   // A selection inside a code block is wrapped in a fence below: the code in
   // its fragment, if any, is part of that block. A selection inside inline
@@ -215,6 +227,9 @@ export default function selectedText(body) {
     .filter((spoiler) => aroundInline || spoiler.parentElement.closest(INLINE_SPOILER))
     .forEach((spoiler) => spoiler.replaceWith(...spoiler.childNodes));
 
+  // Decided before the text is escaped, which would hide a "!<" or ">".
+  const keptCode = new Set(clone.find('pre, code').toArray().filter(keepsCode));
+
   const walker = document.createTreeWalker(clone[0], NodeFilter.SHOW_TEXT);
   while (walker.nextNode()) {
     const text = walker.currentNode;
@@ -222,7 +237,7 @@ export default function selectedText(body) {
 
     // Backslashes are literal in code, so code kept as code is not escaped.
     const code = container.closest('pre, code');
-    if (aroundCode || (code && keepsCode(code))) continue;
+    if (aroundCode || (code && keptCode.has(code))) continue;
 
     if (aroundInline || container.closest(INLINE_SPOILER)) text.data = escapeInline(text.data);
     else if (around || container.closest(BLOCK_SPOILER)) text.data = escapeBlock(text.data);
@@ -248,7 +263,7 @@ export default function selectedText(body) {
   if (!aroundCode) {
     clone
       .find('pre')
-      .filter((i, pre) => keepsCode(pre))
+      .filter((i, pre) => keptCode.has(pre))
       .replaceWith(function () {
         const empty = !(this.querySelector('code') || this).textContent.replace(/\n$/, '');
 
@@ -256,8 +271,13 @@ export default function selectedText(body) {
       });
     clone
       .find('code')
-      .filter((i, code) => keepsCode(code))
+      .filter((i, code) => keptCode.has(code))
       .replaceWith(function () {
+        // An odd run of backslashes just before the span would escape its
+        // opening backtick: add one, so they are all shown.
+        const before = this.previousSibling;
+        if (before?.nodeType === Node.TEXT_NODE && before.data.match(/\\*$/)[0].length % 2) before.data += '\\';
+
         return document.createTextNode(codeSpan(this.textContent));
       });
   }
