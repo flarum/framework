@@ -95,7 +95,22 @@ class Posts extends Type
                 );
 
                 foreach (array_chunk($discussionIds, 100) as $ids) {
-                    Discussion::query()->whereIn('id', $ids)->get()->each($this->refreshDiscussion(...));
+                    $discussions = Discussion::query()->whereIn('id', $ids)->get();
+
+                    // The chunk's first and last posts are looked up together:
+                    // one query per discussion would be an N+1.
+                    $postIds = $discussions
+                        ->flatMap(fn (Discussion $discussion) => [$discussion->first_post_id, $discussion->last_post_id])
+                        ->filter()
+                        ->unique()
+                        ->values()
+                        ->all();
+
+                    $existingPostIds = $postIds
+                        ? array_flip(array_map('intval', Post::query()->whereIn('id', $postIds)->pluck('id')->all()))
+                        : [];
+
+                    $discussions->each(fn (Discussion $discussion) => $this->refreshDiscussion($discussion, $existingPostIds));
                 }
 
                 if (! $deleted) {
@@ -105,7 +120,11 @@ class Posts extends Type
         }, Post::conflictAttempts($db));
     }
 
-    protected function refreshDiscussion(Discussion $discussion): void
+    /**
+     * @param array<int, int> $existingPostIds The chunk's first and last post
+     *                                         ids that still exist, as keys.
+     */
+    protected function refreshDiscussion(Discussion $discussion, array $existingPostIds): void
     {
         // As when the last post of a discussion is deleted.
         if (! $discussion->posts()->exists()) {
@@ -116,11 +135,11 @@ class Posts extends Type
 
         // Their opening post is gone, so start at the first post that is
         // left. Only the post: the discussion is still the one they started.
-        if (! $discussion->first_post_id || ! $discussion->firstPost()->exists()) {
+        if (! isset($existingPostIds[$discussion->first_post_id])) {
             $discussion->first_post_id = $discussion->posts()->where('type', 'comment')->oldest('number')->value('id');
         }
 
-        if (! $discussion->last_post_id || ! $discussion->lastPost()->exists()) {
+        if (! isset($existingPostIds[$discussion->last_post_id])) {
             $discussion->refreshLastPost();
         }
 

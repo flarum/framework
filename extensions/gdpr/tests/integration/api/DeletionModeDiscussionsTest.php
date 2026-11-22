@@ -97,18 +97,6 @@ class DeletionModeDiscussionsTest extends TestCase
         ]);
     }
 
-    protected function allowedRepeatedQueries(): array
-    {
-        return [
-            // The erasure refreshes every discussion its posts were in, one at
-            // a time, and each refresh asks whether that discussion's first and
-            // last posts still exist. Batching the checks is separate work: the
-            // refresh itself has to stay per discussion, so its saves and
-            // events run in the same order as when one post is deleted.
-            'from "posts" where "posts"."id" = ? and "type" in (?)',
-        ];
-    }
-
     protected function erase(): void
     {
         $response = $this->send(
@@ -230,14 +218,22 @@ class DeletionModeDiscussionsTest extends TestCase
 
         $db = $this->database();
 
+        // The discussion starts without its post pointers: posts.discussion_id
+        // requires the discussion row, and discussions.first_post_id and
+        // last_post_id require the posts, so the pointers are set afterwards.
+        // Inserting them up front fails where the foreign keys are enforced.
         $db->table('discussions')->insert([
-            'id' => 4, 'title' => 'Outside the scan', 'slug' => 'outside-the-scan', 'user_id' => 2, 'first_post_id' => 8, 'last_post_id' => 8,
+            'id' => 4, 'title' => 'Outside the scan', 'slug' => 'outside-the-scan', 'user_id' => 2,
+            'first_post_id' => null, 'last_post_id' => null,
             'last_post_number' => 1, 'last_posted_user_id' => 2, 'last_posted_at' => $at(9),
             'comment_count' => 1, 'participant_count' => 1, 'created_at' => $at(9),
         ]);
         $db->table('posts')->insert([
             'id' => 8, 'discussion_id' => 4, 'number' => 1, 'user_id' => 2, 'type' => 'comment',
             'content' => '<t><p>Opening</p></t>', 'created_at' => $at(9),
+        ]);
+        $db->table('discussions')->where('id', 4)->update([
+            'first_post_id' => 8, 'last_post_id' => 8,
         ]);
 
         $this->erase();
