@@ -5,6 +5,7 @@ import listItems from '../../common/helpers/listItems';
 import WelcomeHero from './WelcomeHero';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
+import Tooltip from '../../common/components/Tooltip';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
 import PageStructure from './PageStructure';
@@ -124,19 +125,19 @@ export default class PostsPage<CustomAttrs extends IPostsPageAttrs = IPostsPageA
 
     items.add(
       'refresh',
-      <Button
-        title={app.translator.trans('core.forum.posts.refresh_tooltip')}
-        aria-label={app.translator.trans('core.forum.posts.refresh_tooltip')}
-        icon="fas fa-sync"
-        className="Button Button--icon"
-        onclick={() => {
-          this.posts.refresh();
-          if (app.session.user) {
-            app.store.find('users', app.session.user.id()!);
-            m.redraw();
-          }
-        }}
-      />
+      <Tooltip text={app.translator.trans('core.forum.posts.refresh_tooltip')} container="body">
+        <Button
+          icon="fas fa-sync"
+          className="Button Button--icon"
+          onclick={() => {
+            this.posts.refresh();
+            if (app.session.user) {
+              app.store.find('users', app.session.user.id()!);
+              m.redraw();
+            }
+          }}
+        />
+      </Tooltip>
     );
 
     return items;

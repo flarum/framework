@@ -1,6 +1,7 @@
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import Dropdown from '../../../../src/common/components/Dropdown';
 import SelectDropdown from '../../../../src/common/components/SelectDropdown';
+import SplitDropdown from '../../../../src/common/components/SplitDropdown';
 import Button from '../../../../src/common/components/Button';
 import m from 'mithril';
 import mq from 'mithril-query';
@@ -10,6 +11,14 @@ import app from '../../../../src/forum/app';
 beforeAll(() => bootstrapForum());
 
 describe('Dropdown displays as expected', () => {
+  it('renders a split dropdown with a tooltip on its primary action', () => {
+    const dropdown = mq(m(SplitDropdown, { tooltip: 'Get an email when there are new posts' }, [m(Button, 'Follow'), m(Button, 'Ignore')]));
+
+    // The tooltip describes the action; the button is named after its label.
+    expect(dropdown).toHaveElement('button.SplitDropdown-button[aria-label="Follow"]');
+    expect(dropdown).toHaveElement('button.Dropdown-toggle');
+  });
+
   it('renders', () => {
     const dropdown = mq(
       m(
