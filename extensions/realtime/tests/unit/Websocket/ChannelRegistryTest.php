@@ -11,9 +11,9 @@ namespace Flarum\Realtime\Tests\unit\Websocket;
 
 use Flarum\Realtime\Websocket\Api\ChannelRegistry;
 use Flarum\User\User;
-use Psr\Log\AbstractLogger;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
 
 /**
  * The registry decides who may subscribe to a channel, so it has to fail closed:
