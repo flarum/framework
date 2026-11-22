@@ -28,17 +28,14 @@ class UpdateMentionsMetadataWhenInvisible
 
     public function handle(Deleted|Hidden $event): void
     {
-        // Remove user mentions. A deleted post's rows are already gone (they
-        // cascade), so its mentioned users come from the relation loaded while
-        // it was being deleted.
-        $mentioned = $event->post->relationLoaded('mentionsUsers')
-            ? $event->post->mentionsUsers->pluck('id')->all()
-            : [];
-
+        // A deleted post's mention rows are normally already gone (they cascade
+        // with it), and UpdateMentionCountWhenPostsDeleted recounted the users
+        // they named from the ids it read first. Without cascading foreign keys
+        // (SQLite installs) rows can be left behind, and detaching finds them.
         $changes = $event->post->mentionsUsers()->sync([]);
         $this->notifications->sync(new UserMentionedBlueprint($event->post), []);
 
-        $affected = array_merge($mentioned, $changes['detached']);
+        $affected = $changes['detached'];
         $this->mentionCount->refresh($affected);
 
         // A hiding request's response reports the users whose count changed so

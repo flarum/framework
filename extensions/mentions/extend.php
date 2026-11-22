@@ -18,7 +18,6 @@ use Flarum\Extend;
 use Flarum\Group\Group;
 use Flarum\Mentions\Api\PostResourceFields;
 use Flarum\Post\Event\Deleted;
-use Flarum\Post\Event\Deleting;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
@@ -115,11 +114,7 @@ return [
         ->listen(PostWasApproved::class, Listener\UpdateMentionsMetadataWhenVisible::class)
         ->listen(Hidden::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
         ->listen(Deleted::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
-        ->listen(Deleting::class, function (Deleting $event) {
-            // The post's user mentions go with it (post_mentions_user cascades
-            // on delete), so note who was mentioned while the rows are there.
-            $event->post->loadMissing('mentionsUsers');
-        }),
+        ->subscribe(Listener\UpdateMentionCountWhenPostsDeleted::class),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(PostSearcher::class, Filter\MentionedFilter::class)

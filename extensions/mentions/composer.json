@@ -34,6 +34,7 @@
             "title": "Mentions",
             "category": "feature",
             "optional-dependencies": [
+                "flarum/gdpr",
                 "flarum/tags"
             ],
             "icon": {
@@ -81,6 +82,7 @@
     },
     "require-dev": {
         "flarum/core": "*@dev",
+        "flarum/gdpr": "*@dev",
         "flarum/tags": "*@dev",
         "flarum/approval": "*@dev",
         "flarum/flags": "*@dev",
