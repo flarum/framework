@@ -8,6 +8,8 @@ export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Too
      * into strings.
      */
     text: string | string[];
+    /** Accessible name for the child when it differs from the tooltip text. */
+    ariaLabel?: string;
     /**
      * Use to manually show or hide the tooltip. `undefined` will show based on cursor events.
      *
@@ -105,15 +107,76 @@ export default class Tooltip extends Component<TooltipAttrs> {
     private firstChild;
     private childDomNode;
     private oldText;
+    private oldAriaLabel?;
     private oldVisibility;
     private oldOptions;
     private shouldRecreateTooltip;
     private shouldUpdateText;
     private shouldChangeTooltipVisibility;
+    private scrollBound;
+    private touchMoveNode;
+    private focusedAt;
     view(vnode: Mithril.Vnode<TooltipAttrs, this>): Mithril.ChildArray;
     oncreate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
     onremove(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
+    /**
+     * Hides the tooltip when its element is activated, or when a touch gesture
+     * starts to scroll or is taken over by the browser.
+     *
+     * A touch screen turns a tap into a hover and a focus as well as a click, so
+     * Bootstrap would otherwise keep the tooltip up until the pointer and focus
+     * both left, leaving it over the modal or the next control that was tapped.
+     * A long press, or a tap that turns into a scroll, never ends in a click, so
+     * those gestures are handled here too.
+     */
+    private hideOnActivate;
+    /**
+     * Hides a tooltip that was appended to a container on scroll.
+     *
+     * Bootstrap 3 positions such a tooltip against the page when it opens, and
+     * does not move it again. For a trigger in the fixed header that leaves the
+     * tooltip behind over the content as the page scrolls; hiding it is better
+     * than pointing at the wrong control. Tooltips left beside their trigger move
+     * with it and need no handling.
+     *
+     * A scroll that arrives just after the trigger is focused is the browser
+     * bringing it into view, not the page moving, so it leaves the tooltip up.
+     * Any later scroll, whether from Page Down, an arrow key, a scrollbar drag
+     * or a wheel, hides it.
+     */
+    private onScroll;
+    private hideIfShown;
+    /**
+     * Listens on the current child element, dropping the listeners from the
+     * previous one when Mithril replaces it.
+     */
+    private bindChildEvents;
+    /**
+     * Binds the touch gesture check directly and passively. jQuery adds a
+     * non-passive listener, which would make the first scroll after touching a
+     * control wait on it.
+     */
+    private bindTouchMove;
+    private unbindTouchMove;
+    /**
+     * Watches for scrolling while a container tooltip is showing.
+     *
+     * The time of the focus is recorded too, so that the scroll that brings the
+     * triggering control into view when it gets focus does not hide the tooltip
+     * that the focus just showed.
+     */
+    private bindScroll;
+    private unbindScroll;
+    private markFocused;
+    /**
+     * Keyboard scrolling moves the page with no pointer activity at all, so the
+     * scroll that follows a page key must not be taken for the browser bringing
+     * the focused control into view. Space counts here only when it scrolls:
+     * activating the focused control with it does not.
+     */
+    private onScrollKey;
+    private hideTooltip;
     private recreateTooltip;
     private updateText;
     private updateVisibility;

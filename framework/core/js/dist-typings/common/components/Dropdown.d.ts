@@ -1,5 +1,6 @@
 import Component, { ComponentAttrs } from '../Component';
 import type Mithril from 'mithril';
+import { type TooltipAttrs } from './Tooltip';
 export interface IDropdownAttrs extends ComponentAttrs {
     /** A class name to apply to the dropdown toggle button. */
     buttonClassName?: string;
@@ -41,6 +42,9 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
     protected closeWatcher?: CloseWatcher;
     static initAttrs(attrs: IDropdownAttrs): void;
     view(vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
+    protected renderButton(children: Mithril.ChildArray): Mithril.Vnode<any, any>;
+    protected wrapButton(button: Mithril.Vnode<any, any>): Mithril.Vnode<any, any>;
+    protected getButtonTooltip(button: Mithril.Vnode<any, any>): TooltipAttrs | undefined;
     oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     /**
      * Get the template for the button.
