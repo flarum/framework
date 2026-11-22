@@ -53,6 +53,12 @@ return [
             function (Endpoint\Index|Endpoint\Show|Endpoint\Create|Endpoint\Update $endpoint): Endpoint\Endpoint {
                 return $endpoint->addDefaultInclude(['likes']);
             }
+        )
+        ->endpoint(
+            Endpoint\Update::class,
+            function (Endpoint\Update $endpoint): Endpoint\Update {
+                return $endpoint->meta([PostResourceFields::actorLikeCount()]);
+            }
         ),
 
     (new Extend\ApiResource(Resource\UserResource::class))

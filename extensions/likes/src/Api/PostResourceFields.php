@@ -13,14 +13,31 @@ use Flarum\Api\Context;
 use Flarum\Api\Schema;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
-use Flarum\Likes\LikeCount;
 use Flarum\Post\Post;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Expression;
+use Illuminate\Support\Arr;
 
 class PostResourceFields
 {
     public static int $maxLikes = 4;
+
+    /**
+     * The actor's own like count after an `isLiked` write.
+     *
+     * Returned as response `meta` rather than on the user resource so that the
+     * client does not need a follow-up request, and other payloads keep their
+     * usual shape. The field exists only on the update endpoint and only when
+     * the request writes `isLiked`.
+     */
+    public static function actorLikeCount(): Schema\Integer
+    {
+        return Schema\Integer::make('actorLikeCount')
+            ->description('When `isLiked` is written: the actor\'s stored like count after the change.')
+            ->visible(fn (Post $post, Context $context) => Arr::has((array) $context->body(), 'data.attributes.isLiked'))
+            ->get(fn (Post $post, Context $context) => (int) $context->getActor()->newQuery()
+                ->whereKey($context->getActor()->id)->value('like_count'));
+    }
 
     public function __invoke(): array
     {
@@ -38,27 +55,40 @@ class PostResourceFields
                     $actor = $context->getActor();
                     $db = $post->getConnection();
 
-                    [$changed, $likeCount] = $post->withDiscussionLock(function () use ($db, $post, $actor, $liked) {
+                    $changed = $post->withDiscussionLock(function () use ($db, $post, $actor, $liked) {
                         // Match the discussion, post, then user lock order in deletion.
-                        $post->newModelQuery()->whereKey($post->id)->lockForUpdate()->firstOrFail(['id']);
+                        // The post's type and visibility decide whether its likes count.
+                        $locked = $post->newModelQuery()->whereKey($post->id)->lockForUpdate()
+                            ->firstOrFail(['id', 'type', 'is_private']);
                         $db->table('users')->where('id', $actor->id)->lockForUpdate()->get(['id']);
 
                         $currentlyLiked = $db->table('post_likes')->where('post_id', $post->id)
                             ->where('user_id', $actor->id)->lockForUpdate()->first(['user_id']) !== null;
 
+                        $counted = $locked->type === 'comment' && ! $locked->is_private;
+
+                        // Only add or remove this one like. A full recount of the
+                        // actor's history stays for repair, not for every click.
                         if ($liked && ! $currentlyLiked) {
                             $post->likes()->attach($actor->id);
+
+                            if ($counted) {
+                                $db->table('users')->where('id', $actor->id)->update([
+                                    'like_count' => new Expression('like_count + 1'),
+                                ]);
+                            }
                         } elseif (! $liked && $currentlyLiked) {
                             $post->likes()->detach($actor->id);
+
+                            if ($counted) {
+                                $db->table('users')->where('id', $actor->id)->update([
+                                    'like_count' => new Expression('CASE WHEN like_count >= 1 THEN like_count - 1 ELSE 0 END'),
+                                ]);
+                            }
                         }
 
-                        resolve(LikeCount::class)->refresh([$actor->id]);
-
-                        return [$liked !== $currentlyLiked, $db->table('users')->where('id', $actor->id)->value('like_count')];
+                        return $liked !== $currentlyLiked;
                     }, 3);
-
-                    $actor->like_count = (int) $likeCount;
-                    $actor->syncOriginalAttribute('like_count');
 
                     if ($changed) {
                         $post->raise($liked ? new PostWasLiked($post, $actor) : new PostWasUnliked($post, $actor));

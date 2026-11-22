@@ -4,40 +4,7 @@ import Button from 'flarum/common/components/Button';
 import CommentPost from 'flarum/forum/components/CommentPost';
 import haptic from 'flarum/common/utils/haptic';
 
-const pendingRefreshes = new WeakMap();
-
-function refreshLikeCount(user) {
-  const refresh = {};
-  pendingRefreshes.set(user, refresh);
-
-  // Store.find merges automatically, so inspect the response before updating the user.
-  return app
-    .request({
-      url: app.forum.attribute('apiUrl') + '/users/' + user.id(),
-      params: { fields: { users: 'likeCount' } },
-    })
-    .then(({ data }) => {
-      if (pendingRefreshes.get(user) === refresh) {
-        user.pushAttributes({ likeCount: data.attributes.likeCount });
-        m.redraw();
-      }
-    });
-}
-
-function withoutActorLikeCount(text, userId) {
-  let payload;
-  try {
-    payload = JSON.parse(text);
-  } catch {
-    return text;
-  }
-
-  const actor = payload?.included?.find((item) => item.type === 'users' && item.id === userId);
-  if (!actor?.attributes) return text;
-
-  delete actor.attributes.likeCount;
-  return JSON.stringify(payload);
-}
+const pendingCounts = new WeakMap();
 
 export default function () {
   extend(CommentPost.prototype, 'actionItems', function (items) {
@@ -59,8 +26,21 @@ export default function () {
 
           if (isLiked) haptic('success');
 
-          // A mutation may also include the actor among the likers.
-          const save = post.save({ isLiked }, { modifyText: (text) => withoutActorLikeCount(text, user.id()) }).then(() => refreshLikeCount(user));
+          // Latest-wins: a response that arrives after a newer click must not
+          // overwrite the count that newer mutation returned.
+          const pending = {};
+          pendingCounts.set(user, pending);
+
+          const save = post.save({ isLiked }).then((response) => {
+            if (pendingCounts.get(user) !== pending) return;
+
+            const likeCount = response.payload?.meta?.actorLikeCount;
+
+            if (typeof likeCount === 'number') {
+              user.pushAttributes({ likeCount });
+              m.redraw();
+            }
+          });
 
           // We've saved the fact that we do or don't like the post, but in order
           // to provide instantaneous feedback to the user, we'll need to add or

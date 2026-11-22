@@ -25,6 +25,7 @@ use Flarum\User\User;
 use Illuminate\Database\Events\QueryExecuted;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\ResponseInterface;
 
 class UserLikeCountTest extends TestCase
 {
@@ -174,6 +175,7 @@ class UserLikeCountTest extends TestCase
         foreach (array_chunk($likes, 100) as $chunk) {
             $this->database()->table('post_likes')->insert($chunk);
         }
+        $this->database()->table('users')->where('id', 2)->update(['like_count' => 1000]);
         $this->like(2, 2);
         $this->assertSame(1001, $this->likeCountOf(2));
 
@@ -218,8 +220,24 @@ class UserLikeCountTest extends TestCase
     public function non_comment_likes_do_not_contribute()
     {
         $this->database()->table('posts')->where('id', 2)->update(['type' => 'discussionRenamed', 'content' => '["old","new"]']);
-        $this->like(2, 2);
+        $this->database()->table('users')->where('id', 2)->update(['like_count' => 2]);
+
+        $response = $this->like(2, 2);
+
+        $this->assertSame(2, $this->likeCountOf(2));
+        $this->assertSame(2, $this->responseLikeCount($response));
+    }
+
+    #[Test]
+    public function unliking_does_not_make_a_zero_counter_negative()
+    {
+        $this->database()->table('post_likes')->insert(['post_id' => 1, 'user_id' => 2]);
+        $this->database()->table('users')->where('id', 2)->update(['like_count' => 0]);
+
+        $response = $this->like(1, 2, false);
+
         $this->assertSame(0, $this->likeCountOf(2));
+        $this->assertSame(0, $this->responseLikeCount($response));
     }
 
     #[Test]
@@ -227,8 +245,9 @@ class UserLikeCountTest extends TestCase
     {
         $this->extension('flarum-approval', 'flarum-flags');
         $this->database()->table('posts')->where('id', 3)->update(['is_approved' => false]);
-        $this->like(3, 1);
+        $like = $this->like(3, 1);
         $this->assertSame(0, $this->likeCountOf(1));
+        $this->assertSame(0, $this->responseLikeCount($like));
         $db = $this->database();
         $level = $db->transactionLevel();
         $postTable = $db->getQueryGrammar()->wrapTable('posts');
@@ -439,11 +458,17 @@ class UserLikeCountTest extends TestCase
     }
 
     #[Test]
-    public function a_recount_includes_direct_pivot_inserts()
+    public function a_like_does_not_recount_the_actors_history()
     {
+        // A stored count that disagrees with the pivot history: a like adds one
+        // to what is stored, it does not recount every post the actor liked.
         $this->database()->table('post_likes')->insert(['post_id' => 1, 'user_id' => 2]);
-        $this->like(2, 2);
-        $this->assertSame(2, $this->likeCountOf(2));
+        $this->database()->table('users')->where('id', 2)->update(['like_count' => 5]);
+
+        $response = $this->like(2, 2);
+
+        $this->assertSame(6, $this->likeCountOf(2));
+        $this->assertSame(6, $this->responseLikeCount($response));
     }
 
     #[Test]
@@ -462,7 +487,7 @@ class UserLikeCountTest extends TestCase
         $this->assertTrue($seen);
     }
 
-    protected function like(int $postId, int $userId, bool $liked = true): void
+    protected function like(int $postId, int $userId, bool $liked = true): ResponseInterface
     {
         $response = $this->send(
             $this->request('PATCH', "/api/posts/$postId", [
@@ -478,6 +503,13 @@ class UserLikeCountTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        return $response;
+    }
+
+    protected function responseLikeCount(ResponseInterface $response): int
+    {
+        return json_decode((string) $response->getBody(), true)['meta']['actorLikeCount'];
     }
 
     protected function likeCountOf(int $userId): int

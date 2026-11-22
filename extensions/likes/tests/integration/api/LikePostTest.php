@@ -154,6 +154,58 @@ class LikePostTest extends TestCase
         $this->assertNull($post->likes->where('id', $authenticatedAs)->first(), $message);
     }
 
+    #[Test]
+    public function liking_returns_the_actors_updated_count_in_the_response_meta()
+    {
+        $this->rewriteDefaultPermissionsAfterBoot();
+        $this->database()->table('users')->where('id', 3)->update(['like_count' => 4]);
+
+        $response = $this->sendLikeRequest(1, 3);
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(5, $this->responseLikeCount($response));
+        $this->assertSame(5, (int) User::query()->find(3)->like_count);
+    }
+
+    #[Test]
+    public function unliking_returns_the_actors_updated_count_in_the_response_meta()
+    {
+        $this->rewriteDefaultPermissionsAfterBoot();
+        $this->sendLikeRequest(1, 3);
+
+        $response = $this->sendLikeRequest(1, 3, false);
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(0, $this->responseLikeCount($response));
+        $this->assertSame(0, (int) User::query()->find(3)->like_count);
+    }
+
+    #[Test]
+    public function liking_an_already_liked_post_returns_the_unchanged_count()
+    {
+        $this->rewriteDefaultPermissionsAfterBoot();
+        $this->sendLikeRequest(1, 3);
+
+        $response = $this->sendLikeRequest(1, 3);
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(1, $this->responseLikeCount($response));
+        $this->assertSame(1, (int) User::query()->find(3)->like_count);
+    }
+
+    #[Test]
+    public function unliking_a_post_that_is_not_liked_returns_the_unchanged_count()
+    {
+        $this->rewriteDefaultPermissionsAfterBoot();
+        $this->database()->table('users')->where('id', 3)->update(['like_count' => 4]);
+
+        $response = $this->sendLikeRequest(1, 3, false);
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(4, $this->responseLikeCount($response));
+        $this->assertSame(4, (int) User::query()->find(3)->like_count);
+    }
+
     public static function allowedUsersToLike(): array
     {
         return [
@@ -171,6 +223,11 @@ class LikePostTest extends TestCase
             [5, 3, 'User with permission cannot like own post if setting off', false],
             [6, 1, 'Admin cannot like own post if setting off', false],
         ];
+    }
+
+    protected function responseLikeCount(ResponseInterface $response): int
+    {
+        return json_decode((string) $response->getBody(), true)['meta']['actorLikeCount'];
     }
 
     protected function sendLikeRequest(int $postId, ?int $authenticatedAs, bool $liked = true): ResponseInterface
