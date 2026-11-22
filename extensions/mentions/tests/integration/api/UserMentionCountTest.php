@@ -39,6 +39,15 @@ class UserMentionCountTest extends TestCase
             'group_user' => [
                 ['user_id' => 4, 'group_id' => Group::MODERATOR_ID],
             ],
+            // These tests are about keeping the number in step, not about who
+            // may read it (that is UserMentionCountVisibilityTest). Several
+            // read the count of another user out of the same payload, as the
+            // member and moderator editors do, so those groups hold the
+            // permission here.
+            'group_permission' => [
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'user.viewMentionCount'],
+                ['group_id' => Group::MODERATOR_ID, 'permission' => 'user.viewMentionCount'],
+            ],
             Discussion::class => [
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => $createdAt, 'last_posted_at' => $createdAt, 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'last_post_number' => 1],
             ],

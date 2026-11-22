@@ -65,7 +65,8 @@ app.initializers.add('flarum-mentions', () => {
     items.add(
       'mentions',
       <LinkButton href={app.route('user.mentions', { username: user.slug() })} name="mentions" icon="fas fa-at">
-        {app.translator.trans('flarum-mentions.forum.user.mentions_link')} <span className="Button-badge">{user.mentionCount()}</span>
+        {app.translator.trans('flarum-mentions.forum.user.mentions_link')}{' '}
+        {typeof user.mentionCount() === 'number' ? <span className="Button-badge">{user.mentionCount()}</span> : null}
       </LinkButton>,
       80
     );

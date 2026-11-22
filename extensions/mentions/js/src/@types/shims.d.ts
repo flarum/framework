@@ -10,7 +10,7 @@ declare module 'flarum/forum/ForumApplication' {
 declare module 'flarum/common/models/User' {
   export default interface User {
     canMentionGroups(): boolean;
-    mentionCount(): number;
+    mentionCount(): number | undefined;
   }
 }
 

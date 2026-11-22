@@ -29,5 +29,13 @@ export default [
         icon: 'fas fa-at',
       }),
       'start'
+    )
+    .permission(
+      () => ({
+        permission: 'user.viewMentionCount',
+        label: app.translator.trans('flarum-mentions.admin.permissions.view_mention_count_label'),
+        icon: 'fas fa-at',
+      }),
+      'view'
     ),
 ];

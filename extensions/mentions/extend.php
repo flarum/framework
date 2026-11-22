@@ -97,8 +97,15 @@ return [
 
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [
+            // The stored total counts mentions in comment posts that are
+            // approved and not hidden, including posts in private discussions
+            // and restricted tags. The Mentions tab filters through post
+            // visibility, so the number is a profile read: the user whose
+            // profile it is, and holders of `user.viewMentionCount` (admins
+            // included through hasPermission()), are told it.
             Schema\Integer::make('mentionCount')
-                ->description('Number of visible comments that mention this user.'),
+                ->description('Number of comment posts that mention this user and are not hidden or awaiting approval. Mentions in private discussions and restricted tags are included, so only present for the user themselves and for viewers with the `user.viewMentionCount` permission.')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $context->getActor()->can('viewMentionCount', $user)),
             Schema\Boolean::make('canMentionGroups')
                 ->description('Whether you can mention groups. Only on your own user.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
