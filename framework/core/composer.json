@@ -67,7 +67,7 @@
         "jenssegers/agent": "^2.6.4",
         "laminas/laminas-diactoros": "^3.0",
         "laminas/laminas-httphandlerrunner": "^2.6.1",
-        "laminas/laminas-stratigility": "^3.10",
+        "laminas/laminas-stratigility": "^4.4",
         "league/flysystem": "^3.15",
         "league/flysystem-local": "^3.15",
         "league/flysystem-memory": "^3.15",
