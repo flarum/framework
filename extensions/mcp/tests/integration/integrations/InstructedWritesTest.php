@@ -27,7 +27,7 @@ class InstructedWritesTest extends McpTestCase
     {
         parent::setUp();
 
-        $this->extension('flarum-tags', 'flarum-approval', 'flarum-nicknames');
+        $this->extension('flarum-tags', 'flarum-flags', 'flarum-approval', 'flarum-nicknames');
 
         $this->prepareDatabase([
             User::class => [$this->normalUser()],
