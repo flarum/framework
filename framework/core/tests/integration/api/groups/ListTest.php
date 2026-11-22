@@ -275,6 +275,31 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function an_offset_callback_is_given_the_limit_the_endpoint_extracts()
+    {
+        $this->extend(
+            (new Extend\ApiResource(GroupResource::class))
+                ->endpoint(Index::class, function (Index $endpoint): Index {
+                    return $endpoint
+                        ->extractLimit(fn () => 2)
+                        ->extractOffset(fn ($context, array $defaults) => $defaults['limit']);
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+            ->withQueryParams([
+                'page' => ['limit' => '10'],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertEquals(['3', '4'], Arr::pluck(json_decode($body, true)['data'], 'id'), $body);
+    }
+
+    #[Test]
     public function links_to_the_next_page_when_the_endpoint_has_a_default_limit()
     {
         $this->extend(

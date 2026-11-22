@@ -134,8 +134,10 @@ class Index extends Endpoint
                 $sort = $this->extractSortValue($context, $extracts);
                 $limit = $this->extractLimitValue($context, $extracts);
 
-                // page[number] counts pages of the limit that applies, which a callback may change.
+                // page[number] counts pages of the limit that applies, which a callback may change,
+                // and an offset callback is given that limit.
                 if ($limit !== $extracts['limit']) {
+                    $extracts['limit'] = $limit;
                     $extracts['offset'] = RequestUtil::extractOffset($context->request, $limit);
                 }
 
