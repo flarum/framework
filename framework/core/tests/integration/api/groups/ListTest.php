@@ -238,6 +238,20 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function counts_every_group_for_a_page_unless_asked_not_to()
+    {
+        $counted = $this->send(
+            $this->request('GET', '/api/groups')->withQueryParams(['page' => ['limit' => '2']])
+        );
+        $uncounted = $this->send(
+            $this->request('GET', '/api/groups')->withQueryParams(['page' => ['limit' => '2', 'total' => '0']])
+        );
+
+        $this->assertEquals(4, json_decode($counted->getBody()->getContents(), true)['meta']['page']['total'] ?? null);
+        $this->assertArrayNotHasKey('total', json_decode($uncounted->getBody()->getContents(), true)['meta']['page']);
+    }
+
+    #[Test]
     public function pages_by_number_with_the_limit_the_endpoint_extracts()
     {
         $this->extend(
