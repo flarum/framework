@@ -10,7 +10,10 @@
 namespace Flarum\Subscriptions\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
+use Flarum\Api\Resource\DiscussionResource;
+use Flarum\Api\Schema\Str;
 use Flarum\Discussion\Discussion;
+use Flarum\Extend;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -64,7 +67,7 @@ class SubscribeTest extends TestCase
 
     #[Test]
     #[DataProvider('provideStates')]
-    public function can_subscribe_to_a_discussion(int $actorId, int $discussionId, ?string $newState)
+    public function can_subscribe_to_a_discussion(int $actorId, int $discussionId, ?string $newState, ?string $expected)
     {
         $this->app();
 
@@ -82,8 +85,11 @@ class SubscribeTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
-        $this->assertEquals($newState, $this->database()->table('discussion_user')->where('discussion_id', $discussionId)->where('user_id', $actorId)->value('subscription'));
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertEquals($expected, json_decode($body, true)['data']['attributes']['subscription']);
+        $this->assertEquals($expected, $this->database()->table('discussion_user')->where('discussion_id', $discussionId)->where('user_id', $actorId)->value('subscription'));
     }
 
     #[Test]
@@ -107,12 +113,66 @@ class SubscribeTest extends TestCase
         $this->assertEquals('follow', $this->database()->table('discussion_user')->where('discussion_id', 1)->where('user_id', 1)->value('subscription'));
     }
 
+    #[Test]
+    public function can_subscribe_while_marking_an_unread_discussion_as_read()
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/discussions/1', [
+                'authenticatedAs' => 4,
+                'json' => [
+                    'data' => [
+                        'type' => 'discussions',
+                        'attributes' => [
+                            'lastReadPostNumber' => 1,
+                            'subscription' => 'follow',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
+
+        $state = $this->database()->table('discussion_user')->where('discussion_id', 1)->where('user_id', 4)->first();
+
+        $this->assertEquals('follow', $state->subscription);
+        $this->assertEquals(1, $state->last_read_post_number);
+    }
+
+    #[Test]
+    public function an_extension_can_replace_the_subscription_setter()
+    {
+        $this->extend(
+            (new Extend\ApiResource(DiscussionResource::class))
+                ->field('subscription', fn (Str $field) => $field->set(fn () => null))
+        );
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/discussions/1', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'type' => 'discussions',
+                        'attributes' => [
+                            'subscription' => 'follow',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
+        $this->assertNull($this->database()->table('discussion_user')->where('discussion_id', 1)->where('user_id', 2)->value('subscription'));
+    }
+
     public static function provideStates()
     {
         return [
-            'follow' => [2, 1, 'follow'],
-            'ignore' => [2, 1, 'ignore'],
-            'null' => [2, 1, null],
+            'follow' => [2, 1, 'follow', 'follow'],
+            'ignore' => [2, 1, 'ignore', 'ignore'],
+            'null' => [2, 33, null, null],
+            'unknown value clears it' => [2, 33, 'bogus', null],
+            'without an existing state' => [4, 1, 'follow', 'follow'],
         ];
     }
 }
