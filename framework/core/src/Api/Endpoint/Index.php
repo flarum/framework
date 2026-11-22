@@ -21,6 +21,7 @@ use Flarum\Api\Resource\Contracts\Countable;
 use Flarum\Api\Resource\Contracts\Listable;
 use Flarum\Api\Serializer;
 use Flarum\Database\Eloquent\Collection;
+use Flarum\Http\RequestUtil;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchManager;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -132,6 +133,12 @@ class Index extends Endpoint
                 $filters = $this->extractFilterValue($context, $extracts);
                 $sort = $this->extractSortValue($context, $extracts);
                 $limit = $this->extractLimitValue($context, $extracts);
+
+                // page[number] counts pages of the limit that applies, which a callback may change.
+                if ($limit !== $extracts['limit']) {
+                    $extracts['offset'] = RequestUtil::extractOffset($context->request, $limit);
+                }
+
                 $offset = $this->extractOffsetValue($context, $extracts);
 
                 // An endpoint that isn't paginated returns the whole list. If a limit applies
