@@ -74,9 +74,35 @@ describe('string', () => {
       expect(slug('☕\uFE0F')).toBe('');
     });
 
-    it('should remove characters that join or break words instead of hyphenating them', () => {
-      // A zero-width non-joiner inside a Persian word.
-      expect(slug('کتاب\u200Cها')).toBe('کتابها');
+    it('should leave out emoji before folding, so that none turns into letters', () => {
+      expect(slug('ℹ\uFE0F Info')).toBe('info');
+      expect(slug('Flarum™ Tips')).toBe('flarum-tips');
+      expect(slug('㊙\uFE0F Secret')).toBe('secret');
+      expect(slug('🈁 Here')).toBe('here');
+      // Enclosed and superscript letters and digits, and keycap digits, aren't emoji.
+      expect(slug('Ⓐ ① x² 1\uFE0F\u20E3')).toBe('a-1-x2-1');
+    });
+
+    it('should join a mark that compatibility folding spaces out to its letter again', () => {
+      expect(slug('カ゛イト゛')).toBe('ガイド');
+      expect(slug('ك\uFE76تب')).toBe('كتب');
+    });
+
+    it('should keep joiners inside a word, where they are part of its spelling', () => {
+      // Without the ZWJ the Sinhala conjunct falls apart; without the ZWNJ the
+      // Persian letters join; without it the Devanagari pair becomes क्ष.
+      expect(slug('ශ්\u200Dරී ලංකා')).toBe('ශ්\u200Dරී-ලංකා');
+      expect(slug('بی\u200Cبی\u200Cسی فارسی')).toBe('بی\u200Cبی\u200Cسی-فارسی');
+      expect(slug('क्\u200Cष')).toBe('क्\u200Cष');
+    });
+
+    it('should drop joiners outside a word, and in scripts whose letters never join', () => {
+      expect(slug('\u200Dstart end\u200C')).toBe('start-end');
+      expect(slug('Auf\u200Clage')).toBe('auflage');
+      expect(slug('д\u200Cb 日\u200D本')).toBe('дb-日本');
+    });
+
+    it('should remove characters that break words instead of hyphenating them', () => {
       expect(slug('Soft\u00ADware')).toBe('software');
       expect(slug('هـــلا')).toBe('هلا');
     });
@@ -90,9 +116,10 @@ describe('string', () => {
       expect(slug('ក\u17B4ខ')).toBe('កខ');
     });
 
-    it('should not turn halfwidth or circled Hangul jamo into conjoining jamo', () => {
+    it('should turn halfwidth Hangul jamo into the jamo typed on a Korean keyboard', () => {
       // NFKC would give U+1100, a jamo with no vowel that renders differently.
-      expect(slug('\uFFA1')).toBe('\uFFA1');
+      expect(slug('\uFFA1')).toBe('ㄱ');
+      expect(slug('\uFFC2\uFFDC')).toBe('ㅏㅣ');
       // A circled jamo is a symbol, so it is left out like other symbols.
       expect(slug('\u3260 News')).toBe('news');
       expect(slug('\u326E')).toBe('가');
@@ -101,6 +128,8 @@ describe('string', () => {
     it('should drop Hebrew and Arabic vowel marks, and keep Devanagari and Thai ones', () => {
       expect(slug('שָׁלוֹם')).toBe('שלום');
       expect(slug('مَرْحَبًا')).toBe('مرحبا');
+      // The open tanwin goes like the ordinary one.
+      expect(slug('ب\u08F1')).toBe(slug('ب\u064C'));
       expect(slug('الرَّحْمٰنِ')).toBe('الرحمن');
       // Hamza is part of the letter, not a vowel mark.
       expect(slug('أهلا')).toBe('أهلا');

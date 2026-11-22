@@ -104,6 +104,14 @@ describe('EditTagModal slug suggestion', () => {
     expect(modal.slug()).toBe('noticias');
   });
 
+  it('does not start suggesting for an existing tag when its slug is cleared', () => {
+    const { modal, type } = open({ model: app.store.getById('tags', '2') });
+
+    type('slug', '');
+    type('name', 'Новости');
+    expect(modal.slug()).toBe('');
+  });
+
   it('leaves the slug of an existing tag alone when it is renamed', () => {
     const { modal, type } = open({ model: app.store.getById('tags', '2') });
 

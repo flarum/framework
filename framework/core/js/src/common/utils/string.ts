@@ -27,20 +27,26 @@ export function slug(string: string, mode: SluggingMode = SluggingMode.ALPHANUME
 
     case SluggingMode.UTF8_FOLDED:
       return (
-        // Compatibility forms become the letters they stand for: fullwidth
-        // ＰＣ, the ﬁ ligature, ①, ² and halfwidth katakana. Only in the
-        // blocks made for them, because NFKC also rewrites ordinary letters
-        // of some scripts, such as Thai and Lao ำ and Hangul jamo.
-        Array.from(string, (character) => (COMPATIBILITY_FORMS.test(character) ? foldCompatibilityForm(character) : character))
+        // Emoji first, before some of them (ℹ️, ™, ㊙️, 🈁) fold into letters.
+        // Compatibility forms then become the letters they stand for:
+        // fullwidth ＰＣ, the ﬁ ligature, ①, ² and halfwidth katakana. Only in
+        // the blocks made for them, because NFKC also rewrites ordinary
+        // letters of some scripts, such as Thai and Lao ำ and Hangul jamo.
+        Array.from(string.replace(/\p{Extended_Pictographic}/gu, ' '), (character) =>
+          COMPATIBILITY_FORMS.test(character) ? foldCompatibilityForm(character) : character
+        )
           .join('')
           .toLowerCase()
           // Decomposed, so that both encodings of a letter like ǿ are handled
           // the same, and its accent can be dropped.
           .normalize('NFD')
-          // Invisible characters: the zero-width non-joiner inside Persian
-          // words, joiners in Indic text and emoji, variation selectors after
-          // emoji, soft hyphens, Hangul fillers, and the Arabic tatweel.
-          .replace(/[\p{Cf}\p{Default_Ignorable_Code_Point}\u{0640}]/gu, '')
+          // Invisible characters: variation selectors after emoji, soft
+          // hyphens, Hangul fillers and the Arabic tatweel. Joiners stay
+          // inside a word, where they are part of its spelling (Sinhala
+          // ශ්‍රී, Persian بی‌بی‌سی, Devanagari क्‌ष), and go everywhere else.
+          .replace(/[\p{Cf}\p{Default_Ignorable_Code_Point}\u{0640}]/gu, (character, offset: number, text: string) =>
+            isJoinerInWord(character, offset, text) ? character : ''
+          )
           .replace(/[ßæœøłđðþıəħŧŋ]/gu, (letter) => LATIN_LETTERS[letter])
           // Latin letters lose their accents. Hebrew and Arabic vowel and
           // reading marks are optional and usually left out, so they go too.
@@ -51,7 +57,7 @@ export function slug(string: string, mode: SluggingMode = SluggingMode.ALPHANUME
           // Marks with no letter to belong to, such as the keycap in 1️⃣.
           .replace(/(^|[^\p{L}\p{M}])\p{M}+/gu, '$1')
           .normalize('NFC')
-          .replace(/[^\p{L}\p{N}\p{M}]+/gu, '-')
+          .replace(/[^\p{L}\p{N}\p{M}\u{200C}\u{200D}]+/gu, '-')
           .replace(/-$|^-/g, '')
       );
 
@@ -103,7 +109,7 @@ const LATIN_LETTERS: Record<string, string> = {
  * the madda and hamza (U+0653 to U+0655), which are part of letters like أ.
  */
 const HEBREW_AND_ARABIC_VOWEL_MARKS =
-  /[\u{0591}-\u{05BD}\u{05BF}\u{05C1}\u{05C2}\u{05C4}\u{05C5}\u{05C7}\u{0610}-\u{061A}\u{064B}-\u{0652}\u{0656}-\u{065F}\u{0670}\u{06D6}-\u{06DC}\u{06DF}-\u{06E4}\u{06E7}\u{06E8}\u{06EA}-\u{06ED}]/gu;
+  /[\u{0591}-\u{05BD}\u{05BF}\u{05C1}\u{05C2}\u{05C4}\u{05C5}\u{05C7}\u{0610}-\u{061A}\u{064B}-\u{0652}\u{0656}-\u{065F}\u{0670}\u{06D6}-\u{06DC}\u{06DF}-\u{06E4}\u{06E7}\u{06E8}\u{06EA}-\u{06ED}\u{08F0}-\u{08F2}]/gu;
 
 /**
  * Characters folded with NFKC: Latin, Greek and shared ones, and the blocks of
@@ -113,15 +119,56 @@ const COMPATIBILITY_FORMS =
   /[\p{Script=Latin}\p{Script=Greek}\p{Script=Common}\p{Script=Inherited}\u{2F00}-\u{2FDF}\u{3200}-\u{33FF}\u{F900}-\u{FAFF}\u{FB00}-\u{FDFF}\u{FE70}-\u{FEFF}\u{FF00}-\u{FFEF}]/u;
 
 /**
- * A compatibility form as the character it stands for, unless that is a
- * conjoining Hangul jamo: halfwidth and circled jamo would otherwise lose
- * the look of the ㄱ typed on a Korean keyboard.
+ * A compatibility form as the character it stands for. Halfwidth Hangul jamo
+ * become the jamo typed on a Korean keyboard (ㄱ), not the conjoining ones
+ * NFKC gives. NFKC puts a space before a mark it spaces out, such as the
+ * voiced mark ゛: dropping it lets the mark join its letter again.
  */
 function foldCompatibilityForm(character: string): string {
-  const folded = character.normalize('NFKC');
+  const code = character.codePointAt(0)!;
+
+  if (code >= 0xffa0 && code <= 0xffdc) return halfwidthJamo(code);
+
+  const folded = character.normalize('NFKC').replace(/^ (?=\p{M})/u, '');
 
   return /[\u{1100}-\u{11FF}]/u.test(folded) ? character : folded;
 }
+
+/**
+ * The compatibility jamo (U+3131 on) for a halfwidth one: the same order,
+ * with gaps between the halfwidth vowel rows. The filler stays a filler.
+ */
+function halfwidthJamo(code: number): string {
+  const rows: [number, number, number][] = [
+    [0xffa0, 0xffa0, 0x3164],
+    [0xffa1, 0xffbe, 0x3131],
+    [0xffc2, 0xffc7, 0x314f],
+    [0xffca, 0xffcf, 0x3155],
+    [0xffd2, 0xffd7, 0x315b],
+    [0xffda, 0xffdc, 0x3161],
+  ];
+  const row = rows.find(([first, last]) => code >= first && code <= last);
+
+  return String.fromCodePoint(row ? row[2] + code - row[0] : code);
+}
+
+/**
+ * Whether a zero-width joiner or non-joiner sits inside a word, after a
+ * letter or mark and before a letter. Not after a letter of a script whose
+ * letters never join, where it changes nothing visible and would only give
+ * names that look the same different slugs.
+ */
+function isJoinerInWord(character: string, offset: number, text: string): boolean {
+  if (character !== '\u200C' && character !== '\u200D') return false;
+
+  const before = text.slice(0, offset).match(/[^]$/u)?.[0] || '';
+  const after = text.slice(offset + 1).match(/^[^]/u)?.[0] || '';
+
+  return /[\p{L}\p{M}]/u.test(before) && !NON_JOINING_SCRIPTS.test(before) && /\p{L}/u.test(after);
+}
+
+const NON_JOINING_SCRIPTS =
+  /[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u;
 
 /**
  * Strip HTML tags and quotes out of the given string, replacing them with
