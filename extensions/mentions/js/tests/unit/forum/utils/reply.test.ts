@@ -40,7 +40,18 @@ describe('insertMention', () => {
   });
 
   test('starts a quote that opens with a code block on its own line, after a blank one', async () => {
-    expect(await inserted('```php\necho 1;\n```')).toBe('> @"User"#p12 \n>\n> ```php\n> echo 1;\n> ```\n\n');
+    const flarum = (window as any).flarum;
+    flarum.extensions = { ...flarum.extensions, 'flarum-markdown': {} };
+
+    try {
+      expect(await inserted('```php\necho 1;\n```')).toBe('> @"User"#p12 \n>\n> ```php\n> echo 1;\n> ```\n\n');
+    } finally {
+      delete flarum.extensions['flarum-markdown'];
+    }
+  });
+
+  test('keeps a quote that opens with a literal fence on the mention line without Markdown', async () => {
+    expect(await inserted('```php\necho 1;\n```')).toBe('> @"User"#p12 ```php\n> echo 1;\n> ```\n\n');
   });
 
   test('keeps a quote that opens with inline code of three backticks on the mention line', async () => {

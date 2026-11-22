@@ -157,7 +157,8 @@ describe('selectedText', () => {
 describe('spoilers', () => {
   // What the markdown extension renders: see its ispoiler template and
   // Litedown's block spoiler. Keep in step with them.
-  const inline = (inner: string) => `<span class="spoiler" data-spoiler="" onclick="removeAttribute('class')">${inner}</span>`;
+  const inline = (inner: string) =>
+    `<span class="spoiler" data-spoiler="" onclick="removeAttribute('class')">${inner}</span>`;
   const revealed = (inner: string) => `<span data-spoiler="" onclick="removeAttribute('class')">${inner}</span>`;
   const block = (inner: string) => `<details class="spoiler">${inner}</details>`;
 
@@ -194,11 +195,9 @@ describe('spoilers', () => {
   });
 
   test('keeps images, emoji and links', () => {
-    expect(
-      quote(
-        `<p>${inline('<img src="https://example.com/a.png"> <img class="emoji" alt="😀" src="e.png"> <a href="https://example.com/">site</a>')}</p>`
-      )
-    ).toBe('>!![](https://example.com/a.png) 😀 [site](https://example.com/)!<');
+    expect(quote(`<p>${inline('<img src="https://example.com/a.png"> <img class="emoji" alt="😀" src="e.png"> <a href="https://example.com/">site</a>')}</p>`)).toBe(
+      '>!![](https://example.com/a.png) 😀 [site](https://example.com/)!<'
+    );
     expect(quote(block('<p><img src="https://example.com/a.png"></p>'))).toBe('>! ![](https://example.com/a.png)\n');
   });
 
@@ -401,9 +400,7 @@ describe('a selection that runs past the post body', () => {
   // the start of the footer's text instead.
   test("quotes a triple click on the last paragraph of a post with a footer, which Chrome ends at the footer's start", () => {
     const { $first } = posts();
-    document
-      .querySelector('#first .Post-actions')!
-      .insertAdjacentHTML('afterend', '<footer class="Post-footer"><ul><li>You like this.</li></ul></footer>');
+    document.querySelector('#first .Post-actions')!.insertAdjacentHTML('afterend', '<footer class="Post-footer"><ul><li>You like this.</li></ul></footer>');
 
     select((range) => {
       range.setStart($first.find('p')[1].firstChild!, 0);
@@ -520,8 +517,8 @@ describe('a selection that runs past the post body', () => {
   });
 });
 
-// What the server renders for a fenced code block: the highlighter's loader
-// is part of the block. Keep in step with the Markdown and BBCode CODE tags.
+// What the server renders for a code block: BBCode's CODE tag adds the
+// highlighter's loader to the block. Keep in step with it.
 const script = '<script async src="https://cdn.example/loader.min.js"></script><script>window.hljsLoader.highlightBlocks();</script>';
 const pre = (code: string, language = '') => `<pre><code${language ? ` class="${language}"` : ''}>${code}</code>${script}</pre>`;
 
@@ -621,8 +618,12 @@ describe('selectedText keeps code as code', () => {
     expect(quote('<p>Spaces <code></code> and <code>a</code></p>')).toBe('Spaces  and `a`');
   });
 
-  test('a code span over two lines stays on one, so it cannot break an inline spoiler', () => {
+  test('a code span over two lines stays on one in an inline spoiler, which must close on its line', () => {
     expect(quote('<p>Before <span class="spoiler"><code>a<br>\nb</code></span> public</p>')).toBe('Before >!`a b`!< public');
+  });
+
+  test('a code span over two lines keeps its line break elsewhere', () => {
+    expect(quote('<p>See <code>a<br>\nb</code> here</p>')).toBe('See `a\nb` here');
   });
 
   test('code holding "!<" in a block spoiler stays escaped text, or Litedown would read it as a spoiler', () => {
@@ -637,5 +638,25 @@ describe('selectedText keeps code as code', () => {
 
   test('a backslash just before a code span does not escape its backtick', () => {
     expect(quote('<p>Folder \\<code>file</code> here</p>')).toBe('Folder \\\\`file` here');
+  });
+
+  test('a backslash at the end of formatting before a code span does not escape its backtick', () => {
+    expect(quote('<p><em>C:\\</em><code>x</code></p>')).toBe('C:\\\\`x`');
+  });
+
+  test('code spans either side of formatting stay apart', () => {
+    expect(quote('<p><code>a</code><strong><code>b</code></strong></p>')).toBe('`a` `b`');
+  });
+
+  test('blank space alone selected in a code block quotes nothing', () => {
+    const $body = postBody(pre('a\n\nb'));
+    const text = $body.find('pre code')[0].firstChild!;
+
+    select((range) => {
+      range.setStart(text, 2);
+      range.setEnd(text, 3);
+    });
+
+    expect(selectedText($body)).toBe('');
   });
 });

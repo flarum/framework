@@ -32,14 +32,13 @@ const longestBacktickRun = (text) => Math.max(0, ...(text.match(/`+/g) || []).ma
 
 // A code span around the text. A space keeps a backtick at either end of the
 // code from joining the fence.
-function codeSpan(text) {
+function codeSpan(text, inInlineSpoiler = false) {
   // Empty code, such as the edge of one a selection only touches, or one
   // holding only spaces (which renders empty), quotes as nothing.
   if (!text.trim()) return '';
 
-  // A line break in a code span is shown as a space. Kept on one line, the
-  // span can't end a line early, such as the first line of an inline spoiler.
-  text = text.replace(/\n/g, ' ');
+  // An inline spoiler must close on the line it opens on.
+  if (inInlineSpoiler) text = text.replace(/\n/g, ' ');
 
   const fence = '`'.repeat(longestBacktickRun(text) + 1);
   const pad = text.startsWith('`') || text.endsWith('`') ? ' ' : '';
@@ -58,8 +57,6 @@ function codeBlock(pre, text = (pre.querySelector('code') || pre).textContent) {
   return `${fence}${language}\n${text.replace(/\n$/, '')}\n${fence}`;
 }
 
-// A block on lines of its own: a blank line on each side where the text
-// around it has none.
 function asBlock(node, text) {
   // An element with no text, such as an image, is still written out.
   const content = (sibling) =>
@@ -203,11 +200,11 @@ export default function selectedText(body) {
 
   const markdown = markdownEnabled();
 
-  // Code is quoted as code, except where it can't be: without Markdown, and
-  // in an inline spoiler when it holds a ">", which Litedown would read as
-  // the end of a block spoiler's first line. That code stays escaped text.
-  // The same goes for a "!<" in a block spoiler, which Litedown reads as
-  // inline spoiler syntax on a line that starts with ">!".
+  // Code is quoted as code, except where it can't be: without Markdown, in
+  // an inline spoiler when it holds a ">", which would turn the spoiler into
+  // a block spoiler, and in a block spoiler when it holds a "!<", which
+  // Litedown reads as inline spoiler syntax on a line that starts with ">!".
+  // That code stays escaped text.
   const keepsCode = (code) =>
     markdown &&
     !((aroundInline || code.closest(INLINE_SPOILER)) && code.textContent.includes('>')) &&
@@ -259,7 +256,6 @@ export default function selectedText(body) {
   // a code block, are not text the reader sees.
   clone.find('script, style').remove();
 
-  // Code keeps its fence or backticks, so it stays code in the quote.
   if (!aroundCode) {
     clone
       .find('pre')
@@ -273,12 +269,18 @@ export default function selectedText(body) {
       .find('code')
       .filter((i, code) => keptCode.has(code))
       .replaceWith(function () {
-        // An odd run of backslashes just before the span would escape its
-        // opening backtick: add one, so they are all shown.
-        const before = this.previousSibling;
-        if (before?.nodeType === Node.TEXT_NODE && before.data.match(/\\*$/)[0].length % 2) before.data += '\\';
+        // An odd run of backslashes before the span, in any text before it,
+        // would escape its opening backtick: keep them all shown.
+        keepOpening(this, clone[0]);
 
-        return document.createTextNode(codeSpan(this.textContent));
+        // A backtick just before it, such as the end of another span, would
+        // join the two fences: a space keeps them apart.
+        const before = textsBefore(this, clone[0])
+          .filter((text) => text.data)
+          .pop();
+        const span = codeSpan(this.textContent, aroundInline || !!this.closest(INLINE_SPOILER));
+
+        return document.createTextNode(span && before?.data.endsWith('`') ? ' ' + span : span);
       });
   }
 
@@ -322,10 +324,13 @@ export default function selectedText(body) {
 
   let text = clone.text();
 
-  // Wrapped in the code it was taken from, and then the spoiler around that.
   if (aroundCode) {
     const pre = aroundCode.closest('pre');
-    text = pre ? codeBlock(pre, text) : codeSpan(text);
+
+    // Blank space alone in a code block has nothing to quote.
+    if (!text.trim()) return '';
+
+    text = pre ? codeBlock(pre, text) : codeSpan(text, aroundInline);
   }
 
   if (around) return aroundInline ? inlineSpoiler(text) : blockSpoiler(text);
