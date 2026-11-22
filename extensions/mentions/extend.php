@@ -97,7 +97,8 @@ return [
 
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [
-            Schema\Integer::make('mentionCount'),
+            Schema\Integer::make('mentionCount')
+                ->description('Number of visible comments that mention this user.'),
             Schema\Boolean::make('canMentionGroups')
                 ->description('Whether you can mention groups. Only on your own user.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)

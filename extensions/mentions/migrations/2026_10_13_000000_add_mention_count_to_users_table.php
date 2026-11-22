@@ -7,6 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Flarum\Mentions\UserMentionCount;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -28,25 +29,22 @@ return [
         }
 
         // Backfill: the same count Flarum\Mentions\UserMentionCount keeps up to
-        // date from now on. One UPDATE per range of user ids, with the count as
-        // a subquery.
+        // date from now on, as a subquery. Write one UPDATE per batch of users
+        // that exist, rather than one per range of ids, so a forum whose ids
+        // have gaps does not run an UPDATE for every empty range.
         $connection = $schema->getConnection();
 
-        $mentionCount = $connection->table('post_mentions_user')
-            ->join('posts', 'posts.id', '=', 'post_mentions_user.post_id')
-            ->whereColumn('post_mentions_user.mentions_user_id', 'users.id')
-            ->where('posts.is_private', false)
-            ->whereNull('posts.hidden_at')
-            ->where('posts.type', 'comment')
-            ->selectRaw('COUNT(*)');
+        $mentionCount = UserMentionCount::countedPosts(
+            $connection->table('post_mentions_user')
+                ->join('posts', 'posts.id', '=', 'post_mentions_user.post_id')
+                ->whereColumn('post_mentions_user.mentions_user_id', 'users.id')
+        )->selectRaw('COUNT(*)');
 
-        $max = (int) $connection->table('users')->max('id');
-
-        for ($from = 1; $from <= $max; $from += 5000) {
+        $connection->table('users')->select('id')->chunkById(1000, function ($users) use ($connection, $mentionCount) {
             $connection->table('users')
-                ->whereBetween('id', [$from, $from + 4999])
+                ->whereIn('id', $users->pluck('id')->all())
                 ->update(['mention_count' => $mentionCount]);
-        }
+        });
     },
 
     'down' => function (Builder $schema) {
