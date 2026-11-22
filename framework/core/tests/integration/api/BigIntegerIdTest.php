@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Schema;
+use Flarum\Database\AbstractModel;
 use Flarum\Extend;
 use Flarum\Notification\UnsubscribeToken;
 use Flarum\Testing\integration\TestCase;
@@ -29,7 +30,10 @@ class BigIntegerIdTest extends TestCase
     {
         parent::setUp();
 
-        $this->extend(new Extend\ApiResource(BigIntegerKeyResource::class));
+        $this->extend(
+            new Extend\ApiResource(BigIntegerKeyResource::class),
+            new Extend\ApiResource(QualifiedIntegerKeyResource::class),
+        );
 
         $this->prepareDatabase([
             UnsubscribeToken::class => [
@@ -58,25 +62,70 @@ class BigIntegerIdTest extends TestCase
             $this->markTestSkipped('Schemas are a PostgreSQL feature.');
         }
 
+        $grammar = $db->getQueryGrammar();
+        $schema = $db->selectOne('select current_schema() as name')->name;
+        $searchPath = $db->selectOne('select current_setting(\'search_path\') as path')->path;
         $table = $db->getTablePrefix().'unsubscribe_tokens';
+        $original = $grammar->wrapTable("$schema.unsubscribe_tokens");
+        $hidden = $grammar->wrap("{$table}_hidden");
+        $later = $grammar->wrapTable('later_schema.unsubscribe_tokens');
 
         $db->statement('create schema if not exists later_schema');
-        $db->statement("create table later_schema.\"$table\" (like public.\"$table\" including all)");
-        $db->statement("insert into later_schema.\"$table\" (id, user_id, email_type, token, created_at) values (2147483649, 1, 'test', 'def', now())");
+        $db->statement("create table $later (like $original including all)");
+        $db->statement("insert into $later (id, user_id, email_type, token, created_at) values (2147483649, 1, 'test', 'def', now())");
 
         try {
-            $db->statement("alter table public.\"$table\" rename to \"{$table}_hidden\"");
-            $db->statement('set search_path to public, later_schema');
+            $db->statement("alter table $original rename to $hidden");
+            $db->statement('select set_config(\'search_path\', ?, false)', [$grammar->wrap($schema).', later_schema']);
 
             $response = $this->send(
                 $this->request('GET', '/api/big-integer-keys/2147483649', ['authenticatedAs' => 1])
             );
 
             $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+            // Without the column type, the guard would let this id through to a range error.
+            $response = $this->send(
+                $this->request('GET', '/api/big-integer-keys/9223372036854775808', ['authenticatedAs' => 1])
+            );
+
+            $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
         } finally {
-            $db->statement('set search_path to public');
-            $db->statement("alter table public.\"{$table}_hidden\" rename to \"$table\"");
+            $db->statement('select set_config(\'search_path\', ?, false)', [$searchPath]);
+            $db->statement('alter table '.$grammar->wrap($schema).".$hidden rename to ".$grammar->wrap($table));
             $db->statement('drop schema later_schema cascade');
+        }
+    }
+
+    #[Test]
+    public function id_beyond_the_32_bit_range_is_not_found_in_a_schema_qualified_integer_table()
+    {
+        $db = $this->database();
+
+        if ($db->getDriverName() !== 'pgsql') {
+            $this->markTestSkipped('Schemas are a PostgreSQL feature.');
+        }
+
+        $table = $db->getQueryGrammar()->wrapTable((new QualifiedIntegerKeyModel)->getTable());
+
+        $db->statement('create schema if not exists qualified_schema');
+        $db->statement("create table $table (id serial primary key)");
+        $db->statement("insert into $table (id) values (1)");
+
+        try {
+            $response = $this->send(
+                $this->request('GET', '/api/qualified-integer-keys/1', ['authenticatedAs' => 1])
+            );
+
+            $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+            $response = $this->send(
+                $this->request('GET', '/api/qualified-integer-keys/2147483648', ['authenticatedAs' => 1])
+            );
+
+            $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
+        } finally {
+            $db->statement('drop schema qualified_schema cascade');
         }
     }
 
@@ -118,5 +167,38 @@ class BigIntegerKeyResource extends AbstractDatabaseResource
         return [
             Schema\Str::make('emailType')->property('email_type'),
         ];
+    }
+}
+
+class QualifiedIntegerKeyModel extends AbstractModel
+{
+    protected $table = 'qualified_schema.integer_keys';
+}
+
+/**
+ * @extends AbstractDatabaseResource<QualifiedIntegerKeyModel>
+ */
+class QualifiedIntegerKeyResource extends AbstractDatabaseResource
+{
+    public function type(): string
+    {
+        return 'qualified-integer-keys';
+    }
+
+    public function model(): string
+    {
+        return QualifiedIntegerKeyModel::class;
+    }
+
+    public function endpoints(): array
+    {
+        return [
+            Endpoint\Show::make(),
+        ];
+    }
+
+    public function fields(): array
+    {
+        return [];
     }
 }

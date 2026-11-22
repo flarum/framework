@@ -59,12 +59,13 @@ class IntegerKey
     }
 
     /**
-     * Reads the type through the connection's search_path, as the query does.
+     * Reads the type through the connection's search_path, and quotes the
+     * table as the query does, so a schema-qualified table resolves too.
      */
     private static function columnType(Model $model): ?string
     {
         $connection = $model->getConnection();
-        $table = '"'.str_replace('"', '""', $connection->getTablePrefix().$model->getTable()).'"';
+        $table = $connection->getQueryGrammar()->wrapTable($model->getTable());
 
         return $connection->selectOne(
             'select t.typname as type from pg_attribute a join pg_type t on t.oid = a.atttypid '
