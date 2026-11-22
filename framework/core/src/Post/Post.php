@@ -83,6 +83,11 @@ class Post extends AbstractModel
      */
     public static string $type = '';
 
+    /**
+     * Whether the current save already holds the discussion lock.
+     */
+    private bool $discussionLocked = false;
+
     public static function boot()
     {
         parent::boot();
@@ -131,13 +136,51 @@ class Post extends AbstractModel
 
     public function save(array $options = [])
     {
-        // ModelPrivate checkers can change visibility during the saving event.
-        // Keep the update and dependent listeners in the same transaction.
-        if ($this->exists) {
-            return $this->withDiscussionLock(fn () => parent::save($options));
+        // Only visibility changes need the discussion locked. The lock has to
+        // be taken before the saving listeners: core's ModelPrivate checkers
+        // derive `is_private` from `is_approved` there, and the likes counters
+        // are refreshed from `updated`. Ordinary edits take neither the lock
+        // nor a transaction.
+        if (! $this->exists || ! $this->visibilityIsDirty()) {
+            return parent::save($options);
         }
 
-        return parent::save($options);
+        return $this->withDiscussionLock(function () use ($options) {
+            $this->discussionLocked = true;
+
+            try {
+                return parent::save($options);
+            } finally {
+                $this->discussionLocked = false;
+            }
+        });
+    }
+
+    protected function performUpdate(Builder $query)
+    {
+        // A saving listener may have changed visibility after save() looked.
+        // Every saving listener has run by the time Eloquent gets here, so the
+        // lock can still be taken before the visibility write and its
+        // `updated` listeners, which is what has to be serialized. Taking it
+        // later only leaves the saving listeners themselves unlocked.
+        if (! $this->discussionLocked && $this->visibilityIsDirty()) {
+            return $this->withDiscussionLock(function () use ($query) {
+                $this->discussionLocked = true;
+
+                try {
+                    return parent::performUpdate($query);
+                } finally {
+                    $this->discussionLocked = false;
+                }
+            });
+        }
+
+        return parent::performUpdate($query);
+    }
+
+    private function visibilityIsDirty(): bool
+    {
+        return $this->isDirty('is_private') || $this->isDirty('is_approved');
     }
 
     /**
