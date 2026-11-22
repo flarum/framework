@@ -7,7 +7,8 @@ export function truncate(string: string, length: number, start: number = 0): str
 
 /**
  * Create a slug out of the given string depending on the selected mode.
- * Invalid characters are converted to hyphens.
+ * Invalid characters are converted to hyphens. `UTF8_FOLDED` removes some
+ * instead, such as invisible characters and the marks it drops.
  *
  * NOTE: This method does not use the comparably sophisticated transliteration
  * mechanism that is employed in the backend. Therefore, it should only be used
@@ -106,10 +107,11 @@ const LATIN_LETTERS: Record<string, string> = {
 
 /**
  * Hebrew points and cantillation, and Arabic vowel and Quranic marks. Not
- * the madda and hamza (U+0653 to U+0655), which are part of letters like أ.
+ * the madda and hamzas (U+0653 to U+0655, and Kashmiri's wavy hamza below,
+ * U+065F), which are part of letters like أ.
  */
 const HEBREW_AND_ARABIC_VOWEL_MARKS =
-  /[\u{0591}-\u{05BD}\u{05BF}\u{05C1}\u{05C2}\u{05C4}\u{05C5}\u{05C7}\u{0610}-\u{061A}\u{064B}-\u{0652}\u{0656}-\u{065F}\u{0670}\u{06D6}-\u{06DC}\u{06DF}-\u{06E4}\u{06E7}\u{06E8}\u{06EA}-\u{06ED}\u{08F0}-\u{08F2}]/gu;
+  /[\u{0591}-\u{05BD}\u{05BF}\u{05C1}\u{05C2}\u{05C4}\u{05C5}\u{05C7}\u{0610}-\u{061A}\u{064B}-\u{0652}\u{0656}-\u{065E}\u{0670}\u{06D6}-\u{06DC}\u{06DF}-\u{06E4}\u{06E7}\u{06E8}\u{06EA}-\u{06ED}\u{08F0}-\u{08F2}]/gu;
 
 /**
  * Characters folded with NFKC: Latin, Greek and shared ones, and the blocks of
@@ -161,10 +163,11 @@ function halfwidthJamo(code: number): string {
 function isJoinerInWord(character: string, offset: number, text: string): boolean {
   if (character !== '\u200C' && character !== '\u200D') return false;
 
-  const before = text.slice(0, offset).match(/[^]$/u)?.[0] || '';
+  // The letter before it, past any marks on it: after NFD, é is e and a mark.
+  const before = text.slice(0, offset).match(/(\p{L})?\p{M}*$/u)?.[1] || '';
   const after = text.slice(offset + 1).match(/^[^]/u)?.[0] || '';
 
-  return /[\p{L}\p{M}]/u.test(before) && !NON_JOINING_SCRIPTS.test(before) && /\p{L}/u.test(after);
+  return !!before && !NON_JOINING_SCRIPTS.test(before) && /\p{L}/u.test(after);
 }
 
 const NON_JOINING_SCRIPTS =

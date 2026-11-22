@@ -29,7 +29,10 @@ class ConfigureMentions
     public const USER_MENTION_WITH_USERNAME_REGEX = '/\B@(?<username>[a-z0-9_-]+)(?!#)/i';
     public const POST_MENTION_WITH_DISPLAY_NAME_REGEX = '/\B@["“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["”]#p(?<id>[0-9]+)\b/';
     public const GROUP_MENTION_WITH_NAME_REGEX = '/\B@["“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/';
-    public const TAG_MENTION_WITH_SLUG_REGEX = '/(?:[^“"]|^)\B#(?<slug>[-_\p{L}\p{N}\p{M}]+)\b/ui';
+    // Slugs can hold joiners (U+200C, U+200D), which spell words in Persian and Indic scripts, and
+    // can end in a spacing mark, which \b doesn't count as part of a word (#हिन्दी). The slug ends
+    // where no letter, number, mark, joiner or underscore follows, and not on a hyphen.
+    public const TAG_MENTION_WITH_SLUG_REGEX = '/(?:[^“"]|^)\B#(?<slug>[-_\p{L}\p{N}\p{M}\x{200C}\x{200D}]*[_\p{L}\p{N}\p{M}\x{200C}\x{200D}])(?![_\p{L}\p{N}\p{M}\x{200C}\x{200D}])/ui';
 
     /**
      * A group's or tag's icon: its uploaded image if it has one, otherwise its

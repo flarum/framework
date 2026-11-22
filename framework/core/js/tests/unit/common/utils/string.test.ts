@@ -100,6 +100,8 @@ describe('string', () => {
       expect(slug('\u200Dstart end\u200C')).toBe('start-end');
       expect(slug('Auf\u200Clage')).toBe('auflage');
       expect(slug('д\u200Cb 日\u200D本')).toBe('дb-日本');
+      // Past the accent to the letter it's on: é is e and a mark after NFD.
+      expect(slug('café\u200Cbar й\u200Cк')).toBe('cafebar-йк');
     });
 
     it('should remove characters that break words instead of hyphenating them', () => {
@@ -133,6 +135,8 @@ describe('string', () => {
       expect(slug('الرَّحْمٰنِ')).toBe('الرحمن');
       // Hamza is part of the letter, not a vowel mark.
       expect(slug('أهلا')).toBe('أهلا');
+      // Kashmiri's wavy hamza below is part of the letter, like the hamza below.
+      expect(slug('\u0627\u065F')).toBe('\u0627\u065F');
       expect(slug('हिन्दी')).toBe('हिन्दी');
       expect(slug('ภาษาไทย')).toBe('ภาษาไทย');
     });

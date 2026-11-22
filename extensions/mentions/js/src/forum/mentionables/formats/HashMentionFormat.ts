@@ -11,7 +11,8 @@ export default class HashMentionFormat extends MentionFormat {
   }
 
   public queryFromTyped(typed: string): string | null {
-    const matchTyped = typed.match(/^[-_\p{L}\p{N}\p{M}]+$/giu);
+    // Joiners spell words in Persian and Indic slugs.
+    const matchTyped = typed.match(/^[-_\p{L}\p{N}\p{M}\u200C\u200D]+$/giu);
 
     return matchTyped ? matchTyped[0] : null;
   }
