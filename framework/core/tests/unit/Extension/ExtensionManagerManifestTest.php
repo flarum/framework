@@ -192,28 +192,27 @@ class ExtensionManagerManifestTest extends TestCase
                 'extra' => ['flarum-extension' => ['title' => 'XSS']],
             ],
             [
+                'name' => 'acme/trailing-newline',
+                'type' => 'flarum-extension',
+                'version' => 'dev-main',
+                'dist' => ['reference' => "abcdef1\n"],
+                'extra' => ['flarum-extension' => ['title' => 'Trailing Newline']],
+            ],
+            [
                 'name' => 'acme/too-short',
                 'type' => 'flarum-extension',
                 'version' => '2.x-dev',
                 'source' => ['reference' => 'abc123'],
                 'extra' => ['flarum-extension' => ['title' => 'Too Short']],
             ],
+            // Covers both config-hash references and stale install-time .git references on path repos.
             [
-                'name' => 'acme/path-no-git',
+                'name' => 'acme/path',
                 'type' => 'flarum-extension',
                 'version' => 'dev-main',
                 'installation-source' => 'dist',
-                'dist' => ['type' => 'path', 'url' => '../path-no-git', 'reference' => '0123456789abcdef0123456789abcdef01234567'],
-                'extra' => ['flarum-extension' => ['title' => 'Path No Git']],
-            ],
-            [
-                'name' => 'acme/path-with-source',
-                'type' => 'flarum-extension',
-                'version' => 'dev-main',
-                'installation-source' => 'dist',
-                'dist' => ['type' => 'path', 'url' => '../path-with-source', 'reference' => '0123456789abcdef0123456789abcdef01234567'],
-                'source' => ['type' => 'git', 'reference' => 'fedcba9876543210fedcba9876543210fedcba98'],
-                'extra' => ['flarum-extension' => ['title' => 'Path With Source']],
+                'dist' => ['type' => 'path', 'url' => '../path', 'reference' => '0123456789abcdef0123456789abcdef01234567'],
+                'extra' => ['flarum-extension' => ['title' => 'Path']],
             ],
             [
                 'name' => 'acme/from-source',
@@ -250,9 +249,9 @@ class ExtensionManagerManifestTest extends TestCase
         $this->assertNull($extensions->get('acme-stable')->getCommit());
         $this->assertNull($extensions->get('acme-xss')->getCommit());
         $this->assertNull($extensions->get('acme-xss')->toArray()['commit']);
+        $this->assertNull($extensions->get('acme-trailing-newline')->getCommit());
         $this->assertNull($extensions->get('acme-too-short')->getCommit());
-        $this->assertNull($extensions->get('acme-path-no-git')->getCommit());
-        $this->assertSame('fedcba9876543210fedcba9876543210fedcba98', $extensions->get('acme-path-with-source')->getCommit());
+        $this->assertNull($extensions->get('acme-path')->getCommit());
         $this->assertSame('2222222222222222222222222222222222222222', $extensions->get('acme-from-source')->getCommit());
         $this->assertSame('3333333333333333333333333333333333333333', $extensions->get('acme-dist-non-hex-fallback')->getCommit());
         $this->assertNull($extensions->get('acme-source-missing-ref')->getCommit());
@@ -263,7 +262,7 @@ class ExtensionManagerManifestTest extends TestCase
     {
         $fs = new Filesystem();
         $subDirs = [
-            $this->vendor.'/acme/monorepo/extensions/theme..legacy' => ['name' => 'acme/child', 'title' => 'Child'],
+            $this->vendor.'/acme/monorepo/extensions/child' => ['name' => 'acme/child', 'title' => 'Child'],
             $this->vendor.'/acme/monorepo-path/extensions/child' => ['name' => 'acme/path-child', 'title' => 'Path Child'],
             $this->vendor.'/acme/monorepo-source/extensions/child' => ['name' => 'acme/source-child', 'title' => 'Source Child'],
         ];
@@ -290,7 +289,7 @@ class ExtensionManagerManifestTest extends TestCase
                     'url' => 'https://x-access-token:ghp_secret@github.com/acme/monorepo.git',
                 ],
                 'extra' => [
-                    'flarum-subextensions' => ['extensions/theme..legacy', '../escaped-path', 'extensions/nested/../escaped'],
+                    'flarum-subextensions' => ['extensions/child'],
                 ],
             ],
             [

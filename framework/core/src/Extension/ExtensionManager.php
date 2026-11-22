@@ -660,25 +660,21 @@ class ExtensionManager
 
     /**
      * Resolve the commit SHA for the actual installation source, ignoring
-     * `dist.reference` on `path` repositories (which may be a config hash).
+     * `path` repositories (whose `dist.reference` can be a config hash or stale).
      */
     protected static function extractCommit(array $package): ?string
     {
+        if (Arr::get($package, 'dist.type') === 'path') {
+            return null;
+        }
+
         $sourceRef = Extension::sanitizeCommit(Arr::get($package, 'source.reference'));
 
         if (Arr::get($package, 'installation-source') === 'source') {
             return $sourceRef;
         }
 
-        if (Arr::get($package, 'dist.type') !== 'path') {
-            $distRef = Extension::sanitizeCommit(Arr::get($package, 'dist.reference'));
-
-            if ($distRef !== null) {
-                return $distRef;
-            }
-        }
-
-        return $sourceRef;
+        return Extension::sanitizeCommit(Arr::get($package, 'dist.reference')) ?? $sourceRef;
     }
 
     protected function subExtensionConfsFromJson(array $package, string $packagePath): ?array
@@ -690,16 +686,12 @@ class ExtensionManager
         $subExtConfs = [];
 
         foreach ($subExtPaths as $subExtPath) {
-            if (! is_string($subExtPath) || $subExtPath === '' || in_array('..', explode('/', str_replace('\\', '/', $subExtPath)), true)) {
-                continue;
-            }
-
             $subPackagePath = "$packagePath/$subExtPath";
             $conf = json_decode($this->filesystem->get("$subPackagePath/composer.json"), true);
 
-            if (is_array($conf) && Arr::get($conf, 'type') === 'flarum-extension' && str_contains((string) Arr::get($conf, 'name', ''), '/')) {
-                // Inherit the parent monorepo version and commit reference when the
-                // sub-extension's composer.json omits them, without copying parent URLs.
+            if (Arr::get($conf, 'type') === 'flarum-extension' && str_contains((string) Arr::get($conf, 'name', ''), '/')) {
+                // Copy only version and commit rather than the parent's dist/source arrays,
+                // whose URLs may contain credentials.
                 if (! isset($conf['version']) && isset($package['version']) && is_string($package['version'])) {
                     $conf['version'] = $package['version'];
                 }

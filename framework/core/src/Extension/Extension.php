@@ -192,7 +192,7 @@ class Extension implements Arrayable
      */
     public static function sanitizeCommit(mixed $reference): ?string
     {
-        if (! is_string($reference) || ! preg_match('/^[0-9a-f]{7,64}$/i', $reference)) {
+        if (! is_string($reference) || ! preg_match('/^[0-9a-f]{7,64}\z/i', $reference)) {
             return null;
         }
 
