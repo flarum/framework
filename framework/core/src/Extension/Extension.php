@@ -78,6 +78,7 @@ class Extension implements Arrayable
 
     protected bool $installed = true;
     protected string $version;
+    protected ?string $commit = null;
 
     /**
      * Whether the composer package is marked as abandoned.
@@ -176,6 +177,29 @@ class Extension implements Arrayable
     }
 
     /**
+     * @internal
+     */
+    public function setCommit(?string $commit): static
+    {
+        $this->commit = self::sanitizeCommit($commit);
+
+        return $this;
+    }
+
+    /**
+     * Accept only hexadecimal VCS commit hashes so untrusted manifest values
+     * cannot inject markup, console formatting tags, or control characters.
+     */
+    public static function sanitizeCommit(mixed $reference): ?string
+    {
+        if (! is_string($reference) || ! preg_match('/^[0-9a-f]{7,64}\z/i', $reference)) {
+            return null;
+        }
+
+        return strtolower($reference);
+    }
+
+    /**
      * @param bool|string $abandoned
      *
      * @internal
@@ -217,6 +241,11 @@ class Extension implements Arrayable
     public function getVersion(): ?string
     {
         return $this->version;
+    }
+
+    public function getCommit(): ?string
+    {
+        return $this->commit;
     }
 
     /**
@@ -509,6 +538,7 @@ class Extension implements Arrayable
         return array_merge($this->composerJson, [
             'id' => $this->getId(),
             'version' => $this->getVersion(),
+            'commit' => $this->getCommit(),
             'path' => $this->getPath(),
             'icon' => $this->getIcon(),
             'hasAssets' => $this->hasAssets(),
