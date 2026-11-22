@@ -1,5 +1,6 @@
 import app from 'flarum/forum/app';
 import PostsUserPage from 'flarum/forum/components/PostsUserPage';
+import type { PostListParams } from 'flarum/forum/states/PostListState';
 import type User from 'flarum/common/models/User';
 
 /**
@@ -14,12 +15,12 @@ export default class MentionsUserPage extends PostsUserPage {
     app.current.set('mentions', this.posts);
   }
 
-  params(user: User): ReturnType<PostsUserPage['params']> {
+  params(user: User): PostListParams {
     return {
       filter: {
         type: 'comment',
         mentioned: user.id(),
       },
-    } as unknown as ReturnType<PostsUserPage['params']>;
+    };
   }
 }
