@@ -56,9 +56,39 @@ class LikeCount
             foreach ($usersByCount as $count => $userIds) {
                 foreach (array_chunk($userIds, 1000) as $ids) {
                     $db->table('users')->whereIn('id', $ids)->update([
-                        'like_count' => new Expression("CASE WHEN like_count >= $count THEN like_count - $count ELSE 0 END"),
+                        'like_count' => self::delta(-(int) $count),
                     ]);
                 }
+            }
+        });
+    }
+
+    /**
+     * Move the stored counts of a post's likers by the change in whether the
+     * post counts.
+     *
+     * A post counts only while it is a visible comment, so a visibility change
+     * moves each of its likers by exactly one. Recounting every post they
+     * liked is repair work, not something one approval should do, so this is a
+     * single set-based update per chunk.
+     */
+    public function adjustPostLikers(int $postId, int $delta): void
+    {
+        if ($delta === 0) {
+            return;
+        }
+
+        $db = User::query()->getConnection();
+
+        $db->transaction(function () use ($db, $postId, $delta) {
+            $userIds = $db->table('post_likes')->where('post_id', $postId)
+                ->orderBy('user_id')->pluck('user_id')->all();
+
+            foreach (array_chunk($userIds, 1000) as $ids) {
+                // Same order as the like mutation and deletion: the users in
+                // ascending order before their counters change.
+                $db->table('users')->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get(['id']);
+                $db->table('users')->whereIn('id', $ids)->update(['like_count' => self::delta($delta)]);
             }
         });
     }
@@ -69,7 +99,14 @@ class LikeCount
             ->chunkById(1000, fn ($users) => $this->refresh($users->pluck('id')->all()));
     }
 
-    /** @param int[] $userIds */
+    /**
+     * Recount stored counts from the pivot, for repair (for instance when the
+     * extension was enabled again after likes were deleted). Mutations must
+     * move the stored count by one instead: a recount cannot be combined with
+     * a concurrent like, because it would overwrite that like.
+     *
+     * @param int[] $userIds
+     */
     public function refresh(array $userIds): void
     {
         $userIds = array_values(array_unique($userIds));
@@ -88,5 +125,17 @@ class LikeCount
                 $db->table('users')->whereIn('id', $ids)->update(['like_count' => $count]);
             });
         }
+    }
+
+    /** SQL for moving a stored count, without taking a counter below zero. */
+    private static function delta(int $delta): Expression
+    {
+        if ($delta > 0) {
+            return new Expression("like_count + $delta");
+        }
+
+        $count = -$delta;
+
+        return new Expression("CASE WHEN like_count >= $count THEN like_count - $count ELSE 0 END");
     }
 }

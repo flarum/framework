@@ -18,6 +18,7 @@ use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\DeletingPosts;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -84,6 +85,13 @@ class Post extends AbstractModel
     public static string $type = '';
 
     /**
+     * How many times a write that competes with a like counter is attempted.
+     *
+     * @see self::conflictAttempts()
+     */
+    public const CONFLICT_ATTEMPTS = 3;
+
+    /**
      * Whether the current save already holds the discussion lock.
      */
     private bool $discussionLocked = false;
@@ -130,7 +138,17 @@ class Post extends AbstractModel
 
         return self::deleteWithEvents(
             $this->newModelQuery()->whereKey($this->getKey()),
-            fn (array $ids) => $ids ? parent::delete() : false,
+            function (array $ids) {
+                if (! $ids) {
+                    return false;
+                }
+
+                // A retry follows an attempt that was rolled back, but Eloquent
+                // kept the model marked deleted, so the row would be skipped.
+                $this->exists = true;
+
+                return parent::delete();
+            },
         );
     }
 
@@ -202,9 +220,25 @@ class Post extends AbstractModel
     }
 
     /**
+     * Attempts for a transaction whose writes can collide with a like counter.
+     *
+     * A liker can commit their counter update between our reads and our write
+     * to that user. MariaDB 11.6+ reports that as a deadlock (1213) or
+     * "record has changed since last read" (1020) instead of waiting, so the
+     * write has to be retried. Retrying only helps on the outermost
+     * transaction: InnoDB rolls the whole transaction back on a deadlock, so a
+     * nested retry would repeat a savepoint inside a transaction that is gone.
+     */
+    public static function conflictAttempts(ConnectionInterface $connection): int
+    {
+        return $connection->transactionLevel() === 0 ? self::CONFLICT_ATTEMPTS : 1;
+    }
+
+    /**
      * @template T
      * @param Builder<Post> $posts A single-table, unpaginated filter on posts.
      * @param \Closure(list<int>): T $delete Delete the supplied locked post IDs, or return false to cancel.
+     *                               It can run more than once when the transaction is retried.
      * @param list<int> $userIds Other users to lock alongside those requested by deletion listeners.
      * @return T
      */
@@ -240,7 +274,7 @@ class Post extends AbstractModel
             }
 
             return $result;
-        });
+        }, self::conflictAttempts($db));
     }
 
     /**

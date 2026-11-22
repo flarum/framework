@@ -120,13 +120,22 @@ class Discussion extends AbstractModel
             return parent::delete();
         }
 
-        return $this->getConnection()->transaction(function () {
+        $db = $this->getConnection();
+
+        // The cascade deletes posts, whose counter updates can collide with a
+        // liker's like. MariaDB then reports a deadlock or a changed record, so
+        // retry here, at the outermost transaction, rather than in the cascade.
+        return $db->transaction(function () {
+            // A retry follows a rolled back attempt that left the model marked
+            // deleted while its row is back in the database.
+            $this->exists = true;
+
             // Prevent another post from being inserted before the cascade.
             $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->get(['id']);
 
             // The cascade includes posts whose types are no longer registered.
             return Post::deleteWithEvents($this->posts()->getQuery()->withoutGlobalScopes(), parent::delete(...));
-        });
+        }, Post::conflictAttempts($db));
     }
 
     /**

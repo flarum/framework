@@ -116,23 +116,37 @@ class UserLikeCountTest extends TestCase
         $users = $grammar->wrapTable('users');
         $posts = $grammar->wrapTable('posts');
         $hadUserLock = false;
+        $counterWasUpdated = false;
         $protectedAtDelete = false;
 
-        $db->listen(function (QueryExecuted $query) use ($db, $outsideLevel, $users, $posts, &$hadUserLock, &$protectedAtDelete) {
+        $db->listen(function (QueryExecuted $query) use ($db, $outsideLevel, $users, $posts, &$hadUserLock, &$counterWasUpdated, &$protectedAtDelete) {
             if (str_contains($query->sql, "from $users") && str_ends_with($query->sql, 'for update')) {
                 $hadUserLock = true;
             }
 
+            if (str_starts_with($query->sql, "update $users ") && str_contains($query->sql, 'like_count')) {
+                $counterWasUpdated = $db->transactionLevel() > $outsideLevel;
+            }
+
             if (str_starts_with($query->sql, "delete from $posts")) {
-                // SQLite protects writes at the database level.
-                $protectedAtDelete = $db->transactionLevel() > $outsideLevel && ($hadUserLock || $db->getDriverName() === 'sqlite');
+                $protectedAtDelete = $db->transactionLevel() > $outsideLevel;
             }
         });
 
         $response = $this->send($this->request('DELETE', '/api/posts/2', ['authenticatedAs' => 1]));
 
         $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        // The counter change shares the deletion's transaction everywhere.
         $this->assertTrue($protectedAtDelete);
+        $this->assertTrue($counterWasUpdated);
+
+        // SQLite has no row locks, so the shared transaction is its only
+        // protection there; PostWriteLockOrderTest holds the counter's lock
+        // itself on the drivers that have row locks.
+        if ($db->getDriverName() !== 'sqlite') {
+            $this->assertTrue($hadUserLock, 'The counter should be locked before the post is removed.');
+        }
+
         $this->assertSame(0, $this->likeCountOf(2));
     }
 
@@ -265,6 +279,70 @@ class UserLikeCountTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
         $this->assertTrue($visibilityUpdateWasTransactional);
         $this->assertSame(1, $this->likeCountOf(1));
+    }
+
+    #[Test]
+    public function approving_a_liked_post_moves_each_liker_by_one_and_does_not_recount(): void
+    {
+        $this->extension('flarum-approval', 'flarum-flags');
+        $this->database()->table('posts')->where('id', 3)->update(['is_approved' => false]);
+        $this->database()->table('post_likes')->insert([
+            ['post_id' => 3, 'user_id' => 2],
+            ['post_id' => 3, 'user_id' => 4],
+        ]);
+        // Stored counts that disagree with the pivot: approving adds one to
+        // what is stored instead of recounting each liker's whole history.
+        $this->database()->table('users')->where('id', 2)->update(['like_count' => 5]);
+        $this->database()->table('users')->where('id', 4)->update(['like_count' => 7]);
+        $updates = [];
+        $db = $this->database();
+        $users = $db->getQueryGrammar()->wrapTable('users');
+        $db->listen(function (QueryExecuted $query) use ($users, &$updates) {
+            if (str_starts_with($query->sql, "update $users ") && str_contains($query->sql, 'like_count')) {
+                $updates[] = $query->sql;
+            }
+        });
+
+        $response = $this->send($this->request('PATCH', '/api/posts/3', [
+            'authenticatedAs' => 1,
+            'json' => ['data' => ['attributes' => ['isApproved' => true]]],
+        ]));
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(6, $this->likeCountOf(2));
+        $this->assertSame(8, $this->likeCountOf(4));
+        $this->assertCount(1, $updates, 'Approving should move every liker in one set-based update.');
+        $this->assertStringNotContainsString('count(', strtolower($updates[0]), 'Approving should not recount a liker.');
+    }
+
+    #[Test]
+    public function hiding_a_liked_post_again_moves_each_liker_back_down_by_one(): void
+    {
+        $this->extension('flarum-approval', 'flarum-flags');
+        $this->database()->table('posts')->where('id', 3)->update(['is_approved' => false]);
+        $this->database()->table('post_likes')->insert([
+            ['post_id' => 3, 'user_id' => 2],
+            ['post_id' => 3, 'user_id' => 4],
+        ]);
+
+        $response = $this->send($this->request('PATCH', '/api/posts/3', [
+            'authenticatedAs' => 1,
+            'json' => ['data' => ['attributes' => ['isApproved' => true]]],
+        ]));
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(1, $this->likeCountOf(2));
+        $this->assertSame(1, $this->likeCountOf(4));
+
+        // The API only approves. De-approval happens on the model (approval's
+        // checker is what derives `is_private` from `is_approved`), and has to
+        // move the same likers back down.
+        $post = CommentPost::findOrFail(3);
+        $post->is_approved = false;
+        $post->save();
+
+        $this->assertTrue($post->refresh()->is_private);
+        $this->assertSame(0, $this->likeCountOf(2));
+        $this->assertSame(0, $this->likeCountOf(4));
     }
 
     #[Test]

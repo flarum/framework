@@ -23,11 +23,13 @@ class LikeServiceProvider extends AbstractServiceProvider
         $this->container->make(Dispatcher::class)->listen(DeletingPosts::class, $counts->prepareDeletion(...));
 
         CommentPost::updated(function (CommentPost $post) use ($counts) {
-            if ($post->wasChanged('is_private')) {
-                // Saving holds the post's lock, so Like mutations cannot alter
-                // the pivot while the counters are being refreshed.
-                $ids = $post->getConnection()->table('post_likes')->where('post_id', $post->id)->pluck('user_id')->all();
-                $counts->refresh($ids);
+            // A post counts only while it is a visible comment. The saving
+            // locks keep the pivot stable, so the change is one per liker.
+            $wasCounted = $post->getOriginal('type') === 'comment' && ! $post->getOriginal('is_private');
+            $counted = $post->type === 'comment' && ! $post->is_private;
+
+            if ($wasCounted !== $counted) {
+                $counts->adjustPostLikers((int) $post->id, $counted ? 1 : -1);
             }
         });
     }

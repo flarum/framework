@@ -30,13 +30,20 @@ class PostWriteLockOrderTest extends TestCase
         $this->setting('flarum-gdpr.allow-deletion', true);
         $this->setting('mail_driver', 'log');
         $db = $this->database();
-        if ($db->getDriverName() !== 'pgsql') {
-            $this->markTestSkipped('The independent lock probe uses PostgreSQL NOWAIT.');
+        $driver = $db->getDriverName();
+        if ($driver !== 'pgsql' && $driver !== 'mysql') {
+            $this->markTestSkipped('The independent lock probe needs row locks, which '.$driver.' does not have.');
         }
 
         $observer = (new ConnectionFactory(new Container()))->make($db->getConfig());
         $id = random_int(1000000000, 2000000000);
         $now = Carbon::now();
+
+        if ($driver === 'mysql') {
+            // A locked row is proven by the probe timing out, since MySQL 5.7
+            // has no FOR UPDATE NOWAIT. One second is the shortest wait.
+            $observer->statement('SET SESSION innodb_lock_wait_timeout = 1');
+        }
 
         try {
             // Commit the fixture on the observer connection so both sessions can see it.
@@ -118,10 +125,18 @@ class PostWriteLockOrderTest extends TestCase
 
     private function assertLocked(Connection $observer, string $table, int $id): void
     {
+        $driver = $observer->getDriverName();
+
         try {
-            $observer->transaction(fn () => $observer->table($table)->where('id', $id)->lock('for update nowait')->first());
+            $observer->transaction(fn () => $observer->table($table)->where('id', $id)
+                ->lock($driver === 'pgsql' ? 'for update nowait' : 'for update')->first());
         } catch (QueryException $e) {
-            $this->assertSame('55P03', $e->errorInfo[0]);
+            if ($driver === 'pgsql') {
+                $this->assertSame('55P03', $e->errorInfo[0] ?? null, $e->getMessage());
+            } else {
+                // 1205: the second session waited out innodb_lock_wait_timeout.
+                $this->assertSame(1205, $e->errorInfo[1] ?? null, $e->getMessage());
+            }
 
             return;
         }
