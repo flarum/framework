@@ -268,7 +268,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
    * @return {boolean}
    */
   showRepliesCount() {
-    return this.attrs.params.sort === 'replies';
+    return this.attrs.params.sort === 'top';
   }
 
   /**
