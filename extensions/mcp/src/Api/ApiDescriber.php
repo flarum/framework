@@ -40,8 +40,8 @@ use Tobyz\JsonApiServer\Schema\Field\ToMany;
 class ApiDescriber
 {
     /**
-     * The page size list_resources uses for a type without one of its own, so
-     * a call never loads a whole table.
+     * The page size list_resources uses for a type that can be paginated but has
+     * no size of its own, so a call doesn't load the whole of a growing list.
      */
     public const int DEFAULT_PAGE_LIMIT = 20;
 
@@ -131,7 +131,7 @@ class ApiDescriber
             $description['defaultSort'] = $index->defaultSort;
 
             if ($resource instanceof Paginatable) {
-                $description['pageLimit'] = ['default' => $index->limit ?? static::DEFAULT_PAGE_LIMIT, 'max' => $index->maxLimit];
+                $description['pageLimit'] = ['default' => min($index->limit ?? static::DEFAULT_PAGE_LIMIT, $index->maxLimit), 'max' => $index->maxLimit];
             }
         }
 
