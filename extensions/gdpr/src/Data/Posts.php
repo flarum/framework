@@ -63,13 +63,12 @@ class Posts extends Type
         // normally happens when a post is deleted. So note which discussions
         // they were in, and afterwards leave each one as if its posts had
         // been deleted one at a time.
-        $discussionIds = Post::deleteWithEvents($posts, function (array $ids) use ($posts) {
-            $targets = (clone $posts)->whereIntegerInRaw('id', $ids);
-            $discussionIds = (clone $targets)->distinct()->pluck('discussion_id')->all();
+        $discussionIds = Post::deleteWithEvents($posts, function ($targets) {
+            $discussionIds = (clone $targets)->select('posts.discussion_id')->distinct()->pluck('discussion_id')->all();
 
             Notification::query()
                 ->whereSubjectModel(Post::class)
-                ->whereIntegerInRaw('subject_id', $ids)
+                ->whereIn('subject_id', $targets)
                 ->delete();
 
             $targets->delete();

@@ -18,34 +18,46 @@ class LikeCount
     public function prepareDeletion(DeletingPosts $event): void
     {
         $db = $event->connection;
-        $postIds = $event->postIds;
+        $posts = $event->posts();
         $removedByUser = [];
 
         // Core holds the post locks. Group in SQL so only counts come back.
-        foreach (array_chunk($postIds, 1000) as $chunk) {
-            $counts = $db->table('post_likes')
-                ->join('posts', 'posts.id', '=', 'post_likes.post_id')
-                ->whereIn('post_likes.post_id', $chunk)
-                ->where('posts.type', 'comment')
-                ->where('posts.is_private', false)
-                ->select('post_likes.user_id')
-                ->selectRaw('COUNT(*) as total')
-                ->groupBy('post_likes.user_id')
-                ->pluck('total', 'post_likes.user_id');
+        $counts = $db->table('post_likes')
+            ->join('posts', 'posts.id', '=', 'post_likes.post_id')
+            ->whereIn('post_likes.post_id', $posts)
+            ->where('posts.type', 'comment')
+            ->where('posts.is_private', false)
+            ->select('post_likes.user_id')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('post_likes.user_id')
+            ->pluck('total', 'post_likes.user_id');
 
-            foreach ($counts as $id => $count) {
-                $removedByUser[$id] = ($removedByUser[$id] ?? 0) + (int) $count;
-            }
+        foreach ($counts as $id => $count) {
+            $removedByUser[(int) $id] = (int) $count;
         }
+
+        // Everyone who liked one of the posts, including the likes that never
+        // counted. Their rows are found again after the deletion without
+        // keeping the post ids, which a discussion can have too many of.
+        $likers = $db->table('post_likes')
+            ->whereIn('post_id', $posts)
+            ->distinct()
+            ->pluck('user_id')
+            ->all();
 
         // Like mutations take the same locks before changing the pivot and counter.
         // Hold these through the SQL deletion as well as the counter update.
         $event->lockUsers(array_keys($removedByUser));
 
-        $event->afterDeletion(function () use ($db, $postIds, $removedByUser) {
-            // SQLite installs without cascading foreign keys still need cleanup.
-            foreach (array_chunk($postIds, 1000) as $ids) {
-                $db->table('post_likes')->whereIn('post_id', $ids)->delete();
+        $event->afterDeletion(function () use ($db, $likers, $removedByUser) {
+            // The posts are gone, so a like left behind points at a post that
+            // no longer exists. SQLite installs without cascading foreign keys
+            // still need this cleanup; elsewhere it finds nothing.
+            foreach (array_chunk($likers, 1000) as $ids) {
+                $db->table('post_likes')
+                    ->whereIn('user_id', $ids)
+                    ->whereNotExists(fn ($query) => $query->selectRaw(1)->from('posts')->whereColumn('posts.id', 'post_likes.post_id'))
+                    ->delete();
             }
 
             $usersByCount = [];

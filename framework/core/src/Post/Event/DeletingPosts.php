@@ -11,10 +11,17 @@ namespace Flarum\Post\Event;
 
 use Closure;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Query\Builder;
 
 /**
  * Covers both model deletion and bulk deletion that skips model events.
  * Listeners can maintain related records within the deletion transaction.
+ *
+ * The posts are locked, not loaded: deleting a discussion with a hundred
+ * thousand posts costs no more memory than deleting one with four.
+ * {@see self::posts()} is the subquery selecting the ids of the rows being
+ * deleted, which listeners can use in SQL to reach their own rows without
+ * walking a list of ids.
  */
 final class DeletingPosts
 {
@@ -22,14 +29,28 @@ final class DeletingPosts
     private array $callbacks = [];
 
     /**
-     * @param list<int> $postIds
+     * @param Builder $posts Selects `posts.id` for the rows being deleted.
      * @param list<int> $userIds
      */
     public function __construct(
         public readonly ConnectionInterface $connection,
-        public readonly array $postIds,
+        private readonly Builder $posts,
         private array $userIds = [],
     ) {
+    }
+
+    /**
+     * The posts being deleted, as a subquery that selects their `posts.id`.
+     *
+     * The rows are locked and still present while the event is dispatched; the
+     * deletion itself runs afterwards, from the same query. Pass it to
+     * `whereIn` to act on related rows in a single statement, for instance
+     * `whereIn('post_likes.post_id', $event->posts())`. Callers that need the
+     * full rows can `->select('posts.*')` first.
+     */
+    public function posts(): Builder
+    {
+        return clone $this->posts;
     }
 
     /** @param list<int> $ids */
@@ -49,7 +70,14 @@ final class DeletingPosts
         }
     }
 
-    /** @param Closure(): void $callback */
+    /**
+     * Register work to run in the deletion transaction once the posts are gone.
+     *
+     * The callbacks are skipped when the deletion callback reports false, and
+     * anything they do rolls back with the transaction if one of them throws.
+     *
+     * @param Closure(): void $callback
+     */
     public function afterDeletion(Closure $callback): void
     {
         $this->callbacks[] = $callback;

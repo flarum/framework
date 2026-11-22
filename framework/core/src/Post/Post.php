@@ -138,8 +138,8 @@ class Post extends AbstractModel
 
         return self::deleteWithEvents(
             $this->newModelQuery()->whereKey($this->getKey()),
-            function (array $ids) {
-                if (! $ids) {
+            function ($posts) {
+                if (! $posts->exists()) {
                     return false;
                 }
 
@@ -237,8 +237,8 @@ class Post extends AbstractModel
     /**
      * @template T
      * @param Builder<Post> $posts A single-table, unpaginated filter on posts.
-     * @param \Closure(list<int>): T $delete Delete the supplied locked post IDs, or return false to cancel.
-     *                               It can run more than once when the transaction is retried.
+     * @param \Closure(\Illuminate\Database\Query\Builder): T $delete Delete the posts the given query selects,
+     *                               or return false to cancel. It can run more than once when the transaction is retried.
      * @param list<int> $userIds Other users to lock alongside those requested by deletion listeners.
      * @return T
      */
@@ -258,16 +258,23 @@ class Post extends AbstractModel
                 ->whereIn('id', (clone $query)->select('posts.discussion_id'))
                 ->orderBy('id')->lockForUpdate()->pluck('id');
 
-            $ids = (clone $query)
-                ->whereIntegerInRaw('posts.discussion_id', $discussionIds)
-                ->orderBy('posts.id')->lockForUpdate()->pluck('posts.id')
-                ->map(fn ($id) => (int) $id)->all();
+            // The posts being deleted, as a subquery rather than a list.
+            // Listeners and the delete callback both work from it, so a big
+            // discussion costs SQL work instead of memory.
+            $deleted = (clone $query)
+                ->select('posts.id')
+                ->whereIntegerInRaw('posts.discussion_id', $discussionIds);
 
-            $event = new DeletingPosts($db, $ids, $userIds);
+            // Lock the posts in bounded chunks, which are thrown away: the
+            // listeners get the subquery, not the rows.
+            (clone $deleted)->orderBy('posts.id')->lockForUpdate()
+                ->chunkById(1000, fn () => null, 'posts.id', 'id');
+
+            $event = new DeletingPosts($db, $deleted, $userIds);
             resolve(Dispatcher::class)->dispatch($event);
             $event->acquireUserLocks();
 
-            $result = $delete($ids);
+            $result = $delete(clone $deleted);
 
             if ($result !== false) {
                 $event->complete();
