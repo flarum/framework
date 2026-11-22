@@ -90,6 +90,8 @@ class PostDeleteConflictTest extends TestCase
 
             $this->assertSame(204, $response->getStatusCode(), (string) $response->getBody());
             $this->assertTrue($replayed, 'The liker should commit between the count read and the user lock.');
+            // Pins the rows the retried delete removed, kept and wrote: these
+            // are read straight from the tables, not from the response.
             $this->assertFalse($observer->table('posts')->where('id', $deletedPost)->exists());
             $this->assertFalse($observer->table('post_likes')->where('post_id', $deletedPost)->exists());
             $this->assertTrue($observer->table('post_likes')->where('post_id', $likedMeanwhile)->where('user_id', $liker)->exists());

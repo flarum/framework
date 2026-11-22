@@ -69,7 +69,8 @@ class UserLikeCountRepairTest extends TestCase
         });
 
         // One statement for the chunk, not one per user, and only the stale
-        // users are in it.
+        // users are in it. These pin the repair's UPDATE over users, not the
+        // number of queries a recount would take.
         $this->assertCount(1, $updates);
         $this->assertStringContainsString('<>', $updates[0]->sql);
         $ids = array_map('strval', $updates[0]->bindings);

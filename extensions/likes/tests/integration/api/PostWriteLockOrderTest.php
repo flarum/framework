@@ -31,7 +31,7 @@ class PostWriteLockOrderTest extends TestCase
         $this->setting('mail_driver', 'log');
         $db = $this->database();
         $driver = $db->getDriverName();
-        if ($driver !== 'pgsql' && $driver !== 'mysql') {
+        if (! in_array($driver, ['pgsql', 'mysql', 'mariadb'], true)) {
             $this->markTestSkipped('The independent lock probe needs row locks, which '.$driver.' does not have.');
         }
 
@@ -39,9 +39,10 @@ class PostWriteLockOrderTest extends TestCase
         $id = random_int(1000000000, 2000000000);
         $now = Carbon::now();
 
-        if ($driver === 'mysql') {
+        if ($driver !== 'pgsql') {
             // A locked row is proven by the probe timing out, since MySQL 5.7
-            // has no FOR UPDATE NOWAIT. One second is the shortest wait.
+            // and MariaDB have no FOR UPDATE NOWAIT. One second is the shortest
+            // wait.
             $observer->statement('SET SESSION innodb_lock_wait_timeout = 1');
         }
 

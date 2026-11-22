@@ -37,30 +37,13 @@ class LikeCount
             $removedByUser[(int) $id] = (int) $count;
         }
 
-        // Everyone who liked one of the posts, including the likes that never
-        // counted. Their rows are found again after the deletion without
-        // keeping the post ids, which a discussion can have too many of.
-        $likers = $db->table('post_likes')
-            ->whereIn('post_id', $posts)
-            ->distinct()
-            ->pluck('user_id')
-            ->all();
-
         // Like mutations take the same locks before changing the pivot and counter.
         // Hold these through the SQL deletion as well as the counter update.
         $event->lockUsers(array_keys($removedByUser));
 
-        $event->afterDeletion(function () use ($db, $likers, $removedByUser) {
-            // The posts are gone, so a like left behind points at a post that
-            // no longer exists. SQLite installs without cascading foreign keys
-            // still need this cleanup; elsewhere it finds nothing.
-            foreach (array_chunk($likers, 1000) as $ids) {
-                $db->table('post_likes')
-                    ->whereIn('user_id', $ids)
-                    ->whereNotExists(fn ($query) => $query->selectRaw(1)->from('posts')->whereColumn('posts.id', 'post_likes.post_id'))
-                    ->delete();
-            }
-
+        // The pivot rows for the deleted posts are removed by the cascading
+        // foreign keys on post_likes.post_id, for every supported database.
+        $event->afterDeletion(function () use ($db, $removedByUser) {
             $usersByCount = [];
             foreach ($removedByUser as $id => $count) {
                 $usersByCount[$count][] = $id;
@@ -79,6 +62,10 @@ class LikeCount
     /**
      * Move the stored counts of a post's likers by the change in whether the
      * post counts.
+     *
+     * Must be called from the visibility transaction that holds the discussion
+     * lock (the `updated` listener on the post), so the pivot cannot change
+     * between reading the likers and moving their counts.
      *
      * A post counts only while it is a visible comment, so a visibility change
      * moves each of its likers by exactly one. Recounting every post they
@@ -139,7 +126,7 @@ class LikeCount
      * @param int[] $userIds
      * @return int the number of users whose count was corrected
      */
-    public function refresh(array $userIds): int
+    private function refresh(array $userIds): int
     {
         $userIds = array_values(array_unique(array_map('intval', $userIds)));
         sort($userIds);

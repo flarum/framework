@@ -6,6 +6,33 @@ import haptic from 'flarum/common/utils/haptic';
 
 const pendingCounts = new WeakMap();
 
+/**
+ * Remove the actor's own likeCount from a response before it is parsed.
+ *
+ * The update endpoint default-includes `likes`, in which the actor sorts first,
+ * so nearly every like response carries the actor with the count read for that
+ * request. Model.save() pushes the whole payload before this click's count is
+ * checked, so a response overtaken by a newer click would write its stale count
+ * first. The count is taken from the guarded meta instead.
+ */
+function withoutActorLikeCount(text, userId) {
+  let payload;
+
+  try {
+    payload = JSON.parse(text);
+  } catch {
+    return text;
+  }
+
+  const actor = payload?.included?.find((user) => user.type === 'users' && user.id === userId);
+
+  if (!actor?.attributes) return text;
+
+  delete actor.attributes.likeCount;
+
+  return JSON.stringify(payload);
+}
+
 export default function () {
   extend(CommentPost.prototype, 'actionItems', function (items) {
     const post = this.attrs.post;
@@ -27,11 +54,12 @@ export default function () {
           if (isLiked) haptic('success');
 
           // Latest-wins: a response that arrives after a newer click must not
-          // overwrite the count that newer mutation returned.
+          // overwrite the count that newer mutation returned. The count is also
+          // kept out of the payload itself, see withoutActorLikeCount().
           const pending = {};
           pendingCounts.set(user, pending);
 
-          const save = post.save({ isLiked }).then((response) => {
+          const save = post.save({ isLiked }, { modifyText: (text) => withoutActorLikeCount(text, user.id()) }).then((response) => {
             if (pendingCounts.get(user) !== pending) return;
 
             const likeCount = response.payload?.meta?.actorLikeCount;

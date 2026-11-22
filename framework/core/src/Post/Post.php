@@ -180,7 +180,8 @@ class Post extends AbstractModel
         // Every saving listener has run by the time Eloquent gets here, so the
         // lock can still be taken before the visibility write and its
         // `updated` listeners, which is what has to be serialized. Taking it
-        // later only leaves the saving listeners themselves unlocked.
+        // later only leaves the saving listeners themselves unlocked. A
+        // visibility change made in an `updating` listener is not covered.
         if (! $this->discussionLocked && $this->visibilityIsDirty()) {
             return $this->withDiscussionLock(function () use ($query) {
                 $this->discussionLocked = true;
@@ -241,6 +242,8 @@ class Post extends AbstractModel
      *                               or return false to cancel. It can run more than once when the transaction is retried.
      * @param list<int> $userIds Other users to lock alongside those requested by deletion listeners.
      * @return T
+     *
+     * Listeners may run once per retry attempt, so they must be idempotent.
      */
     public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = []): mixed
     {

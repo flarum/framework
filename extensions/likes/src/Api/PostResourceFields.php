@@ -35,8 +35,8 @@ class PostResourceFields
         return Schema\Integer::make('actorLikeCount')
             ->description('When `isLiked` is written: the actor\'s stored like count after the change.')
             ->visible(fn (Post $post, Context $context) => Arr::has((array) $context->body(), 'data.attributes.isLiked'))
-            ->get(fn (Post $post, Context $context) => (int) $context->getActor()->newQuery()
-                ->whereKey($context->getActor()->id)->value('like_count'));
+            ->get(fn (Post $post, Context $context) => (int) $post->getConnection()->table('users')
+                ->where('id', $context->getActor()->id)->value('like_count'));
     }
 
     public function __invoke(): array

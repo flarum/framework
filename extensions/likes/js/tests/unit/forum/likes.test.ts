@@ -46,7 +46,7 @@ describe('the like button', () => {
     const request = jest.spyOn(app, 'request');
 
     const saving = likeButton(post).attrs.onclick();
-    expect(save).toHaveBeenCalledWith({ isLiked: true });
+    expect(save).toHaveBeenCalledWith({ isLiked: true }, expect.objectContaining({ modifyText: expect.any(Function) }));
     expect((post as any).likes()).toEqual([user]);
     await saving;
     expect(user.likeCount()).toBe(1);
@@ -64,7 +64,7 @@ describe('the like button', () => {
 
     await likeButton(post).attrs.onclick();
 
-    expect(save).toHaveBeenCalledWith({ isLiked: false });
+    expect(save).toHaveBeenCalledWith({ isLiked: false }, expect.objectContaining({ modifyText: expect.any(Function) }));
     expect(user.likeCount()).toBe(0);
     expect(request).not.toHaveBeenCalled();
     expect((post as any).likes()).toEqual([]);
@@ -113,34 +113,50 @@ describe('the like button', () => {
     }
   });
 
-  it('discards an older count delivered after a newer one', async () => {
+  it('discards an older count that arrives after a newer one', async () => {
     const user = app.session.user!;
     user.pushAttributes({ likeCount: 2 });
-    const firstPost = postWithoutLikes('75');
-    const secondPost = postWithoutLikes('76');
-    for (const post of [firstPost, secondPost]) {
-      post.pushData({ relationships: { likes: { data: [{ type: 'users', id: user.id() }] } } } as any);
-    }
+    const olderPost = postWithoutLikes('75');
+    const newerPost = postWithoutLikes('76');
 
     let finishOlder!: () => void;
-    const older = new Promise<void>((resolve) => {
+    const olderGate = new Promise<void>((resolve) => {
       finishOlder = resolve;
     });
-    jest.spyOn(firstPost, 'save').mockImplementation(async () => {
-      await older;
-      return savedWithCount(firstPost, 2);
-    });
-    jest.spyOn(secondPost, 'save').mockResolvedValue(savedWithCount(secondPost, 1));
 
-    const first = likeButton(firstPost).attrs.onclick();
+    // Answer like the API does, through the real Model.save: each response is
+    // a whole payload, and the actor comes back in `included` with the count
+    // read for that request.
+    jest.spyOn(app, 'request').mockImplementation(((options: any) => {
+      const postId = options.body.data.id;
+      const actorLikeCount = postId === olderPost.id() ? 3 : 4;
+      const payload = {
+        data: {
+          type: 'posts',
+          id: postId,
+          attributes: { number: 1, contentType: 'comment', canLike: true, isHidden: false },
+          relationships: { likes: { data: [{ type: 'users', id: user.id() }] } },
+        },
+        included: [{ type: 'users', id: user.id(), attributes: { likeCount: actorLikeCount } }],
+        meta: { actorLikeCount },
+      };
+
+      return (postId === olderPost.id() ? olderGate : Promise.resolve()).then(() => {
+        const text = JSON.stringify(payload);
+        // The real request pipeline edits the raw text before parsing it.
+        return JSON.parse(options.modifyText ? options.modifyText(text) : text);
+      });
+    }) as any);
+
+    const older = likeButton(olderPost).attrs.onclick();
     await Promise.resolve();
-    const second = likeButton(secondPost).attrs.onclick();
-    await second;
-    expect(user.likeCount()).toBe(1);
+    const newer = likeButton(newerPost).attrs.onclick();
+    await newer;
+    expect(user.likeCount()).toBe(4);
 
     finishOlder();
-    await first;
-    expect(user.likeCount()).toBe(1);
+    await older;
+    expect(user.likeCount()).toBe(4);
   });
 
   it('leaves the count alone when the response has no meta', async () => {
