@@ -22,6 +22,10 @@ use Illuminate\Database\Query\Builder;
  * {@see self::posts()} is the subquery selecting the ids of the rows being
  * deleted, which listeners can use in SQL to reach their own rows without
  * walking a list of ids.
+ *
+ * A post may be an orphan whose discussion row is already gone when the
+ * listeners run: do not look its discussion up with `findOrFail()`, which
+ * would throw inside the deletion transaction.
  */
 final class DeletingPosts
 {

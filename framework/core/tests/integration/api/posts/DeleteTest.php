@@ -15,6 +15,7 @@ use Flarum\Api\Resource\PostResource;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\UserState;
 use Flarum\Extend;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -95,6 +96,24 @@ class DeleteTest extends TestCase
 
         $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
         $this->assertFalse(Post::query()->whereKey(5)->exists());
+    }
+
+    #[Test]
+    public function a_delete_vetoed_by_a_listener_is_not_reported_as_missing()
+    {
+        // Booting the app also gives the models their event dispatcher.
+        $this->app();
+
+        // The row the endpoint deletes is a comment, so the event that the
+        // listener can veto is the one for the CommentPost class.
+        Post::getEventDispatcher()->listen('eloquent.deleting: '.CommentPost::class, fn () => false);
+
+        $response = $this->send($this->request('DELETE', '/api/posts/5', ['authenticatedAs' => 1]));
+
+        // The row was not removed, but it is still there for the caller to
+        // see: this is a refusal, not a missing resource.
+        $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertTrue($this->database()->table('posts')->where('id', 5)->exists());
     }
 
     public static function deleteLastPostsProvider(): array

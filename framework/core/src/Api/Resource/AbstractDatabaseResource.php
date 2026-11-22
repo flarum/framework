@@ -334,9 +334,17 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
      */
     public function delete(object $model, Context $context): void
     {
-        // A model reports false when it removed nothing, so the endpoint must
-        // not answer 204 as if the resource were gone.
-        if ($model->delete() === false) {
+        if ($model->delete() !== false) {
+            return;
+        }
+
+        // Eloquent also reports false when a `deleting` listener vetoes the
+        // delete, and the row is still there: that is a refusal, not a missing
+        // resource, and answering 404 would claim a resource the caller can
+        // see is gone. Only a row that really went missing between the lookup
+        // and the delete is 404; a vetoed delete answers like one that removed
+        // nothing, as it did before.
+        if (! $model->newQueryWithoutScopes()->whereKey($model->getKey())->exists()) {
             throw (new ModelNotFoundException())->setModel($this->model(), [$model->getKey()]);
         }
     }
