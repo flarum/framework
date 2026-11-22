@@ -19,7 +19,7 @@ class UserResourceFields
     {
         return [
             Schema\Integer::make('likeCount')
-                ->description('Number of posts the user has liked. Only present for the user themselves and for moderators.')
+                ->description('Number of posts the user has liked. Only present for the user themselves and for viewers with the `user.viewLikeCount` permission.')
                 ->visible(fn (User $user, Context $context) => self::visibleTo($context->getActor(), $user)),
         ];
     }
@@ -32,13 +32,13 @@ class UserResourceFields
      * anyone compare the badge with the list (or watch it change) and learn
      * that the user is active where they cannot go.
      *
-     * So the number is a moderation read: the user whose profile it is and
-     * holders of the global `discussion.hidePosts` permission (moderators, and
-     * admins, for whom hasPermission() is always true) are told it. Everyone
-     * else gets no attribute at all, rather than a number.
+     * So the number is a profile read, not a moderation one: the user whose
+     * profile it is, and holders of the `user.viewLikeCount` permission (admins
+     * included, since hasPermission() is always true for them) are told it.
+     * Everyone else gets no attribute at all, rather than a number.
      */
     public static function visibleTo(User $actor, User $user): bool
     {
-        return $actor->id === $user->id || $actor->hasPermission('discussion.hidePosts');
+        return $actor->id === $user->id || $actor->can('viewLikeCount', $user);
     }
 }

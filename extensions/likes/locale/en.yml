@@ -10,6 +10,7 @@ flarum-likes:
     # These translations are used in the Permissions page of the admin interface.
     permissions:
       like_posts_label: Like posts
+      view_like_count_label: See the like count on a profile
 
     sections:
       liking:

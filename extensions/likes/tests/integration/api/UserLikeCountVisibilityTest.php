@@ -22,8 +22,9 @@ use PHPUnit\Framework\Attributes\Test;
 /**
  * `likeCount` counts likes the reader may not be allowed to see: posts in
  * restricted tags, private discussions and hidden posts are all in the stored
- * total. The field is therefore only sent to the user themselves and to
- * moderators; everyone else gets no attribute at all.
+ * total. The field is therefore only sent to the user themselves and to holders
+ * of `user.viewLikeCount`; everyone else gets no attribute at all. Holding a
+ * moderation permission such as `discussion.hidePosts` is not what grants it.
  */
 class UserLikeCountVisibilityTest extends TestCase
 {
@@ -119,9 +120,38 @@ class UserLikeCountVisibilityTest extends TestCase
     }
 
     #[Test]
-    public function a_moderator_sees_the_stored_total()
+    public function a_moderator_without_the_permission_does_not_get_the_attribute()
     {
+        // Moderators hold `discussion.hidePosts` by default, but that says
+        // nothing about reading a profile statistic. The old check keyed on it.
+        $moderator = User::query()->findOrFail(4);
+        $this->assertTrue($moderator->hasPermission('discussion.hidePosts'));
+        $this->assertFalse($moderator->hasPermission('user.viewLikeCount'));
+
         $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 4]));
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertArrayNotHasKey('likeCount', json_decode((string) $response->getBody(), true)['data']['attributes']);
+    }
+
+    #[Test]
+    public function a_member_with_the_permission_sees_the_stored_total()
+    {
+        $this->database()->table('group_permission')->insert([
+            'group_id' => Group::MEMBER_ID,
+            'permission' => 'user.viewLikeCount',
+        ]);
+
+        $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 2]));
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(4, json_decode((string) $response->getBody(), true)['data']['attributes']['likeCount']);
+    }
+
+    #[Test]
+    public function an_admin_gets_the_attribute()
+    {
+        $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 1]));
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
         $this->assertSame(4, json_decode((string) $response->getBody(), true)['data']['attributes']['likeCount']);
