@@ -141,9 +141,8 @@ class Index extends Endpoint
 
                 $offset = $this->extractOffsetValue($context, $extracts);
 
-                // An endpoint that isn't paginated returns the whole list. If a limit applies
-                // all the same, the response is a page, and it links to the rest. Without a
-                // limit there is no page to start at an offset.
+                // A limit on a list that isn't paginated still makes the response a page, with
+                // links to the rest; without one, the whole list has no offset to start from.
                 if (! $pagination && $limit !== null && $context->collection instanceof Paginatable) {
                     $pagination = $this->paginationOfSize($context, $limit);
                 } elseif (! $pagination && $limit === null) {
