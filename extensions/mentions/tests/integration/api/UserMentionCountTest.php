@@ -285,15 +285,22 @@ class UserMentionCountTest extends TestCase
     }
 
     #[Test]
-    public function approving_an_already_synced_mention_updates_the_count()
+    public function approving_a_post_that_was_waiting_for_approval_updates_the_count()
     {
         $this->extension('flarum-approval', 'flarum-flags');
-        $postId = $this->reply('@"potato"#3 awaiting approval');
-        $this->database()->table('posts')->where('id', $postId)->update(['is_private' => true, 'is_approved' => false]);
-        $this->app()->getContainer()->make(\Flarum\Mentions\UserMentionCount::class)->refresh([3]);
+
+        // Without this permission a member's reply is held for approval, so it
+        // starts out private: its mention of potato exists, but does not count.
+        $this->database()->table('group_permission')
+            ->where('group_id', Group::MEMBER_ID)
+            ->where('permission', 'discussion.replyWithoutApproval')
+            ->delete();
+
+        $postId = $this->reply('@"potato"#3 awaiting approval', 2);
         $this->assertSame(0, $this->mentionCountOf(3));
 
         $payload = $this->patchPost($postId, 1, ['isApproved' => true]);
+
         $this->assertSame([3 => 1], $this->affectedMentionCounts($payload));
         $this->assertSame(1, $this->mentionCountOf(3));
         $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 3]));
