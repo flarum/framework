@@ -422,6 +422,11 @@ class Index extends Endpoint
         // The value each one has at the start of the list; a limit never does.
         $start = ['limit' => null, 'offset' => 0, 'number' => 1];
 
+        // page[number] takes precedence over page[offset] when the offset is read.
+        if (! in_array($page['number'] ?? null, [null, ''], true)) {
+            unset($start['offset']);
+        }
+
         foreach ($start as $name => $startValue) {
             $value = $page[$name] ?? null;
 

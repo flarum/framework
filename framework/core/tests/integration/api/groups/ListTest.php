@@ -356,6 +356,7 @@ class ListTest extends TestCase
             'first page by number as an integer' => [['number' => 1]],
             'first page by number padded' => [['number' => '01']],
             'empty limit' => [['limit' => '']],
+            'first page by number, which wins over an offset' => [['number' => '1', 'offset' => '2']],
         ];
     }
 
