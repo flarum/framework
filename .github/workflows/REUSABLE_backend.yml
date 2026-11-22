@@ -72,7 +72,7 @@ on:
         type: string
         required: false
         # Keep PHP versions synced with build-install-packages.yml
-        default: '["8.3", "8.4", "8.5", "8.6"]'
+        default: '["8.3", "8.4", "8.5"]'
 
       latest_php:
         description: >-
@@ -80,7 +80,7 @@ on:
           `php_versions`; otherwise the newest entry of `php_versions` is used.
         type: string
         required: false
-        default: '8.6'
+        default: '8.5'
 
       php_extensions:
         description: PHP extensions to install.
