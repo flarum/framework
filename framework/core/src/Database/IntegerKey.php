@@ -16,7 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  * an integer key: MySQL reads "2abc" as 2, and PostgreSQL refuses to compare
  * it. PostgreSQL also refuses a number beyond the key column's range, so the
  * range is read from the column itself: `integer` and `bigint` keys both
- * report the `int` key type in Eloquent.
+ * report the `int` key type in Eloquent. Ids within the `integer` range skip
+ * that read, so `smallint` keys are not covered.
  */
 class IntegerKey
 {
@@ -30,7 +31,7 @@ class IntegerKey
     }
 
     /**
-     * Keeps the ids that fit the key column, reading the column type once.
+     * Reads the column type at most once, however many ids are given.
      *
      * @param  array<int|string>  $ids
      * @return array<int|string>
@@ -50,7 +51,7 @@ class IntegerKey
         }
 
         $max = match (self::columnType($model)) {
-            'int2', 'int4' => self::INT_MAX,
+            'int4' => self::INT_MAX,
             'int8' => self::BIGINT_MAX,
             default => null,
         };

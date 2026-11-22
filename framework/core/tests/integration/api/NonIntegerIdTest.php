@@ -15,10 +15,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * An id that is not a whole number cannot be a model's integer key. Passed to
- * the database, MySQL read "1abc" as 1 and returned that record, while
- * PostgreSQL rejected the query with a 500, as it did for an id beyond the
- * integer range. It is now not found everywhere.
+ * An id that is not a whole number, or one beyond the key column's range,
+ * cannot be a model's integer key. Passed to the database, MySQL reads "1abc"
+ * as 1 and returns that record, while PostgreSQL rejects the query.
  */
 class NonIntegerIdTest extends TestCase
 {
@@ -37,7 +36,7 @@ class NonIntegerIdTest extends TestCase
 
     #[Test]
     #[DataProvider('paths')]
-    public function non_integer_id_is_not_found(string $path)
+    public function id_that_cannot_be_a_key_is_not_found(string $path)
     {
         $response = $this->send(
             $this->request('GET', $path, ['authenticatedAs' => 1])

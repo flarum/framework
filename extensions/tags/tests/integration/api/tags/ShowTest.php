@@ -185,7 +185,7 @@ class ShowTest extends TestCase
     }
 
     #[Test]
-    public function batched_slugs_read_the_key_column_type_once(): void
+    public function batched_slugs_skip_out_of_range_ids_and_read_the_key_column_type_once(): void
     {
         $this->setting('slug_driver_'.Tag::class, 'id_with_slug');
         $this->app();
@@ -198,10 +198,11 @@ class ShowTest extends TestCase
             }
         });
 
-        $slugs = ['2147483648', '2147483649', '2147483650', '2147483651'];
+        $slugs = ['1-primary-1', '2147483648', '2147483649', '2147483650', '2147483651'];
         $found = resolve(IdWithSlugDriver::class)->fromSlugs($slugs, User::find(1));
 
-        $this->assertCount(0, $found);
+        $this->assertSame(['1-primary-1'], $found->keys()->all());
+        $this->assertSame(1, $found['1-primary-1']->id);
         $this->assertLessThanOrEqual(1, $queries);
     }
 
