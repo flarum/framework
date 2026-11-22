@@ -355,7 +355,6 @@ class Index extends Endpoint
             $query['page'] = [];
         }
 
-        // An empty page[limit] counts as absent too.
         if (($query['page']['limit'] ?? '') === '') {
             $query['page']['limit'] = (string) $limit;
         }
@@ -412,8 +411,8 @@ class Index extends Endpoint
     }
 
     /**
-     * A page requested from an endpoint that isn't paginated is as large as the
-     * endpoint allows.
+     * A page requested without a page[limit] from an endpoint that isn't
+     * paginated is as large as the endpoint allows.
      */
     protected function defaultLimit(\Tobyz\JsonApiServer\Context $context): ?int
     {

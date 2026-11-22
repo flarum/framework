@@ -254,9 +254,6 @@ class RequestUtil
     }
 
     /**
-     * A page parameter is a whole number, not a list or a string such as 2x.
-     * An empty value counts as absent.
-     *
      * @param int|null $ceiling what a number too large for an integer reads as;
      *                          without one, it's refused
      */
