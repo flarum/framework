@@ -16,6 +16,7 @@ use Flarum\Extend;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Notification;
+use Flarum\Post\Event\DeletingPosts;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -94,6 +95,18 @@ class DeletionModeDiscussionsTest extends TestCase
                 ['id' => 1, 'user_id' => 5, 'verification_token' => 'abc123', 'status' => 'user_confirmed', 'reason' => 'Forget me', 'created_at' => $at(8), 'user_confirmed_at' => $at(8)],
             ],
         ]);
+    }
+
+    protected function allowedRepeatedQueries(): array
+    {
+        return [
+            // The erasure refreshes every discussion its posts were in, one at
+            // a time, and each refresh asks whether that discussion's first and
+            // last posts still exist. Batching the checks is separate work: the
+            // refresh itself has to stay per discussion, so its saves and
+            // events run in the same order as when one post is deleted.
+            'from "posts" where "posts"."id" = ? and "type" in (?)',
+        ];
     }
 
     protected function erase(): void
@@ -185,6 +198,59 @@ class DeletionModeDiscussionsTest extends TestCase
         $this->erase();
 
         $this->assertEqualsCanonicalizing([2, 3, 4], Post::query()->pluck('id')->all());
+    }
+
+    #[Test]
+    public function a_reply_written_outside_the_scanned_discussions_is_still_deleted()
+    {
+        $at = fn (int $minute) => Carbon::parse('2026-01-01 00:00:00')->addMinutes($minute);
+
+        $replied = false;
+        $this->extend((new Extend\Event())->listen(DeletingPosts::class, function () use (&$replied, $at) {
+            if ($replied) {
+                return;
+            }
+
+            $replied = true;
+
+            // They reply while the erasure is running, in a discussion the
+            // deletion was not given. Their post was written by them, so it
+            // must go too, even though its discussion was not scanned.
+            $db = $this->database();
+
+            $db->table('posts')->insert([
+                'id' => 9, 'discussion_id' => 4, 'number' => 2, 'user_id' => 5, 'type' => 'comment',
+                'content' => '<t><p>Reply after the scan</p></t>', 'created_at' => $at(10),
+            ]);
+            $db->table('discussions')->where('id', 4)->update([
+                'last_post_id' => 9, 'last_post_number' => 2, 'last_posted_user_id' => 5,
+                'last_posted_at' => $at(10), 'comment_count' => 2,
+            ]);
+        }));
+
+        $db = $this->database();
+
+        $db->table('discussions')->insert([
+            'id' => 4, 'title' => 'Outside the scan', 'slug' => 'outside-the-scan', 'user_id' => 2, 'first_post_id' => 8, 'last_post_id' => 8,
+            'last_post_number' => 1, 'last_posted_user_id' => 2, 'last_posted_at' => $at(9),
+            'comment_count' => 1, 'participant_count' => 1, 'created_at' => $at(9),
+        ]);
+        $db->table('posts')->insert([
+            'id' => 8, 'discussion_id' => 4, 'number' => 1, 'user_id' => 2, 'type' => 'comment',
+            'content' => '<t><p>Opening</p></t>', 'created_at' => $at(9),
+        ]);
+
+        $this->erase();
+
+        $this->assertTrue($replied, 'The reply was written while the erasure was running.');
+        $this->assertNull(Post::find(9));
+        $this->assertNotNull(Post::find(8));
+
+        $discussion = Discussion::findOrFail(4);
+        $this->assertEquals(1, $discussion->comment_count);
+        $this->assertEquals(8, $discussion->first_post_id);
+        $this->assertEquals(8, $discussion->last_post_id);
+        $this->assertEquals(2, $discussion->last_posted_user_id);
     }
 }
 

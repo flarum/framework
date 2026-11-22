@@ -26,6 +26,7 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Mail\Message;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class ErasureJob extends GdprJob
@@ -104,9 +105,16 @@ class ErasureJob extends GdprJob
             $user,
             $this->erasureRequest
         ));
+
+        // A count from an earlier attempt no longer applies, and the same row
+        // is reused when the user asks again.
+        if ($this->erasureRequest->failure_count) {
+            $this->erasureRequest->failure_count = 0;
+            $this->erasureRequest->save();
+        }
     }
 
-    public function failed(): void
+    public function failed(?\Throwable $exception = null): void
     {
         $request = $this->erasureRequest;
         $user = User::query()->find($request->user_id);
@@ -120,7 +128,17 @@ class ErasureJob extends GdprJob
             ? ErasureRequest::STATUS_USER_CONFIRMED
             : ErasureRequest::STATUS_MANUAL;
         $request->processed_at = null;
+        $request->failure_count++;
         $request->save();
+
+        // A request that always fails is picked up again on every scheduled
+        // run, so it has to be possible to see that it keeps failing.
+        resolve(LoggerInterface::class)->error(sprintf(
+            'Erasure request %d for user %d failed (attempt %d) and will be retried.',
+            $request->id,
+            $request->user_id,
+            $request->failure_count
+        ), ['exception' => $exception]);
     }
 
     private function deletion(User $user, DataProcessor $processor): void

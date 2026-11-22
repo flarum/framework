@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $processed_mode
  * @property Carbon|null $cancelled_at
  * @property string|null $confirmation_ip
+ * @property int         $failure_count
  */
 class ErasureRequest extends AbstractModel
 {

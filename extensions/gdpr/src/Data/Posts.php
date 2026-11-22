@@ -18,6 +18,15 @@ use Illuminate\Support\Arr;
 
 class Posts extends Type
 {
+    /**
+     * How many times the author's posts are deleted in one erasure.
+     *
+     * The posts are fixed when the discussions are scanned, so deleting by
+     * author again catches a reply written to a discussion the scan missed.
+     * The cap keeps someone who keeps posting from holding the erasure open.
+     */
+    private const DELETE_PASSES = 10;
+
     public static function piiFields(): array
     {
         return ['ip_address'];
@@ -57,28 +66,43 @@ class Posts extends Type
 
     public function delete(): void
     {
-        $posts = Post::query()->where('user_id', $this->user->id);
+        $db = Post::query()->getConnection();
 
-        // The posts are deleted in one query, which skips everything that
-        // normally happens when a post is deleted. So note which discussions
-        // they were in, and afterwards leave each one as if its posts had
-        // been deleted one at a time.
-        $discussionIds = Post::deleteWithEvents($posts, function ($targets) {
-            $discussionIds = (clone $targets)->select('posts.discussion_id')->distinct()->pluck('discussion_id')->all();
+        // The deletion and the refreshes commit together: if a discussion
+        // cannot be refreshed, its posts are still there for the retry, rather
+        // than leaving stale counts and pointers, or a discussion behind empty.
+        $db->transaction(function () {
+            // The discussions are scanned before each deletion, so a reply
+            // written to a discussion outside the previous scan is caught by
+            // the next pass. The deletion is by author, as it was before the
+            // posts were handed to the event as a fixed set.
+            for ($pass = 0; $pass < self::DELETE_PASSES; $pass++) {
+                $discussionIds = [];
 
-            Notification::query()
-                ->whereSubjectModel(Post::class)
-                ->whereIn('subject_id', $targets)
-                ->delete();
+                $deleted = Post::deleteWithEvents(
+                    Post::query()->where('user_id', $this->user->id),
+                    function ($targets) use (&$discussionIds) {
+                        $discussionIds = (clone $targets)->select('posts.discussion_id')->distinct()->pluck('discussion_id')->all();
 
-            $targets->delete();
+                        Notification::query()
+                            ->whereSubjectModel(Post::class)
+                            ->whereIn('subject_id', $targets)
+                            ->delete();
 
-            return $discussionIds;
-        }, [$this->user->id]);
+                        return $targets->delete();
+                    },
+                    [$this->user->id]
+                );
 
-        foreach (array_chunk($discussionIds, 100) as $ids) {
-            Discussion::query()->whereIn('id', $ids)->get()->each($this->refreshDiscussion(...));
-        }
+                foreach (array_chunk($discussionIds, 100) as $ids) {
+                    Discussion::query()->whereIn('id', $ids)->get()->each($this->refreshDiscussion(...));
+                }
+
+                if (! $deleted) {
+                    return;
+                }
+            }
+        }, Post::conflictAttempts($db));
     }
 
     protected function refreshDiscussion(Discussion $discussion): void
