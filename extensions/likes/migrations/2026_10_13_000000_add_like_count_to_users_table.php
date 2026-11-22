@@ -27,8 +27,7 @@ return [
             });
         }
 
-        // Backfill comment likes that contribute to the profile tab. One
-        // UPDATE per range of user ids, with the count as a subquery.
+        // Backfill the likes on comments that contribute to the profile tab.
         $connection = $schema->getConnection();
 
         $likeCount = $connection->table('post_likes')
@@ -38,13 +37,11 @@ return [
             ->where('posts.type', 'comment')
             ->selectRaw('COUNT(*)');
 
-        $max = (int) $connection->table('users')->max('id');
-
-        for ($from = 1; $from <= $max; $from += 5000) {
+        $connection->table('users')->select('id')->chunkById(5000, function ($users) use ($connection, $likeCount) {
             $connection->table('users')
-                ->whereBetween('id', [$from, $from + 4999])
+                ->whereIn('id', $users->pluck('id')->all())
                 ->update(['like_count' => $likeCount]);
-        }
+        });
     },
 
     'down' => function (Builder $schema) {

@@ -14,6 +14,7 @@ use Flarum\Api\Schema\Contracts\RelationAggregator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -333,7 +334,11 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
      */
     public function delete(object $model, Context $context): void
     {
-        $model->delete();
+        // A model reports false when it removed nothing, so the endpoint must
+        // not answer 204 as if the resource were gone.
+        if ($model->delete() === false) {
+            throw (new ModelNotFoundException())->setModel($this->model(), [$model->getKey()]);
+        }
     }
 
     /**

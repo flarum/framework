@@ -10,8 +10,11 @@
 namespace Flarum\Tests\integration\api\posts;
 
 use Carbon\Carbon;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource\PostResource;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\UserState;
+use Flarum\Extend;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -74,6 +77,24 @@ class DeleteTest extends TestCase
                 ->first()
                 ->last_read_post_number
         );
+    }
+
+    #[Test]
+    public function deleting_a_post_that_is_gone_answers_not_found_instead_of_no_content()
+    {
+        // The row is removed between the endpoint's lookup and the delete.
+        $this->extend(
+            (new Extend\ApiResource(PostResource::class))->endpoint('delete', function (Endpoint\Delete $endpoint) {
+                return $endpoint->before(function () {
+                    Post::query()->whereKey(5)->toBase()->delete();
+                });
+            })
+        );
+
+        $response = $this->send($this->request('DELETE', '/api/posts/5', ['authenticatedAs' => 1]));
+
+        $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertFalse(Post::query()->whereKey(5)->exists());
     }
 
     public static function deleteLastPostsProvider(): array

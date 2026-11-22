@@ -254,16 +254,17 @@ class Post extends AbstractModel
         $db = $query->getConnection();
 
         return $db->transaction(function () use ($query, $db, $delete, $userIds) {
-            $discussionIds = $db->table('discussions')
+            // Lock each discussion the posts belong to before its posts. A post
+            // whose discussion row is already gone has no discussion to lock,
+            // and is still deleted below rather than being left behind.
+            $db->table('discussions')
                 ->whereIn('id', (clone $query)->select('posts.discussion_id'))
                 ->orderBy('id')->lockForUpdate()->pluck('id');
 
             // The posts being deleted, as a subquery rather than a list.
             // Listeners and the delete callback both work from it, so a big
             // discussion costs SQL work instead of memory.
-            $deleted = (clone $query)
-                ->select('posts.id')
-                ->whereIntegerInRaw('posts.discussion_id', $discussionIds);
+            $deleted = (clone $query)->select('posts.id');
 
             // Lock the posts in bounded chunks, which are thrown away: the
             // listeners get the subquery, not the rows.

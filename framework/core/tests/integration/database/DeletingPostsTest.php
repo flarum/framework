@@ -44,6 +44,8 @@ class DeletingPostsTest extends TestCase
                 ['id' => 2, 'discussion_id' => 1, 'number' => 2, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>two</p></t>'],
                 ['id' => 3, 'discussion_id' => 1, 'number' => 3, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>three</p></t>'],
                 ['id' => 4, 'discussion_id' => 2, 'number' => 1, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>other</p></t>'],
+                // Its discussion row is missing, as after an interrupted cascade.
+                ['id' => 5, 'discussion_id' => 99, 'number' => 1, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>orphan</p></t>'],
             ],
         ]);
     }
@@ -98,7 +100,27 @@ class DeletingPostsTest extends TestCase
             $this->assertFalse($deleted, "A rejected $shape query must not delete anything.");
         }
 
-        $this->assertSame(4, Post::query()->count());
+        $this->assertSame(5, Post::query()->count());
+    }
+
+    #[Test]
+    public function a_post_whose_discussion_is_gone_is_still_deleted(): void
+    {
+        $delivered = null;
+        $presentDuringDispatch = false;
+
+        $this->extend((new Extend\Event())->listen(DeletingPosts::class, function (DeletingPosts $event) use (&$delivered, &$presentDuringDispatch) {
+            $delivered = array_map('intval', (clone $event->posts())->orderBy('posts.id')->pluck('posts.id')->all());
+            $presentDuringDispatch = $event->posts()->exists();
+        }));
+
+        $this->database();
+
+        $this->assertTrue(Post::query()->findOrFail(5)->delete(), 'The post should be deleted without its discussion.');
+        $this->assertFalse(Post::query()->whereKey(5)->exists());
+        $this->assertSame(4, Post::query()->count(), 'The posts of the other discussions should be untouched.');
+        $this->assertSame([5], $delivered, 'Deletion listeners should be handed the post whose discussion is gone.');
+        $this->assertTrue($presentDuringDispatch, 'The post is still there while the listeners run.');
     }
 
     #[Test]

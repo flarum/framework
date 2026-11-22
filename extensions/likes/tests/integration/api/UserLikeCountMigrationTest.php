@@ -49,7 +49,7 @@ class UserLikeCountMigrationTest extends TestCase
                 $table->foreign('post_id')->references('id')->on('posts')->cascadeOnDelete();
                 $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             });
-            $db->table('users')->insert([['id' => 1], ['id' => 2]]);
+            $db->table('users')->insert([['id' => 1], ['id' => 2], ['id' => 5001], ['id' => 100000]]);
             $db->table('posts')->insert([
                 ['id' => 1, 'is_private' => false, 'type' => 'comment', 'hidden_at' => null],
                 ['id' => 2, 'is_private' => true, 'type' => 'comment', 'hidden_at' => null],
@@ -59,6 +59,9 @@ class UserLikeCountMigrationTest extends TestCase
             foreach ([1, 2, 3, 4] as $postId) {
                 $db->table('post_likes')->insert(['post_id' => $postId, 'user_id' => 1]);
             }
+            // Users far apart, so a batch over each range up to the highest id
+            // would run many updates for rows that don't exist.
+            $db->table('post_likes')->insert([['post_id' => 1, 'user_id' => 5001], ['post_id' => 1, 'user_id' => 100000], ['post_id' => 2, 'user_id' => 100000]]);
             $migration = require __DIR__.'/../../../migrations/2026_10_13_000000_add_like_count_to_users_table.php';
 
             $migration['up']($schema);
@@ -67,9 +70,21 @@ class UserLikeCountMigrationTest extends TestCase
             for ($i = 0; $i < 2; $i++) {
                 $migration['down']($schema);
                 $this->assertFalse($schema->hasColumn('users', 'like_count'));
+
+                $db->enableQueryLog();
+                $db->flushQueryLog();
                 $migration['up']($schema);
+                $backfills = array_filter(
+                    $db->getQueryLog(),
+                    fn (array $query) => str_starts_with($query['query'], 'update ') && str_contains($query['query'], 'like_count')
+                );
+                $db->disableQueryLog();
+
+                $this->assertCount(1, $backfills, 'The backfill should update one batch of existing users, not every id range.');
                 $this->assertSame(2, (int) $db->table('users')->where('id', 1)->value('like_count'));
                 $this->assertSame(0, (int) $db->table('users')->where('id', 2)->value('like_count'));
+                $this->assertSame(1, (int) $db->table('users')->where('id', 5001)->value('like_count'));
+                $this->assertSame(1, (int) $db->table('users')->where('id', 100000)->value('like_count'));
             }
         } finally {
             // Even a failed assertion between down/up leaves no changed schema

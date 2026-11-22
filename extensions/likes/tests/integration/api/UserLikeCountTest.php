@@ -208,6 +208,23 @@ class UserLikeCountTest extends TestCase
     }
 
     #[Test]
+    public function deleting_a_post_whose_discussion_is_gone_updates_the_like_count()
+    {
+        $this->prepareDatabase([
+            Post::class => [
+                ['id' => 5, 'number' => 1, 'discussion_id' => 99, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<t><p>orphan</p></t>'],
+            ],
+        ]);
+        $this->database()->table('post_likes')->insert(['post_id' => 5, 'user_id' => 2]);
+        $this->database()->table('users')->where('id', 2)->update(['like_count' => 1]);
+
+        $this->assertTrue(Post::query()->findOrFail(5)->delete(), 'The post should be deleted without its discussion.');
+        $this->assertFalse(Post::query()->whereKey(5)->exists());
+        $this->assertSame(0, $this->likeCountOf(2));
+        $this->assertSame(0, $this->database()->table('post_likes')->where('post_id', 5)->count(), 'The like should not point at a deleted post.');
+    }
+
+    #[Test]
     public function deleting_a_post_does_not_make_a_zero_counter_negative()
     {
         $this->like(2, 2);

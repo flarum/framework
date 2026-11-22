@@ -34,8 +34,7 @@
             "title": "Likes",
             "category": "feature",
             "optional-dependencies": [
-                "flarum/realtime",
-                "flarum/gdpr"
+                "flarum/realtime"
             ],
             "icon": {
                 "name": "far fa-thumbs-up",

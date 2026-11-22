@@ -21,7 +21,8 @@ class LikeCount
         $posts = $event->posts();
         $removedByUser = [];
 
-        // Core holds the post locks. Group in SQL so only counts come back.
+        // Only likes on visible comments count, the same posts that the
+        // profile count shows.
         $counts = $db->table('post_likes')
             ->join('posts', 'posts.id', '=', 'post_likes.post_id')
             ->whereIn('post_likes.post_id', $posts)
