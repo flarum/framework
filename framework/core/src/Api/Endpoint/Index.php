@@ -154,7 +154,6 @@ class Index extends Endpoint
                 if ($pagination instanceof OffsetPagination) {
                     $pagination->offset = $offset;
                     $pagination->limit = $limit;
-                    $pagination->context = $this->withoutPagePosition($pagination->context);
                 }
 
                 if ($this->query) {
@@ -227,6 +226,10 @@ class Index extends Endpoint
                 $links = [];
 
                 if ($pagination) {
+                    if ($pagination instanceof OffsetPagination) {
+                        $pagination->context = $this->withoutPagePosition($pagination->context);
+                    }
+
                     $meta['page'] = array_merge($meta['page'] ?? [], $pagination->meta());
                     $links = array_merge($links, $pagination->links(count($data), $total));
 
