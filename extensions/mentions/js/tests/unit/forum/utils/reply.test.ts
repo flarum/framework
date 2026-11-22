@@ -38,4 +38,12 @@ describe('insertMention', () => {
     expect(await inserted('>!secret!< public')).toBe('> @"User"#p12 >!secret!< public\n\n');
     expect(await inserted('>!2 \\> 1!< public')).toBe('> @"User"#p12 >!2 \\> 1!< public\n\n');
   });
+
+  test('starts a quote that opens with a code block on its own line, after a blank one', async () => {
+    expect(await inserted('```php\necho 1;\n```')).toBe('> @"User"#p12 \n>\n> ```php\n> echo 1;\n> ```\n\n');
+  });
+
+  test('keeps a quote that opens with inline code of three backticks on the mention line', async () => {
+    expect(await inserted('```a``b``` and more')).toBe('> @"User"#p12 ```a``b``` and more\n\n');
+  });
 });
