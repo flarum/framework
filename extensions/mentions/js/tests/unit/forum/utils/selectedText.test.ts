@@ -516,3 +516,147 @@ describe('a selection that runs past the post body', () => {
     expect(window.getSelection()!.getRangeAt(0).endContainer).toBe(next);
   });
 });
+
+// What the server renders for a code block: BBCode's CODE tag adds the
+// highlighter's loader to the block. Keep in step with it.
+const script = '<script async src="https://cdn.example/loader.min.js"></script><script>window.hljsLoader.highlightBlocks();</script>';
+const pre = (code: string, language = '') => `<pre><code${language ? ` class="${language}"` : ''}>${code}</code>${script}</pre>`;
+
+describe('selectedText keeps code as code', () => {
+  // The forum page lists the extensions whose JavaScript it loaded.
+  const withMarkdown = (enabled: boolean) => {
+    const flarum = (window as any).flarum;
+    flarum.extensions = { ...flarum.extensions };
+
+    if (enabled) flarum.extensions['flarum-markdown'] = {};
+    else delete flarum.extensions['flarum-markdown'];
+  };
+
+  beforeEach(() => withMarkdown(true));
+  afterAll(() => withMarkdown(false));
+
+  test('a code block keeps its fence and language, without the highlighter script', () => {
+    expect(quote(`<p>Before</p>\n\n${pre('echo "code";', 'language-php')}\n\n<p>After</p>`)).toBe('Before\n\n```php\necho "code";\n```\n\nAfter');
+  });
+
+  test('a code block keeps only the language it was written with, not one highlight.js guessed', () => {
+    expect(quote(pre('echo 1;', 'language-php hljs'))).toBe('```php\necho 1;\n```');
+    expect(quote(pre('no language', 'hljs language-perl'))).toBe('```\nno language\n```');
+  });
+
+  test('a code block that holds a fence gets a longer one', () => {
+    expect(quote(pre('```\nnested\n```'))).toBe('````\n```\nnested\n```\n````');
+  });
+
+  test('a code block with no blank line around it still starts and ends a block', () => {
+    expect(quote(`before${pre('x')}after`)).toBe('before\n\n```\nx\n```\n\nafter');
+  });
+
+  test('inline code keeps its backticks, even around a backtick', () => {
+    expect(quote('<p>Use <code>npm ci</code>, <code>a`b</code> and <code>`x</code></p>')).toBe('Use `npm ci`, ``a`b`` and `` `x ``');
+  });
+
+  test('a selection of a whole code block, or of part of one, is quoted as a code block', () => {
+    const $body = postBody(`<p>Run:</p>\n\n${pre('let a = 1;\nlet b = 2;', 'language-js')}`);
+
+    select((range) => range.selectNodeContents($body.find('pre')[0]));
+    expect(selectedText($body)).toBe('```js\nlet a = 1;\nlet b = 2;\n```');
+
+    select((range) => {
+      const text = $body.find('pre code')[0].firstChild!;
+      range.setStart(text, 4);
+      range.setEnd(text, 9);
+    });
+    expect(selectedText($body)).toBe('```js\na = 1\n```');
+  });
+
+  test('a selection inside inline code is quoted as inline code', () => {
+    const $body = postBody('<p>Use <code>npm ci</code> here</p>');
+
+    select((range) => range.selectNodeContents($body.find('code')[0]));
+    expect(selectedText($body)).toBe('`npm ci`');
+  });
+
+  test('code in an inline spoiler is not escaped, since backslashes are literal in code', () => {
+    expect(quote('<p>See <span class="spoiler"><code>x &lt; y</code> and a&lt;b</span> now</p>')).toBe('See >!`x < y` and a\\<b!< now');
+  });
+
+  test('code holding ">" in an inline spoiler stays text, or Litedown would read the spoiler as a block', () => {
+    expect(quote('<p>See <span class="spoiler"><code>a &gt; b</code></span> public</p>')).toBe('See >!a \\> b!< public');
+
+    const $body = postBody('<p>See <span class="spoiler"><code>a &gt; b</code></span> public</p>');
+    select((range) => range.selectNodeContents($body.find('code')[0]));
+    expect(selectedText($body)).toBe('>!a \\> b!<');
+  });
+
+  test('a code block in a block spoiler stays a code block, unescaped', () => {
+    expect(quote(`<details class="spoiler"><p>Hidden:</p>${pre('if (a &lt; b) {}', 'language-js')}</details>`)).toBe(
+      '>! Hidden:\n>! \n>! ```js\n>! if (a < b) {}\n>! ```\n'
+    );
+
+    const $body = postBody(`<details class="spoiler"><p>Hidden:</p>${pre('if (a &lt; b) {}', 'language-js')}</details>`);
+    select((range) => range.selectNodeContents($body.find('pre code')[0]));
+    expect(selectedText($body)).toBe('>! ```js\n>! if (a < b) {}\n>! ```\n');
+  });
+
+  test('without Markdown, code is quoted as text, as BBCode has no fences or inline code', () => {
+    withMarkdown(false);
+
+    expect(quote(`<p>Use <code>npm ci</code></p>\n\n${pre('echo "&lt;b&gt;";', 'language-php')}`)).toBe('Use npm ci\n\necho "<b>";');
+  });
+
+  test('code a selection only touches at its edge, or empty code, quotes as nothing', () => {
+    const $body = postBody(`${pre('one')}\n\n<p>middle</p>\n\n${pre('two')}`);
+
+    select((range) => {
+      range.setStart($body.find('p')[0].firstChild!, 0);
+      range.setEnd($body.find('pre code')[1].firstChild!, 0);
+    });
+    // The blank line after the paragraph is trimmed when the quote is inserted.
+    expect(selectedText($body)).toBe('middle\n\n');
+
+    expect(quote('<p>Spaces <code></code> and <code>a</code></p>')).toBe('Spaces  and `a`');
+  });
+
+  test('a code span over two lines stays on one in an inline spoiler, which must close on its line', () => {
+    expect(quote('<p>Before <span class="spoiler"><code>a<br>\nb</code></span> public</p>')).toBe('Before >!`a b`!< public');
+  });
+
+  test('a code span over two lines keeps its line break elsewhere', () => {
+    expect(quote('<p>See <code>a<br>\nb</code> here</p>')).toBe('See `a\nb` here');
+  });
+
+  test('code holding "!<" in a block spoiler stays escaped text, or Litedown would read it as a spoiler', () => {
+    expect(quote(`<details class="spoiler"><p>Text</p>\n\n${pre('a !&lt; b')}</details>`)).toBe('>! Text\n>! \n>! a !\\< b\n');
+  });
+
+  test('a code block between images still starts and ends a block', () => {
+    const img = (name: string) => `<p><img src="https://example.com/${name}.png" alt=""></p>`;
+
+    expect(quote(`${img('a')}${pre('x')}${img('b')}`)).toBe('![](https://example.com/a.png)\n\n```\nx\n```\n\n![](https://example.com/b.png)');
+  });
+
+  test('a backslash just before a code span does not escape its backtick', () => {
+    expect(quote('<p>Folder \\<code>file</code> here</p>')).toBe('Folder \\\\`file` here');
+  });
+
+  test('a backslash at the end of formatting before a code span does not escape its backtick', () => {
+    expect(quote('<p><em>C:\\</em><code>x</code></p>')).toBe('C:\\\\`x`');
+  });
+
+  test('code spans either side of formatting stay apart', () => {
+    expect(quote('<p><code>a</code><strong><code>b</code></strong></p>')).toBe('`a` `b`');
+  });
+
+  test('blank space alone selected in a code block quotes nothing', () => {
+    const $body = postBody(pre('a\n\nb'));
+    const text = $body.find('pre code')[0].firstChild!;
+
+    select((range) => {
+      range.setStart(text, 2);
+      range.setEnd(text, 3);
+    });
+
+    expect(selectedText($body)).toBe('');
+  });
+});

@@ -22,6 +22,53 @@ const inlineSpoiler = (text) => (text ? `>!${text.startsWith('[') ? ' ' : ''}${t
 
 const blockSpoiler = (text) => (text.trim() ? `>! ${text.trim().replace(/\n/g, '\n>! ')}\n` : '');
 
+// Fences and code spans are Markdown: a forum without it quotes code as text,
+// as BBCode has no inline code and the page can't tell whether it is enabled.
+const markdownEnabled = () => 'flarum-markdown' in ((window.flarum && window.flarum.extensions) || {});
+
+// The longest run of backticks in the text, so that a fence around it can be
+// one longer and not be closed early.
+const longestBacktickRun = (text) => Math.max(0, ...(text.match(/`+/g) || []).map((run) => run.length));
+
+// A code span around the text. A space keeps a backtick at either end of the
+// code from joining the fence.
+function codeSpan(text, inInlineSpoiler = false) {
+  // Empty code, such as the edge of one a selection only touches, or one
+  // holding only spaces (which renders empty), quotes as nothing.
+  if (!text.trim()) return '';
+
+  // An inline spoiler must close on the line it opens on.
+  if (inInlineSpoiler) text = text.replace(/\n/g, ' ');
+
+  const fence = '`'.repeat(longestBacktickRun(text) + 1);
+  const pad = text.startsWith('`') || text.endsWith('`') ? ' ' : '';
+
+  return fence + pad + text + pad + fence;
+}
+
+// A fenced code block. The language is only the one the writer gave: the
+// server's class comes first, and highlight.js adds "hljs" and, for a block
+// written without one, the language it guessed, after it.
+function codeBlock(pre, text = (pre.querySelector('code') || pre).textContent) {
+  const code = pre.querySelector('code') || pre;
+  const language = (code.className.match(/^language-([\w+#.-]+)/) || [])[1] || '';
+  const fence = '`'.repeat(Math.max(3, longestBacktickRun(text) + 1));
+
+  return `${fence}${language}\n${text.replace(/\n$/, '')}\n${fence}`;
+}
+
+function asBlock(node, text) {
+  // An element with no text, such as an image, is still written out.
+  const content = (sibling) =>
+    !sibling ? '' : sibling.textContent || (sibling.nodeType === Node.ELEMENT_NODE && sibling.nodeName !== 'BR' ? '.' : '');
+  const before = content(node.previousSibling);
+  const after = content(node.nextSibling);
+  const lead = !before || /\n\n$/.test(before) ? '' : before.endsWith('\n') ? '\n' : '\n\n';
+  const trail = !after || /^\n\n/.test(after) ? '' : after.startsWith('\n') ? '\n' : '\n\n';
+
+  return lead + text + trail;
+}
+
 // The text nodes before the node in the clone, outside it.
 function textsBefore(node, root) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -151,6 +198,24 @@ export default function selectedText(body) {
   const around = found && $.contains(body[0], found) ? found : null;
   const aroundInline = around && !around.matches(BLOCK_SPOILER);
 
+  const markdown = markdownEnabled();
+
+  // Code is quoted as code, except where it can't be: without Markdown, in
+  // an inline spoiler when it holds a ">", which would turn the spoiler into
+  // a block spoiler, and in a block spoiler when it holds a "!<", which
+  // Litedown reads as inline spoiler syntax on a line that starts with ">!".
+  // That code stays escaped text.
+  const keepsCode = (code) =>
+    markdown &&
+    !((aroundInline || code.closest(INLINE_SPOILER)) && code.textContent.includes('>')) &&
+    !(((around && !aroundInline) || code.closest(BLOCK_SPOILER)) && code.textContent.includes('!<'));
+
+  // A selection inside a code block is wrapped in a fence below: the code in
+  // its fragment, if any, is part of that block. A selection inside inline
+  // code has none of it in its fragment.
+  const foundCode = element.closest('pre') || element.closest('code');
+  const aroundCode = foundCode && $.contains(body[0], foundCode) && keepsCode(foundCode) ? foundCode : null;
+
   // An inline spoiler inside another is already hidden by it, and its "!<"
   // would close the outer one early: keep only its contents.
   clone
@@ -159,10 +224,17 @@ export default function selectedText(body) {
     .filter((spoiler) => aroundInline || spoiler.parentElement.closest(INLINE_SPOILER))
     .forEach((spoiler) => spoiler.replaceWith(...spoiler.childNodes));
 
+  // Decided before the text is escaped, which would hide a "!<" or ">".
+  const keptCode = new Set(clone.find('pre, code').toArray().filter(keepsCode));
+
   const walker = document.createTreeWalker(clone[0], NodeFilter.SHOW_TEXT);
   while (walker.nextNode()) {
     const text = walker.currentNode;
     const container = text.parentElement;
+
+    // Backslashes are literal in code, so code kept as code is not escaped.
+    const code = container.closest('pre, code');
+    if (aroundCode || (code && keptCode.has(code))) continue;
 
     if (aroundInline || container.closest(INLINE_SPOILER)) text.data = escapeInline(text.data);
     else if (around || container.closest(BLOCK_SPOILER)) text.data = escapeBlock(text.data);
@@ -179,6 +251,38 @@ export default function selectedText(body) {
 
   // The replacements below are text nodes: a string returned to
   // replaceWith() is parsed as HTML, and the post's text must stay text.
+
+  // Scripts and styles in the post, such as the code highlighter's loader in
+  // a code block, are not text the reader sees.
+  clone.find('script, style').remove();
+
+  if (!aroundCode) {
+    clone
+      .find('pre')
+      .filter((i, pre) => keptCode.has(pre))
+      .replaceWith(function () {
+        const empty = !(this.querySelector('code') || this).textContent.replace(/\n$/, '');
+
+        return document.createTextNode(empty ? '' : asBlock(this, codeBlock(this)));
+      });
+    clone
+      .find('code')
+      .filter((i, code) => keptCode.has(code))
+      .replaceWith(function () {
+        // An odd run of backslashes before the span, in any text before it,
+        // would escape its opening backtick: keep them all shown.
+        keepOpening(this, clone[0]);
+
+        // A backtick just before it, such as the end of another span, would
+        // join the two fences: a space keeps them apart.
+        const before = textsBefore(this, clone[0])
+          .filter((text) => text.data)
+          .pop();
+        const span = codeSpan(this.textContent, aroundInline || !!this.closest(INLINE_SPOILER));
+
+        return document.createTextNode(span && before?.data.endsWith('`') ? ' ' + span : span);
+      });
+  }
 
   // Replace emoji images with their shortcode (found in alt attribute)
   clone.find('img.emoji').replaceWith(function () {
@@ -218,9 +322,18 @@ export default function selectedText(body) {
     return document.createTextNode(blockSpoiler(this.textContent));
   });
 
-  if (around) {
-    return aroundInline ? inlineSpoiler(clone.text()) : blockSpoiler(clone.text());
+  let text = clone.text();
+
+  if (aroundCode) {
+    const pre = aroundCode.closest('pre');
+
+    // Blank space alone in a code block has nothing to quote.
+    if (!text.trim()) return '';
+
+    text = pre ? codeBlock(pre, text) : codeSpan(text, aroundInline);
   }
 
-  return clone.text();
+  if (around) return aroundInline ? inlineSpoiler(text) : blockSpoiler(text);
+
+  return text;
 }
