@@ -196,7 +196,8 @@ class RequestUtil
 
     public static function extractLimit(Request $request, ?int $defaultLimit = null, ?int $max = null): ?int
     {
-        $limit = self::pageParam($request, 'limit') ?? $defaultLimit;
+        // A limit too large to read is still larger than the largest page.
+        $limit = self::pageParam($request, 'limit', 'a positive integer', $max) ?? $defaultLimit;
 
         if ($limit === null) {
             return null;
@@ -208,7 +209,7 @@ class RequestUtil
 
         // An explicit page[limit]=0 is refused rather than read as "no limit".
         if ($limit < 1) {
-            throw (new BadRequestException('page[limit] must be at least 1'))->setSource([
+            throw (new BadRequestException('page[limit] must be a positive integer'))->setSource([
                 'parameter' => 'page[limit]',
             ]);
         }
@@ -218,10 +219,10 @@ class RequestUtil
 
     public static function extractOffsetFromNumber(Request $request, ?int $limit): int
     {
-        $page = self::pageParam($request, 'number') ?? 1;
+        $page = self::pageParam($request, 'number', 'a positive integer') ?? 1;
 
         if ($page < 1) {
-            throw (new BadRequestException('page[number] must be at least 1'))->setSource([
+            throw (new BadRequestException('page[number] must be a positive integer'))->setSource([
                 'parameter' => 'page[number]',
             ]);
         }
@@ -243,9 +244,9 @@ class RequestUtil
     public static function extractOffset(Request $request, ?int $limit = 0): int
     {
         // Read both, so a malformed offset is refused even when page[number] wins.
-        $offset = self::pageParam($request, 'offset') ?? 0;
+        $offset = self::pageParam($request, 'offset', 'a non-negative integer') ?? 0;
 
-        if (self::pageParam($request, 'number') !== null) {
+        if (self::pageParam($request, 'number', 'a positive integer') !== null) {
             return self::extractOffsetFromNumber($request, $limit);
         }
 
@@ -253,10 +254,13 @@ class RequestUtil
     }
 
     /**
-     * A page parameter is a whole number given once: page[limit][]=2 or
-     * page[limit]=2x can't be read as one. An empty value counts as absent.
+     * A page parameter is a whole number, not a list or a string such as 2x.
+     * An empty value counts as absent.
+     *
+     * @param int|null $ceiling what a number too large for an integer reads as;
+     *                          without one, it's refused
      */
-    private static function pageParam(Request $request, string $name): ?int
+    private static function pageParam(Request $request, string $name, string $expected, ?int $ceiling = null): ?int
     {
         $page = $request->getQueryParams()['page'] ?? null;
         $value = is_array($page) ? ($page[$name] ?? null) : null;
@@ -269,12 +273,20 @@ class RequestUtil
             return $value;
         }
 
-        // A number too large for an integer would be read as the largest one.
-        if (is_string($value) && ctype_digit($value) && (string) (int) $value === (ltrim($value, '0') ?: '0')) {
-            return (int) $value;
+        if (is_string($value) && ctype_digit($value)) {
+            $digits = ltrim($value, '0') ?: '0';
+
+            // Casting saturates at PHP_INT_MAX instead of failing.
+            if ((string) (int) $digits === $digits) {
+                return (int) $digits;
+            }
+
+            if ($ceiling !== null) {
+                return $ceiling;
+            }
         }
 
-        throw (new BadRequestException("page[$name] must be a non-negative integer"))->setSource([
+        throw (new BadRequestException("page[$name] must be $expected"))->setSource([
             'parameter' => "page[$name]",
         ]);
     }

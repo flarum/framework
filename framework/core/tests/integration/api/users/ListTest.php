@@ -289,4 +289,52 @@ class ListTest extends TestCase
             'number too large to reach' => [['number' => (string) PHP_INT_MAX], 'page[number]'],
         ];
     }
+
+    #[Test]
+    #[DataProvider('listsWithALargestPage')]
+    public function a_page_limit_too_large_to_read_gives_the_largest_page(string $path)
+    {
+        $response = $this->send(
+            $this->request('GET', $path, [
+                'authenticatedAs' => 1,
+            ])->withQueryParams(['page' => ['limit' => '99999999999999999999']])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertEquals(50, json_decode($body, true)['meta']['page']['limit'] ?? null, $body);
+    }
+
+    public static function listsWithALargestPage(): array
+    {
+        return [
+            'paginated' => ['/api/users'],
+            'not paginated' => ['/api/groups'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('pageLimitsBelowOne')]
+    public function a_page_limit_must_be_a_positive_integer(string $limit)
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/users', [
+                'authenticatedAs' => 1,
+            ])->withQueryParams(['page' => ['limit' => $limit]])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(400, $response->getStatusCode(), $body);
+        $this->assertEquals('page[limit] must be a positive integer', json_decode($body, true)['errors'][0]['detail'] ?? null, $body);
+    }
+
+    public static function pageLimitsBelowOne(): array
+    {
+        return [
+            'zero' => ['0'],
+            'letters' => ['2x'],
+        ];
+    }
 }
