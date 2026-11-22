@@ -39,6 +39,12 @@ use Tobyz\JsonApiServer\Schema\Field\ToMany;
  */
 class ApiDescriber
 {
+    /**
+     * The page size list_resources uses for a type without one of its own, so
+     * a call never loads a whole table.
+     */
+    public const int DEFAULT_PAGE_LIMIT = 20;
+
     public function __construct(
         protected Container $container,
         protected JsonApi $api,
@@ -124,9 +130,8 @@ class ApiDescriber
         if ($index instanceof Endpoint\Index) {
             $description['defaultSort'] = $index->defaultSort;
 
-            // A type that can't be paginated always lists everything, and refuses a page.
             if ($resource instanceof Paginatable) {
-                $description['pageLimit'] = ['default' => $index->limit, 'max' => $index->maxLimit];
+                $description['pageLimit'] = ['default' => $index->limit ?? static::DEFAULT_PAGE_LIMIT, 'max' => $index->maxLimit];
             }
         }
 

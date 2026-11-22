@@ -172,14 +172,27 @@ class VisibilityTest extends McpTestCase
     }
 
     #[Test]
-    public function lists_a_type_without_a_page_size_whole_as_describe_api_says(): void
+    public function refuses_a_page_of_a_type_that_is_not_paginated(): void
+    {
+        $auth = $this->bearer($this->developerToken(1));
+
+        foreach (['limit' => 2, 'offset' => 2] as $argument => $value) {
+            $list = $this->toolOutput($this->callTool('list_resources', ['type' => 'gdpr-datatypes', $argument => $value], $auth), expectError: true);
+
+            $this->assertStringContainsString("page[$argument] is not supported", $list['error']);
+        }
+    }
+
+    #[Test]
+    public function lists_a_type_without_a_page_size_of_its_own_in_pages_of_the_size_describe_api_gives(): void
     {
         $auth = $this->bearer($this->developerToken(1));
 
         $groups = $this->toolOutput($this->callTool('describe_api', ['type' => 'groups'], $auth));
         $list = $this->toolOutput($this->callTool('list_resources', ['type' => 'groups'], $auth));
 
-        $this->assertNull($groups['pageLimit']['default'] ?? null);
-        $this->assertArrayNotHasKey('limit', $list['meta']['page'] ?? []);
+        $this->assertArrayHasKey('pageLimit', $groups);
+        $this->assertSame(20, $groups['pageLimit']['default']);
+        $this->assertSame(20, $list['meta']['page']['limit'] ?? null);
     }
 }

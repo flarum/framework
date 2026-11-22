@@ -103,11 +103,9 @@ class ListResourcesTool extends GenericTool
             $query['sort'] = (string) $arguments['sort'];
         }
 
-        // The page size is the list's own, as describe_api reports it. A list
-        // without one (and any type that can't be paginated) comes back whole
-        // unless the caller asks for a page.
+        // A type that can't be paginated comes back whole, and refuses a page.
         $index = $this->exposure->endpoint($type, $this->operation(), $context->actor);
-        $defaultLimit = $resource instanceof Paginatable && $index instanceof Index ? $index->limit : null;
+        $defaultLimit = $resource instanceof Paginatable && $index instanceof Index ? ($index->limit ?? ApiDescriber::DEFAULT_PAGE_LIMIT) : null;
         $limit = $arguments['limit'] ?? $defaultLimit;
 
         $query['page'] = array_filter([
