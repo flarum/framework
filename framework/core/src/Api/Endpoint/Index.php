@@ -120,13 +120,13 @@ class Index extends Endpoint
 
                 $this->rejectPagesOfUnpaginatableLists($context);
 
+                // Reading the parameters first refuses the ones that can't be read before
+                // a hook acts on the request or a pagination is built from them.
+                $extracts = $this->defaultExtracts($context);
+
                 $this->callBeforeHook($context);
 
                 $query = $collection->query($context);
-
-                // Reading the page parameters first rejects the ones that can't be read
-                // before a pagination is built from them.
-                $extracts = $this->defaultExtracts($context);
 
                 $pagination = ($this->paginationResolver)($context);
 
