@@ -105,23 +105,42 @@ class LikeCount
         });
     }
 
-    public function refreshAll(): void
+    /**
+     * Recount every stored count from the pivot, for repair (for instance when
+     * the extension was enabled again after likes were deleted).
+     *
+     * The repair only writes rows whose stored count differs, so a forum whose
+     * counts are already right writes nothing, and an interrupted repair can
+     * simply run again: the next run finds the rows that are still stale.
+     *
+     * @return int the number of users whose count was corrected
+     */
+    public function refreshAll(): int
     {
+        $repaired = 0;
+
         User::query()->getConnection()->table('users')->select('id')
-            ->chunkById(1000, fn ($users) => $this->refresh($users->pluck('id')->all()));
+            ->chunkById(1000, function ($users) use (&$repaired) {
+                $repaired += $this->refresh(array_map('intval', $users->pluck('id')->all()));
+            });
+
+        return $repaired;
     }
 
     /**
-     * Recount stored counts from the pivot, for repair (for instance when the
-     * extension was enabled again after likes were deleted). Mutations must
-     * move the stored count by one instead: a recount cannot be combined with
-     * a concurrent like, because it would overwrite that like.
+     * Recount the stored counts of the given users from the pivot.
+     *
+     * Mutations must move the stored count by one instead: a recount cannot be
+     * combined with a concurrent like, because it would overwrite that like.
+     * So the stale users are locked in the same order as a like mutation
+     * before their counters change.
      *
      * @param int[] $userIds
+     * @return int the number of users whose count was corrected
      */
-    public function refresh(array $userIds): void
+    public function refresh(array $userIds): int
     {
-        $userIds = array_values(array_unique($userIds));
+        $userIds = array_values(array_unique(array_map('intval', $userIds)));
         sort($userIds);
         $db = User::query()->getConnection();
         $count = $db->table('post_likes')
@@ -130,13 +149,41 @@ class LikeCount
             ->where('posts.type', 'comment')
             ->where('posts.is_private', false)
             ->selectRaw('COUNT(*)');
+        $repaired = 0;
 
         foreach (array_chunk($userIds, 1000) as $ids) {
-            $db->transaction(function () use ($db, $ids, $count) {
-                $db->table('users')->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->get(['id']);
-                $db->table('users')->whereIn('id', $ids)->update(['like_count' => $count]);
+            // The stale rows are found without locks, so a user whose count is
+            // right is never locked or written. A count can only be stale here
+            // if the row's value differs from the pivot, and the update below
+            // rechecks it after the locks are held.
+            $stale = array_map('intval', $db->table('users')->whereIn('id', $ids)
+                ->where('like_count', '<>', $count)
+                ->pluck('id')
+                ->all());
+
+            if ($stale === []) {
+                continue;
+            }
+
+            sort($stale);
+
+            $repaired += $db->transaction(function () use ($db, $stale, $count) {
+                // Same order as the like mutation and deletion: the users in
+                // ascending order before their counters change.
+                $db->table('users')->whereIn('id', $stale)->orderBy('id')->lockForUpdate()->get(['id']);
+
+                // One statement for the chunk's stale users. The count is a
+                // grouped pivot lookup joined to the stored value, the same
+                // shape as the backfill migration, and the guard rechecks it
+                // under the lock.
+                return $db->table('users')
+                    ->whereIn('id', $stale)
+                    ->where('like_count', '<>', $count)
+                    ->update(['like_count' => $count]);
             });
         }
+
+        return $repaired;
     }
 
     /** SQL for moving a stored count, without taking a counter below zero. */
