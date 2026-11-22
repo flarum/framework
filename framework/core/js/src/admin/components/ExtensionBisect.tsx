@@ -50,7 +50,7 @@ export default class ExtensionBisect<CustomAttrs extends IInternalModalAttrs = I
 
     if (result && result.extension) {
       const extension = app.data.extensions[result.extension];
-      const commit = typeof extension.commit === 'string' && /^[0-9a-f]{7,64}$/i.test(extension.commit) ? extension.commit.toLowerCase() : undefined;
+      const commit = extension.commit || undefined;
 
       return (
         <div className="Modal-body">

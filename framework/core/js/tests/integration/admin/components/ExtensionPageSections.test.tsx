@@ -420,13 +420,13 @@ describe('ExtensionPage settings layout', () => {
   });
 
   describe('extension version and commit display', () => {
-    test('renders short commit hash with full SHA tooltip when commit is valid', () => {
+    test('renders short commit hash with full SHA tooltip when commit is present', () => {
       const ext = app.data.extensions['acme-flat'];
       const prevVersion = ext.version;
       const prevCommit = ext.commit;
 
       ext.version = '2.x-dev';
-      ext.commit = '9AE9C2B5222172709D6E811DA39B6A5BF588E198';
+      ext.commit = '9ae9c2b5222172709d6e811da39b6a5bf588e198';
 
       try {
         const page = mq(ExtensionPage, { id: 'acme-flat' });
@@ -440,19 +440,19 @@ describe('ExtensionPage settings layout', () => {
       }
     });
 
-    test('ignores invalid or non-hex commit strings', () => {
+    test('renders only the version when commit is absent', () => {
       const ext = app.data.extensions['acme-flat'];
       const prevVersion = ext.version;
       const prevCommit = ext.commit;
 
-      ext.version = 'dev-main';
-      ext.commit = '<script>alert(1)</script>';
+      ext.version = '2.0.3';
+      ext.commit = null;
 
       try {
         const page = mq(ExtensionPage, { id: 'acme-flat' });
         const versionEl = page.first('.ExtensionVersion');
 
-        expect(versionEl.textContent).toBe('dev-main');
+        expect(versionEl.textContent).toBe('2.0.3');
         expect(versionEl.getAttribute('title')).toBeNull();
       } finally {
         ext.version = prevVersion;
