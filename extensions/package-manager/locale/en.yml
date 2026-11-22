@@ -217,6 +217,12 @@ flarum-extension-manager:
       failed: The release notes could not be loaded from GitHub just now.
 
     run:
+      abandoned:
+        intro: "{count, plural, one {A package} other {# packages}} in this {mode, select, install {install} other {update}} {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}."
+        intro_stopped: "{count, plural, one {A package} other {# packages}} this {mode, select, install {install} other {update}} would bring in {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. That is not why it stopped."
+        announce: "{count, plural, one {A package} other {# packages}} in this {mode, select, install {install} other {update}} {count, plural, one {is} other {are}} abandoned by {count, plural, one {its author} other {their authors}}. The list is in the update panel."
+        no_replacement: "{package}: no replacement is named"
+        replaced: "{package}: its author suggests {replacement}"
       working: Updating
       done: Update finished
       failed: The update stopped
@@ -574,6 +580,8 @@ flarum-extension-manager:
     check:
       no_lock: "The Extension Manager could not read composer.lock, so it cannot tell what is installed."
     composer:
+      abandoned_no_replacement: "{package} is abandoned, and its author names no replacement."
+      abandoned_replaced: "{package} is abandoned; its author suggests {replacement} instead."
       advice_memory: "Ask your host to raise memory_limit for this site (256 MB is plenty), or update fewer extensions at once."
       advice_time: "Composer keeps what it downloads, so pressing Update again later often gets further. If it keeps stopping, ask your host to raise max_execution_time for this site (120 seconds is plenty), or to allow proc_open so Composer can run in its own process."
       and_more: ", and {count} more"
@@ -622,6 +630,7 @@ flarum-extension-manager:
       registered: "Composer now knows about the change"
       reread_done: "The web server has re-read the new files."
       resolve_failed: "Composer could not work out an update:"
+      abandoned_blocked: "This forum's Composer settings block abandoned packages, and {mode, select, install {the install} other {the update}} needs {packages}, which {count, plural, one {is} other {are}} abandoned. To allow {count, plural, one {it} other {them}}, list {count, plural, one {it} other {them}} under \"{setting}\" in composer.json. Composer's own words:"
       resolve_gave_up: "Nothing was changed. {how} — {attempts} times in a row, before Composer finished working out this update."
       resolve_retrying: "{how} before Composer finished. Nothing was changed. Trying again (attempt {attempt} of {attempts}); Composer kept what it had already downloaded, so this attempt starts further along."
       save_before_resolve_failed: "Could not save a copy of {file} before resolving, so nothing was started."

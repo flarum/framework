@@ -25,6 +25,12 @@ export interface Run extends RunLike {
   mode: RunMode;
   /** The database changes undoing this run would reverse. */
   migrations: string[];
+  abandoned?: AbandonedPackage[];
+}
+
+export interface AbandonedPackage {
+  package: string;
+  replacement: string | null;
 }
 
 export interface UpdateHint {

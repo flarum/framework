@@ -253,7 +253,7 @@ class ComposerSteps implements Steps
             // Composer's own words, not a summary of them: it is usually precise
             // about which constraint could not be satisfied, and paraphrasing
             // that loses the only part anyone can act on.
-            throw new RuntimeException($this->translator->trans('flarum-extension-manager.api.composer.resolve_failed')."\n".$result['output']);
+            throw new RuntimeException($this->resolveFailure($result['output']));
         }
 
         /*
@@ -266,11 +266,13 @@ class ComposerSteps implements Steps
         $changes = (new LockDiff())->between($before, $after);
         $sources = (new LockDiff())->sources($after);
         $reasons = (new LockDiff())->reasons($changes, $after, $this->requested);
+        $abandoned = (new LockDiff())->abandoned($changes, $after);
 
         $plan = (string) json_encode([
             'changes' => array_map(fn (Change $c) => $c->toArray(), $changes),
             'sources' => $sources,
             'reasons' => $reasons,
+            'abandoned' => $abandoned,
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         /*
@@ -295,7 +297,75 @@ class ComposerSteps implements Steps
         $note = $this->translator->trans('flarum-extension-manager.api.composer.will_change', ['count' => count($changes), 'list' => implode(', ', $shown)])
             .(count($changes) > 5 ? $this->translator->trans('flarum-extension-manager.api.composer.and_more', ['count' => count($changes) - 5]) : '');
 
-        return $raised === [] ? $note : implode('; ', $raised).'. '.$note;
+        $note = $raised === [] ? $note : implode('; ', $raised).'. '.$note;
+
+        return $abandoned === [] ? $note : $note.'. '.$this->abandonedNote($abandoned);
+    }
+
+    protected function resolveFailure(string $output): string
+    {
+        $blocked = static::blockedAsAbandoned($output);
+
+        $why = $blocked === []
+            ? $this->translator->trans('flarum-extension-manager.api.composer.resolve_failed')
+            : $this->translator->trans('flarum-extension-manager.api.composer.abandoned_blocked', [
+                'count' => count($blocked),
+                'packages' => implode(', ', $blocked),
+                'mode' => $this->mode,
+                'setting' => static::abandonedIgnoreKey($this->readJson($this->installPath.'/composer.json')),
+            ]);
+
+        // The error box doesn't wrap, so Composer's lines keep their exact text; this one is ours.
+        return wordwrap($why, 80)."\n".$output;
+    }
+
+    /**
+     * Composer reads the older `audit.*` settings only while `policy.abandoned`
+     * is absent (AbandonedPolicyConfig::fromRawConfig()). Pointing a forum that
+     * uses them at `policy.abandoned.ignore` would switch the block off for
+     * every package, not just the one listed.
+     *
+     * @param array<string,mixed> $composerJson
+     */
+    public static function abandonedIgnoreKey(array $composerJson): string
+    {
+        $config = (array) ($composerJson['config'] ?? []);
+
+        return ! isset($config['policy']['abandoned']) && ! empty($config['audit'])
+            ? 'config.audit.ignore-abandoned'
+            : 'config.policy.abandoned.ignore';
+    }
+
+    /**
+     * Composer's wording when the abandoned block removes every version a
+     * requirement allows: "found a/b[1.0] but these were not loaded, because
+     * they are abandoned".
+     *
+     * @return list<string>
+     */
+    public static function blockedAsAbandoned(string $output): array
+    {
+        preg_match_all(
+            '~found ([a-z0-9][a-z0-9_.-]*/[a-z0-9][a-z0-9_.-]*)\[[^\]]*\] but these were not loaded, because they are abandoned\b~i',
+            $output,
+            $m
+        );
+
+        $names = array_unique($m[1]);
+        sort($names);
+
+        return $names;
+    }
+
+    /** @param list<array{package:string, replacement:?string}> $abandoned */
+    protected function abandonedNote(array $abandoned): string
+    {
+        return implode(' ', array_map(
+            fn (array $a) => $a['replacement'] !== null
+            ? $this->translator->trans('flarum-extension-manager.api.composer.abandoned_replaced', ['package' => $a['package'], 'replacement' => $a['replacement']])
+            : $this->translator->trans('flarum-extension-manager.api.composer.abandoned_no_replacement', ['package' => $a['package']]),
+            $abandoned
+        ));
     }
 
     /**

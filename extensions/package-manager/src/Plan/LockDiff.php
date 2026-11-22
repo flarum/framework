@@ -163,6 +163,61 @@ class LockDiff
     }
 
     /**
+     * Packages the run leaves unchanged are left out on purpose: they were
+     * there before it. A replacement naming the package itself doesn't count.
+     *
+     * @param list<Change> $changes
+     * @param array<string,mixed> $after
+     * @return list<array{package:string, replacement:?string}> sorted by package
+     */
+    public function abandoned(array $changes, array $after): array
+    {
+        $locked = [];
+
+        foreach ($this->packages($after) as $package) {
+            if (isset($package['name'])) {
+                $locked[strtolower((string) $package['name'])] = $package;
+            }
+        }
+
+        $out = [];
+
+        foreach ($changes as $change) {
+            $flag = $locked[strtolower($change->package)]['abandoned'] ?? false;
+
+            if ($change->op === Change::REMOVE || ! $flag) {
+                continue;
+            }
+
+            $replacement = is_string($flag) && trim($flag) !== '' && strtolower(trim($flag)) !== strtolower($change->package)
+                ? trim($flag)
+                : null;
+
+            if ($replacement === null && $this->unreliableFlag($locked[strtolower($change->package)])) {
+                continue;
+            }
+
+            $out[] = ['package' => $change->package, 'replacement' => $replacement];
+        }
+
+        usort($out, fn (array $a, array $b) => strcmp($a['package'], $b['package']));
+
+        return $out;
+    }
+
+    /**
+     * Core's card ignores these too: see ExtensionManager::extensionFromJson().
+     *
+     * @param array<string,mixed> $package
+     */
+    protected function unreliableFlag(array $package): bool
+    {
+        $url = $package['dist']['url'] ?? '';
+
+        return is_string($url) && str_contains($url, 'flarum.org/composer');
+    }
+
+    /**
      * @return array<string,array{0:string,1:?string}> package => [version, commit]
      *
      * The commit only for a development version, where it is the only thing
