@@ -222,7 +222,7 @@ class UserMentionCountTest extends TestCase
         $this->reply('@"potato"#3 first mention');
         $postId = $this->reply('@"potato"#3 second mention', $editorId);
         $this->assertSame(2, $this->mentionCountOf(3));
-        Post::query()->whereKey($postId)->update(['created_at' => Carbon::now()->subMinute()]);
+        $this->agePostPastTheFloodThrottle($postId);
 
         $payload = $this->patchPost($postId, $editorId, ['content' => '@"moderator"#4 edited']);
         $affected = array_column($payload['data']['relationships']['affectedMentionUsers']['data'] ?? [], 'id');
@@ -254,6 +254,10 @@ class UserMentionCountTest extends TestCase
     {
         $postId = $this->reply('@"potato"#3 hello', $editorId);
         $this->assertSame(1, $this->mentionCountOf(3));
+
+        // A content edit is throttled while the author's post is fresh; age it
+        // first so this test is about the mention count, not about flooding.
+        $this->agePostPastTheFloodThrottle($postId);
 
         $payload = $this->patchPost($postId, $editorId, ['content' => 'hello']);
 
@@ -314,6 +318,25 @@ class UserMentionCountTest extends TestCase
         $author->last_seen_at = Carbon::now();
         $author->save();
         $this->assertSame(2, $this->mentionCountOf(1));
+    }
+
+    /**
+     * Backdate a post so its author is no longer flood-throttled when editing it.
+     *
+     * Core's PostCreationThrottler treats a `posts.update` that changes `content`
+     * as another parse of the post (mentions resolved, content rendered), and
+     * throttles it when any of the actor's posts were created or edited within
+     * its window. These tests reply and patch straight away, so the post is
+     * aged past that window instead of waiting for it.
+     */
+    protected function agePostPastTheFloodThrottle(int $postId): void
+    {
+        $old = Carbon::now()->subMinute();
+
+        $this->database()->table('posts')->where('id', $postId)->update([
+            'created_at' => $old,
+            'edited_at' => $old,
+        ]);
     }
 
     protected function reply(string $content, int $userId = 1): int
