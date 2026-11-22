@@ -87,6 +87,8 @@ class ListDataTypesControllerTest extends TestCase
             'limit' => ['limit', '1'],
             'offset' => ['offset', '1'],
             'number' => ['number', '2'],
+            'near' => ['near', '2'],
+            'size' => ['size', '2'],
         ];
     }
 
@@ -111,6 +113,7 @@ class ListDataTypesControllerTest extends TestCase
             'offset zero' => [['offset' => '0']],
             'first page by number' => [['number' => '1']],
             'empty limit' => [['limit' => '']],
+            'without a total' => [['total' => '0']],
         ];
     }
 

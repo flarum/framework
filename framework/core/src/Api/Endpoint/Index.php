@@ -373,7 +373,14 @@ class Index extends Endpoint
             return;
         }
 
-        if ($name = $this->pageAskedFor($context)) {
+        $page = $context->queryParam('page');
+
+        // page[total] only asks whether to count the list.
+        $others = is_array($page)
+            ? array_filter(array_diff_key($page, ['limit' => 0, 'offset' => 0, 'number' => 0, 'total' => 0]), fn ($value) => $value !== null && $value !== '')
+            : [];
+
+        if ($name = $this->pageAskedFor($context) ?? array_key_first($others)) {
             throw (new BadRequestException("page[$name] is not supported: this list is not paginated"))->setSource([
                 'parameter' => "page[$name]",
             ]);
