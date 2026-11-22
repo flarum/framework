@@ -630,7 +630,7 @@ flarum-extension-manager:
       registered: "Composer now knows about the change"
       reread_done: "The web server has re-read the new files."
       resolve_failed: "Composer could not work out an update:"
-      abandoned_blocked: "This forum's Composer settings block abandoned packages, and {mode, select, install {the install} other {the update}} needs {packages}, which {count, plural, one {is} other {are}} abandoned. To allow {count, plural, one {it} other {them}}, list {count, plural, one {it} other {them}} under \"config.policy.abandoned.ignore\" in composer.json. Composer's own words:"
+      abandoned_blocked: "This forum's Composer settings block abandoned packages, and {mode, select, install {the install} other {the update}} needs {packages}, which {count, plural, one {is} other {are}} abandoned. To allow {count, plural, one {it} other {them}}, list {count, plural, one {it} other {them}} under \"{setting}\" in composer.json. Composer's own words:"
       resolve_gave_up: "Nothing was changed. {how} — {attempts} times in a row, before Composer finished working out this update."
       resolve_retrying: "{how} before Composer finished. Nothing was changed. Trying again (attempt {attempt} of {attempts}); Composer kept what it had already downloaded, so this attempt starts further along."
       save_before_resolve_failed: "Could not save a copy of {file} before resolving, so nothing was started."

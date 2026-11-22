@@ -108,38 +108,72 @@ class AbandonedPackagesTest extends TestCase
 
     // ── a forum that blocks abandoned packages ──────────────────────────
 
-    /** @return array<string, array{0: bool, 1: array<string,mixed>}> */
+    /** @return array<string, array{0: bool, 1: array<string,mixed>, 2: string}> */
     public static function blockingConfigs(): array
     {
+        $audit = ['audit' => ['block-abandoned' => true]];
+        $policy = ['policy' => ['abandoned' => ['block' => true]]];
+
         return [
-            'audit.block-abandoned, in process' => [true, ['audit' => ['block-abandoned' => true]]],
-            'audit.block-abandoned, subprocess' => [false, ['audit' => ['block-abandoned' => true]]],
-            'policy.abandoned.block, in process' => [true, ['policy' => ['abandoned' => ['block' => true]]]],
-            'policy.abandoned.block, subprocess' => [false, ['policy' => ['abandoned' => ['block' => true]]]],
+            'audit.block-abandoned, in process' => [true, $audit, 'config.audit.ignore-abandoned'],
+            'audit.block-abandoned, subprocess' => [false, $audit, 'config.audit.ignore-abandoned'],
+            'policy.abandoned.block, in process' => [true, $policy, 'config.policy.abandoned.ignore'],
+            'policy.abandoned.block, subprocess' => [false, $policy, 'config.policy.abandoned.ignore'],
         ];
     }
 
     /** @param array<string,mixed> $config */
     #[DataProvider('blockingConfigs')]
-    public function test_a_blocked_resolve_names_the_packages_and_the_setting_that_allows_them(bool $inProcess, array $config): void
+    public function test_a_blocked_resolve_names_the_packages_and_the_setting_that_allows_them(bool $inProcess, array $config, string $setting): void
     {
-        $this->project(config: $config);
+        $this->assertSame(['acme/old-lib'], $this->blocked($inProcess, $config, $setting));
+    }
 
-        try {
-            $this->steps(['acme/widget'], 'install', $inProcess)->doItem('plan', 'work out what changes', new Run('r1'));
-            $this->fail('The block was not applied.');
-        } catch (\RuntimeException $e) {
-            $this->assertStringStartsWith(
-                "This forum's Composer settings block abandoned packages, and the install needs acme/old-lib, which is abandoned. To allow it, list it under \"config.policy.abandoned.ignore\" in composer.json.",
-                str_replace("\n", ' ', $e->getMessage())
-            );
-            $this->assertStringContainsString('because they are abandoned', $e->getMessage());
-        }
+    /** @return array<string, array{0: array<string,mixed>, 1: array<string,mixed>, 2: string}> */
+    public static function oneIgnored(): array
+    {
+        return [
+            'audit.ignore-abandoned' => [
+                ['audit' => ['block-abandoned' => true, 'ignore-abandoned' => ['acme/old-lib' => 'test']]],
+                ['audit' => ['block-abandoned' => true, 'ignore-abandoned' => ['acme/old-lib' => 'test', 'acme/gone' => 'test']]],
+                'config.audit.ignore-abandoned',
+            ],
+            'policy.abandoned.ignore' => [
+                ['policy' => ['abandoned' => ['block' => true, 'ignore' => ['acme/old-lib' => 'test']]]],
+                ['policy' => ['abandoned' => ['block' => true, 'ignore' => ['acme/old-lib' => 'test', 'acme/gone' => 'test']]]],
+                'config.policy.abandoned.ignore',
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string,mixed> $one
+     * @param array<string,mixed> $both
+     */
+    #[DataProvider('oneIgnored')]
+    public function test_following_the_advice_allows_only_what_is_listed(array $one, array $both, string $setting): void
+    {
+        $this->assertSame(['acme/gone'], $this->blocked(true, $one, $setting));
+
+        $this->tearDown();
+        $this->setUp();
+        $this->project(config: $both);
+        $this->steps(['acme/widget'], 'install', inProcess: true)->doItem('plan', 'work out what changes', new Run('r1'));
+
+        $this->assertCount(2, $this->plan()['abandoned']);
+    }
+
+    public function test_the_setting_named_is_the_one_composer_reads(): void
+    {
+        $this->assertSame('config.policy.abandoned.ignore', ComposerSteps::abandonedIgnoreKey([]));
+        $this->assertSame('config.policy.abandoned.ignore', ComposerSteps::abandonedIgnoreKey(['config' => ['audit' => []]]));
+        $this->assertSame('config.audit.ignore-abandoned', ComposerSteps::abandonedIgnoreKey(['config' => ['audit' => ['block-abandoned' => true]]]));
+        $this->assertSame('config.policy.abandoned.ignore', ComposerSteps::abandonedIgnoreKey(['config' => ['audit' => ['block-abandoned' => true], 'policy' => ['abandoned' => ['block' => true]]]]));
     }
 
     /** @param array<string,mixed> $config */
     #[DataProvider('blockingConfigs')]
-    public function test_the_block_is_left_to_pick_an_older_version_without_abandoned_dependencies(bool $inProcess, array $config): void
+    public function test_the_block_is_left_to_pick_an_older_version_without_abandoned_dependencies(bool $inProcess, array $config, string $setting): void
     {
         $this->project(config: $config, cleanOldWidget: true);
 
@@ -149,25 +183,15 @@ class AbandonedPackagesTest extends TestCase
         $this->assertSame([], $this->plan()['abandoned']);
     }
 
-    public function test_listing_the_packages_under_policy_abandoned_ignore_lets_the_install_through(): void
-    {
-        $this->project(config: ['policy' => ['abandoned' => ['block' => true, 'ignore' => ['acme/old-lib' => 'test', 'acme/gone' => 'test']]]]);
-
-        $this->steps(['acme/widget'], 'install', inProcess: true)->doItem('plan', 'work out what changes', new Run('r1'));
-
-        $this->assertCount(2, $this->plan()['abandoned']);
-    }
-
-    public function test_both_ways_composer_words_a_blocked_package_are_read(): void
+    public function test_only_abandoned_blocks_are_read_from_composers_output(): void
     {
         $output = <<<'OUT'
               - Root composer.json requires acme/widget * -> satisfiable by acme/widget[1.0.0].
               - acme/widget 1.0.0 requires acme/old-lib 1.0.0 -> found acme/old-lib[1.0.0, 1.1.0] but these were not loaded, because they are abandoned. To turn the feature off entirely, you can set "policy.abandoned.block" to false.
-              - Package acme/gone 1.0.0 (in the lock file) was not loaded, because it is abandoned. To turn the feature off entirely, you can set "policy.abandoned.block" to false.
               - acme/other[2.0.0] require acme/x -> found acme/x[1.0.0] but these were not loaded, because they are affected by security advisories ("PKSA-1").
             OUT;
 
-        $this->assertSame(['acme/gone', 'acme/old-lib'], ComposerSteps::blockedAsAbandoned($output));
+        $this->assertSame(['acme/old-lib'], ComposerSteps::blockedAsAbandoned($output));
         $this->assertSame([], ComposerSteps::blockedAsAbandoned('Your requirements could not be resolved.'));
     }
 
@@ -281,6 +305,30 @@ class AbandonedPackagesTest extends TestCase
         }
 
         $this->writeJson('project/composer.lock', ['packages' => $locked, 'packages-dev' => []]);
+    }
+
+    /**
+     * The packages a blocked install names, checking the sentence names $setting.
+     *
+     * @param array<string,mixed> $config
+     * @return list<string>
+     */
+    private function blocked(bool $inProcess, array $config, string $setting): array
+    {
+        $this->project(config: $config);
+
+        try {
+            $this->steps(['acme/widget'], 'install', $inProcess)->doItem('plan', 'work out what changes', new Run('r1'));
+        } catch (\RuntimeException $e) {
+            $message = str_replace("\n", ' ', $e->getMessage());
+            $this->assertMatchesRegularExpression('~^This forum\'s Composer settings block abandoned packages, and the install needs .+ To allow (it|them), list (it|them) under "'.preg_quote($setting, '~').'" in composer.json\.~', $message);
+            $this->assertStringContainsString('because they are abandoned', $message);
+            preg_match('~the install needs (.+?), which~', $message, $m);
+
+            return explode(', ', $m[1]);
+        }
+
+        $this->fail('The block was not applied.');
     }
 
     /** @param list<string> $packages */

@@ -387,7 +387,8 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
      * after an install: a new extension is missing from the admin sidebar
      * until the page reloads, so it could not be opened and switched on, which
      * is the obvious next step (ClaudiusH, 2026-10-09). So the page reloads
-     * onto the new extension's own page.
+     * onto the new extension's own page, unless the run has abandoned packages:
+     * then it reloads onto the run's panel, which lists them (see reloadAfter()).
      */
     const { reload, open: installed } = reloadAfter(run, SELF_PACKAGE);
     if (!run || !reload) return;

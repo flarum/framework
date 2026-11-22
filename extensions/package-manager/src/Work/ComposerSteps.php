@@ -308,30 +308,50 @@ class ComposerSteps implements Steps
 
         $why = $blocked === []
             ? $this->translator->trans('flarum-extension-manager.api.composer.resolve_failed')
-            : $this->translator->trans('flarum-extension-manager.api.composer.abandoned_blocked', ['count' => count($blocked), 'packages' => implode(', ', $blocked), 'mode' => $this->mode]);
+            : $this->translator->trans('flarum-extension-manager.api.composer.abandoned_blocked', [
+                'count' => count($blocked),
+                'packages' => implode(', ', $blocked),
+                'mode' => $this->mode,
+                'setting' => static::abandonedIgnoreKey($this->readJson($this->installPath.'/composer.json')),
+            ]);
 
         // The error box doesn't wrap, so Composer's lines keep their exact text; this one is ours.
         return wordwrap($why, 80)."\n".$output;
     }
 
     /**
-     * The packages a forum's `policy.abandoned.block` kept out of a failed
-     * resolve. Composer words it two ways: for a requirement ("found a/b[1.0]
-     * but these were not loaded, because they are abandoned") and for a locked
-     * package ("Package a/b 1.0 (in the lock file) was not loaded, because it
-     * is abandoned").
+     * Composer reads the older `audit.*` settings only while `policy.abandoned`
+     * is absent (AbandonedPolicyConfig::fromRawConfig()). Pointing a forum that
+     * uses them at `policy.abandoned.ignore` would switch the block off for
+     * every package, not just the one listed.
+     *
+     * @param array<string,mixed> $composerJson
+     */
+    public static function abandonedIgnoreKey(array $composerJson): string
+    {
+        $config = (array) ($composerJson['config'] ?? []);
+
+        return ! isset($config['policy']['abandoned']) && ! empty($config['audit'])
+            ? 'config.audit.ignore-abandoned'
+            : 'config.policy.abandoned.ignore';
+    }
+
+    /**
+     * Composer's wording when the abandoned block removes every version a
+     * requirement allows: "found a/b[1.0] but these were not loaded, because
+     * they are abandoned".
      *
      * @return list<string>
      */
     public static function blockedAsAbandoned(string $output): array
     {
         preg_match_all(
-            '~(?:found ([a-z0-9][a-z0-9_.-]*/[a-z0-9][a-z0-9_.-]*)\[[^\]]*\] but these were|Package ([a-z0-9][a-z0-9_.-]*/[a-z0-9][a-z0-9_.-]*) \S+ \(in the lock file\) was) not loaded, because (?:they are|it is) abandoned\b~i',
+            '~found ([a-z0-9][a-z0-9_.-]*/[a-z0-9][a-z0-9_.-]*)\[[^\]]*\] but these were not loaded, because they are abandoned\b~i',
             $output,
             $m
         );
 
-        $names = array_unique(array_filter(array_merge($m[1], $m[2])));
+        $names = array_unique($m[1]);
         sort($names);
 
         return $names;
