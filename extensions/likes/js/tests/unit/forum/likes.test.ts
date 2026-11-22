@@ -1,6 +1,7 @@
 import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import app from 'flarum/forum/app';
 import Post from 'flarum/common/models/Post';
+import User from 'flarum/common/models/User';
 import CommentPost from 'flarum/forum/components/CommentPost';
 import UserPage from 'flarum/forum/components/UserPage';
 import { jest } from '@jest/globals';
@@ -151,5 +152,27 @@ describe('the like button', () => {
     await likeButton(post).attrs.onclick();
 
     expect(user.likeCount()).toBe(3);
+  });
+});
+
+describe('the likes tab on a profile', () => {
+  it('renders no badge when the API did not send a count', () => {
+    app.store.pushPayload({
+      data: { type: 'users', id: '81', attributes: { username: 'someone' } },
+    } as any);
+    const user = app.store.getById<User>('users', '81')!;
+
+    const root = document.createElement('div');
+    document.body.append(root);
+    const profile = new UserPage();
+    profile.user = user;
+    m.mount(root, { view: () => profile.navItems().get('likes') });
+
+    try {
+      expect(root.querySelector('.Button-badge')).toBeNull();
+    } finally {
+      m.mount(root, null);
+      root.remove();
+    }
   });
 });

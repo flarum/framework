@@ -22,5 +22,5 @@ export default [
     .attribute<boolean>('canLike'),
 
   new Extend.Model(User) //
-    .attribute<number>('likeCount'),
+    .attribute<number | undefined>('likeCount'),
 ];

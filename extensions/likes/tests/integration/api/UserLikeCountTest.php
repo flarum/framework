@@ -73,7 +73,7 @@ class UserLikeCountTest extends TestCase
         $this->like(1, 2);
 
         $response = $this->send(
-            $this->request('GET', '/api/users/2', ['authenticatedAs' => 3])
+            $this->request('GET', '/api/users/2', ['authenticatedAs' => 2])
         );
 
         $this->assertEquals(200, $response->getStatusCode());

@@ -10,6 +10,6 @@ declare module 'flarum/common/models/Post' {
 
 declare module 'flarum/common/models/User' {
   export default interface User {
-    likeCount(): number;
+    likeCount(): number | undefined;
   }
 }

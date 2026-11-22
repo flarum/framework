@@ -11,7 +11,6 @@ namespace Flarum\Likes;
 
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
-use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Likes\Api\PostResourceFields;
 use Flarum\Likes\Event\PostWasLiked;
@@ -62,9 +61,7 @@ return [
         ),
 
     (new Extend\ApiResource(Resource\UserResource::class))
-        ->fields(fn () => [
-            Schema\Integer::make('likeCount'),
-        ]),
+        ->fields(Api\UserResourceFields::class),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         // Only default-include post likes where the post is actually displayed
