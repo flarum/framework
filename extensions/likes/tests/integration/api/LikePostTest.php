@@ -165,6 +165,16 @@ class LikePostTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
         $this->assertSame(5, $this->responseLikeCount($response));
         $this->assertSame(5, (int) User::query()->find(3)->like_count);
+
+        // The client reads the likers from the default includes and the actor's
+        // count from this resource; keep both shapes pinned on the server.
+        $body = json_decode((string) $response->getBody(), true);
+        $actor = array_values(array_filter(
+            $body['included'] ?? [],
+            fn (array $resource) => $resource['type'] === 'users' && (string) $resource['id'] === '3'
+        ));
+        $this->assertCount(1, $actor, 'The update response should default-include the actor among the likers.');
+        $this->assertSame(5, $actor[0]['attributes']['likeCount'] ?? null);
     }
 
     #[Test]

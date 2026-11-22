@@ -113,50 +113,53 @@ describe('the like button', () => {
     }
   });
 
-  it('discards an older count that arrives after a newer one', async () => {
+  it('discards an overtaken response, its count and its likers alike', async () => {
     const user = app.session.user!;
     user.pushAttributes({ likeCount: 2 });
-    const olderPost = postWithoutLikes('75');
-    const newerPost = postWithoutLikes('76');
+    const post = postWithoutLikes('75');
 
-    let finishOlder!: () => void;
-    const olderGate = new Promise<void>((resolve) => {
-      finishOlder = resolve;
+    let finishLike!: () => void;
+    const likeGate = new Promise<void>((resolve) => {
+      finishLike = resolve;
     });
 
     // Answer like the API does, through the real Model.save: each response is
-    // a whole payload, and the actor comes back in `included` with the count
-    // read for that request.
+    // a whole payload, likers included, and the actor comes back in `included`
+    // with the count read for that request.
     jest.spyOn(app, 'request').mockImplementation(((options: any) => {
-      const postId = options.body.data.id;
-      const actorLikeCount = postId === olderPost.id() ? 3 : 4;
+      const liked = options.body.data.attributes.isLiked;
       const payload = {
         data: {
           type: 'posts',
-          id: postId,
+          id: post.id(),
           attributes: { number: 1, contentType: 'comment', canLike: true, isHidden: false },
-          relationships: { likes: { data: [{ type: 'users', id: user.id() }] } },
+          relationships: { likes: { data: liked ? [{ type: 'users', id: user.id() }] : [] } },
         },
-        included: [{ type: 'users', id: user.id(), attributes: { likeCount: actorLikeCount } }],
-        meta: { actorLikeCount },
+        included: liked ? [{ type: 'users', id: user.id(), attributes: { likeCount: 3 } }] : [],
+        meta: { actorLikeCount: liked ? 3 : 2 },
       };
 
-      return (postId === olderPost.id() ? olderGate : Promise.resolve()).then(() => {
+      return (liked ? likeGate : Promise.resolve()).then(() => {
         const text = JSON.stringify(payload);
         // The real request pipeline edits the raw text before parsing it.
         return JSON.parse(options.modifyText ? options.modifyText(text) : text);
       });
     }) as any);
 
-    const older = likeButton(olderPost).attrs.onclick();
+    const like = likeButton(post).attrs.onclick();
     await Promise.resolve();
-    const newer = likeButton(newerPost).attrs.onclick();
-    await newer;
-    expect(user.likeCount()).toBe(4);
+    expect((post as any).likes()).toEqual([user]);
 
-    finishOlder();
-    await older;
-    expect(user.likeCount()).toBe(4);
+    // The newer click wins, even though the older response is delivered last.
+    const unlike = likeButton(post).attrs.onclick();
+    await unlike;
+    expect(user.likeCount()).toBe(2);
+    expect((post as any).likes()).toEqual([]);
+
+    finishLike();
+    await like;
+    expect(user.likeCount()).toBe(2);
+    expect((post as any).likes()).toEqual([]);
   });
 
   it('leaves the count alone when the response has no meta', async () => {

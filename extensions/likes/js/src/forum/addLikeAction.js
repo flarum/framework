@@ -7,15 +7,16 @@ import haptic from 'flarum/common/utils/haptic';
 const pendingCounts = new WeakMap();
 
 /**
- * Remove the actor's own likeCount from a response before it is parsed.
+ * Strip what an overtaken like response must not write.
  *
  * The update endpoint default-includes `likes`, in which the actor sorts first,
- * so nearly every like response carries the actor with the count read for that
- * request. Model.save() pushes the whole payload before this click's count is
- * checked, so a response overtaken by a newer click would write its stale count
- * first. The count is taken from the guarded meta instead.
+ * so nearly every like response carries the actor and the whole relationship.
+ * Model.save() pushes the payload before this click's count is checked, so a
+ * response overtaken by a newer click would replace the likers that newer click
+ * wrote and overwrite the count read for its request. The count is taken from
+ * the guarded meta instead.
  */
-function withoutActorLikeCount(text, userId) {
+function withoutOvertakenData(text, userId) {
   let payload;
 
   try {
@@ -24,11 +25,11 @@ function withoutActorLikeCount(text, userId) {
     return text;
   }
 
+  if (payload?.data?.relationships) delete payload.data.relationships.likes;
+
   const actor = payload?.included?.find((user) => user.type === 'users' && user.id === userId);
 
-  if (!actor?.attributes) return text;
-
-  delete actor.attributes.likeCount;
+  if (actor?.attributes) delete actor.attributes.likeCount;
 
   return JSON.stringify(payload);
 }
@@ -54,21 +55,29 @@ export default function () {
           if (isLiked) haptic('success');
 
           // Latest-wins: a response that arrives after a newer click must not
-          // overwrite the count that newer mutation returned. The count is also
-          // kept out of the payload itself, see withoutActorLikeCount().
+          // overwrite the likers or the count that newer mutation returned.
+          // Nothing of an overtaken response is kept, see
+          // withoutOvertakenData().
           const pending = {};
           pendingCounts.set(user, pending);
 
-          const save = post.save({ isLiked }, { modifyText: (text) => withoutActorLikeCount(text, user.id()) }).then((response) => {
-            if (pendingCounts.get(user) !== pending) return;
+          const save = post
+            .save(
+              { isLiked },
+              {
+                modifyText: (text) => (pendingCounts.get(user) === pending ? text : withoutOvertakenData(text, user.id())),
+              }
+            )
+            .then((response) => {
+              if (pendingCounts.get(user) !== pending) return;
 
-            const likeCount = response.payload?.meta?.actorLikeCount;
+              const likeCount = response.payload?.meta?.actorLikeCount;
 
-            if (typeof likeCount === 'number') {
-              user.pushAttributes({ likeCount });
-              m.redraw();
-            }
-          });
+              if (typeof likeCount === 'number') {
+                user.pushAttributes({ likeCount });
+                m.redraw();
+              }
+            });
 
           // We've saved the fact that we do or don't like the post, but in order
           // to provide instantaneous feedback to the user, we'll need to add or

@@ -42,7 +42,11 @@ class LikeCount
         $event->lockUsers(array_keys($removedByUser));
 
         // The pivot rows for the deleted posts are removed by the cascading
-        // foreign keys on post_likes.post_id, for every supported database.
+        // foreign key on post_likes.post_id. Every supported database enforces
+        // it: MySQL and PostgreSQL have had it since 2018, and SQLite forums
+        // upgraded from 1.x get it from
+        // 2026_11_22_000000_add_sqlite_post_likes_foreign_keys, because the
+        // 2018 ALTER compiled to nothing there.
         $event->afterDeletion(function () use ($db, $removedByUser) {
             $usersByCount = [];
             foreach ($removedByUser as $id => $count) {
