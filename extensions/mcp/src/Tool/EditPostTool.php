@@ -9,6 +9,7 @@
 
 namespace Flarum\Mcp\Tool;
 
+use Flarum\Mcp\Api\ApiResult;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\Tool;
 use Flarum\Mcp\Exception\ToolError;
@@ -29,17 +30,12 @@ class EditPostTool extends Tool
 
     public function description(): string
     {
-        return 'Change a post you may edit (usually your own). Give "edits" to replace parts of it: each "find" must appear exactly once in the post\'s current source, which get_resource on posts returns in full as "content". Or give "content" to replace the whole post. Confirm the change with the user first.';
+        return 'Change a post you may edit (usually your own). Give "edits" to replace parts of it: each "find" must appear exactly once in the post\'s current source, which get_resource on posts returns in full as "content" unless it is marked truncated. Or give "content" to replace the whole post, never from truncated source. Confirm the change with the user first.';
     }
 
     public function readOnly(): bool
     {
         return false;
-    }
-
-    public function idempotent(): bool
-    {
-        return true;
     }
 
     public function inputSchema(): array
@@ -52,6 +48,7 @@ class EditPostTool extends Tool
                 'edits' => [
                     'type' => 'array',
                     'minItems' => 1,
+                    'maxItems' => 50,
                     'description' => 'Replacements made in order, each on the result of the one before.',
                     'items' => [
                         'type' => 'object',
@@ -71,13 +68,23 @@ class EditPostTool extends Tool
     {
         $postId = (string) $arguments['postId'];
 
+        if (isset($arguments['content'], $arguments['edits'])) {
+            throw new ToolError('Give either "content" or "edits", not both.');
+        }
+
         if (! isset($arguments['content']) && ! isset($arguments['edits'])) {
             throw new ToolError('Give "content" or "edits".');
         }
 
-        $content = isset($arguments['edits'])
-            ? $this->applyEdits($this->currentSource($postId, $context), $arguments['edits'])
-            : (string) $arguments['content'];
+        if (isset($arguments['edits'])) {
+            $content = $this->applyEdits($this->currentSource($postId, $context), $arguments['edits']);
+
+            if (trim($content) === '') {
+                throw new ToolError('These edits would leave the post empty. Nothing was changed.');
+            }
+        } else {
+            $content = (string) $arguments['content'];
+        }
 
         $post = Document::from($context->api->update('posts', $postId, ['content' => $content]))->one();
 
@@ -90,14 +97,23 @@ class EditPostTool extends Tool
 
     protected function currentSource(string $postId, McpContext $context): string
     {
-        $post = Document::from($context->api->show('posts', $postId))->one();
+        $post = Document::from($context->api->show('posts', $postId, [
+            'fields' => ['posts' => 'contentType,content,canEdit'],
+            'include' => '',
+        ]))->one();
 
-        // The source is only sent to those who may edit the post.
+        // A comment's source is only sent to those who may edit it.
         if (Document::attribute($post, 'canEdit') !== true) {
             throw new PermissionDeniedException();
         }
 
-        return (string) Document::attribute($post, 'content');
+        $content = Document::attribute($post, 'content');
+
+        if (Document::attribute($post, 'contentType') !== 'comment' || ! is_string($content)) {
+            throw new ToolError('Only comments can be edited.');
+        }
+
+        return $content;
     }
 
     /**
@@ -106,19 +122,19 @@ class EditPostTool extends Tool
     protected function applyEdits(string $content, array $edits): string
     {
         foreach ($edits as $edit) {
-            $find = (string) $edit['find'];
+            $find = $edit['find'];
+            $position = strpos($content, $find);
 
-            $count = substr_count($content, $find);
-
-            if ($count === 0) {
-                throw new ToolError("Not found in the post: \"$find\". Nothing was changed.");
+            if ($position === false) {
+                throw new ToolError('Not found in the post: "'.ApiResult::truncate($find, 200).'". Nothing was changed.');
             }
 
-            if ($count > 1) {
-                throw new ToolError("Found $count times in the post: \"$find\". Include more of the text around it so it matches once. Nothing was changed.");
+            // Checked from the next byte, so overlapping matches count too.
+            if (strpos($content, $find, $position + 1) !== false) {
+                throw new ToolError('Found more than once in the post: "'.ApiResult::truncate($find, 200).'". Include more of the text around it so it matches once. Nothing was changed.');
             }
 
-            $content = str_replace($find, (string) $edit['replace'], $content);
+            $content = substr_replace($content, $edit['replace'], $position, strlen($find));
         }
 
         return $content;

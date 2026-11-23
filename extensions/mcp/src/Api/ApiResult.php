@@ -69,9 +69,8 @@ class ApiResult
      * the whole payload capped (lists are cut, with a `next` offset hint
      * unless the list can't be paged).
      *
-     * With `$fullStrings`, the primary data's strings are kept whole, so a
-     * single resource fetched to be edited (a long post's source) arrives
-     * complete. The payload cap still applies.
+     * With `$fullStrings`, the primary data's strings are kept whole, except
+     * `*Html` copies of a source attribute, within the payload cap.
      *
      * @return array<string, mixed>
      */
@@ -164,6 +163,10 @@ class ApiResult
                     $normalised[$plain] = $truncate(HtmlToText::convert($value));
                     continue;
                 }
+
+                // The source next to it is the text to work with; the rendering would only repeat it.
+                $normalised[$name] = static::truncate($value);
+                continue;
             }
 
             $normalised[$name] = is_string($value) ? $truncate($value) : $value;
@@ -219,7 +222,62 @@ class ApiResult
             unset($payload['included']);
         }
 
+        if (is_array($data) && ! array_is_list($data)) {
+            $payload[$listKey] = static::cutLongestStrings($payload, $listKey, $limit);
+        }
+
         return $payload;
+    }
+
+    /**
+     * Gives up, leaving the payload as it is, when its attributes alone can't
+     * make up the excess (a long relationship list).
+     *
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    protected static function cutLongestStrings(array $payload, string $listKey, int $limit): array
+    {
+        $resource = (array) $payload[$listKey];
+
+        $candidates = array_filter(
+            $resource,
+            fn ($value, $key) => is_string($value) && ! in_array($key, ['type', 'id'], true),
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        // Encoded lengths: escaping makes a string longer in the payload than as text.
+        $encoded = array_map(
+            fn (string $value) => mb_strlen((string) json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE)) - 2,
+            $candidates
+        );
+
+        if (array_sum($encoded) < static::length($payload) - $limit) {
+            return $resource;
+        }
+
+        arsort($encoded);
+
+        foreach ($encoded as $key => $encodedLength) {
+            $excess = static::length($payload) - $limit;
+
+            if ($excess <= 0) {
+                break;
+            }
+
+            $length = mb_strlen($resource[$key]);
+            $cut = (int) ceil($excess * $length / max($encodedLength, 1));
+
+            // 100 characters of room for the truncation marker, which would outgrow a short string.
+            if ($length <= 100) {
+                break;
+            }
+
+            $resource[$key] = static::truncate($resource[$key], max(0, $length - $cut - 100));
+            $payload[$listKey] = $resource;
+        }
+
+        return $resource;
     }
 
     /**
