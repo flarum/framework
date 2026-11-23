@@ -9,29 +9,18 @@
 
 namespace Flarum\Tags\Access;
 
+use Flarum\Group\PermissionCache;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
-use WeakMap;
 
 class GlobalPolicy extends AbstractPolicy
 {
-    /**
-     * Verdicts per ability, held for as long as the actor instance, so
-     * repeated checks within a request don't re-count. Keyed by instance, not
-     * ID: the gate keeps policies for the whole process, and a queue worker or
-     * the realtime daemon loads users afresh to see their current groups and
-     * permissions.
-     *
-     * @var WeakMap<User, array<string, bool>>
-     */
-    protected WeakMap $enoughTags;
-
     public function __construct(
-        protected SettingsRepositoryInterface $settings
+        protected SettingsRepositoryInterface $settings,
+        protected PermissionCache $permissions
     ) {
-        $this->enoughTags = new WeakMap();
     }
 
     public function can(User $actor, string $ability): ?string
@@ -57,18 +46,36 @@ class GlobalPolicy extends AbstractPolicy
                 return null;
             }
 
-            $verdicts = $this->enoughTags[$actor] ?? [];
-            $verdicts[$ability] ??= Tag::whereHasPermission($actor, $ability)->exists();
-            $this->enoughTags[$actor] = $verdicts;
+            $anyTag = $this->remember($actor, "$ability.any", fn () => Tag::whereHasPermission($actor, $ability)->exists());
 
-            return $verdicts[$ability] ? $this->allow() : null;
+            return $anyTag ? $this->allow() : null;
         }
 
-        $verdicts = $this->enoughTags[$actor] ?? [];
-        $verdicts[$ability] ??= $this->enoughTagsWithPermission($actor, $ability, $minPrimary, $minSecondary);
-        $this->enoughTags[$actor] = $verdicts;
+        $enoughTags = $this->remember(
+            $actor,
+            "$ability.$minPrimary.$minSecondary",
+            fn () => $this->enoughTagsWithPermission($actor, $ability, $minPrimary, $minSecondary)
+        );
 
-        return $verdicts[$ability] ? $this->allow() : $this->deny();
+        return $enoughTags ? $this->allow() : $this->deny();
+    }
+
+    /**
+     * A verdict depends only on the actor's permissions, so it is shared by
+     * every actor with the same groups (a page can bring dozens of User
+     * instances, such as a Guest per post rendered without a request) and
+     * forgotten with their permissions: when they change, and as a queue
+     * worker's job starts or the realtime daemon refreshes them.
+     *
+     * @param callable(): bool $verdict
+     */
+    protected function remember(User $actor, string $key, callable $verdict): bool
+    {
+        // An administrator passes every permission check, whatever their
+        // permission groups: an unactivated one has only the guest group.
+        $admin = $actor->isAdmin() ? '.admin' : '';
+
+        return $this->permissions->remember($actor->permissionGroupIds(), "flarum-tags.enough-tags.$key$admin", $verdict);
     }
 
     /**
