@@ -29,17 +29,17 @@ class DiscussionFilter implements FilterInterface
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
         $ids = array_map(
-            fn (string $id) => (int) $id, // Conversion to int is required for JSON comparison
+            fn (string $id) => (int) $id, // SQLite's json_extract() yields an INTEGER, which a string binding never equals
             $this->asStringArray($value)
         );
 
         $query = $state->getQuery();
 
-        $query->whereIn(
-            $query->getQuery()->raw('json_extract(payload, "$.discussion_id")'),
-            $ids,
-            'and',
-            $negate
-        );
+        if ($negate) {
+            // Keep entries about no discussion: NULL NOT IN (...) is never true.
+            $query->where(fn ($query) => $query->whereNull('payload->discussion_id')->orWhereNotIn('payload->discussion_id', $ids));
+        } else {
+            $query->whereIn('payload->discussion_id', $ids);
+        }
     }
 }
