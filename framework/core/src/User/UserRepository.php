@@ -9,6 +9,7 @@
 
 namespace Flarum\User;
 
+use Flarum\Database\IntegerKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -37,9 +38,7 @@ class UserRepository
      */
     public function findOrFail(int|string $id, ?User $actor = null): Model
     {
-        // Ids come from URLs and slugs too. Text such as "2abc" is no id:
-        // MySQL would read it as 2, and PostgreSQL refuses to compare it at all.
-        if (! ctype_digit((string) $id)) {
+        if (! IntegerKey::fits(new User, $id)) {
             throw (new ModelNotFoundException())->setModel(User::class, [$id]);
         }
 

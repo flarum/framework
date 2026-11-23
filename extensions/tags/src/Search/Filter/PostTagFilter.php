@@ -13,6 +13,7 @@ use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
+use Flarum\Tags\Tag;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
@@ -28,7 +29,7 @@ class PostTagFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $ids = $this->asIntArray($value);
+        $ids = $this->asKeyArray($value, new Tag);
 
         $state->getQuery()
             ->join('discussion_tag', 'discussion_tag.discussion_id', '=', 'posts.discussion_id')
