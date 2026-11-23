@@ -16,7 +16,7 @@ import type Mithril from 'mithril';
 import type User from '../../common/models/User';
 
 export interface IUserCardAttrs extends ComponentAttrs {
-  userd: User;
+  user: User;
   className?: string;
   editable?: boolean;
   controlsButtonClassName?: string;
