@@ -69,16 +69,21 @@ class ApiResult
      * the whole payload capped (lists are cut, with a `next` offset hint
      * unless the list can't be paged).
      *
+     * With `$fullStrings`, the primary data's strings are kept whole, so a
+     * single resource fetched to be edited (a long post's source) arrives
+     * complete. The payload cap still applies.
+     *
      * @return array<string, mixed>
      */
-    public function simplify(bool $paginated = true): array
+    public function simplify(bool $paginated = true, bool $fullStrings = false): array
     {
         $data = $this->document['data'] ?? null;
+        $limit = $fullStrings ? null : self::MAX_STRING_LENGTH;
 
         $payload = [
             'data' => match (true) {
-                $this->isList() => array_map(static::simplifyResource(...), $data),
-                is_array($data) => static::simplifyResource($data),
+                $this->isList() => array_map(fn (array $resource) => static::simplifyResource($resource, $limit), $data),
+                is_array($data) => static::simplifyResource($data, $limit),
                 default => null,
             },
         ];
@@ -106,14 +111,14 @@ class ApiResult
      * @param array<string, mixed> $resource
      * @return array<string, mixed>
      */
-    public static function simplifyResource(array $resource): array
+    public static function simplifyResource(array $resource, ?int $limit = self::MAX_STRING_LENGTH): array
     {
         $simple = [
             'type' => $resource['type'] ?? null,
             'id' => $resource['id'] ?? null,
         ];
 
-        $simple += static::normaliseAttributes((array) ($resource['attributes'] ?? []));
+        $simple += static::normaliseAttributes((array) ($resource['attributes'] ?? []), $limit);
 
         $relationships = [];
         foreach ((array) ($resource['relationships'] ?? []) as $name => $relationship) {
@@ -145,8 +150,10 @@ class ApiResult
      * @param array<string, mixed> $attributes
      * @return array<string, mixed>
      */
-    public static function normaliseAttributes(array $attributes): array
+    public static function normaliseAttributes(array $attributes, ?int $limit = self::MAX_STRING_LENGTH): array
     {
+        $truncate = fn (string $value) => $limit === null ? $value : static::truncate($value, $limit);
+
         $normalised = [];
 
         foreach ($attributes as $name => $value) {
@@ -154,12 +161,12 @@ class ApiResult
                 $plain = substr((string) $name, 0, -4);
 
                 if (! array_key_exists($plain, $attributes)) {
-                    $normalised[$plain] = static::truncate(HtmlToText::convert($value));
+                    $normalised[$plain] = $truncate(HtmlToText::convert($value));
                     continue;
                 }
             }
 
-            $normalised[$name] = is_string($value) ? static::truncate($value) : $value;
+            $normalised[$name] = is_string($value) ? $truncate($value) : $value;
         }
 
         return $normalised;
