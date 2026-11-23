@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Packagist;
 use Flarum\ExtensionManager\Plan\Nightly;
@@ -111,7 +112,7 @@ class InjectedHttpTest extends TestCase
 
     public function test_discover_reports_an_error_answer_as_unreachable(): void
     {
-        $packagist = new Packagist(EnglishTranslator::make(), new Cache($this->dir), $this->client(new Response(503, [], '{"results":[]}')));
+        $packagist = new Packagist(EnglishTranslator::make(), new Cache($this->dir), $this->client(new Response(503, [], '{"results":[]}')), new AbandonedList());
 
         $found = $packagist->search('widget');
 

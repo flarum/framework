@@ -50,6 +50,7 @@ class Packagist
         protected TranslatorInterface $translator,
         protected Cache $cache,
         protected ClientInterface $http,
+        protected AbandonedList $abandoned,
     ) {
     }
 
@@ -112,13 +113,7 @@ class Packagist
                 'downloads' => (int) ($row['downloads'] ?? 0),
                 'favers' => (int) ($row['favers'] ?? 0),
                 'repository' => (string) ($row['repository'] ?? ''),
-                /*
-                 * Carried through rather than dropped. Packagist marks a
-                 * package abandoned when its author says so, and installing one
-                 * unknowingly is exactly the kind of thing somebody would want
-                 * to have been told before rather than after.
-                 */
-                'abandoned' => $row['abandoned'] ?? false,
+                'abandoned' => $this->abandoned->has($name) ? $this->abandoned->flag($name) : ($row['abandoned'] ?? false),
             ];
         }
 
@@ -148,37 +143,72 @@ class Packagist
          * site used to run for a day after an upgrade, which is exactly when
          * somebody goes looking for extensions that now work.
          */
+        // "v5": verdicts cached before then have no `moved`.
         // "v4": verdicts cached before then call `2.0.0-b2` stable, call an
         // extension that declares no Flarum version incompatible, and may be
         // an unreadable answer kept as "unknown", for up to a day.
-        $scope = 'compat:v4:'.$compat->coreVersion().':';
+        $scope = 'compat:v5:'.$compat->coreVersion().':';
 
         foreach ($names as $name) {
-            $out[$name] = $this->one($name, $compat, $scope);
+            $out[$name] = $this->listed($name, $this->one($name, $compat, $scope));
         }
 
         /*
          * Followed to the end. jaspervriends/flarum-seo names
          * v17development/flarum-seo as its replacement, which is itself an old
          * name for fof/seo: offering the middle one would install the very
-         * thing this guards against. Three hops at most, and never in a circle.
+         * thing this guards against. Three hops at most; a chain that circles,
+         * runs longer or ends unnamed offers nothing, since whatever it would
+         * offer is itself replaced.
          */
         foreach ($out as $name => $verdict) {
             $seen = [$name => true];
+            $current = $verdict['replacedBy'] ?? null;
 
-            for ($hop = 0; $hop < 3 && ! empty($verdict['replacedBy']) && ! isset($seen[$verdict['replacedBy']]); $hop++) {
-                $next = $this->one($verdict['replacedBy'], $compat, $scope);
-                $seen[$verdict['replacedBy']] = true;
-
-                if (empty($next['replaced']) || empty($next['replacedBy'])) {
+            for ($hop = 0; $current !== null; $hop++) {
+                if ($hop === 3 || isset($seen[$current])) {
+                    $current = null;
                     break;
                 }
 
-                $out[$name]['replacedBy'] = $verdict['replacedBy'] = $next['replacedBy'];
+                $seen[$current] = true;
+                $next = $this->listed($current, $this->one($current, $compat, $scope));
+
+                if (empty($next['replaced'])) {
+                    break;
+                }
+
+                $current = $next['replacedBy'] ?: null;
             }
+
+            $out[$name]['replacedBy'] = $current;
         }
 
         return $out;
+    }
+
+    /**
+     * Applied after the cache, so a change to the list counts at once rather
+     * than once the cached verdict expires. A listed package with no
+     * replacement is still refused when its repository moved: that guard is
+     * about the code the old name installs, not about who maintains it.
+     *
+     * @param array<string,mixed> $verdict
+     * @return array<string,mixed>
+     */
+    protected function listed(string $name, array $verdict): array
+    {
+        if (! $this->abandoned->has($name)) {
+            return $verdict;
+        }
+
+        $replacement = $this->abandoned->replacement($name);
+
+        if ($replacement !== null) {
+            return ['replaced' => true, 'replacedBy' => $replacement] + $verdict;
+        }
+
+        return empty($verdict['moved']) ? ['replaced' => false, 'replacedBy' => null] + $verdict : $verdict;
     }
 
     /** @return array<string,mixed> */
@@ -213,7 +243,7 @@ class Packagist
              * answering, which the install guard needs to tell from Packagist
              * not knowing the package.
              */
-            return ['compatible' => null, 'version' => null, 'requires' => null, 'stability' => null, 'replaced' => false, 'replacedBy' => null,
+            return ['compatible' => null, 'version' => null, 'requires' => null, 'stability' => null, 'replaced' => false, 'replacedBy' => null, 'moved' => false,
                 'unreachable' => $status !== 404 && $status !== 410];
         }
 
@@ -262,9 +292,12 @@ class Packagist
 
         foreach ($verdicts as $name => $verdict) {
             if (! empty($verdict['replaced'])) {
-                throw new RefusedException($verdict['replacedBy']
-                    ? $this->translator->trans('flarum-extension-manager.api.start.replaced_by', ['name' => $name, 'replacement' => $verdict['replacedBy']])
-                    : $this->translator->trans('flarum-extension-manager.api.start.replaced', ['name' => $name]), 'package_replaced');
+                throw new RefusedException(match (true) {
+                    ! $verdict['replacedBy'] && empty($verdict['moved']) => $this->translator->trans('flarum-extension-manager.api.start.abandoned_no_usable', ['name' => $name]),
+                    ! $verdict['replacedBy'] => $this->translator->trans('flarum-extension-manager.api.start.replaced', ['name' => $name]),
+                    ! empty($verdict['moved']) => $this->translator->trans('flarum-extension-manager.api.start.replaced_by', ['name' => $name, 'replacement' => $verdict['replacedBy']]),
+                    default => $this->translator->trans('flarum-extension-manager.api.start.abandoned_for', ['name' => $name, 'replacement' => $verdict['replacedBy']]),
+                }, 'package_replaced');
             }
         }
 

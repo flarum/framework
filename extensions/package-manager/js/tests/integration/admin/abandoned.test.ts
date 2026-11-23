@@ -57,7 +57,7 @@ describe('the abandoned-package notice', () => {
     const notice = panel({ abandoned }).find('.ExtensionManager-abandoned')[0];
 
     expect(notice.textContent).toContain('2 packages in this install are abandoned');
-    expect(notice.textContent).toContain('acme/old-lib: its author suggests acme/new-lib');
+    expect(notice.textContent).toContain('acme/old-lib: use acme/new-lib instead');
     expect(notice.textContent).toContain('acme/gone: no replacement is named');
   });
 

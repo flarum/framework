@@ -14,6 +14,7 @@ use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
 use Flarum\ExtensionManager\Apply\Restore;
 use Flarum\ExtensionManager\Config\JsonFile;
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Host\CoreVersion;
 use Flarum\ExtensionManager\Host\ErrorLog;
 use Flarum\ExtensionManager\Host\FlarumUpdater;
@@ -85,6 +86,8 @@ class ComposerSteps implements Steps
          * @var array<string,string>
          */
         protected array $repin = [],
+        /** @var (\Closure(): AbandonedList)|null */
+        protected ?\Closure $abandonedList = null,
     ) {
     }
 
@@ -266,7 +269,7 @@ class ComposerSteps implements Steps
         $changes = (new LockDiff())->between($before, $after);
         $sources = (new LockDiff())->sources($after);
         $reasons = (new LockDiff())->reasons($changes, $after, $this->requested);
-        $abandoned = (new LockDiff())->abandoned($changes, $after);
+        $abandoned = (new LockDiff())->abandoned($changes, $after, $this->abandonedList ? ($this->abandonedList)() : null);
 
         $plan = (string) json_encode([
             'changes' => array_map(fn (Change $c) => $c->toArray(), $changes),

@@ -238,6 +238,45 @@ describe('Discover', () => {
     expect(tab.results.map((r: any) => r.name)).toEqual(['acme/seo']);
   });
 
+  describe('a replaced or abandoned package', () => {
+    const tab = (verdicts: Record<string, any>, installedNames: string[] = []): any => {
+      const t: any = new (DiscoverTab as any)();
+      t.attrs = { starting: false, oninstall: () => {} };
+      t.verdicts = verdicts;
+      t.installedNames = installedNames;
+      return t;
+    };
+    const ok = { compatible: true, version: '1.0.0', requires: '^2.0', stability: 'stable', replaced: false, replacedBy: null };
+    const found = { name: 'acme/a', abandoned: 'acme/b', installed: false };
+    const label = (vnode: any) => text(vnode?.children?.map((c: any) => c.children ?? c));
+
+    test('offers the replacement the search named until the verdict arrives, then only what the verdict names', () => {
+      expect(tab({}).replacement(found, undefined)).toBe('acme/b');
+
+      // A cycle: the server followed the chain and found nothing usable.
+      const t = tab({ 'acme/a': { ...ok, replaced: true, replacedBy: null }, 'acme/b': ok });
+      expect(t.replacement(found, t.verdicts['acme/a'])).toBeNull();
+      expect(t.action(found, t.verdicts['acme/a'])).toBeNull();
+    });
+
+    test('does not offer a replacement that is itself replaced', () => {
+      const t = tab({ 'acme/a': { ...ok, replaced: true, replacedBy: 'acme/b' }, 'acme/b': { ...ok, replaced: true } });
+
+      expect(t.action(found, t.verdicts['acme/a'])).toBeNull();
+
+      t.verdicts['acme/b'] = ok;
+      expect(label(t.action(found, t.verdicts['acme/a']))).toContain('Install acme/b');
+    });
+
+    test('says "installed as" only for a repository that moved', () => {
+      const abandoned = tab({ 'acme/a': { ...ok, replaced: true, replacedBy: 'acme/b' } }, ['acme/b']);
+      const moved = tab({ 'acme/a': { ...ok, replaced: true, replacedBy: 'acme/b', moved: true } }, ['acme/b']);
+
+      expect(label(abandoned.action(found, abandoned.verdicts['acme/a']))).toBe('acme/b is installed');
+      expect(label(moved.action(found, moved.verdicts['acme/a']))).toBe('installed as acme/b');
+    });
+  });
+
   test('the search box has a label and the categories are one Tab stop', () => {
     const out = mq(DiscoverTab, { starting: false, oninstall: () => {} });
 

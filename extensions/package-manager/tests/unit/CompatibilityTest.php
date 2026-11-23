@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
@@ -187,7 +188,7 @@ class CompatibilityTest extends TestCase
             $calls++;
 
             return $body;
-        }));
+        }), new AbandonedList());
 
         $packagist->verdicts(['acme/w'], new Compatibility('1.8.0'));
         $packagist->verdicts(['acme/w'], new Compatibility('1.8.0'));
@@ -211,7 +212,7 @@ class CompatibilityTest extends TestCase
             $calls++;
 
             return null;
-        }));
+        }), new AbandonedList());
 
         $packagist->verdicts(['acme/w'], new Compatibility('2.0.0'));
         $packagist->verdicts(['acme/w'], new Compatibility('2.0.0'));
