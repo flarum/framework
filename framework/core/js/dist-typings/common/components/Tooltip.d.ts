@@ -132,6 +132,21 @@ export default class Tooltip extends Component<TooltipAttrs> {
      */
     private hideOnActivate;
     /**
+     * Whether a tooltip should be kept out of the phone drawer.
+     *
+     * The drawer stacks the header controls in a narrow column, with their
+     * labels already visible, so a tooltip there only repeats the label and
+     * covers the row below, where it can swallow a tap meant for that row.
+     * Checking when the tooltip would show keeps this in step with the drawer,
+     * which opens and closes without necessarily redrawing the header.
+     *
+     * Known limits: a tooltip that is already showing when the drawer opens
+     * stays over it, and a show during the closing animation is allowed, as
+     * `Drawer.hide()` drops `drawerOpen` before the transition ends.
+     */
+    protected shouldSuppressTooltip(e: JQuery.TriggeredEvent): boolean;
+    private hideInOpenDrawer;
+    /**
      * Hides a tooltip that was appended to a container on scroll.
      *
      * Bootstrap 3 positions such a tooltip against the page when it opens, and

@@ -68,14 +68,10 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
      * that cannot install. Either way somebody stops believing the badge.
      */
     badge(v?: Verdict): JSX.Element;
-    /**
-     * Packagist records a replacement package when the author names one, and that
-     * is the single most useful thing to say about an abandoned extension.
-     */
     abandonedTitle(r: Found): string;
     /**
-     * The package to use instead of this one, if any: the one Packagist names for
-     * an abandoned package, or the new name of a repository that moved.
+     * The search result's replacement stands in only until the verdict arrives:
+     * the verdict has followed the chain, and null there means nothing usable.
      */
     replacement(r: Found, v?: Verdict): string | null;
     action(r: Found, v?: Verdict): JSX.Element | null;

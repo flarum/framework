@@ -45,6 +45,14 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
     protected renderButton(children: Mithril.ChildArray): Mithril.Vnode<any, any>;
     protected wrapButton(button: Mithril.Vnode<any, any>): Mithril.Vnode<any, any>;
     protected getButtonTooltip(button: Mithril.Vnode<any, any>): TooltipAttrs | undefined;
+    /**
+     * The toggle's own accessible name, if it has one.
+     *
+     * `Button` accepts translation arrays for `aria-label`, so flatten it the
+     * way `Button` does: an array passed straight to `setAttribute` would be
+     * comma-joined, and an empty one would wipe the name.
+     */
+    protected getButtonAriaLabel(button: Mithril.Vnode<any, any>): string | undefined;
     oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     /**
      * Get the template for the button.
