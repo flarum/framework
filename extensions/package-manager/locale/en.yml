@@ -319,6 +319,7 @@ flarum-extension-manager:
           vcs: Git repository
           composer: Composer repository
           path: Folder on this server
+          artifact: Folder of package archives
         type_help:
           vcs: GitHub, GitLab, Bitbucket or any Git host
           composer: Private Packagist or a paid marketplace
