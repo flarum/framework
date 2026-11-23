@@ -44,6 +44,12 @@
     --link-color: var(--control-color);
   }
 
+  // In a quote, mentions take the page's background: a coloured group's
+  // name and icon take a user mention's colour, not the contrast colour.
+  blockquote &--colored {
+    --control-color: inherit;
+  }
+
   .icon {
     margin-left: 5px;
   }
