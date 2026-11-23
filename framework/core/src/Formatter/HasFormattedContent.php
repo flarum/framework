@@ -34,7 +34,7 @@ trait HasFormattedContent
 
     public function setContentAttribute(string $value, ?User $actor = null): void
     {
-        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this, $actor ?? $this->user) : null;
+        $this->attributes['content'] = $value !== '' ? static::$formatter->parse($value, $this, $actor ?? $this->user) : null;
     }
 
     public function setParsedContentAttribute(string $value): void
