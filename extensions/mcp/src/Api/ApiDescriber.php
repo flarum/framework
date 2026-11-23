@@ -27,6 +27,7 @@ use Laminas\Diactoros\ServerRequest;
 use stdClass;
 use Throwable;
 use Tobyz\JsonApiServer\Resource\Listable;
+use Tobyz\JsonApiServer\Resource\Paginatable;
 use Tobyz\JsonApiServer\Schema\Field\Attribute;
 use Tobyz\JsonApiServer\Schema\Field\Field;
 use Tobyz\JsonApiServer\Schema\Field\Relationship;
@@ -38,6 +39,12 @@ use Tobyz\JsonApiServer\Schema\Field\ToMany;
  */
 class ApiDescriber
 {
+    /**
+     * The page size list_resources uses for a type that can be paginated but has
+     * no size of its own, so a call doesn't load the whole of a growing list.
+     */
+    public const int DEFAULT_PAGE_LIMIT = 20;
+
     public function __construct(
         protected Container $container,
         protected JsonApi $api,
@@ -122,7 +129,10 @@ class ApiDescriber
 
         if ($index instanceof Endpoint\Index) {
             $description['defaultSort'] = $index->defaultSort;
-            $description['pageLimit'] = ['default' => $index->limit, 'max' => $index->maxLimit];
+
+            if ($resource instanceof Paginatable) {
+                $description['pageLimit'] = ['default' => min($index->limit ?? static::DEFAULT_PAGE_LIMIT, $index->maxLimit), 'max' => $index->maxLimit];
+            }
         }
 
         return $description;

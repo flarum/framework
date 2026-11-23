@@ -103,9 +103,14 @@ trait ExtractsListingParams
         return [
             'filter' => RequestUtil::extractFilter($context->request),
             'sort' => RequestUtil::extractSort($context->request, $this->defaultSort, $this->getAvailableSorts($context)),
-            'limit' => $limit = RequestUtil::extractLimit($context->request, $this->limit, $this->maxLimit),
+            'limit' => $limit = RequestUtil::extractLimit($context->request, $this->defaultLimit($context), $this->maxLimit),
             'offset' => RequestUtil::extractOffset($context->request, $limit),
         ];
+    }
+
+    protected function defaultLimit(Context $context): ?int
+    {
+        return $this->limit;
     }
 
     public function getAvailableSorts(Context $context): array

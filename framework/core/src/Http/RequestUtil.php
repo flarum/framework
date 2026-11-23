@@ -196,16 +196,9 @@ class RequestUtil
 
     public static function extractLimit(Request $request, ?int $defaultLimit = null, ?int $max = null): ?int
     {
-        $limit = $request->getQueryParams()['page']['limit'] ?? '';
+        // A limit too large to read is still larger than the largest page.
+        $limit = self::pageParam($request, 'limit', 'a positive integer', $max) ?? $defaultLimit;
 
-        if (! filled($limit)) {
-            $limit = $defaultLimit;
-        }
-
-        // Only short-circuit when there is genuinely no limit (no page[limit] and no
-        // default). A loose `! $limit` check here also caught the string "0", returning
-        // null which then broke OffsetPagination's non-nullable int $limit. An explicit
-        // page[limit]=0 must instead fall through to the `< 1` guard below and 400.
         if ($limit === null) {
             return null;
         }
@@ -214,8 +207,11 @@ class RequestUtil
             $limit = min($limit, $max);
         }
 
+        // An explicit page[limit]=0 is refused rather than read as "no limit".
         if ($limit < 1) {
-            throw new BadRequestException('page[limit] must be at least 1');
+            throw (new BadRequestException('page[limit] must be a positive integer'))->setSource([
+                'parameter' => 'page[limit]',
+            ]);
         }
 
         return $limit;
@@ -223,36 +219,73 @@ class RequestUtil
 
     public static function extractOffsetFromNumber(Request $request, ?int $limit): int
     {
-        $page = $request->getQueryParams()['page']['number'] ?? 1;
+        $page = self::pageParam($request, 'number', 'a positive integer') ?? 1;
 
-        if (is_string($page) && ctype_digit($page)) {
-            $digits = ltrim($page, '0') ?: '0';
-            // Casting saturates at PHP_INT_MAX instead of failing.
-            $page = (string) (int) $digits === $digits ? (int) $digits : null;
+        if ($page < 1) {
+            throw (new BadRequestException('page[number] must be a positive integer'))->setSource([
+                'parameter' => 'page[number]',
+            ]);
         }
 
-        // An offset past PHP_INT_MAX would become a float and fail the return type.
-        if (! is_int($page) || $page < 1 || ($limit > 0 && $page - 1 > intdiv(PHP_INT_MAX, $limit))) {
-            throw (new BadRequestException('page[number] must be a positive integer'))
-                ->setSource(['parameter' => 'page[number]']);
+        // Without a limit there is only one page.
+        if (! $limit) {
+            return 0;
         }
 
-        return ($page - 1) * ($limit ?? 0);
+        if ($page - 1 > intdiv(PHP_INT_MAX, $limit)) {
+            throw (new BadRequestException('page[number] is too large'))->setSource([
+                'parameter' => 'page[number]',
+            ]);
+        }
+
+        return ($page - 1) * $limit;
     }
 
     public static function extractOffset(Request $request, ?int $limit = 0): int
     {
-        if (! in_array($request->getQueryParams()['page']['number'] ?? null, [null, ''], true)) {
+        // Read both, so a malformed offset is refused even when page[number] wins.
+        $offset = self::pageParam($request, 'offset', 'a non-negative integer') ?? 0;
+
+        if (self::pageParam($request, 'number', 'a positive integer') !== null) {
             return self::extractOffsetFromNumber($request, $limit);
         }
 
-        $offset = (int) ($request->getQueryParams()['page']['offset'] ?? 0);
+        return $offset;
+    }
 
-        if ($offset < 0) {
-            throw new BadRequestException('page[offset] must be at least 0');
+    /**
+     * @param int|null $ceiling what a number too large for an integer reads as;
+     *                          without one, it's refused
+     */
+    private static function pageParam(Request $request, string $name, string $expected, ?int $ceiling = null): ?int
+    {
+        $page = $request->getQueryParams()['page'] ?? null;
+        $value = is_array($page) ? ($page[$name] ?? null) : null;
+
+        if ($value === null || $value === '') {
+            return null;
         }
 
-        return $offset;
+        if (is_int($value) && $value >= 0) {
+            return $value;
+        }
+
+        if (is_string($value) && ctype_digit($value)) {
+            $digits = ltrim($value, '0') ?: '0';
+
+            // Casting saturates at PHP_INT_MAX instead of failing.
+            if ((string) (int) $digits === $digits) {
+                return (int) $digits;
+            }
+
+            if ($ceiling !== null) {
+                return $ceiling;
+            }
+        }
+
+        throw (new BadRequestException("page[$name] must be $expected"))->setSource([
+            'parameter' => "page[$name]",
+        ]);
     }
 
     public static function extractInclude(Request $request, ?array $available): array

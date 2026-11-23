@@ -9,11 +9,13 @@
 
 namespace Flarum\Mcp\Tool\Generic;
 
+use Flarum\Api\Endpoint\Index;
 use Flarum\Mcp\Api\ApiDescriber;
 use Flarum\Mcp\Api\ResourceExposure;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Exception\ToolError;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Tobyz\JsonApiServer\Resource\Paginatable;
 
 class ListResourcesTool extends GenericTool
 {
@@ -101,11 +103,16 @@ class ListResourcesTool extends GenericTool
             $query['sort'] = (string) $arguments['sort'];
         }
 
+        // A type that can't be paginated comes back whole, and refuses a page.
+        $index = $this->exposure->endpoint($type, $this->operation(), $context->actor);
+        $defaultLimit = $resource instanceof Paginatable && $index instanceof Index ? ($index->limit ?? ApiDescriber::DEFAULT_PAGE_LIMIT) : null;
+        $limit = $arguments['limit'] ?? $defaultLimit;
+
         $query['page'] = array_filter([
-            'limit' => min(static::MAX_LIMIT, (int) ($arguments['limit'] ?? 20)),
+            'limit' => $limit === null ? 0 : min(static::MAX_LIMIT, (int) $limit),
             'offset' => max(0, (int) ($arguments['offset'] ?? 0)),
         ], fn (int $value) => $value > 0);
 
-        return $context->api->index($type, $query)->simplify();
+        return $context->api->index($type, $query)->simplify(paginated: $resource instanceof Paginatable);
     }
 }
