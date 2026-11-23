@@ -138,4 +138,21 @@ class ListTest extends TestCase
 
         $this->assertEquals(401, $response->getStatusCode());
     }
+
+    #[Test]
+    public function a_filter_is_a_bad_request()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/flags', [
+                'authenticatedAs' => 1
+            ])->withQueryParams(['filter' => ['id' => '1']])
+        );
+
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(400, $response->getStatusCode(), $body);
+        $error = json_decode($body, true)['errors'][0] ?? [];
+        $this->assertEquals('Invalid filter: id', $error['detail'] ?? null, $body);
+        $this->assertEquals('filter[id]', $error['source']['parameter'] ?? null, $body);
+    }
 }
