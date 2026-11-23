@@ -18,6 +18,7 @@ use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class TagMentionsTest extends TestCase
@@ -53,6 +54,10 @@ class TagMentionsTest extends TestCase
                 ['id' => 6, 'name' => 'Tatakai', 'slug' => '戦い', 'is_restricted' => 0],
                 ['id' => 7, 'name' => 'WithIcon', 'slug' => 'withicon', 'is_restricted' => 0, 'icon' => 'fas fa-star', 'color' => '#ff0000'],
                 ['id' => 8, 'name' => 'NoIcon', 'slug' => 'noicon', 'is_restricted' => 0, 'icon' => null, 'color' => null],
+                ['id' => 9, 'name' => 'بی‌بی‌سی فارسی', 'slug' => "بی\u{200C}بی\u{200C}سی-فارسی", 'is_restricted' => 0],
+                ['id' => 10, 'name' => 'हिन्दी', 'slug' => 'हिन्दी', 'is_restricted' => 0],
+                ['id' => 11, 'name' => 'ශ්‍රී ලංකා', 'slug' => "ශ්\u{200D}රී-ලංකා", 'is_restricted' => 0],
+                ['id' => 12, 'name' => 'বাংলা', 'slug' => 'বাংলা', 'is_restricted' => 0],
             ],
             'post_mentions_tag' => [
                 ['post_id' => 4, 'mentions_tag_id' => 1],
@@ -144,6 +149,46 @@ class TagMentionsTest extends TestCase
         $this->assertStringContainsString('TagMention', $response['data']['attributes']['contentHtml']);
         $this->assertStringNotContainsString('TagMention--deleted', $response['data']['attributes']['contentHtml']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsTags->find(6));
+    }
+
+    /**
+     * A joiner spells the word in Persian and Sinhala slugs, and \b doesn't count a spacing mark
+     * (Mc) at the end of a Hindi or Bengali slug as part of it.
+     */
+    #[Test]
+    #[DataProvider('slugsWithJoinersAndSpacingMarks')]
+    public function mentioning_a_tag_whose_slug_has_a_joiner_or_ends_in_a_spacing_mark_works(string $content, int $tagId)
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'posts',
+                        'attributes' => ['content' => $content],
+                        'relationships' => ['discussion' => ['data' => ['type' => 'discussions', 'id' => 2]]],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
+        $response = json_decode($response->getBody(), true);
+
+        $this->assertStringContainsString('TagMention', $response['data']['attributes']['contentHtml']);
+        $this->assertSame([$tagId], CommentPost::find($response['data']['id'])->mentionsTags->modelKeys());
+    }
+
+    public static function slugsWithJoinersAndSpacingMarks(): array
+    {
+        return [
+            'Persian, with ZWNJ' => ["See #بی\u{200C}بی\u{200C}سی-فارسی now", 9],
+            'Hindi, ending in a spacing mark' => ['See #हिन्दी now', 10],
+            'Sinhala, with ZWJ' => ["See #ශ්\u{200D}රී-ලංකා.", 11],
+            'Bengali, ending in a spacing mark' => ['#বাংলা', 12],
+            'Latin, followed by a hyphen' => ['About #test- and more', 1],
+        ];
     }
 
     #[Test]
