@@ -9,7 +9,9 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
+use Flarum\Extension\AbandonedExtensionsFetcher;
 use Flarum\Extension\ExtensionManager;
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
@@ -26,8 +28,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Search Packagist for extensions.
  *
- * One HTTP call, and no compatibility work. Whether each result fits this
- * Flarum is a separate question costing a request per package, and doing it here
+ * One HTTP call (two when Flarum's abandoned list has to be fetched first),
+ * and no compatibility work. Whether each result fits this Flarum is a
+ * separate question costing a request per package, and doing it here
  * would make somebody wait a dozen round trips before seeing anything — on a
  * screen they are typing into, on a host that may cut the request at thirty
  * seconds. The verdicts come from /discover/compat and the cards fill in.
@@ -39,6 +42,7 @@ class DiscoverController implements RequestHandlerInterface
         protected Paths $paths,
         protected ExtensionManager $extensions,
         protected ClientInterface $http,
+        protected AbandonedExtensionsFetcher $abandoned,
     ) {
     }
 
@@ -60,7 +64,7 @@ class DiscoverController implements RequestHandlerInterface
          * The page number is clamped: it reaches an outbound URL, and twenty
          * pages is more than anybody browses before searching instead.
          */
-        $found = (new Packagist($this->translator, $this->cache(), $this->http))->search($query, 12, $page, (string) ($params['category'] ?? ''));
+        $found = (new Packagist($this->translator, $this->cache(), $this->http, AbandonedList::fromCore($this->abandoned)))->search($query, 12, $page, (string) ($params['category'] ?? ''));
 
         /*
          * Marked rather than filtered out. Somebody searching for an

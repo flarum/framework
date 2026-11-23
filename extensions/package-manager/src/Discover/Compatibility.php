@@ -47,7 +47,7 @@ class Compatibility
 
     /**
      * @param array<string,mixed> $p2 the decoded p2 metadata for one package
-     * @return array{compatible:?bool, version:?string, requires:?string, stability:?string, replaced:bool, replacedBy:?string, source:?array<string,mixed>}
+     * @return array{compatible:?bool, version:?string, requires:?string, stability:?string, replaced:bool, replacedBy:?string, moved:bool, source:?array<string,mixed>}
      */
     public function verdict(string $name, array $p2): array
     {
@@ -55,7 +55,7 @@ class Compatibility
 
         if (! is_array($versions) || $versions === []) {
             // Not on Packagist, or nothing published. Unknown, and said so.
-            return ['compatible' => null, 'version' => null, 'requires' => null, 'stability' => null, 'replaced' => false, 'replacedBy' => null, 'source' => null];
+            return ['compatible' => null, 'version' => null, 'requires' => null, 'stability' => null, 'replaced' => false, 'replacedBy' => null, 'moved' => false, 'source' => null];
         }
 
         $versions = self::expand($versions, (string) ($p2['minified'] ?? ''));
@@ -112,23 +112,27 @@ class Compatibility
      * gives you FoF SEO under the wrong id, which then refuses to enable over a
      * circular dependency. The tell is a release that replaces its own name; the
      * real name is resolved from the repository (see Packagist::verdicts()).
+     * `moved` marks the second shape, whichever name is given: only then does
+     * the old name install the new code.
      *
      * @param array<string,mixed> $latest the newest release, expanded
-     * @return array{replaced:bool, replacedBy:?string, source:?array<string,mixed>}
+     *
+     * @return array{replaced:bool, replacedBy:?string, moved:bool, source:?array<string,mixed>}
      */
     protected function replacement(string $name, array $latest): array
     {
         $abandoned = $latest['abandoned'] ?? null;
+        $moved = isset(array_change_key_case((array) ($latest['replace'] ?? []))[strtolower($name)]);
 
         if (is_string($abandoned) && $abandoned !== '' && strtolower($abandoned) !== strtolower($name)) {
-            return ['replaced' => true, 'replacedBy' => strtolower($abandoned), 'source' => null];
+            return ['replaced' => true, 'replacedBy' => strtolower($abandoned), 'moved' => $moved, 'source' => null];
         }
 
-        if (isset(array_change_key_case((array) ($latest['replace'] ?? []))[strtolower($name)])) {
-            return ['replaced' => true, 'replacedBy' => null, 'source' => (array) ($latest['source'] ?? [])];
+        if ($moved) {
+            return ['replaced' => true, 'replacedBy' => null, 'moved' => true, 'source' => (array) ($latest['source'] ?? [])];
         }
 
-        return ['replaced' => false, 'replacedBy' => null, 'source' => null];
+        return ['replaced' => false, 'replacedBy' => null, 'moved' => false, 'source' => null];
     }
 
     /**

@@ -9,6 +9,8 @@
 
 namespace Flarum\ExtensionManager;
 
+use Flarum\Extension\AbandonedExtensionsFetcher;
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Host\StorageDir;
 use Flarum\ExtensionManager\Run\Drivers;
 use Flarum\ExtensionManager\Run\RunStore;
@@ -113,7 +115,9 @@ class ExtensionManagerServiceProvider extends AbstractServiceProvider
                 $container->make(TranslatorInterface::class),
                 $container->make(Paths::class),
                 $container->make(Config::class),
-                $container->make('flarum-extension-manager.http')
+                $container->make('flarum-extension-manager.http'),
+                // Not fetched: the plan is made after Composer rewrote the manifests, where waiting on GitHub is a risk.
+                fn () => AbandonedList::fromCore($container->make(AbandonedExtensionsFetcher::class), fetch: false)
             );
         });
 

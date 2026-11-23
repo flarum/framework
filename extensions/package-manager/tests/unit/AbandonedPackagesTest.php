@@ -11,6 +11,7 @@ namespace Flarum\ExtensionManager\Tests\Unit;
 
 use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Host\PhpBinary;
 use Flarum\ExtensionManager\Plan\Change;
 use Flarum\ExtensionManager\Plan\LockDiff;
@@ -61,8 +62,8 @@ class AbandonedPackagesTest extends TestCase
         $note = $this->steps(['acme/widget'], 'install', inProcess: true)->doItem('plan', 'work out what changes', new Run('r1'));
 
         $this->assertStringContainsString('3 packages will change', $note);
-        $this->assertStringContainsString('acme/old-lib is abandoned; its author suggests acme/new-lib instead', $note);
-        $this->assertStringContainsString('acme/gone is abandoned, and its author names no replacement', $note);
+        $this->assertStringContainsString('acme/old-lib is abandoned; use acme/new-lib instead', $note);
+        $this->assertStringContainsString('acme/gone is abandoned, and no replacement is named', $note);
         $this->assertStringNotContainsString('acme/widget is abandoned', $note);
 
         $this->assertSame(
@@ -90,7 +91,22 @@ class AbandonedPackagesTest extends TestCase
         $note = $this->steps(['acme/widget'], 'update', inProcess: true)->doItem('plan', 'work out what changes', new Run('r1'));
 
         $this->assertContains('acme/old-lib', array_column($this->plan()['changes'], 'package'));
-        $this->assertStringContainsString('acme/old-lib is abandoned; its author suggests acme/new-lib instead', $note);
+        $this->assertStringContainsString('acme/old-lib is abandoned; use acme/new-lib instead', $note);
+    }
+
+    public function test_the_plan_names_packages_on_flarums_list_that_composer_does_not_flag(): void
+    {
+        $this->project();
+
+        $list = AbandonedList::fromMap(['acme/widget' => ['replacement' => 'acme/better-widget'], 'acme/old-lib' => []]);
+        $note = $this->steps(['acme/widget'], 'install', inProcess: true, list: $list)->doItem('plan', 'work out what changes', new Run('r1'));
+
+        $this->assertStringContainsString('acme/widget is abandoned; use acme/better-widget instead', $note);
+        $this->assertSame([
+            ['package' => 'acme/gone', 'replacement' => null],
+            ['package' => 'acme/old-lib', 'replacement' => null],
+            ['package' => 'acme/widget', 'replacement' => 'acme/better-widget'],
+        ], $this->plan()['abandoned']);
     }
 
     public function test_the_run_carries_the_list_to_the_screen(): void
@@ -227,6 +243,35 @@ class AbandonedPackagesTest extends TestCase
         ], (new LockDiff())->abandoned($changes, $lock));
     }
 
+    /** As on core's extension pages: Flarum's list wins over the lock, and over its source rule. */
+    public function test_flarums_list_wins_over_the_lock(): void
+    {
+        $flarum = ['type' => 'zip', 'url' => 'https://flarum.org/composer/dist/acme/premium/1.0.0.zip'];
+
+        $lock = ['packages' => [
+            ['name' => 'acme/unflagged', 'version' => '1.0.0'],
+            ['name' => 'acme/forked', 'version' => '1.0.0', 'abandoned' => 'acme/fork'],
+            ['name' => 'acme/premium', 'version' => '1.0.0', 'abandoned' => true, 'dist' => $flarum],
+            ['name' => 'acme/fine', 'version' => '1.0.0'],
+        ]];
+
+        $changes = array_map(fn (string $name) => new Change(Change::ADD, $name, null, '1.0.0'), ['acme/unflagged', 'acme/forked', 'acme/premium', 'acme/fine']);
+        $changes[] = new Change(Change::REMOVE, 'acme/removed', '1.0.0', null);
+
+        $list = AbandonedList::fromMap([
+            'Acme/Unflagged' => ['replacement' => 'acme/new'],
+            'acme/forked' => ['replacement' => 'acme/maintained'],
+            'acme/premium' => [],
+            'acme/removed' => [],
+        ]);
+
+        $this->assertSame([
+            ['package' => 'acme/forked', 'replacement' => 'acme/maintained'],
+            ['package' => 'acme/premium', 'replacement' => null],
+            ['package' => 'acme/unflagged', 'replacement' => 'acme/new'],
+        ], (new LockDiff())->abandoned($changes, $lock, $list));
+    }
+
     /**
      * The same source rule as the installed extension's card
      * (ExtensionManager::extensionFromJson()): a bare `true` on an archive
@@ -332,7 +377,7 @@ class AbandonedPackagesTest extends TestCase
     }
 
     /** @param list<string> $packages */
-    private function steps(array $packages, string $mode, bool $inProcess): ComposerSteps
+    private function steps(array $packages, string $mode, bool $inProcess, ?AbandonedList $list = null): ComposerSteps
     {
         $journal = new Journal(EnglishTranslator::make(), $this->dir.'/work/journal.jsonl');
 
@@ -346,7 +391,8 @@ class AbandonedPackagesTest extends TestCase
             $journal,
             new \GuzzleHttp\Client(),
             $packages,
-            $mode
+            $mode,
+            abandonedList: $list ? fn () => $list : null,
         );
     }
 

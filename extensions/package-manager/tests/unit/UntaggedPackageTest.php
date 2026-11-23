@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
@@ -36,7 +37,7 @@ class UntaggedPackageTest extends TestCase
             $asked[] = $url;
 
             return $responses[$url] ?? null;
-        }));
+        }), new AbandonedList());
 
         return $packagist->verdicts(['fof/translate'], new Compatibility('2.0.2'));
     }

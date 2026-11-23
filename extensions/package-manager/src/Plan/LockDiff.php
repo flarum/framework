@@ -9,6 +9,8 @@
 
 namespace Flarum\ExtensionManager\Plan;
 
+use Flarum\ExtensionManager\Discover\AbandonedList;
+
 /**
  * What changed between two composer.lock files.
  *
@@ -168,9 +170,10 @@ class LockDiff
      *
      * @param list<Change> $changes
      * @param array<string,mixed> $after
+     * @param AbandonedList|null $list Flarum's list, which wins over the lock's flags
      * @return list<array{package:string, replacement:?string}> sorted by package
      */
-    public function abandoned(array $changes, array $after): array
+    public function abandoned(array $changes, array $after, ?AbandonedList $list = null): array
     {
         $locked = [];
 
@@ -183,9 +186,18 @@ class LockDiff
         $out = [];
 
         foreach ($changes as $change) {
+            if ($change->op === Change::REMOVE) {
+                continue;
+            }
+
+            if ($list?->has($change->package)) {
+                $out[] = ['package' => $change->package, 'replacement' => $list->replacement($change->package)];
+                continue;
+            }
+
             $flag = $locked[strtolower($change->package)]['abandoned'] ?? false;
 
-            if ($change->op === Change::REMOVE || ! $flag) {
+            if (! $flag) {
                 continue;
             }
 
