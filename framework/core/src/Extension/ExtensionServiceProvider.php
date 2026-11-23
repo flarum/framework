@@ -20,9 +20,9 @@ use GuzzleHttp\Client;
 use Illuminate\Cache\FileStore;
 use Illuminate\Cache\Repository;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Filesystem\Filesystem;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
