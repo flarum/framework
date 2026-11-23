@@ -9,7 +9,7 @@
 
 namespace Flarum\Post\Filter;
 
-use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
@@ -29,7 +29,7 @@ class DiscussionFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $ids = $this->asKey($value, new Discussion);
+        $ids = $this->asKey($value, new Post, 'discussion_id');
 
         $state->getQuery()->whereIn('posts.discussion_id', $ids, 'and', $negate);
     }

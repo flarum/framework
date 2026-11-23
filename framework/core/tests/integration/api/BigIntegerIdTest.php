@@ -20,7 +20,7 @@ use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Unsubscribe tokens are the one core table with a `bigint` key.
+ * Unsubscribe tokens have a `bigint` key and need no other fixtures.
  */
 class BigIntegerIdTest extends TestCase
 {

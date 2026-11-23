@@ -42,8 +42,8 @@ class GroupFilter implements FilterInterface
         $ids = [];
         $names = [];
         foreach ($groupIdentifiers as $identifier) {
-            if (is_numeric($identifier)) {
-                $ids[] = $identifier;
+            if (is_numeric(trim($identifier))) {
+                $ids[] = trim($identifier);
             } else {
                 $names[] = $identifier;
             }

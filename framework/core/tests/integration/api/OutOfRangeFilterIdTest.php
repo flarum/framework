@@ -32,6 +32,7 @@ class OutOfRangeFilterIdTest extends TestCase
             ],
             Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 2, 'discussion_id' => 1, 'number' => 2, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
             ],
         ]);
     }
@@ -106,5 +107,54 @@ class OutOfRangeFilterIdTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode(), $body);
         $this->assertSame(['1'], array_column(json_decode($body, true)['data'], 'id'));
+    }
+
+    public static function postIdFilters(): array
+    {
+        return [
+            'mixed list' => [['id' => '1,2147483648'], ['1']],
+            'negated mixed list' => [['-id' => '1,2147483648'], ['2']],
+            'spaces in a list' => [['id' => '1, 2'], ['1', '2']],
+            'fraction' => [['id' => '1.5'], []],
+            'negated fraction' => [['-id' => '1.5'], ['1', '2']],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('postIdFilters')]
+    public function post_id_filter_keeps_the_ids_that_can_be_keys(array $filter, array $expected)
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
+                ->withQueryParams(['filter' => $filter, 'sort' => 'number'])
+        );
+
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertSame($expected, array_column(json_decode($body, true)['data'], 'id'));
+    }
+
+    public static function nearPages(): array
+    {
+        return [
+            'out-of-range discussion' => ['2147483648', '2', []],
+            'out-of-range number' => ['1', '2147483648', ['1', '2']],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('nearPages')]
+    public function near_page_with_an_out_of_range_value_does_not_fail(string $discussion, string $near, array $expected)
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
+                ->withQueryParams(['filter' => ['discussion' => $discussion], 'page' => ['near' => $near]])
+        );
+
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertSame($expected, array_column(json_decode($body, true)['data'], 'id'));
     }
 }

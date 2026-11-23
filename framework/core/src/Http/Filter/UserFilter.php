@@ -10,11 +10,11 @@
 namespace Flarum\Http\Filter;
 
 use Flarum\Api\Controller\ListAccessTokensController;
+use Flarum\Http\AccessToken;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
-use Flarum\User\User;
 
 /**
  * Filters an access tokens request by the related user.
@@ -33,7 +33,7 @@ class UserFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $ids = $this->asKey($value, new User);
+        $ids = $this->asKey($value, new AccessToken, 'user_id');
 
         $state->getQuery()->whereIn('user_id', $ids, 'and', $negate);
     }

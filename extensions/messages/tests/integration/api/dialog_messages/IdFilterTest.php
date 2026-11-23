@@ -105,4 +105,27 @@ class IdFilterTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $body);
         $this->assertSame([], json_decode($body, true)['data']);
     }
+
+    public static function outOfRangeNearPages(): array
+    {
+        return [
+            'out-of-range dialog' => ['2147483648', '2', []],
+            'out-of-range number' => ['201', '2147483648', ['203', '202', '201']],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('outOfRangeNearPages')]
+    public function near_page_with_an_out_of_range_value_does_not_fail(string $dialog, string $near, array $expected): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/dialog-messages', ['authenticatedAs' => 3])
+                ->withQueryParams(['filter' => ['dialog' => $dialog], 'page' => ['near' => $near]])
+        );
+
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertSame($expected, array_column(json_decode($body, true)['data'], 'id'));
+    }
 }

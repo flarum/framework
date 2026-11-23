@@ -12,12 +12,12 @@ namespace Flarum\Database;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Ids come from URLs and slugs, so they can be any text. Only digits can match
- * an integer key: MySQL reads "2abc" as 2, and PostgreSQL refuses to compare
- * it. PostgreSQL also refuses a number beyond the key column's range, so the
- * range is read from the column itself: `integer` and `bigint` keys both
- * report the `int` key type in Eloquent. Ids within the `integer` range skip
- * that read, so `smallint` keys are not covered.
+ * Ids come from URLs, slugs and filters, so they can be any text. Only digits
+ * can match an integer column: MySQL reads "2abc" as 2, and PostgreSQL refuses
+ * to compare it. PostgreSQL also refuses a number beyond the column's range, so
+ * the range is read from the column itself: `integer` and `bigint` keys both
+ * report the `int` key type in Eloquent. Values within the `integer` range skip
+ * that read, so `smallint` columns are not covered.
  */
 class IntegerKey
 {
@@ -25,9 +25,6 @@ class IntegerKey
 
     private const BIGINT_MAX = '9223372036854775807';
 
-    /**
-     * @param string|null $column another integer column of the model's table, such as a post's number
-     */
     public static function fits(Model $model, int|string $id, ?string $column = null): bool
     {
         return self::filter($model, [$id], $column) !== [];

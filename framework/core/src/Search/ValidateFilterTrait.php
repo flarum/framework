@@ -75,16 +75,18 @@ trait ValidateFilterTrait
     }
 
     /**
-     * Keeps the ids that can be keys of the model (see IntegerKey), so one
-     * beyond the column's range matches nothing rather than failing the query.
+     * Keeps the ids that fit the model's key, or another of its integer columns
+     * (see IntegerKey): one beyond the range, or not a whole number, matches
+     * nothing rather than failing the query.
      *
-     * @param string|null $column another integer column of the model's table, such as a post's number
      * @throws FlarumValidationException
      * @return array<int>
      */
     protected function asKeyArray(string|array $filterValue, Model $model, ?string $column = null): array
     {
         $ids = array_map(function (string $value) {
+            $value = trim($value);
+
             if (! is_numeric($value)) {
                 $this->throwValidationException('core.api.invalid_filter_type.must_be_numeric_message');
             }
@@ -96,7 +98,6 @@ trait ValidateFilterTrait
     }
 
     /**
-     * @param string|null $column another integer column of the model's table, such as a post's number
      * @throws FlarumValidationException
      * @return array<int> the id, or none when it cannot be a key
      */

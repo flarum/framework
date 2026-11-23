@@ -9,6 +9,7 @@
 
 namespace Flarum\Post;
 
+use Flarum\Database\IntegerKey;
 use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -85,14 +86,18 @@ class PostRepository
      */
     public function getIndexForNumber(int $discussionId, int $number, ?User $actor = null): int
     {
-        if (! ($discussion = Discussion::query()->find($discussionId))) {
+        if (! IntegerKey::fits(new Discussion, $discussionId) || ! ($discussion = Discussion::query()->find($discussionId))) {
             return 0;
         }
 
         $query = $discussion->posts()
             ->whereVisibleTo($actor)
-            ->where('number', '<=', $number)
             ->orderBy('number');
+
+        // Every post number is below one beyond the column's range.
+        if (IntegerKey::fits(new Post, $number, 'number')) {
+            $query->where('number', '<=', $number);
+        }
 
         return $query->count();
     }
