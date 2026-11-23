@@ -25,18 +25,22 @@ class IntegerKey
 
     private const BIGINT_MAX = '9223372036854775807';
 
-    public static function fits(Model $model, int|string $id): bool
+    /**
+     * @param string|null $column another integer column of the model's table, such as a post's number
+     */
+    public static function fits(Model $model, int|string $id, ?string $column = null): bool
     {
-        return self::filter($model, [$id]) !== [];
+        return self::filter($model, [$id], $column) !== [];
     }
 
     /**
      * Reads the column type at most once, however many ids are given.
      *
      * @param  array<int|string>  $ids
+     * @param  string|null  $column  another integer column of the model's table, such as a post's number
      * @return array<int|string>
      */
-    public static function filter(Model $model, array $ids): array
+    public static function filter(Model $model, array $ids, ?string $column = null): array
     {
         $ids = array_filter($ids, fn ($id) => ctype_digit((string) $id));
 
@@ -50,7 +54,7 @@ class IntegerKey
             return $ids;
         }
 
-        $max = match (self::columnType($model)) {
+        $max = match (self::columnType($model, $column ?? $model->getKeyName())) {
             'int4' => self::INT_MAX,
             'int8' => self::BIGINT_MAX,
             default => null,
@@ -63,7 +67,7 @@ class IntegerKey
      * Reads the type through the connection's search_path, and quotes the
      * table as the query does, so a schema-qualified table resolves too.
      */
-    private static function columnType(Model $model): ?string
+    private static function columnType(Model $model, string $column): ?string
     {
         $connection = $model->getConnection();
         $table = $connection->getQueryGrammar()->wrapTable($model->getTable());
@@ -71,7 +75,7 @@ class IntegerKey
         return $connection->selectOne(
             'select t.typname as type from pg_attribute a join pg_type t on t.oid = a.atttypid '
             .'where a.attrelid = to_regclass(?) and a.attname = ? and not a.attisdropped',
-            [$table, $model->getKeyName()]
+            [$table, $column]
         )?->type;
     }
 

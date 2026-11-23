@@ -9,6 +9,7 @@
 
 namespace Flarum\Post\Filter;
 
+use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
@@ -28,8 +29,8 @@ class NumberFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $number = $this->asInt($value);
+        $numbers = $this->asKey($value, new Post, 'number');
 
-        $state->getQuery()->where('posts.number', $negate ? '!=' : '=', $number);
+        $state->getQuery()->whereIn('posts.number', $numbers, 'and', $negate);
     }
 }

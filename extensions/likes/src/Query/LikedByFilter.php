@@ -9,10 +9,12 @@
 
 namespace Flarum\Likes\Query;
 
+use Flarum\Database\IntegerKey;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 
 /**
@@ -39,7 +41,7 @@ class LikedByFilter implements FilterInterface
         $likedId = $this->users->getIdForUsername($likedUsername);
 
         if (! $likedId) {
-            $likedId = intval($likedUsername);
+            $likedId = IntegerKey::fits(new User, $likedUsername) ? (int) $likedUsername : 0;
         }
 
         $state

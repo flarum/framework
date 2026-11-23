@@ -9,6 +9,7 @@
 
 namespace Flarum\User\Search\Filter;
 
+use Flarum\Database\IntegerKey;
 use Flarum\Group\Group;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
@@ -47,6 +48,8 @@ class GroupFilter implements FilterInterface
                 $names[] = $identifier;
             }
         }
+
+        $ids = IntegerKey::filter(new Group, $ids);
 
         $groupQuery = Group::whereVisibleTo($actor)
             ->join('group_user', 'groups.id', 'group_user.group_id')

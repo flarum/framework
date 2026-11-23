@@ -14,6 +14,7 @@ use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
+use Flarum\User\User;
 
 /**
  * Filters an access tokens request by the related user.
@@ -32,8 +33,8 @@ class UserFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $value = $this->asInt($value);
+        $ids = $this->asKey($value, new User);
 
-        $state->getQuery()->where('user_id', $negate ? '!=' : '=', $value);
+        $state->getQuery()->whereIn('user_id', $ids, 'and', $negate);
     }
 }
