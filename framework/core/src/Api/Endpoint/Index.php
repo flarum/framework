@@ -315,7 +315,8 @@ class Index extends Endpoint
 
         try {
             $context = $context->withCollection($collection);
-            $availableFilters = $collection->filters();
+            // A database resource filters only through a searcher; without one it has no filters.
+            $availableFilters = $collection instanceof AbstractDatabaseResource ? [] : $collection->filters();
 
             foreach ($filters as $name => $value) {
                 foreach ($availableFilters as $filter) {
