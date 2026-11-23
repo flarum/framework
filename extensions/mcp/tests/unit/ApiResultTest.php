@@ -73,6 +73,76 @@ class ApiResultTest extends TestCase
     }
 
     #[Test]
+    public function full_strings_keep_the_source_whole_but_not_its_html(): void
+    {
+        $source = str_repeat('a', 5000);
+
+        $simple = (new ApiResult(['data' => ['type' => 'posts', 'id' => '1', 'attributes' => [
+            'content' => $source,
+            'contentHtml' => '<p>'.$source.'</p>',
+        ]]]))->simplify(fullStrings: true);
+
+        $this->assertSame($source, $simple['data']['content']);
+        $this->assertStringContainsString('[truncated,', $simple['data']['contentHtml']);
+    }
+
+    #[Test]
+    public function an_oversized_single_resource_is_cut_to_the_limit(): void
+    {
+        $fitted = ApiResult::fit([
+            'data' => ['type' => 'x', 'id' => '1', 'short' => 'kept', 'long' => str_repeat('a', 5000)],
+            'included' => [['type' => 'users', 'id' => '1', 'username' => 'u']],
+        ], limit: 1000);
+
+        $this->assertLessThanOrEqual(1000, mb_strlen((string) json_encode($fitted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)));
+        $this->assertTrue($fitted['meta']['truncated']);
+        $this->assertSame('kept', $fitted['data']['short']);
+        $this->assertStringContainsString('[truncated,', $fitted['data']['long']);
+    }
+
+    #[Test]
+    public function a_single_resource_within_the_limit_is_not_marked_truncated(): void
+    {
+        $payload = ['data' => ['type' => 'x', 'id' => '1', 'long' => str_repeat('a', 5000)]];
+
+        $this->assertSame($payload, ApiResult::fit($payload));
+    }
+
+    #[Test]
+    public function a_resource_too_big_for_its_strings_to_fix_keeps_them(): void
+    {
+        $ids = array_map(fn (int $i) => ['type' => 'posts', 'id' => (string) $i], range(1, 100));
+
+        $fitted = ApiResult::fit([
+            'data' => ['type' => 'discussions', 'id' => '1', 'title' => 'A title', 'relationships' => ['posts' => $ids]],
+        ], limit: 1000);
+
+        $this->assertSame('A title', $fitted['data']['title']);
+        $this->assertSame('discussions', $fitted['data']['type']);
+        $this->assertTrue($fitted['meta']['truncated']);
+    }
+
+    #[Test]
+    public function text_that_looks_cut_already_is_still_cut(): void
+    {
+        $fitted = ApiResult::fit([
+            'data' => ['type' => 'x', 'id' => '1', 'bio' => '[truncated, 1 more characters] '.str_repeat('a', 5000)],
+        ], limit: 1000);
+
+        $this->assertLessThanOrEqual(1000, mb_strlen((string) json_encode($fitted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)));
+    }
+
+    #[Test]
+    public function heavily_escaped_text_keeps_as_much_as_fits(): void
+    {
+        $fitted = ApiResult::fit(['data' => ['type' => 'x', 'id' => '1', 'text' => str_repeat('\\', 1000)]], limit: 1000);
+
+        $length = mb_strlen((string) json_encode($fitted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        $this->assertLessThanOrEqual(1000, $length);
+        $this->assertGreaterThan(700, $length);
+    }
+
+    #[Test]
     public function html_becomes_readable_text(): void
     {
         $html = '<p>One&amp;two<br>three</p><ul><li>a</li><li>b</li></ul><pre><code>  x = 1

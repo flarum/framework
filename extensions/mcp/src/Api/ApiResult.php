@@ -69,16 +69,20 @@ class ApiResult
      * the whole payload capped (lists are cut, with a `next` offset hint
      * unless the list can't be paged).
      *
+     * With `$fullStrings`, the primary data's strings are kept whole, except
+     * `*Html` copies of a source attribute, within the payload cap.
+     *
      * @return array<string, mixed>
      */
-    public function simplify(bool $paginated = true): array
+    public function simplify(bool $paginated = true, bool $fullStrings = false): array
     {
         $data = $this->document['data'] ?? null;
+        $limit = $fullStrings ? null : self::MAX_STRING_LENGTH;
 
         $payload = [
             'data' => match (true) {
-                $this->isList() => array_map(static::simplifyResource(...), $data),
-                is_array($data) => static::simplifyResource($data),
+                $this->isList() => array_map(fn (array $resource) => static::simplifyResource($resource, $limit), $data),
+                is_array($data) => static::simplifyResource($data, $limit),
                 default => null,
             },
         ];
@@ -106,14 +110,14 @@ class ApiResult
      * @param array<string, mixed> $resource
      * @return array<string, mixed>
      */
-    public static function simplifyResource(array $resource): array
+    public static function simplifyResource(array $resource, ?int $limit = self::MAX_STRING_LENGTH): array
     {
         $simple = [
             'type' => $resource['type'] ?? null,
             'id' => $resource['id'] ?? null,
         ];
 
-        $simple += static::normaliseAttributes((array) ($resource['attributes'] ?? []));
+        $simple += static::normaliseAttributes((array) ($resource['attributes'] ?? []), $limit);
 
         $relationships = [];
         foreach ((array) ($resource['relationships'] ?? []) as $name => $relationship) {
@@ -145,8 +149,10 @@ class ApiResult
      * @param array<string, mixed> $attributes
      * @return array<string, mixed>
      */
-    public static function normaliseAttributes(array $attributes): array
+    public static function normaliseAttributes(array $attributes, ?int $limit = self::MAX_STRING_LENGTH): array
     {
+        $truncate = fn (string $value) => $limit === null ? $value : static::truncate($value, $limit);
+
         $normalised = [];
 
         foreach ($attributes as $name => $value) {
@@ -154,12 +160,16 @@ class ApiResult
                 $plain = substr((string) $name, 0, -4);
 
                 if (! array_key_exists($plain, $attributes)) {
-                    $normalised[$plain] = static::truncate(HtmlToText::convert($value));
+                    $normalised[$plain] = $truncate(HtmlToText::convert($value));
                     continue;
                 }
+
+                // The source next to it is the text to work with; the rendering would only repeat it.
+                $normalised[$name] = static::truncate($value);
+                continue;
             }
 
-            $normalised[$name] = is_string($value) ? static::truncate($value) : $value;
+            $normalised[$name] = is_string($value) ? $truncate($value) : $value;
         }
 
         return $normalised;
@@ -212,7 +222,62 @@ class ApiResult
             unset($payload['included']);
         }
 
+        if (is_array($data) && ! array_is_list($data)) {
+            $payload[$listKey] = static::cutLongestStrings($payload, $listKey, $limit);
+        }
+
         return $payload;
+    }
+
+    /**
+     * Gives up, leaving the payload as it is, when its attributes alone can't
+     * make up the excess (a long relationship list).
+     *
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    protected static function cutLongestStrings(array $payload, string $listKey, int $limit): array
+    {
+        $resource = (array) $payload[$listKey];
+
+        $candidates = array_filter(
+            $resource,
+            fn ($value, $key) => is_string($value) && ! in_array($key, ['type', 'id'], true),
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        // Encoded lengths: escaping makes a string longer in the payload than as text.
+        $encoded = array_map(
+            fn (string $value) => mb_strlen((string) json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE)) - 2,
+            $candidates
+        );
+
+        if (array_sum($encoded) < static::length($payload) - $limit) {
+            return $resource;
+        }
+
+        arsort($encoded);
+
+        foreach ($encoded as $key => $encodedLength) {
+            $excess = static::length($payload) - $limit;
+
+            if ($excess <= 0) {
+                break;
+            }
+
+            $length = mb_strlen($resource[$key]);
+            $cut = (int) ceil($excess * $length / max($encodedLength, 1));
+
+            // 100 characters of room for the truncation marker, which would outgrow a short string.
+            if ($length <= 100) {
+                break;
+            }
+
+            $resource[$key] = static::truncate($resource[$key], max(0, $length - $cut - 100));
+            $payload[$listKey] = $resource;
+        }
+
+        return $resource;
     }
 
     /**

@@ -56,6 +56,6 @@ class GetResourceTool extends GenericTool
         $type = (string) $arguments['type'];
         $this->exposedResource($type, $context);
 
-        return $context->api->show($type, (string) $arguments['id'], $this->query($arguments))->simplify();
+        return $context->api->show($type, (string) $arguments['id'], $this->query($arguments))->simplify(fullStrings: true);
     }
 }
