@@ -15,12 +15,12 @@
 .DiscussionHero {
   .item-title {
     display: block;
-    margin-top: 15px;
+    margin-block-start: 15px;
   }
 }
 .TagLinkButton {
   &.child {
-    margin-left: 10px;
+    margin-inline-start: 10px;
 
     .TagIcon {
       visibility: hidden;
@@ -32,7 +32,7 @@
   }
 }
 .DiscussionComposer-changeTags {
-  margin-right: 15px;
+  margin-inline-end: 15px;
   line-height: inherit;
 
   &.disabled {
@@ -41,20 +41,20 @@
   }
 }
 .DiscussionListItem-info > .item-tags {
-  margin-right: 4px;
+  margin-inline-end: 4px;
   opacity: 1;
 }
 @media @tablet-up {
   .IndexPage, .UserPage, .DiscussionList--floatingTags {
     .DiscussionListItem-title {
-      margin-right: 155px;
+      margin-inline-end: 155px;
     }
     .DiscussionListItem-info > .item-tags {
-      margin-right: 0;
+      margin-inline-end: 0;
       position: absolute;
-      right: 80px;
-      top: 14px;
-      max-width: 150px;
+      inset-inline-end: 80px;
+      inset-block-start: 14px;
+      max-inline-size: 150px;
       white-space: nowrap;
       overflow: hidden;
       transition: max-width 0.2s ease-in-out, -webkit-mask-image 0.2s;
@@ -62,7 +62,7 @@
       font-size: 12px;
 
       &:hover {
-        max-width: 400px;
+        max-inline-size: 400px;
         -webkit-mask-image: none;
       }
     }

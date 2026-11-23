@@ -1,5 +1,5 @@
 .flarum-tags-Page {
-  padding-bottom: 140px;
+  padding-block-end: 140px;
 }
 
 .TagsContent-footer {
@@ -7,7 +7,7 @@
   padding: 20px 0;
 
   p {
-    margin-top: 10px;
+    margin-block-start: 10px;
   }
 }
 
@@ -21,18 +21,18 @@
   padding: 0;
   color: var(--muted-color);
   font-size: 13px;
-  margin-top: 0;
+  margin-block-start: 0;
 
   >li {
     display: inline-block;
-    max-height: 40px;
+    max-block-size: 40px;
     cursor: move;
-    width: 100%;
+    inline-size: 100%;
   }
 
   .TagIcon,
   .icon {
-    margin-right: 10px;
+    margin-inline-end: 10px;
   }
 
   // FontAwesome Kit sets --fa-display variable which breaks layout
@@ -53,7 +53,7 @@
   }
 
   .Button {
-    float: right;
+    float: inline-end;
     visibility: hidden;
     margin: -8px -16px -8px 16px;
   }
@@ -67,48 +67,48 @@ li:not(.sortable-dragging)>.TagListItem-info:hover>.Button {
   font-size: 16px;
 
   >.sortable-placeholder {
-    height: 38px;
-    margin-bottom: 10px;
+    block-size: 38px;
+    margin-block-end: 10px;
   }
 }
 
 .TagList ol {
-  margin-left: 27px;
-  min-height: 10px;
+  margin-inline-start: 27px;
+  min-block-size: 10px;
   padding: 0;
 
   &> :last-child {
-    margin-bottom: 10px;
+    margin-block-end: 10px;
   }
 }
 
 .sortable-placeholder {
   border: 2px dashed var(--control-bg);
   border-radius: var(--border-radius);
-  height: 34px;
+  block-size: 34px;
 }
 
 @media (@tablet-up) {
   .TagGroup--secondary {
-    max-width: 250px !important;
+    max-inline-size: 250px !important;
   }
 }
 
 .TagList-button {
   background: none;
   border: 1px dashed var(--control-bg);
-  height: 40px;
+  block-size: 40px;
   margin: auto auto 0 0;
 }
 
 .TagSettings-rangeInput {
   input {
-    width: 80px;
+    inline-size: 80px;
     display: inline;
     margin: 0 5px;
 
     &:first-child {
-      margin-left: 0;
+      margin-inline-start: 0;
     }
   }
 }
@@ -116,7 +116,7 @@ li:not(.sortable-dragging)>.TagListItem-info:hover>.Button {
 .TagGroup {
   ol {
     > li:not(:first-child) {
-      margin-top: 8px;
+      margin-block-start: 8px;
     }
   }
 }

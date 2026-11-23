@@ -27,11 +27,11 @@
   margin: 0 3px;
 
   &:first-child {
-    margin-left: 0;
+    margin-inline-start: 0;
   }
 
   .icon {
-    margin-right: 5px;
+    margin-inline-end: 5px;
   }
 }
 .GroupMention {
@@ -51,7 +51,7 @@
   }
 
   .icon {
-    margin-left: 5px;
+    margin-inline-start: 5px;
   }
 }
 & when (is-extension-enabled('flarum-tags')) {
@@ -61,7 +61,7 @@
     margin: 0 2px;
 
     .icon {
-      margin-right: 2px;
+      margin-inline-end: 2px;
     }
   }
 }
@@ -69,8 +69,8 @@
   position: relative;
 }
 .MentionsDropdown {
-  max-width: 500px;
-  max-height: 150px;
+  max-inline-size: 500px;
+  max-block-size: 150px;
   overflow: auto;
   position: absolute;
 
@@ -91,8 +91,8 @@
       margin: 0 0 0 -37px;
 
       .MentionsDropdown-post& {
-        margin-top: 3px;
-        margin-bottom: 3px;
+        margin-block-start: 3px;
+        margin-block-end: 3px;
       }
     }
     .username {
@@ -101,7 +101,7 @@
     }
   }
   .PostPreview-content {
-    padding-left: 37px;
+    padding-inline-start: 37px;
     overflow: hidden;
     line-height: 1.7em;
     display: block;
@@ -118,11 +118,11 @@
 
   > li > a {
     white-space: normal;
-    border-bottom: 0;
+    border-block-end: 0;
   }
 }
 .PostMention-preview-discussion {
-  padding-top: 0 !important;
+  padding-block-start: 0 !important;
   font-weight: bold !important;
   white-space: normal !important;
 }
@@ -135,7 +135,7 @@
 }
 @media @phone {
   .MentionsDropdown {
-    max-width: 100%;
+    max-inline-size: 100%;
   }
 }
 .Post-footer .item-replies {

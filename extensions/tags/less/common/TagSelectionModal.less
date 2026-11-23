@@ -7,34 +7,34 @@
 @media @tablet, @desktop, @desktop-hd {
   .TagSelectionModal-form {
     display: table;
-    width: 100%;
+    inline-size: 100%;
   }
   .TagSelectionModal-form-input {
     display: table-cell;
-    width: 100%;
+    inline-size: 100%;
     vertical-align: top;
   }
   .TagSelectionModal-form-submit {
     display: table-cell;
-    padding-left: 15px;
+    padding-inline-start: 15px;
   }
 }
 .TagsInput {
   .add-keyboard-focus-ring(":focus-within");
-  padding-top: 0;
-  padding-bottom: 0;
+  padding-block-start: 0;
+  padding-block-end: 0;
   overflow: hidden;
-  height: auto;
+  block-size: auto;
   cursor: text;
 
   input {
     display: inline;
-    margin-top: -2px;
+    margin-block-start: -2px;
     border: 0 !important;
     padding: 0;
-    max-width: 100%;
-    min-width: 1ch;
-    margin-right: -100%;
+    max-inline-size: 100%;
+    min-inline-size: 1ch;
+    margin-inline-end: -100%;
     background: transparent !important;
 
     // The field around it shows the focus.
@@ -49,10 +49,10 @@
 .TagsInput-selected {
   .TagsInput-tag {
     display: inline-flex;
-    margin-right: 5px;
+    margin-inline-end: 5px;
 
     &:last-child {
-      margin-right: 10px;
+      margin-inline-end: 10px;
     }
   }
 }
@@ -62,10 +62,10 @@
   margin: 0;
   list-style: none;
   overflow: auto;
-  max-height: 50vh;
+  max-block-size: 50vh;
 
   @media @phone {
-    max-height: none;
+    max-block-size: none;
   }
 
   > li {
@@ -88,21 +88,21 @@
     }
 
     &.pinned:not(.child) {
-      padding-top: 10px;
-      padding-bottom: 10px;
+      padding-block-start: 10px;
+      padding-block-end: 10px;
 
       .SelectTagListItem-name {
         font-size: 16px;
       }
     }
     &.pinned + li:not(.pinned) {
-      border-top: 2px solid var(--control-bg);
+      border-block-start: 2px solid var(--control-bg);
     }
     &.child {
-      padding-left: 45px;
+      padding-inline-start: 45px;
 
       .SelectTagListItem-name {
-        width: 125px;
+        inline-size: 125px;
       }
     }
     &.active {
@@ -130,37 +130,37 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0;
-  height: 16px;
-  width: 16px;
+  margin-inline-start: 0;
+  block-size: 16px;
+  inline-size: 16px;
 
   // An uploaded image fills the square, as a glyph does.
   .IconImage {
-    width: 100%;
-    height: 100%;
+    inline-size: 100%;
+    block-size: 100%;
   }
 }
 .SelectTagListItem-name {
   display: inline-block;
-  width: 150px;
-  margin-right: 10px;
-  margin-left: 10px;
+  inline-size: 150px;
+  margin-inline-end: 10px;
+  margin-inline-start: 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: top;
 
   @media @phone {
-    width: auto;
+    inline-size: auto;
   }
 }
 .SelectTagListItem-description {
   color: var(--muted-color);
   font-size: 12px;
-  width: 370px;
+  inline-size: 370px;
   display: inline-block;
   vertical-align: top;
-  margin-top: 2px;
+  margin-block-start: 2px;
 
   @media @phone {
     display: none;
