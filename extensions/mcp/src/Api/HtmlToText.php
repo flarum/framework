@@ -22,11 +22,14 @@ class HtmlToText
         }
 
         // Code blocks keep their whitespace; protect it from the collapsing below.
+        // The random key stops text that already holds a placeholder from being expanded.
         $blocks = [];
-        $html = (string) preg_replace_callback('#<pre\b[^>]*>(.*?)</pre>#is', function (array $match) use (&$blocks) {
-            $blocks[] = html_entity_decode(strip_tags($match[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $key = bin2hex(random_bytes(8));
+        $html = (string) preg_replace_callback('#<pre\b[^>]*>(.*?)</pre>#is', function (array $match) use (&$blocks, $key) {
+            $placeholder = "\u{E000}$key-".count($blocks)."\u{E000}";
+            $blocks[$placeholder] = html_entity_decode(strip_tags($match[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-            return "\n\n\u{E000}".(count($blocks) - 1)."\u{E000}\n\n";
+            return "\n\n$placeholder\n\n";
         }, $html);
 
         $html = (string) preg_replace_callback('#<a\b[^>]*\bhref\s*=\s*(["\'])(.*?)\1[^>]*>(.*?)</a>#is', function (array $match) {
@@ -50,7 +53,7 @@ class HtmlToText
         $text = (string) preg_replace('/ *\n */', "\n", $text);
         $text = (string) preg_replace('/\n{3,}/', "\n\n", $text);
 
-        $text = (string) preg_replace_callback("/\u{E000}(\d+)\u{E000}/u", fn (array $match) => $blocks[(int) $match[1]] ?? '', $text);
+        $text = strtr($text, $blocks);
 
         return trim($text);
     }

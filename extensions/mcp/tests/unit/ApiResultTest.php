@@ -150,4 +150,12 @@ class ApiResultTest extends TestCase
 
         $this->assertSame("One&two\nthree\n\n- a\n- b\n\n  x = 1\n  y = 2\n\n😀 https://f.test/u", HtmlToText::convert($html));
     }
+
+    #[Test]
+    public function text_shaped_like_a_code_block_placeholder_is_left_as_written(): void
+    {
+        $html = "<pre><code>first</code></pre><p>a \u{E000}0\u{E000} b &#xE000;1&#xE000; c</p><pre><code>  second\n  block</code></pre>";
+
+        $this->assertSame("first\n\na \u{E000}0\u{E000} b \u{E000}1\u{E000} c\n\n  second\n  block", HtmlToText::convert($html));
+    }
 }
