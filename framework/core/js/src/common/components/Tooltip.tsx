@@ -1,3 +1,4 @@
+import app from '../app';
 import Component from '../Component';
 import type Mithril from 'mithril';
 import classList from '../utils/classList';
@@ -284,6 +285,46 @@ export default class Tooltip extends Component<TooltipAttrs> {
   };
 
   /**
+   * Whether a tooltip should be kept out of the phone drawer.
+   *
+   * The drawer stacks the header controls in a narrow column, with their
+   * labels already visible, so a tooltip there only repeats the label and
+   * covers the row below, where it can swallow a tap meant for that row.
+   * Checking when the tooltip would show keeps this in step with the drawer,
+   * which opens and closes without necessarily redrawing the header.
+   *
+   * Known limits: a tooltip that is already showing when the drawer opens
+   * stays over it, and a show during the closing animation is allowed, as
+   * `Drawer.hide()` drops `drawerOpen` before the transition ends.
+   */
+  protected shouldSuppressTooltip(e: JQuery.TriggeredEvent): boolean {
+    // `show.bs.tooltip` bubbles, so this handler sees a tooltip shown on a
+    // control nested inside this one, which this component does not own.
+    if (e.target !== e.currentTarget) return false;
+
+    // Manually controlled tooltips are left to the code that manages them.
+    if (typeof this.attrs.tooltipVisible === 'boolean') return false;
+
+    // The modal and alert managers are mounted before the drawer, so a tooltip
+    // they show while being created can ask before the drawer exists.
+    if (!app.drawer?.isOpen()) return false;
+
+    return !!this.childDomNode?.closest('#drawer');
+  }
+
+  private hideInOpenDrawer = (e: JQuery.TriggeredEvent) => {
+    if (!this.shouldSuppressTooltip(e)) return;
+
+    e.preventDefault();
+
+    // Asking to show a tooltip sets the hover state Bootstrap checks before
+    // opening one, and hiding clears it. Without that, a hover cancelled here
+    // leaves the state set, so the next hover after the drawer closes would
+    // never open the tooltip.
+    this.hideTooltip();
+  };
+
+  /**
    * Hides a tooltip that was appended to a container on scroll.
    *
    * Bootstrap 3 positions such a tooltip against the page when it opens, and
@@ -324,6 +365,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
       // click, so the tooltip has to be hidden on those gestures as well.
       .on('pointercancel.flarumTooltip contextmenu.flarumTooltip', this.hideOnActivate)
       .on('focusin.flarumTooltip', this.markFocused)
+      .on('show.bs.tooltip.flarumTooltip', this.hideInOpenDrawer)
       // Only container tooltips have to be hidden on scroll, and only while
       // they are showing, so the listener is bound from those events.
       // `inserted` fires once the tip is really in the page, after any

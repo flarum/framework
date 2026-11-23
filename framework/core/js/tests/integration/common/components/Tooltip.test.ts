@@ -1,25 +1,51 @@
 import Tooltip, { type TooltipAttrs } from '../../../../src/common/components/Tooltip';
 import m from 'mithril';
 import { jest } from '@jest/globals';
+import app from '../../../../src/common/app';
 import { bsTooltip, removeTooltips, tooltipShown, useRealBootstrapTooltips } from '../tooltips';
 
 beforeAll(useRealBootstrapTooltips);
 
 let root: HTMLElement;
+let drawer: HTMLElement | undefined;
+
+beforeEach(() => {
+  // The forum bootstrap creates the drawer's focus trap before the test adds a
+  // #drawer element, so activating it would throw for want of a container;
+  // only the drawer's open state matters here.
+  jest.spyOn(app.drawer.focusTrap, 'activate').mockImplementation(() => {});
+  jest.spyOn(app.drawer.focusTrap, 'deactivate').mockImplementation(() => {});
+});
 
 afterEach(() => {
   m.mount(root, null);
   root.remove();
+  app.drawer.hide();
+  drawer?.remove();
+  drawer = undefined;
   (document.activeElement as HTMLElement | null)?.blur();
   removeTooltips();
   jest.restoreAllMocks();
 });
 
-function mount(attrs: Partial<TooltipAttrs> | (() => Partial<TooltipAttrs>)): HTMLButtonElement {
+function mount(attrs: Partial<TooltipAttrs> | (() => Partial<TooltipAttrs>), parent: Element = document.body): HTMLButtonElement {
   root = document.createElement('div');
-  document.body.appendChild(root);
+  parent.appendChild(root);
   const getAttrs = typeof attrs === 'function' ? attrs : () => attrs;
   m.mount(root, { view: () => m(Tooltip, getAttrs() as TooltipAttrs, m('button', 'Hi')) });
+
+  return root.querySelector('button')!;
+}
+
+/** Mounts a tooltip on a control inside the phone drawer. */
+function mountInDrawer(attrs: Partial<TooltipAttrs>): HTMLButtonElement {
+  drawer = document.createElement('div');
+  drawer.id = 'drawer';
+  document.body.appendChild(drawer);
+
+  root = document.createElement('div');
+  drawer.appendChild(root);
+  m.mount(root, { view: () => m(Tooltip, attrs as TooltipAttrs, m('button', 'Hi')) });
 
   return root.querySelector('button')!;
 }
@@ -269,7 +295,6 @@ describe('Tooltip', () => {
 
     // Bootstrap positions the tip against the page when it opens, so on a
     // fixed header it would otherwise stay behind as the page scrolls.
-    window.dispatchEvent(new Event('wheel'));
     window.dispatchEvent(new Event('scroll'));
 
     expect(tooltipShown()).toBe(false);
@@ -281,7 +306,6 @@ describe('Tooltip', () => {
     $(button).trigger('mouseenter');
     expect(tooltipShown()).toBe(true);
 
-    window.dispatchEvent(new Event('wheel'));
     window.dispatchEvent(new Event('scroll'));
 
     expect(tooltipShown()).toBe(true);
@@ -434,6 +458,96 @@ describe('Tooltip', () => {
     m.redraw.sync();
 
     expect(bsTooltip(button) === tooltip).toBe(true);
+    expect(tooltipShown()).toBe(true);
+  });
+});
+
+describe('Tooltip in the phone drawer', () => {
+  it('shows no tooltip while the drawer is open, and shows it once the drawer closes', () => {
+    const button = mountInDrawer({ text: 'Hello' });
+
+    app.drawer.show();
+
+    // The drawer stacks the controls in a narrow column, with their labels
+    // already visible; a tooltip would cover the row below.
+    $(button).trigger('mouseenter');
+    expect(tooltipShown()).toBe(false);
+
+    // The control keeps its tooltip, without a redraw.
+    app.drawer.hide();
+    $(button).trigger('mouseleave');
+    $(button).trigger('mouseenter');
+    expect($('.tooltip.in .tooltip-inner').text()).toBe('Hello');
+  });
+
+  it('shows the tooltip again after the drawer closes, even if the control keeps focus', () => {
+    const button = mountInDrawer({ text: 'Hello' });
+
+    app.drawer.show();
+
+    // A click reaches the control as a hover and then a focus.
+    $(button).trigger('mouseenter');
+    button.focus();
+    expect(tooltipShown()).toBe(false);
+
+    app.drawer.hide();
+
+    // The pointer leaves while the control keeps focus, so the hover state
+    // that was recorded while the show was cancelled has to be cleared too.
+    $(button).trigger('mouseleave');
+    $(button).trigger('mouseenter');
+
+    expect(tooltipShown()).toBe(true);
+  });
+
+  it('leaves a manually controlled tooltip alone while the drawer is open', () => {
+    const attrs: Partial<TooltipAttrs> = { text: 'Hello', tooltipVisible: false };
+    mountInDrawer(attrs);
+
+    app.drawer.show();
+
+    // The guard only cancels tooltips that Bootstrap shows for a hover or a
+    // focus; one the code shows on purpose is the code's to manage.
+    attrs.tooltipVisible = true;
+    m.redraw.sync();
+    expect(tooltipShown()).toBe(true);
+
+    attrs.tooltipVisible = false;
+    m.redraw.sync();
+    expect(tooltipShown()).toBe(false);
+  });
+
+  it('lets a manually shown tooltip nested in a drawer control open', () => {
+    drawer = document.createElement('div');
+    drawer.id = 'drawer';
+    document.body.appendChild(drawer);
+
+    root = document.createElement('div');
+    drawer.appendChild(root);
+
+    const innerAttrs: Partial<TooltipAttrs> = { text: 'Inner', tooltipVisible: false };
+    m.mount(root, {
+      view: () => m(Tooltip, { text: 'Outer' } as TooltipAttrs, m('div', m(Tooltip, innerAttrs as TooltipAttrs, m('button', 'Hi')))),
+    });
+
+    app.drawer.show();
+
+    // `show.bs.tooltip` bubbles from the inner control to the outer tooltip's
+    // handler, which must not cancel a tooltip it does not control.
+    innerAttrs.tooltipVisible = true;
+    m.redraw.sync();
+
+    expect($('.tooltip.in .tooltip-inner').text()).toBe('Inner');
+  });
+
+  it('leaves tooltips outside the drawer alone while the drawer is open', () => {
+    // Inside #app, where a guard keyed on the app rather than on the drawer
+    // would wrongly catch it, but outside #drawer.
+    const button = mount({ text: 'Hello' }, document.getElementById('content')!);
+
+    app.drawer.show();
+
+    $(button).trigger('mouseenter');
     expect(tooltipShown()).toBe(true);
   });
 });

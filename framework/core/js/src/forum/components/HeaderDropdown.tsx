@@ -25,33 +25,9 @@ export default abstract class HeaderDropdown<CustomAttrs extends IHeaderDropdown
   protected getButtonTooltip(button: Mithril.Vnode<any, any>): TooltipAttrs {
     return {
       text: this.attrs.tooltip || extractText(this.attrs.label),
-      ariaLabel: button.attrs['aria-label'],
+      ariaLabel: this.getButtonAriaLabel(button),
       container: 'body',
     };
-  }
-
-  oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
-    super.oncreate(vnode);
-
-    // In the phone drawer the header controls are stacked in a narrow column
-    // and their labels are already visible, so a tooltip only repeats the label
-    // and covers the row below, where it can swallow a tap meant for that row.
-    // Checking when the tooltip would show keeps this in step with the drawer,
-    // which opens and closes without necessarily redrawing the header.
-    this.$().on('show.bs.tooltip', (e: JQuery.TriggeredEvent) => {
-      if (!app.drawer?.isOpen()) return;
-
-      e.preventDefault();
-
-      // The tooltip recorded this hover or focus before asking to show it, so
-      // clear that state to let it show again once the drawer closes.
-      const tooltip = $(e.target).data('bs.tooltip');
-      if (tooltip) {
-        tooltip.inState.hover = false;
-        tooltip.inState.focus = false;
-        tooltip.hoverState = 'out';
-      }
-    });
   }
 
   getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {

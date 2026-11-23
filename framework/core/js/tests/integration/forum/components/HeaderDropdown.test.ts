@@ -26,9 +26,11 @@ class TestHeaderDropdown extends HeaderDropdown {
 beforeAll(useRealBootstrapTooltips);
 
 let root: HTMLElement | undefined;
+let drawer: HTMLElement | undefined;
 
 beforeEach(() => {
-  // The test DOM has no drawer element, which the focus trap would need.
+  // The forum bootstrap creates the drawer's focus trap before the test adds a
+  // #drawer element, so activating it would throw for want of a container.
   jest.spyOn(app.drawer.focusTrap, 'activate').mockImplementation(() => {});
   jest.spyOn(app.drawer.focusTrap, 'deactivate').mockImplementation(() => {});
 });
@@ -43,6 +45,8 @@ afterEach(() => {
   // Also runs when an assertion fails, so the drawer cannot leak into the
   // next test.
   app.drawer.hide();
+  drawer?.remove();
+  drawer = undefined;
   removeTooltips();
   jest.restoreAllMocks();
 });
@@ -71,8 +75,12 @@ test('keeps the new indicator, accessible name, and click handler with a custom 
 });
 
 test('does not show a tooltip while the phone drawer is open', () => {
+  drawer = document.createElement('div');
+  drawer.id = 'drawer';
+  document.body.appendChild(drawer);
+
   root = document.createElement('div');
-  document.body.appendChild(root);
+  drawer.appendChild(root);
   m.mount(root, { view: () => m(TestHeaderDropdown, { label: 'Notifications', state: { load: () => {} } }) });
 
   app.drawer.show();
