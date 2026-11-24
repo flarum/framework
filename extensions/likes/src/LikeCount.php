@@ -31,7 +31,8 @@ class LikeCount
         if ($event->snapshotMayPrecedeLock && in_array($db->getDriverName(), ['mysql', 'mariadb'], true)) {
             // Repeatable-read snapshots survive savepoints. Read the current
             // post and pivot rows when a caller could have opened a snapshot
-            // before taking the discussion lock.
+            // before taking the discussion lock. MariaDB snapshot isolation
+            // can reject the read, so the outer transaction has to retry.
             $posts->sharedLock();
             $counts->sharedLock();
         }

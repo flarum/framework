@@ -17,6 +17,7 @@ use Flarum\Testing\integration\TestCase;
 use Illuminate\Container\Container;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
+use Illuminate\Database\DeadlockException;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Query\Expression;
 use PDOException;
@@ -262,13 +263,27 @@ class PostDeleteConflictTest extends TestCase
                 $observer->commit();
             });
 
-            $response = $this->send($this->request('DELETE', "/api/posts/$deletedPost", ['authenticatedAs' => 1]));
-
-            $this->assertSame(204, $response->getStatusCode(), (string) $response->getBody());
-            $this->assertTrue($committed, 'The like should have committed inside the deletion.');
             if ($withSnapshot) {
-                $db->commit();
+                try {
+                    $this->assertTrue(CommentPost::findOrFail($deletedPost)->delete());
+                    $db->commit();
+                } catch (DeadlockException $e) {
+                    // MariaDB with snapshot isolation rejects a lock on a row
+                    // newer than its snapshot. The owner of that transaction
+                    // must start it again, since the database rolled it back.
+                    $this->assertSame('mariadb', $db->getDriverName());
+                    $this->assertStringContainsString('Record has changed since last read', $e->getMessage());
+                    $this->closeTransaction($db);
+                    $this->assertTrue($observer->table('posts')->where('id', $deletedPost)->exists());
+                    $this->assertSame(1, (int) $observer->table('users')->where('id', $liker)->value('like_count'));
+                    $this->assertTrue(CommentPost::findOrFail($deletedPost)->delete());
+                }
+            } else {
+                $response = $this->send($this->request('DELETE', "/api/posts/$deletedPost", ['authenticatedAs' => 1]));
+                $this->assertSame(204, $response->getStatusCode(), (string) $response->getBody());
             }
+
+            $this->assertTrue($committed, 'The like should have committed inside the deletion.');
 
             $this->assertFalse($observer->table('posts')->where('id', $deletedPost)->exists());
             $this->assertFalse($observer->table('post_likes')->where('post_id', $deletedPost)->exists());
