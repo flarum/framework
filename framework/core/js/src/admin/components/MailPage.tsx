@@ -6,7 +6,6 @@ import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type { AlertIdentifier } from '../../common/states/AlertManagerState';
 import type Mithril from 'mithril';
-import type { SaveSubmitEvent } from './AdminPage';
 import Form from '../../common/components/Form';
 import FieldSet from '../../common/components/FieldSet';
 import ItemList from '../../common/utils/ItemList';
@@ -337,8 +336,10 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
       });
   }
 
-  saveSettings(e: SaveSubmitEvent) {
-    return super.saveSettings(e).then(() => this.refresh());
+  onsaved() {
+    super.onsaved();
+
+    this.refresh();
   }
 
   static register() {
