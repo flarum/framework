@@ -132,41 +132,69 @@ class Post extends AbstractModel
 
     public function delete()
     {
-        // A rolled back attempt leaves Eloquent's in-memory flag false while
-        // the row is back in the database, so the row decides whether there is
-        // anything to delete. Without this, retrying a delete on the same
-        // instance answers early and the row survives.
-        if (! $this->exists && ! $this->newModelQuery()->whereKey($this->getKey())->exists()) {
+        if (! $this->exists) {
             return parent::delete();
         }
 
-        // The deletion can be retried, and events raised on the model stay
-        // pending until the request dispatches them: a rolled back attempt
-        // would raise its events again on the retry, and the listeners of the
-        // retry would run with them still pending. Clearing them at the start
-        // of each attempt, before the listeners, leaves only this attempt's.
+        $post = $this->newModelQuery()->whereKey($this->getKey());
+        $discussionId = $this->discussion_id ?? (clone $post)->value('discussion_id');
+        if ($discussionId === null) {
+            return false;
+        }
+
+        $db = $this->getConnection();
         $pendingEvents = $this->pendingEvents;
 
-        return self::deleteWithEvents(
-            $this->newModelQuery()->whereKey($this->getKey()),
-            function ($posts) {
-                if (! $posts->exists()) {
-                    return false;
-                }
+        for ($attempt = 0; $attempt < self::conflictAttempts($db); $attempt++) {
+            $moved = false;
 
-                // A retry follows an attempt that was rolled back, but Eloquent
-                // kept the model marked deleted, so the row would be skipped.
-                $this->exists = true;
+            $deleted = self::deleteWithEvents(
+                $post,
+                fn () => parent::delete(),
+                [],
+                function () use ($post, $db, $pendingEvents, &$discussionId, &$moved) {
+                    $this->exists = true;
+                    $this->pendingEvents = $pendingEvents;
 
-                return parent::delete();
-            },
-            [],
-            function () use ($pendingEvents) {
-                $this->pendingEvents = $pendingEvents;
-            },
-            // Its own discussion is the only one a single post can be in.
-            $this->discussion_id !== null ? [(int) $this->discussion_id] : null,
-        );
+                    // Checking the current row by primary key avoids using a
+                    // stale discussion from the model or an earlier snapshot.
+                    $stored = (clone $post)->lockForUpdate()->first(['discussion_id']);
+                    if ($stored === null) {
+                        return false;
+                    }
+
+                    if ((int) $stored->discussion_id !== (int) $discussionId) {
+                        $discussionId = $stored->discussion_id;
+                        $moved = true;
+
+                        return false;
+                    }
+
+                    if ((int) $this->discussion_id !== (int) $discussionId) {
+                        $this->discussion_id = $discussionId;
+                        $this->unsetRelation('discussion');
+                    }
+
+                    // Restore the model even when an enclosing transaction
+                    // rolls back after this savepoint succeeds.
+                    $db->afterRollBack(function () use ($pendingEvents) {
+                        $this->exists = true;
+                        $this->pendingEvents = $pendingEvents;
+                    });
+
+                    return true;
+                },
+                [(int) $discussionId],
+            );
+
+            if (! $moved) {
+                return $deleted;
+            }
+        }
+
+        // An enclosing transaction may still hold the post lock. Retaking
+        // the new discussion lock here would reverse the lock order.
+        throw new \RuntimeException('The post changed discussions while it was being deleted.');
     }
 
     public function save(array $options = [])
@@ -267,14 +295,13 @@ class Post extends AbstractModel
     {
         $db = $this->getConnection();
 
-        return $db->transaction(function () use ($db, $callback) {
-            // A model loaded without its discussion has none to serialize
-            // with: `where('id', null)` would lock `discussions.id IS NULL`,
-            // which locks nothing while looking like it protected the write.
-            // There is nothing to take by then; loading the column is what
-            // gives the write its lock.
-            if ($this->discussion_id !== null) {
-                $db->table('discussions')->where('id', $this->discussion_id)->lockForUpdate()->first(['id']);
+        // Partial models can omit the foreign key. Find it before opening
+        // our transaction so the lookup cannot open its read view.
+        $discussionId = $this->discussion_id ?? $this->newModelQuery()->whereKey($this->getKey())->value('discussion_id');
+
+        return $db->transaction(function () use ($db, $callback, $discussionId) {
+            if ($discussionId !== null) {
+                $db->table('discussions')->where('id', $discussionId)->lockForUpdate()->first(['id']);
             }
 
             return $callback();
@@ -302,20 +329,17 @@ class Post extends AbstractModel
      * @param \Closure(\Illuminate\Database\Query\Builder): T $delete Delete the posts the given query selects,
      *                               or return false to cancel. It can run more than once when the transaction is retried.
      * @param list<int> $userIds Other users to lock alongside those requested by deletion listeners.
-     * @param (\Closure(): void)|null $beforeAttempt Run at the start of each attempt, before the
-     *                                listeners, to restore state a failed attempt left behind.
+     * @param (\Closure(): (void|bool))|null $beforeAttempt Run after locking the discussions,
+     *                                before notifying listeners. Returning false cancels the attempt.
      * @param list<int>|null $discussionIds The discussions the posts belong to, when the caller
-     *                                knows them. They are locked by id, which keeps the lock the
-     *                                transaction's first statement: MySQL and MariaDB create the
-     *                                transaction's read view at its first consistent read, so a
-     *                                lookup of the discussions inside it can predate the wait for
-     *                                the lock, and the likes read afterwards would then miss a like
-     *                                that committed meanwhile.
-     * @return T
+     *                                knows them. Locking by id avoids opening a read view.
+     * @param bool|null $snapshotMayPrecedeLock Whether the caller could already have a read
+     *                                view, if it opened a transaction itself.
+     * @return T|false
      *
      * Listeners may run once per retry attempt, so they must be idempotent.
      */
-    public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = [], ?\Closure $beforeAttempt = null, ?array $discussionIds = null): mixed
+    public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = [], ?\Closure $beforeAttempt = null, ?array $discussionIds = null, ?bool $snapshotMayPrecedeLock = null): mixed
     {
         $query = $posts->toBase();
         if ($query->from !== 'posts' || $query->limit !== null || $query->offset !== null ||
@@ -326,11 +350,9 @@ class Post extends AbstractModel
 
         $db = $query->getConnection();
 
-        return $db->transaction(function () use ($query, $db, $delete, $userIds, $beforeAttempt, $discussionIds) {
-            if ($beforeAttempt !== null) {
-                $beforeAttempt();
-            }
+        $snapshotMayPrecedeLock = $discussionIds === null || ($snapshotMayPrecedeLock ?? $db->transactionLevel() > 0);
 
+        return $db->transaction(function () use ($query, $db, $delete, $userIds, $beforeAttempt, $discussionIds, $snapshotMayPrecedeLock) {
             // Lock each discussion the posts belong to before its posts. A post
             // whose discussion row is already gone has no discussion to lock,
             // and is still deleted below rather than being left behind.
@@ -348,21 +370,15 @@ class Post extends AbstractModel
                     ->orderBy('id')->lockForUpdate()->pluck('id');
             }
 
-            // The posts being deleted, as a subquery rather than a list.
-            // Listeners and the delete callback both work from it, so a big
-            // discussion costs SQL work instead of memory.
-            //
-            // The posts are not locked here. A write that can change their
-            // visibility or their likes takes the discussion lock above first
-            // (a like, or a visibility change), so that lock is what
-            // serializes the deletion with those writes. Locking the rows
-            // separately also locked rows of other discussions on MySQL and
-            // MariaDB, where a primary-key scan locks every row it walks under
-            // REPEATABLE READ. A post whose discussion row is gone cannot be
-            // reached to be written: it is not visible without a discussion.
+            if ($beforeAttempt !== null && $beforeAttempt() === false) {
+                return false;
+            }
+
+            // Bulk deletion has no separate post pre-lock. The discussion
+            // lock serializes visibility and like writes in its discussions.
             $deleted = (clone $query)->select('posts.id');
 
-            $event = new DeletingPosts($db, $deleted, $userIds);
+            $event = new DeletingPosts($db, $deleted, $userIds, $snapshotMayPrecedeLock);
             resolve(Dispatcher::class)->dispatch($event);
             $event->acquireUserLocks();
 

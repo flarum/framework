@@ -14,7 +14,7 @@ use Flarum\Discussion\Event\Deleting;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Connection;
 use Illuminate\Support\Arr;
 use RuntimeException;
 
@@ -75,7 +75,7 @@ class Posts extends Type
 
     public function delete(): void
     {
-        $db = Post::query()->getConnection();
+        $db = (new Post())->getConnection();
 
         // The discussions are scanned before each pass, so a reply written to
         // a discussion outside the previous scan is caught by the next pass.
@@ -123,17 +123,16 @@ class Posts extends Type
      *
      * @param list<int> $discussionIds
      */
-    protected function deleteChunk(ConnectionInterface $db, array $discussionIds): void
+    protected function deleteChunk(Connection $db, array $discussionIds): void
     {
         // Domain events raised by a discussion this chunk empties wait for the
         // commit: a later refresh in the same chunk can fail and roll the whole
         // chunk back, and an event that escaped first would describe rows that
         // are back, then be dispatched again by the retry.
-        $events = [];
+        $snapshotMayPrecedeLock = $db->transactionLevel() > 0;
 
-        $db->transaction(function () use ($discussionIds, &$events) {
+        $db->transaction(function () use ($db, $discussionIds, $snapshotMayPrecedeLock) {
             $refreshed = [];
-            $attemptEvents = [];
 
             $deleted = Post::deleteWithEvents(
                 Post::query()
@@ -152,22 +151,23 @@ class Posts extends Type
                 [$this->user->id],
                 null,
                 $discussionIds,
+                $snapshotMayPrecedeLock,
             );
 
             if ($deleted) {
-                $attemptEvents = $this->refreshDiscussions($refreshed);
+                $events = $this->refreshDiscussions($refreshed);
+
+                if ($events !== []) {
+                    $db->afterCommit(static function () use ($events) {
+                        $dispatcher = resolve(Dispatcher::class);
+
+                        foreach ($events as $event) {
+                            $dispatcher->dispatch($event);
+                        }
+                    });
+                }
             }
-
-            // Only the attempt that commits keeps its events; a retried
-            // attempt starts with an empty list.
-            $events = $attemptEvents;
         }, Post::conflictAttempts($db));
-
-        $dispatcher = resolve(Dispatcher::class);
-
-        foreach ($events as $event) {
-            $dispatcher->dispatch($event);
-        }
     }
 
     /**

@@ -26,8 +26,8 @@ use Illuminate\Database\Query\Builder;
  * The rows are still present while the listeners run, and the discussion rows
  * they belong to are locked for the whole deletion. A write that could change
  * the posts or their likes takes the same discussion lock first, so reading
- * their related rows here is stable; the post rows themselves are not locked
- * separately.
+ * their related rows here is stable. On MySQL and MariaDB, use a locking
+ * read if a snapshot could predate the discussion lock.
  *
  * A post may be an orphan whose discussion row is already gone when the
  * listeners run: do not look its discussion up with `findOrFail()`, which
@@ -46,6 +46,7 @@ final class DeletingPosts
         public readonly ConnectionInterface $connection,
         private readonly Builder $posts,
         private array $userIds = [],
+        public readonly bool $snapshotMayPrecedeLock = false,
     ) {
     }
 

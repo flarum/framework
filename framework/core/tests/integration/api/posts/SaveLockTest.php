@@ -209,28 +209,23 @@ class SaveLockTest extends TestCase
         );
     }
 
-    /**
-     * A partial model can be loaded without `discussion_id`. There is no
-     * discussion to lock then, and locking `discussions.id IS NULL` locks
-     * nothing while looking like the write was serialized.
-     */
     #[Test]
-    public function a_partial_post_without_its_discussion_does_not_try_to_lock_one(): void
+    public function a_partial_post_locks_its_discussion_before_a_visibility_save(): void
     {
         $db = $this->database();
         $discussions = $db->getQueryGrammar()->wrapTable('discussions');
         $reads = [];
         $db->listen(function (QueryExecuted $query) use ($discussions, &$reads) {
             if (str_contains($query->sql, "from $discussions")) {
-                $reads[] = $query->sql;
+                $reads[] = $query->bindings;
             }
         });
 
-        $post = Post::query()->select(['id', 'is_private', 'is_approved'])->findOrFail(1);
+        $post = Post::query()->select(['id', 'is_private'])->findOrFail(1);
         $post->is_private = true;
         $post->save();
 
-        $this->assertSame([], $reads, 'A post loaded without its discussion has none to lock.');
+        $this->assertSame([[1]], $reads, 'The visibility save must lock the stored discussion.');
         $this->assertTrue((bool) $db->table('posts')->where('id', 1)->value('is_private'));
     }
 

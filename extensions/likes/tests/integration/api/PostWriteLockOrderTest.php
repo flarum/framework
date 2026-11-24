@@ -85,9 +85,8 @@ class PostWriteLockOrderTest extends TestCase
 
                 $from = strstr($query->sql, ' from ');
                 if (! $postWasLocked && str_starts_with($from ?: '', " from $posts ")) {
-                    // Only the like write locks the post row itself (to read
-                    // its type and visibility); a deletion does not, it holds
-                    // the discussion's lock instead.
+                    // Single-post writes lock the discussion before checking
+                    // the current post row.
                     $this->assertLocked($observer, 'discussions', $id);
                     $postWasLocked = true;
                 }
@@ -95,8 +94,7 @@ class PostWriteLockOrderTest extends TestCase
             $db->listen(function (QueryExecuted $query) use ($observer, $id, &$likeCountsRead) {
                 // A like takes the discussion lock before touching the pivot,
                 // so this is what keeps a like from slipping in between the
-                // counts the deletion reads and the rows it deletes. The post
-                // rows themselves are not locked by the deletion.
+                // counts the deletion reads and the rows it deletes.
                 if ($likeCountsRead || stripos($query->sql, 'count(') === false || ! str_contains($query->sql, 'post_likes')) {
                     return;
                 }
@@ -111,13 +109,12 @@ class PostWriteLockOrderTest extends TestCase
 
                 $from = strstr($query->sql, ' from ');
                 if (! $userWasLocked && str_starts_with($from ?: '', " from $users ")) {
-                    // The discussion is what every write changing a like or a
-                    // count takes first; the like also holds the post row by
-                    // then, which the deletion does not take.
+                    // Every write changing a like or its count locks the
+                    // discussion first.
                     $this->assertLocked($observer, 'discussions', $id);
 
-                    if ($action === 'unlike') {
-                        $this->assertTrue($postWasLocked, 'The like should lock the post before the liker.');
+                    if (in_array($action, ['unlike', 'post'], true)) {
+                        $this->assertTrue($postWasLocked, 'The single-post write should lock the post before the liker.');
                     }
 
                     $userWasLocked = true;
@@ -142,7 +139,7 @@ class PostWriteLockOrderTest extends TestCase
                 $this->assertTrue($postWasLocked, 'The like should lock the post.');
             } else {
                 $this->assertTrue($likeCountsRead, 'The deletion should have read the likes it has to remove.');
-                $this->assertFalse($postWasLocked, 'A deletion should not lock the post row itself.');
+                $this->assertSame($action === 'post', $postWasLocked, 'Only a single-post deletion should explicitly lock the post.');
             }
         } finally {
             $db->rollBack();

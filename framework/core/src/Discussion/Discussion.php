@@ -130,12 +130,16 @@ class Discussion extends AbstractModel
         // The cascade deletes posts, whose counter updates can collide with a
         // liker's like. MariaDB then reports a deadlock or a changed record, so
         // retry here, at the outermost transaction, rather than in the cascade.
-        return $db->transaction(function () use ($pendingEvents) {
+        $snapshotMayPrecedeLock = $db->transactionLevel() > 0;
+
+        return $db->transaction(function () use ($db, $pendingEvents, $snapshotMayPrecedeLock) {
+            $this->exists = true;
             $this->pendingEvents = $pendingEvents;
 
-            // A retry follows a rolled back attempt that left the model marked
-            // deleted while its row is back in the database.
-            $this->exists = true;
+            $db->afterRollBack(function () use ($pendingEvents) {
+                $this->exists = true;
+                $this->pendingEvents = $pendingEvents;
+            });
 
             // Prevent another post from being inserted before the cascade.
             $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->get(['id']);
@@ -149,6 +153,7 @@ class Discussion extends AbstractModel
                 [],
                 null,
                 [(int) $this->getKey()],
+                $snapshotMayPrecedeLock,
             );
         }, Post::conflictAttempts($db));
     }

@@ -16,6 +16,7 @@ use Flarum\Extend;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Post\Event\DeletingPosts;
 use Flarum\Post\Post;
+use Flarum\Testing\integration\Extend\BindInlineTransactionsManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -89,8 +90,8 @@ class ErasurePassesTest extends TestCase
             "select $id from $discussions where",
             "select $id from $posts where $id in",
             // The scan, and the chunk's own lookup of the discussions it deleted.
-            "select distinct ".$grammar->wrap('discussion_id')." from $posts where",
-            "select distinct ".$grammar->wrap('posts.discussion_id')." from $posts where",
+            'select distinct '.$grammar->wrap('discussion_id')." from $posts where",
+            'select distinct '.$grammar->wrap('posts.discussion_id')." from $posts where",
             "select $id from $users where $id in",
             "select exists(select * from $posts where",
             "select count(*) as $aggregate from $posts where $discussionId = ?",
@@ -190,6 +191,7 @@ class ErasurePassesTest extends TestCase
         $fail = true;
 
         $this->extend(
+            new BindInlineTransactionsManager(),
             (new Extend\Event())->listen(Deleted::class, function () use (&$dispatched) {
                 $dispatched++;
             }),
@@ -217,6 +219,32 @@ class ErasurePassesTest extends TestCase
         $this->assertSame(1, $dispatched, 'The retried chunk dispatches the event once.');
         $this->assertNull(Discussion::find(1));
         $this->assertNull(User::find(5));
+    }
+
+    #[Test]
+    public function a_rolled_back_outer_transaction_does_not_dispatch_the_chunks_events(): void
+    {
+        $dispatched = 0;
+        $this->extend(
+            new BindInlineTransactionsManager(),
+            (new Extend\Event())->listen(Deleted::class, function () use (&$dispatched) {
+                $dispatched++;
+            })
+        );
+
+        $db = $this->database();
+        $db->table('posts')->where('id', 2)->delete();
+        $db->beginTransaction();
+
+        try {
+            $this->assertSame(200, $this->attemptErasure()->getStatusCode());
+            $this->assertSame(0, $dispatched);
+        } finally {
+            $db->rollBack();
+        }
+
+        $this->assertNotNull(Discussion::find(1));
+        $this->assertSame(0, $dispatched);
     }
 
     protected function attemptErasure(): ResponseInterface

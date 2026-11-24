@@ -11,6 +11,7 @@ namespace Flarum\Likes\Tests\integration\api;
 
 use Carbon\Carbon;
 use Flarum\Extend\Event;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Event\DeletingPosts;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Container\Container;
@@ -19,6 +20,7 @@ use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Query\Expression;
 use PDOException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -207,7 +209,8 @@ class PostDeleteConflictTest extends TestCase
      * the waiting session's commit lands.
      */
     #[Test]
-    public function a_like_committed_before_the_likes_are_read_is_removed_with_the_post(): void
+    #[DataProvider('deletionTransactions')]
+    public function a_like_committed_before_the_likes_are_read_is_removed_with_the_post(bool $withSnapshot): void
     {
         $this->extension('flarum-likes');
 
@@ -231,6 +234,11 @@ class PostDeleteConflictTest extends TestCase
             $observer->table('users')->where('id', $liker)->update(['like_count' => 0]);
 
             $db->rollBack();
+            if ($withSnapshot) {
+                $db->statement('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ');
+                $db->beginTransaction();
+                $this->assertFalse($db->table('post_likes')->where('post_id', $deletedPost)->exists());
+            }
 
             $observer->beginTransaction();
             $observer->table('users')->where('id', $liker)->lockForUpdate()->get(['id']);
@@ -258,6 +266,10 @@ class PostDeleteConflictTest extends TestCase
 
             $this->assertSame(204, $response->getStatusCode(), (string) $response->getBody());
             $this->assertTrue($committed, 'The like should have committed inside the deletion.');
+            if ($withSnapshot) {
+                $db->commit();
+            }
+
             $this->assertFalse($observer->table('posts')->where('id', $deletedPost)->exists());
             $this->assertFalse($observer->table('post_likes')->where('post_id', $deletedPost)->exists());
             $this->assertSame(
@@ -273,6 +285,52 @@ class PostDeleteConflictTest extends TestCase
 
             $observer->transaction(fn () => $this->removeFixture($observer, $liker, $discussion, null));
             $observer->disconnect();
+        }
+    }
+
+    public static function deletionTransactions(): array
+    {
+        return [
+            'standalone' => [false],
+            'existing repeatable-read snapshot' => [true],
+        ];
+    }
+
+    #[Test]
+    public function a_moved_post_uses_its_current_discussion_for_deletion(): void
+    {
+        $this->extension('flarum-likes');
+
+        $discussionsLocked = [];
+        $locksAtDeletion = [];
+        $this->extend((new Event())->listen(DeletingPosts::class, function () use (&$discussionsLocked, &$locksAtDeletion) {
+            $locksAtDeletion[] = $discussionsLocked;
+        }));
+
+        $db = $this->database();
+        $id = random_int(1000000000, 2000000000);
+        $deletedPost = $id - 1;
+        $destination = $id - 2;
+        $db->rollBack();
+
+        try {
+            $this->insertFixture($db, $id, $id, $deletedPost, $destination, Carbon::now()->toDateTimeString());
+            $post = CommentPost::findOrFail($deletedPost);
+            $db->table('posts')->where('id', $deletedPost)->update(['discussion_id' => $destination]);
+
+            $discussions = $db->getQueryGrammar()->wrapTable('discussions');
+            $db->listen(function (QueryExecuted $query) use ($discussions, &$discussionsLocked) {
+                if (str_contains($query->sql, "from $discussions ") && str_contains($query->sql, ' in (')) {
+                    $discussionsLocked[] = (int) $query->bindings[0];
+                }
+            });
+
+            $this->assertTrue($post->delete());
+            $this->assertSame([[$id, $destination]], $locksAtDeletion);
+            $this->assertFalse($db->table('posts')->where('id', $deletedPost)->exists());
+        } finally {
+            $this->closeTransaction($db);
+            $this->removeFixture($db, $id, $id, $destination);
         }
     }
 

@@ -119,13 +119,21 @@ class DeleteTest extends TestCase
         $this->assertTrue($this->database()->table('posts')->where('id', 5)->exists());
     }
 
-    /**
-     * A rollback brings the row back but leaves Eloquent's in-memory `exists`
-     * flag false. Deleting again on the same instance has to look at the row
-     * rather than answer early.
-     */
     #[Test]
-    public function a_delete_retried_after_a_rollback_still_deletes_the_row()
+    public function an_unsaved_post_cannot_delete_a_persisted_post_with_the_same_key(): void
+    {
+        $this->database();
+        $post = CommentPost::findOrFail(5);
+        $unsaved = new CommentPost();
+        $unsaved->setRawAttributes($post->getAttributes(), true);
+
+        $unsaved->delete();
+
+        $this->assertTrue(CommentPost::whereKey(5)->exists());
+    }
+
+    #[Test]
+    public function a_delete_retried_after_a_rollback_still_deletes_the_row(): void
     {
         $db = $this->database();
         $post = CommentPost::findOrFail(5);
@@ -134,12 +142,13 @@ class DeleteTest extends TestCase
         $post->delete();
         $db->rollBack();
 
-        $this->assertTrue($db->table('posts')->where('id', 5)->exists(), 'The rollback should have brought the row back.');
-        $this->assertFalse($post->exists, 'The model is still marked deleted.');
+        $this->assertTrue($db->table('posts')->where('id', 5)->exists());
+        $this->assertTrue($post->exists);
 
         $post->delete();
 
         $this->assertFalse($db->table('posts')->where('id', 5)->exists());
+        $this->assertCount(1, array_filter($post->releaseEvents(), fn ($event) => $event instanceof Deleted));
     }
 
     /**

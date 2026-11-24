@@ -18,20 +18,25 @@ class LikeCount
     public function prepareDeletion(DeletingPosts $event): void
     {
         $db = $event->connection;
-        $posts = $event->posts();
         $removedByUser = [];
 
         // Only likes on visible comments count, the same posts that the
         // profile count shows.
+        $posts = $event->posts()->where('posts.type', 'comment')->where('posts.is_private', false);
         $counts = $db->table('post_likes')
-            ->join('posts', 'posts.id', '=', 'post_likes.post_id')
-            ->whereIn('post_likes.post_id', $posts)
-            ->where('posts.type', 'comment')
-            ->where('posts.is_private', false)
             ->select('post_likes.user_id')
             ->selectRaw('COUNT(*) as total')
-            ->groupBy('post_likes.user_id')
-            ->pluck('total', 'post_likes.user_id');
+            ->groupBy('post_likes.user_id');
+
+        if ($event->snapshotMayPrecedeLock && in_array($db->getDriverName(), ['mysql', 'mariadb'], true)) {
+            // Repeatable-read snapshots survive savepoints. Read the current
+            // post and pivot rows when a caller could have opened a snapshot
+            // before taking the discussion lock.
+            $posts->sharedLock();
+            $counts->sharedLock();
+        }
+
+        $counts = $counts->whereIn('post_likes.post_id', $posts)->pluck('total', 'post_likes.user_id');
 
         foreach ($counts as $id => $count) {
             $removedByUser[(int) $id] = (int) $count;

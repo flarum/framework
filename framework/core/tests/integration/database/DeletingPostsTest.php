@@ -284,15 +284,15 @@ class DeletingPostsTest extends TestCase
             // Commit the fixture on the observer so both sessions can see it.
             $observer->transaction(function () use ($observer, $id, $now) {
                 $observer->table('discussions')->insert([
-                    ['id' => $id, 'title' => 'Deleted', 'slug' => "deleted-$id", 'user_id' => 2, 'created_at' => $now, 'comment_count' => 2, 'last_post_number' => 3],
-                    ['id' => $id + 1, 'title' => 'Other', 'slug' => "other-$id", 'user_id' => 2, 'created_at' => $now, 'comment_count' => 1, 'last_post_number' => 1],
+                    ['id' => $id, 'title' => 'Deleted', 'slug' => "deleted-$id", 'user_id' => 1, 'created_at' => $now, 'comment_count' => 2, 'last_post_number' => 3],
+                    ['id' => $id + 1, 'title' => 'Other', 'slug' => "other-$id", 'user_id' => 1, 'created_at' => $now, 'comment_count' => 1, 'last_post_number' => 1],
                 ]);
                 $observer->table('posts')->insert([
-                    ['id' => $id, 'number' => 1, 'discussion_id' => $id, 'user_id' => 2, 'created_at' => $now,
+                    ['id' => $id, 'number' => 1, 'discussion_id' => $id, 'user_id' => 1, 'created_at' => $now,
                         'type' => 'comment', 'content' => '<t><p>one</p></t>'],
-                    ['id' => $id + 1, 'number' => 1, 'discussion_id' => $id + 1, 'user_id' => 2, 'created_at' => $now,
+                    ['id' => $id + 1, 'number' => 1, 'discussion_id' => $id + 1, 'user_id' => 1, 'created_at' => $now,
                         'type' => 'comment', 'content' => '<t><p>other</p></t>'],
-                    ['id' => $id + 2, 'number' => 3, 'discussion_id' => $id, 'user_id' => 2, 'created_at' => $now,
+                    ['id' => $id + 2, 'number' => 3, 'discussion_id' => $id, 'user_id' => 1, 'created_at' => $now,
                         'type' => 'comment', 'content' => '<t><p>three</p></t>'],
                 ]);
                 $observer->table('discussions')->where('id', $id)->update(['first_post_id' => $id, 'last_post_id' => $id + 2]);
@@ -348,7 +348,7 @@ class DeletingPostsTest extends TestCase
         $discussions = $db->getQueryGrammar()->wrapTable('discussions');
         $locks = [];
 
-        $db->listen(function (QueryExecuted $query) use ($posts, $discussions, &$locks) {
+        $db->listen(function (QueryExecuted $query) use ($discussions, &$locks) {
             $from = strstr($query->sql, ' from ');
             if ($from !== false && str_starts_with($from, " from $discussions ")) {
                 $locks[] = $query->sql;
