@@ -221,7 +221,7 @@ export default class GeneralSearchSource implements GlobalSearchSource {
   }
 
   view(query: string): Array<Mithril.Vnode> {
-    const results = (this.results.get(query) || []).slice(0, 30);
+    const results = (this.results.get(query.toLowerCase()) || []).slice(0, 30);
     const categories = Array.from(new Set([...results.map((r) => r.category)]));
 
     if (!categories.length) return [];
