@@ -13,6 +13,7 @@ use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\JsonFile;
 use Flarum\ExtensionManager\Config\Repositories;
 use Flarum\ExtensionManager\Config\StabilityRule;
+use Composer\Semver\Semver;
 use Flarum\Locale\TranslatorInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
@@ -47,6 +48,14 @@ class UpdateCheck
      * @var array<string,array<string,string>>
      */
     protected array $releaseNotes = [];
+
+    /**
+     * Each version's flarum/core requirement, from the same Packagist
+     * response: package => version => constraint.
+     *
+     * @var array<string,array<string,string>>
+     */
+    protected array $coreRequires = [];
 
     /** When the check in progress has to stop asking, if it has a budget. */
     protected ?float $deadline = null;
@@ -194,7 +203,7 @@ class UpdateCheck
                  * implies it is up to date, which is a guess presented as a fact.
                  */
                 $result['uncheckable'][] = $name;
-            } elseif (($newest = $this->newestComparable($versions, $version, $name, $rule)) !== null && $this->isNewer($newest, $version)) {
+            } elseif (($newest = $this->newestComparable($versions, $version, $name, $rule, $installed['flarum/core'] ?? null)) !== null && $this->isNewer($newest, $version)) {
                 $result['updates'][$name] = ['from' => $version, 'to' => $newest];
 
                 // "What does this update give me?" (ClaudiusH, 2026-10-09). A
@@ -404,14 +413,17 @@ class UpdateCheck
      * prefer-stable, Composer picks the most stable release there is, so only
      * the most stable ones are compared.
      *
+     * And only releases the installed core can run: a 2.0 forum is not offered
+     * a release that needs flarum/core ^2.1, which install would decline.
+     *
      * @param list<string> $versions
      */
-    protected function newestComparable(array $versions, string $installed, string $name = '', ?StabilityRule $rule = null): ?string
+    protected function newestComparable(array $versions, string $installed, string $name = '', ?StabilityRule $rule = null, ?string $core = null): ?string
     {
         $installedIsDev = self::tracksABranch($installed);
 
-        $candidates = array_values(array_filter($versions, function (string $v) use ($installedIsDev, $name, $rule) {
-            return self::tracksABranch($v) === $installedIsDev && ($rule === null || $rule->allows($name, $v));
+        $candidates = array_values(array_filter($versions, function (string $v) use ($installedIsDev, $name, $rule, $core) {
+            return self::tracksABranch($v) === $installedIsDev && ($rule === null || $rule->allows($name, $v)) && $this->runsOn($name, $v, $core);
         }));
 
         if ($candidates === []) {
@@ -429,6 +441,22 @@ class UpdateCheck
         ));
 
         return end($candidates) ?: null;
+    }
+
+    /** Unknown (a tag from a private repository) counts as yes. */
+    protected function runsOn(string $name, string $version, ?string $core): bool
+    {
+        $needs = $this->coreRequires[$name][$version] ?? null;
+
+        if ($needs === null || $core === null || $name === 'flarum/core' || self::tracksABranch($core)) {
+            return true;
+        }
+
+        try {
+            return Semver::satisfies($this->normalise($core), $needs);
+        } catch (\UnexpectedValueException) {
+            return true;
+        }
     }
 
     protected function isNewer(string $candidate, string $installed): bool
@@ -489,8 +517,9 @@ class UpdateCheck
             return false;
         }
 
-        [$list, $notes] = self::readP2($versions);
+        [$list, $notes, $core] = self::readP2($versions);
         $this->releaseNotes[$name] = $notes;
+        $this->coreRequires[$name] = $core;
 
         return $list;
     }
@@ -508,12 +537,14 @@ class UpdateCheck
      * name Packagist read from the repository.
      *
      * @param list<array<string,mixed>> $entries
-     * @return array{0: list<string>, 1: array<string,string>}
+     * @return array{0: list<string>, 1: array<string,string>, 2: array<string,string>} versions, release
+     *         links, and each version's flarum/core requirement
      */
     public static function readP2(array $entries): array
     {
         $versions = [];
         $notes = [];
+        $core = [];
         $current = [];
 
         foreach ($entries as $entry) {
@@ -536,6 +567,10 @@ class UpdateCheck
             $version = (string) $current['version'];
             $versions[] = $version;
 
+            if (is_string($current['require']['flarum/core'] ?? null)) {
+                $core[$version] = $current['require']['flarum/core'];
+            }
+
             $url = self::releaseUrl((string) ($current['source']['url'] ?? ''), $version);
 
             if ($url !== null) {
@@ -543,7 +578,7 @@ class UpdateCheck
             }
         }
 
-        return [$versions, $notes];
+        return [$versions, $notes, $core];
     }
 
     /**

@@ -464,6 +464,29 @@ class UpdateCheckTest extends TestCase
         $this->assertSame([], $result['updates']);
     }
 
+    /**
+     * A 2.0 forum is not offered a release that needs flarum/core ^2.1, and a
+     * forum on 2.1 is (Claudius on Millwright, 2026-11-23).
+     */
+    public function test_a_release_the_installed_core_cannot_run_is_not_offered(): void
+    {
+        $p2 = json_encode(['packages' => ['acme/thing' => [
+            ['version' => '1.1.0', 'require' => ['flarum/core' => '^2.1']],
+            ['version' => '1.0.1', 'require' => ['flarum/core' => '^2.0']],
+            ['version' => '1.0.0'],
+        ]]]);
+        $http = FakeHttp::client(fn (string $url) => str_contains($url, 'acme/thing') ? $p2 : null);
+
+        $on20 = $this->site(['require' => ['flarum/core' => '^2.0', 'acme/thing' => '^1.0']], ['flarum/core' => 'v2.0.2', 'acme/thing' => '1.0.0']);
+        $result = (new UpdateCheck($this->cache, $http))->refreshSite(EnglishTranslator::make(), $on20);
+        $this->assertSame(['from' => '1.0.0', 'to' => '1.0.1'], array_intersect_key($result['updates']['acme/thing'], ['from' => 1, 'to' => 1]));
+
+        @unlink($this->cache);
+        $on21 = $this->site(['require' => ['flarum/core' => '^2.1', 'acme/thing' => '^1.0']], ['flarum/core' => 'v2.1.0', 'acme/thing' => '1.0.0']);
+        $result = (new UpdateCheck($this->cache, $http))->refreshSite(EnglishTranslator::make(), $on21);
+        $this->assertSame('1.1.0', $result['updates']['acme/thing']['to']);
+    }
+
     /** A check saved before the rule, or before minimum-stability was raised, stops offering it. */
     public function test_a_saved_release_candidate_is_no_longer_offered_to_a_stable_forum(): void
     {
