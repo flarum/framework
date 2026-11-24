@@ -11,6 +11,7 @@ namespace Flarum\Mentions\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Mentions\AffectedMentionUsers;
 use Flarum\Mentions\Job\SendMentionsNotificationsJob;
 use Flarum\Mentions\UserMentionCount;
 use Flarum\Post\CommentPost;
@@ -18,7 +19,6 @@ use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Post;
-use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
 use s9e\TextFormatter\Utils;
 
@@ -62,12 +62,10 @@ class UpdateMentionsMetadataWhenVisible
         // counts without changing its mentions, and those responses need the
         // users too. A new post's response includes its mentioned users
         // instead, and a restore outside a request has no response to fill.
-        if ($affected && $event->actor && ! ($event instanceof Posted)) {
-            $event->post->setRelation('affectedMentionUsers', User::query()
-                ->whereKey($affected)
-                ->whereVisibleTo($event->actor)
-                ->with('groups')
-                ->get());
+        // A save can also hide or restore the post after revising it, and that
+        // listener adds the users it changed to the same set.
+        if ($event->actor && ! ($event instanceof Posted)) {
+            AffectedMentionUsers::add($event->post, $affected, $event->actor);
         }
 
         // A new discussion caches the request actor as its author. The post

@@ -10,12 +10,12 @@
 namespace Flarum\Mentions\Listener;
 
 use Flarum\Extension\ExtensionManager;
+use Flarum\Mentions\AffectedMentionUsers;
 use Flarum\Mentions\Notification\UserMentionedBlueprint;
 use Flarum\Mentions\UserMentionCount;
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
-use Flarum\User\User;
 
 class UpdateMentionsMetadataWhenInvisible
 {
@@ -39,13 +39,11 @@ class UpdateMentionsMetadataWhenInvisible
         $this->mentionCount->refresh($affected);
 
         // A hiding request's response reports the users whose count changed so
-        // the forum can refresh them. A deletion has no response to fill.
-        if ($event instanceof Hidden && $affected && $event->actor) {
-            $event->post->setRelation('affectedMentionUsers', User::query()
-                ->whereKey($affected)
-                ->whereVisibleTo($event->actor)
-                ->with('groups')
-                ->get());
+        // the forum can refresh them. A deletion has no response to fill. The
+        // same save may have revised the content first, and that listener
+        // reports the recipients it changed too.
+        if ($event instanceof Hidden && $event->actor) {
+            AffectedMentionUsers::add($event->post, $affected, $event->actor);
         }
 
         // Remove post mentions

@@ -91,6 +91,20 @@ class UserMentionCountTest extends TestCase
     }
 
     #[Test]
+    public function editing_a_post_without_changing_its_mentions_reports_an_empty_set()
+    {
+        $postId = $this->reply('@"potato"#3 hello', 2);
+        $this->agePostPastTheFloodThrottle($postId);
+
+        $payload = $this->patchPost($postId, 2, ['content' => '@"potato"#3 hello, corrected']);
+
+        // The client decides not to reload a Mentions tab from this relationship,
+        // so an edit that changes no count must send it, empty, rather than omit
+        // it: an absent relationship means "cannot say" and reloads.
+        $this->assertSame([], $payload['data']['relationships']['affectedMentionUsers']['data'] ?? null);
+    }
+
+    #[Test]
     public function hiding_and_restoring_the_post_updates_the_count()
     {
         $postId = $this->reply('@"potato"#3 hello');
@@ -291,6 +305,31 @@ class UserMentionCountTest extends TestCase
     {
         yield 'admin' => [1];
         yield 'moderator' => [4];
+    }
+
+    #[Test]
+    public function a_combined_edit_and_hide_reports_the_former_and_new_recipients(): void
+    {
+        $this->reply('@"potato"#3 first mention');
+        $postId = $this->reply('@"potato"#3 second mention');
+        $this->assertSame(2, $this->mentionCountOf(3));
+        $this->agePostPastTheFloodThrottle($postId);
+
+        // One save replaces the mention of potato with moderator and hides the
+        // post. Both recipients' counts change, and the hide is handled after
+        // the content, so reporting only what the hide listener found would
+        // leave potato's count stale on the client.
+        $payload = $this->patchPost($postId, 1, [
+            'content' => '@"moderator"#4 edited',
+            'isHidden' => true,
+        ]);
+
+        $this->assertSame(
+            [3 => 1, 4 => 0],
+            $this->affectedMentionCounts($payload),
+            'The response must name both the user the post stopped mentioning and the one it started mentioning.'
+        );
+        $this->assertSame(1, $this->mentionCountOf(3), 'Hiding the post must also drop the count of the mention it removed.');
     }
 
     #[Test]
