@@ -214,31 +214,46 @@ class DeletingPostsTest extends TestCase
     }
 
     /**
-     * Deleting a discussion used to lock its posts, chunk by chunk. On MySQL
-     * and MariaDB a primary-key walk locks every row it scans under REPEATABLE
-     * READ, so a post of another discussion sitting between two of them was
-     * locked as well, and edits to it waited for the whole deletion.
+     * A deletion locks its discussion, not the post rows.
+     *
+     * The probes write a post of another discussion and one of the posts being
+     * deleted, from a second connection, while the deletion runs. Neither may
+     * block. The first is the lock the review is about; the second is what the
+     * removed pre-lock did, and is the part of this guard that tells the
+     * revisions apart.
+     *
+     * Being honest about the rest: the review could not make this guard fail on
+     * the pre-lock revision on MySQL or MariaDB either. There the old
+     * `where discussion_id in (…) order by posts.id` plan used the
+     * `posts_discussion_id_number_unique` index, so a post of another
+     * discussion between two of the target posts was not scanned and not
+     * locked; only a forced primary-key scan (and the chunked scan before the
+     * order was added) reproduced that. Production code must not force an
+     * index, so that interleaving stays reasoned rather than run here.
      */
     #[Test]
-    public function a_delete_does_not_lock_the_posts_of_another_discussion(): void
+    public function a_delete_does_not_lock_post_rows(): void
     {
+        $targetPost = null;
         $otherPost = null;
         $observer = null;
-        $probe = null;
+        $probes = [];
 
-        // Registered before the app boots: the probe runs while the deletion
+        // Registered before the app boots: the probes run while the deletion
         // holds whatever locks it takes.
-        $this->extend((new Extend\Event())->listen(DeletingPosts::class, function () use (&$observer, &$otherPost, &$probe) {
-            if ($probe !== null) {
+        $this->extend((new Extend\Event())->listen(DeletingPosts::class, function () use (&$observer, &$targetPost, &$otherPost, &$probes) {
+            if ($probes !== []) {
                 return;
             }
 
-            try {
-                $observer->transaction(fn () => $observer->table('posts')->where('id', $otherPost)
-                    ->update(['content' => '<t><p>edited</p></t>']));
-                $probe = false;
-            } catch (QueryException $e) {
-                $probe = $e;
+            foreach (['target' => $targetPost, 'other' => $otherPost] as $name => $postId) {
+                try {
+                    $observer->transaction(fn () => $observer->table('posts')->where('id', $postId)
+                        ->update(['content' => '<t><p>edited</p></t>']));
+                    $probes[$name] = null;
+                } catch (QueryException $e) {
+                    $probes[$name] = $e;
+                }
             }
         }));
 
@@ -254,6 +269,7 @@ class DeletingPostsTest extends TestCase
         // The other discussion's post sits between the two posts of the
         // discussion that is deleted.
         $otherPost = $id + 1;
+        $targetPost = $id + 2;
         $observer = (new ConnectionFactory(new Container()))->make($db->getConfig());
 
         if ($driver === 'pgsql') {
@@ -269,7 +285,7 @@ class DeletingPostsTest extends TestCase
             $observer->transaction(function () use ($observer, $id, $now) {
                 $observer->table('discussions')->insert([
                     ['id' => $id, 'title' => 'Deleted', 'slug' => "deleted-$id", 'user_id' => 2, 'created_at' => $now, 'comment_count' => 2, 'last_post_number' => 3],
-                    ['id' => $id + 1, 'title' => 'Other', 'slug' => "other-$id", 'user_id' => 2, 'created_at' => $now, 'comment_count' => 1],
+                    ['id' => $id + 1, 'title' => 'Other', 'slug' => "other-$id", 'user_id' => 2, 'created_at' => $now, 'comment_count' => 1, 'last_post_number' => 1],
                 ]);
                 $observer->table('posts')->insert([
                     ['id' => $id, 'number' => 1, 'discussion_id' => $id, 'user_id' => 2, 'created_at' => $now,
@@ -284,16 +300,20 @@ class DeletingPostsTest extends TestCase
             });
 
             // The fixture of setUp() is in the test's transaction; the
-            // deletion has to run in its own for the probe to see its locks.
+            // deletion has to run in its own for the probes to see its locks.
             $db->rollBack();
 
             Discussion::query()->findOrFail($id)->delete();
 
-            $this->assertNotNull($probe, 'The deletion should dispatch DeletingPosts.');
-            $this->assertFalse(
-                $probe instanceof Throwable,
-                'A post of another discussion must not be locked: '.($probe instanceof Throwable ? $probe->getMessage() : '')
-            );
+            $this->assertSame(['target', 'other'], array_keys($probes), 'The deletion should dispatch DeletingPosts.');
+
+            foreach ($probes as $name => $probe) {
+                $this->assertFalse(
+                    $probe instanceof Throwable,
+                    "$name post must not be locked: ".($probe instanceof Throwable ? $probe->getMessage() : '')
+                );
+            }
+
             $this->assertTrue(Post::query()->whereKey($otherPost)->exists(), 'The other discussion\'s post survives.');
         } finally {
             while ($db->transactionLevel() > 0) {
@@ -306,5 +326,42 @@ class DeletingPostsTest extends TestCase
 
             $db->beginTransaction();
         }
+    }
+
+    /**
+     * The discussion lock is the deletion transaction's first statement, and it
+     * does not read posts.
+     *
+     * On MySQL and MariaDB the transaction's read view is created by its first
+     * consistent read: a lookup of the discussions inside the lock statement
+     * reads posts, so the view would predate the wait for the lock and the
+     * liker aggregate read afterwards could miss a like that committed while
+     * the deletion waited (the deletion would then cascade the pivot away and
+     * leave the liker's count at 1). The discussions come from the caller, so
+     * the lock is taken by id.
+     */
+    #[Test]
+    public function the_discussion_lock_reads_no_posts(): void
+    {
+        $db = $this->database();
+        $posts = $db->getQueryGrammar()->wrapTable('posts');
+        $discussions = $db->getQueryGrammar()->wrapTable('discussions');
+        $locks = [];
+
+        $db->listen(function (QueryExecuted $query) use ($posts, $discussions, &$locks) {
+            $from = strstr($query->sql, ' from ');
+            if ($from !== false && str_starts_with($from, " from $discussions ")) {
+                $locks[] = $query->sql;
+            }
+        });
+
+        Post::query()->findOrFail(1)->delete();
+
+        $this->assertNotSame([], $locks, 'The deletion should lock its discussion.');
+        $this->assertStringNotContainsString(
+            "from $posts",
+            $locks[0],
+            'The discussion lock must not read posts: that read can create the transaction\'s read view before the lock is granted.'
+        );
     }
 }

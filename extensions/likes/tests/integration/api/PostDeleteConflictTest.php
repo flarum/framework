@@ -189,6 +189,94 @@ class PostDeleteConflictTest extends TestCase
     }
 
     /**
+     * A like that commits before the deletion reads the likes must be counted
+     * and removed from the liker's counter when the post is deleted.
+     *
+     * MySQL and MariaDB create the transaction's read view at its first
+     * consistent read. The deletion used to look the discussions up from posts
+     * inside its locking statement, which reads posts before it waits for the
+     * discussion lock, so its view could predate a like that committed while it
+     * waited; the liker aggregate then missed the like, the cascade removed the
+     * pivot row, and the counter stayed at 1.
+     *
+     * The review reproduced that with a second session holding the discussion
+     * lock while the deletion waited. The suite runs one PHP process per test,
+     * so it cannot block a session and commit from another at the same time:
+     * the like is committed from the deletion connection's own query listener,
+     * at the point between the discussion lock and the liker aggregate where
+     * the waiting session's commit lands.
+     */
+    #[Test]
+    public function a_like_committed_before_the_likes_are_read_is_removed_with_the_post(): void
+    {
+        $this->extension('flarum-likes');
+
+        $db = $this->database();
+        if (! in_array($db->getDriverName(), ['mysql', 'mariadb'], true)) {
+            $this->markTestSkipped('Only MySQL and MariaDB give the transaction a read view, which is what makes the order of its reads matter.');
+        }
+
+        $observer = (new ConnectionFactory(new Container()))->make($db->getConfig());
+        $id = random_int(1000000000, 2000000000);
+        $now = Carbon::now()->toDateTimeString();
+        $liker = $id;
+        $discussion = $id;
+        $deletedPost = $id - 1;
+
+        try {
+            $observer->transaction(fn () => $this->insertFixture($observer, $liker, $discussion, $deletedPost, null, $now));
+
+            // The liker has not liked the post yet: their like is in flight.
+            $observer->table('post_likes')->where('post_id', $deletedPost)->delete();
+            $observer->table('users')->where('id', $liker)->update(['like_count' => 0]);
+
+            $db->rollBack();
+
+            $observer->beginTransaction();
+            $observer->table('users')->where('id', $liker)->lockForUpdate()->get(['id']);
+            $observer->table('post_likes')->insert(['post_id' => $deletedPost, 'user_id' => $liker]);
+            $observer->table('users')->where('id', $liker)->update(['like_count' => new Expression('like_count + 1')]);
+
+            // If the deletion ever waits for the like's uncommitted user row,
+            // fail in a second rather than hang the run.
+            $db->statement('SET SESSION innodb_lock_wait_timeout = 1');
+
+            $discussions = $db->getQueryGrammar()->wrapTable('discussions');
+            $committed = false;
+            $db->listen(function (QueryExecuted $query) use ($observer, $discussions, &$committed) {
+                if ($committed || ! str_ends_with($query->sql, 'for update') || ! str_contains($query->sql, "from $discussions ")) {
+                    return;
+                }
+
+                // The deletion has taken its discussion lock; the like
+                // commits before the deletion reads the likes.
+                $committed = true;
+                $observer->commit();
+            });
+
+            $response = $this->send($this->request('DELETE', "/api/posts/$deletedPost", ['authenticatedAs' => 1]));
+
+            $this->assertSame(204, $response->getStatusCode(), (string) $response->getBody());
+            $this->assertTrue($committed, 'The like should have committed inside the deletion.');
+            $this->assertFalse($observer->table('posts')->where('id', $deletedPost)->exists());
+            $this->assertFalse($observer->table('post_likes')->where('post_id', $deletedPost)->exists());
+            $this->assertSame(
+                0,
+                (int) $observer->table('users')->where('id', $liker)->value('like_count'),
+                'The like committed before the count was read, so deleting the post has to remove it from the count.'
+            );
+        } finally {
+            $this->closeTransaction($db);
+
+            // A no-op when the listener already committed it.
+            $observer->rollBack();
+
+            $observer->transaction(fn () => $this->removeFixture($observer, $liker, $discussion, null));
+            $observer->disconnect();
+        }
+    }
+
+    /**
      * A discussion with two posts, one of them liked by the liker, and
      * optionally a second discussion with a post to like meanwhile.
      *

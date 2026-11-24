@@ -16,15 +16,18 @@ use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
+use RuntimeException;
 
 class Posts extends Type
 {
     /**
      * How many times the author's posts are deleted in one erasure.
      *
-     * The posts are fixed when the discussions are scanned, so deleting by
-     * author again catches a reply written to a discussion the scan missed.
-     * The cap keeps someone who keeps posting from holding the erasure open.
+     * The discussions are rescanned before every pass, so a reply written to a
+     * discussion an earlier scan did not have is caught by the next one. The
+     * cap keeps someone who keeps posting from holding the erasure open; when
+     * it runs out with posts still there, the erasure fails rather than
+     * reporting success with posts left behind.
      */
     private const DELETE_PASSES = 10;
 
@@ -90,15 +93,21 @@ class Posts extends Type
                 return;
             }
 
-            $deleted = false;
-
             foreach (array_chunk($discussionIds, self::DISCUSSIONS_PER_TRANSACTION) as $ids) {
-                $deleted = $this->deleteChunk($db, $ids) || $deleted;
+                $this->deleteChunk($db, array_map('intval', $ids));
             }
+        }
 
-            if (! $deleted) {
-                return;
-            }
+        // A pass that deleted nothing is rescanned rather than taken as the
+        // end: the post it was about can be gone while a reply written
+        // meanwhile is still there. Running out of passes is a failure, not a
+        // success with the author's posts left behind.
+        if (Post::query()->where('user_id', $this->user->id)->exists()) {
+            throw new RuntimeException(sprintf(
+                'Posts of user %d are still present after %d deletion passes; the erasure will be retried.',
+                $this->user->id,
+                self::DELETE_PASSES
+            ));
         }
     }
 
@@ -114,10 +123,17 @@ class Posts extends Type
      *
      * @param list<int> $discussionIds
      */
-    protected function deleteChunk(ConnectionInterface $db, array $discussionIds): bool
+    protected function deleteChunk(ConnectionInterface $db, array $discussionIds): void
     {
-        return $db->transaction(function () use ($discussionIds) {
+        // Domain events raised by a discussion this chunk empties wait for the
+        // commit: a later refresh in the same chunk can fail and roll the whole
+        // chunk back, and an event that escaped first would describe rows that
+        // are back, then be dispatched again by the retry.
+        $events = [];
+
+        $db->transaction(function () use ($discussionIds, &$events) {
             $refreshed = [];
+            $attemptEvents = [];
 
             $deleted = Post::deleteWithEvents(
                 Post::query()
@@ -133,23 +149,34 @@ class Posts extends Type
 
                     return $targets->delete();
                 },
-                [$this->user->id]
+                [$this->user->id],
+                null,
+                $discussionIds,
             );
 
             if ($deleted) {
-                $this->refreshDiscussions($refreshed);
+                $attemptEvents = $this->refreshDiscussions($refreshed);
             }
 
-            return (bool) $deleted;
+            // Only the attempt that commits keeps its events; a retried
+            // attempt starts with an empty list.
+            $events = $attemptEvents;
         }, Post::conflictAttempts($db));
+
+        $dispatcher = resolve(Dispatcher::class);
+
+        foreach ($events as $event) {
+            $dispatcher->dispatch($event);
+        }
     }
 
     /**
      * @param list<int> $discussionIds
+     * @return list<object> The domain events to dispatch once the chunk commits.
      */
-    protected function refreshDiscussions(array $discussionIds): void
+    protected function refreshDiscussions(array $discussionIds): array
     {
-        $discussions = Discussion::query()->whereIn('id', $discussionIds)->get();
+        $discussions = Discussion::query()->whereIn('id', $discussionIds)->orderBy('id')->get();
 
         // The chunk's first and last posts are looked up together: one query
         // per discussion would be an N+1.
@@ -164,20 +191,25 @@ class Posts extends Type
             ? array_flip(array_map('intval', Post::query()->whereIn('id', $postIds)->pluck('id')->all()))
             : [];
 
-        $discussions->each(fn (Discussion $discussion) => $this->refreshDiscussion($discussion, $existingPostIds));
+        $events = [];
+
+        foreach ($discussions as $discussion) {
+            $events = array_merge($events, $this->refreshDiscussion($discussion, $existingPostIds));
+        }
+
+        return $events;
     }
 
     /**
      * @param array<int, int> $existingPostIds The chunk's first and last post
      *                                         ids that still exist, as keys.
+     * @return list<object> The domain events to dispatch once the chunk commits.
      */
-    protected function refreshDiscussion(Discussion $discussion, array $existingPostIds): void
+    protected function refreshDiscussion(Discussion $discussion, array $existingPostIds): array
     {
         // As when the last post of a discussion is deleted.
         if (! $discussion->posts()->exists()) {
-            $this->deleteDiscussion($discussion);
-
-            return;
+            return $this->deleteDiscussion($discussion);
         }
 
         // Their opening post is gone, so start at the first post that is
@@ -193,23 +225,38 @@ class Posts extends Type
         $discussion->refreshCommentCount();
         $discussion->refreshParticipantCount();
         $discussion->save();
+
+        return [];
     }
 
-    protected function deleteDiscussion(Discussion $discussion): void
+    /**
+     * @return list<object> The domain events to dispatch once the chunk commits.
+     */
+    protected function deleteDiscussion(Discussion $discussion): array
     {
-        $events = resolve(Dispatcher::class);
         $actor = $this->erasureRequest->processedBy ?? $this->user;
 
-        $events->dispatch(new Deleting($discussion, $actor, []));
+        // The "before" event belongs inside the transaction: its listeners are
+        // part of the deletion. The events raised by it are collected for
+        // after the commit instead.
+        resolve(Dispatcher::class)->dispatch(new Deleting($discussion, $actor, []));
 
         $discussion->delete();
 
+        $events = [];
+
         foreach ($discussion->releaseEvents() as $event) {
+            if (! is_object($event)) {
+                continue;
+            }
+
             if (property_exists($event, 'actor') && ! $event->actor) {
                 $event->actor = $actor;
             }
 
-            $events->dispatch($event);
+            $events[] = $event;
         }
+
+        return $events;
     }
 }

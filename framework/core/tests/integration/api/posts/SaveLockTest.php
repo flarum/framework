@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\posts;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Extend;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -19,6 +20,7 @@ use Flarum\User\User;
 use Illuminate\Container\Container;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Events\QueryExecuted;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -172,6 +174,64 @@ class SaveLockTest extends TestCase
             $post->parsed_content,
             'The visibility change must not put the loaded content back.'
         );
+    }
+
+    /**
+     * Eloquent caches the object an attribute is cast to, and merges it back
+     * into the attributes at the start of save(). The re-read under the lock
+     * has to drop that cache, or the object read before the lock is written
+     * back over a column another request changed.
+     */
+    #[Test]
+    public function a_visibility_save_drops_a_cached_cast_of_a_changed_column(): void
+    {
+        $this->extend((new Extend\Model(Post::class))->cast('ip_address', AsArrayObject::class));
+
+        $db = $this->database();
+        $db->table('posts')->where('id', 1)->update(['ip_address' => '["before"]']);
+
+        $post = CommentPost::findOrFail(1);
+
+        // Reading the attribute caches its cast object.
+        $this->assertSame(['before'], $post->ip_address->getArrayCopy());
+
+        // A simultaneous write, committed after the load and before the lock.
+        $db->table('posts')->where('id', 1)->update(['ip_address' => '["after"]']);
+
+        $post->is_private = true;
+        $post->save();
+
+        $this->assertTrue($post->refresh()->is_private, 'The visibility change should have been applied.');
+        $this->assertSame(
+            '["after"]',
+            $db->table('posts')->where('id', 1)->value('ip_address'),
+            'The cached cast must not put the value read before the lock back.'
+        );
+    }
+
+    /**
+     * A partial model can be loaded without `discussion_id`. There is no
+     * discussion to lock then, and locking `discussions.id IS NULL` locks
+     * nothing while looking like the write was serialized.
+     */
+    #[Test]
+    public function a_partial_post_without_its_discussion_does_not_try_to_lock_one(): void
+    {
+        $db = $this->database();
+        $discussions = $db->getQueryGrammar()->wrapTable('discussions');
+        $reads = [];
+        $db->listen(function (QueryExecuted $query) use ($discussions, &$reads) {
+            if (str_contains($query->sql, "from $discussions")) {
+                $reads[] = $query->sql;
+            }
+        });
+
+        $post = Post::query()->select(['id', 'is_private', 'is_approved'])->findOrFail(1);
+        $post->is_private = true;
+        $post->save();
+
+        $this->assertSame([], $reads, 'A post loaded without its discussion has none to lock.');
+        $this->assertTrue((bool) $db->table('posts')->where('id', 1)->value('is_private'));
     }
 
     #[Test]

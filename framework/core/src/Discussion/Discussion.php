@@ -141,7 +141,15 @@ class Discussion extends AbstractModel
             $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->get(['id']);
 
             // The cascade includes posts whose types are no longer registered.
-            return Post::deleteWithEvents($this->posts()->getQuery()->withoutGlobalScopes(), parent::delete(...));
+            // Its discussion is this one, so the posts' discussion lock can be
+            // taken by id rather than looked up from the posts.
+            return Post::deleteWithEvents(
+                $this->posts()->getQuery()->withoutGlobalScopes(),
+                parent::delete(...),
+                [],
+                null,
+                [(int) $this->getKey()],
+            );
         }, Post::conflictAttempts($db));
     }
 

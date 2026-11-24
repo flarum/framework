@@ -120,6 +120,29 @@ class DeleteTest extends TestCase
     }
 
     /**
+     * A rollback brings the row back but leaves Eloquent's in-memory `exists`
+     * flag false. Deleting again on the same instance has to look at the row
+     * rather than answer early.
+     */
+    #[Test]
+    public function a_delete_retried_after_a_rollback_still_deletes_the_row()
+    {
+        $db = $this->database();
+        $post = CommentPost::findOrFail(5);
+
+        $db->beginTransaction();
+        $post->delete();
+        $db->rollBack();
+
+        $this->assertTrue($db->table('posts')->where('id', 5)->exists(), 'The rollback should have brought the row back.');
+        $this->assertFalse($post->exists, 'The model is still marked deleted.');
+
+        $post->delete();
+
+        $this->assertFalse($db->table('posts')->where('id', 5)->exists());
+    }
+
+    /**
      * The same retry applies to deleting one post: its own transaction is
      * retried, so the events its failed attempt raised must not be raised a
      * second time.

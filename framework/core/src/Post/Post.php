@@ -132,7 +132,11 @@ class Post extends AbstractModel
 
     public function delete()
     {
-        if (! $this->exists) {
+        // A rolled back attempt leaves Eloquent's in-memory flag false while
+        // the row is back in the database, so the row decides whether there is
+        // anything to delete. Without this, retrying a delete on the same
+        // instance answers early and the row survives.
+        if (! $this->exists && ! $this->newModelQuery()->whereKey($this->getKey())->exists()) {
             return parent::delete();
         }
 
@@ -160,6 +164,8 @@ class Post extends AbstractModel
             function () use ($pendingEvents) {
                 $this->pendingEvents = $pendingEvents;
             },
+            // Its own discussion is the only one a single post can be in.
+            $this->discussion_id !== null ? [(int) $this->discussion_id] : null,
         );
     }
 
@@ -233,6 +239,11 @@ class Post extends AbstractModel
      * the loaded snapshot. Leaving the loaded attributes in place would make
      * them dirty against the new originals: approving a post would revert a
      * concurrent edit or hide of it.
+     *
+     * `setRawAttributes()` is used rather than assigning `attributes` so the
+     * model's cast caches are dropped too. Eloquent merges objects it has
+     * cached from a cast back into the attributes at the start of `save()`,
+     * which would put the value read before the lock back over the row.
      */
     private function syncOriginalFromLock(): void
     {
@@ -240,7 +251,7 @@ class Post extends AbstractModel
         $stored = $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->first();
 
         if ($stored !== null) {
-            $this->attributes = array_merge($stored->getAttributes(), $intended);
+            $this->setRawAttributes(array_merge($stored->getAttributes(), $intended));
             $this->original = $stored->getAttributes();
         }
     }
@@ -257,7 +268,14 @@ class Post extends AbstractModel
         $db = $this->getConnection();
 
         return $db->transaction(function () use ($db, $callback) {
-            $db->table('discussions')->where('id', $this->discussion_id)->lockForUpdate()->first(['id']);
+            // A model loaded without its discussion has none to serialize
+            // with: `where('id', null)` would lock `discussions.id IS NULL`,
+            // which locks nothing while looking like it protected the write.
+            // There is nothing to take by then; loading the column is what
+            // gives the write its lock.
+            if ($this->discussion_id !== null) {
+                $db->table('discussions')->where('id', $this->discussion_id)->lockForUpdate()->first(['id']);
+            }
 
             return $callback();
         }, $attempts);
@@ -286,11 +304,18 @@ class Post extends AbstractModel
      * @param list<int> $userIds Other users to lock alongside those requested by deletion listeners.
      * @param (\Closure(): void)|null $beforeAttempt Run at the start of each attempt, before the
      *                                listeners, to restore state a failed attempt left behind.
+     * @param list<int>|null $discussionIds The discussions the posts belong to, when the caller
+     *                                knows them. They are locked by id, which keeps the lock the
+     *                                transaction's first statement: MySQL and MariaDB create the
+     *                                transaction's read view at its first consistent read, so a
+     *                                lookup of the discussions inside it can predate the wait for
+     *                                the lock, and the likes read afterwards would then miss a like
+     *                                that committed meanwhile.
      * @return T
      *
      * Listeners may run once per retry attempt, so they must be idempotent.
      */
-    public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = [], ?\Closure $beforeAttempt = null): mixed
+    public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = [], ?\Closure $beforeAttempt = null, ?array $discussionIds = null): mixed
     {
         $query = $posts->toBase();
         if ($query->from !== 'posts' || $query->limit !== null || $query->offset !== null ||
@@ -301,7 +326,7 @@ class Post extends AbstractModel
 
         $db = $query->getConnection();
 
-        return $db->transaction(function () use ($query, $db, $delete, $userIds, $beforeAttempt) {
+        return $db->transaction(function () use ($query, $db, $delete, $userIds, $beforeAttempt, $discussionIds) {
             if ($beforeAttempt !== null) {
                 $beforeAttempt();
             }
@@ -309,9 +334,19 @@ class Post extends AbstractModel
             // Lock each discussion the posts belong to before its posts. A post
             // whose discussion row is already gone has no discussion to lock,
             // and is still deleted below rather than being left behind.
-            $db->table('discussions')
-                ->whereIn('id', (clone $query)->select('posts.discussion_id'))
-                ->orderBy('id')->lockForUpdate()->pluck('id');
+            if ($discussionIds === null) {
+                // The caller did not say which discussions these posts are in.
+                // The lookup below reads posts inside the transaction, which
+                // can create its read view before the lock is granted; a
+                // caller that knows the discussions should pass them.
+                $db->table('discussions')
+                    ->whereIn('id', (clone $query)->select('posts.discussion_id'))
+                    ->orderBy('id')->lockForUpdate()->pluck('id');
+            } elseif ($discussionIds !== []) {
+                $db->table('discussions')
+                    ->whereIn('id', $discussionIds)
+                    ->orderBy('id')->lockForUpdate()->pluck('id');
+            }
 
             // The posts being deleted, as a subquery rather than a list.
             // Listeners and the delete callback both work from it, so a big
