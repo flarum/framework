@@ -3,8 +3,8 @@ import Post from 'flarum/common/models/Post';
 import revalidateMentionsPage from './revalidateMentionsPage';
 
 /**
- * Reload an open Mentions tab after a post is saved and the save changed a
- * mention count.
+ * Reload an open Mentions tab after a post is saved and the save changed the
+ * count of the user whose list it holds.
  *
  * Editing, hiding, restoring and approving a post can change who it mentions
  * or whether those mentions count. When that happens the update response names
@@ -16,6 +16,11 @@ import revalidateMentionsPage from './revalidateMentionsPage';
  * every mention where it was, so the response names nobody. Reloading then
  * would replace a list the reader has paged through with its first page, so
  * only saves that actually reported a changed count are followed.
+ *
+ * The users named are not necessarily the user whose tab is open: one edit can
+ * add a mention of B to a post that already mentions A, and then only B's list
+ * changes. So the hook hands the named users to the reload, which decides
+ * whether the tab on screen belongs to one of them.
  *
  * The relationship is read from the response, not from the stored post: an
  * explicit empty `affectedMentionUsers` means no count changed, while its
@@ -31,7 +36,12 @@ export default function refreshMentionsOnPostSave(): void {
       (post) => {
         const affected = post.payload?.data.relationships?.affectedMentionUsers?.data;
 
-        if (!Array.isArray(affected) || affected.length > 0) revalidateMentionsPage();
+        if (!Array.isArray(affected)) {
+          revalidateMentionsPage(null);
+          return;
+        }
+
+        if (affected.length > 0) revalidateMentionsPage(affected.map((user) => user.id));
       },
       () => {}
     );

@@ -85,12 +85,13 @@ const savedPost = (affectedUsers: string[] = []) => ({
 const savedPostWithoutAffectedUsers = () => ({ data: { type: 'posts', id: '1', attributes: { number: 1 } } });
 
 describe('a Mentions tab and a saved post', () => {
-  it('puts its list on the current page, so a save can reload it', async () => {
+  it('puts its list on the current page, with the user it belongs to, so a save can reload it', async () => {
     jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
 
     const page = await openMentionsPage('2');
 
-    expect(app.current.get('mentions')).toBe(page.posts);
+    expect(app.current.get('mentions').posts).toBe(page.posts);
+    expect(app.current.get('mentions').user.id()).toBe('2');
   });
 
   it('reloads the list when the content changes, so a post that no longer matches leaves it', async () => {
@@ -99,7 +100,7 @@ describe('a Mentions tab and a saved post', () => {
       .spyOn(app.store, 'find')
       .mockResolvedValueOnce(pageOf(['1', '2']) as any)
       .mockResolvedValueOnce(pageOf(['2']) as any);
-    app.request = jest.fn(() => Promise.resolve(savedPost(['4']))) as any;
+    app.request = jest.fn(() => Promise.resolve(savedPost(['3', '4']))) as any;
 
     await openMentionsPage('3', posts);
     const revalidate = jest.spyOn(posts, 'revalidate');
@@ -112,6 +113,31 @@ describe('a Mentions tab and a saved post', () => {
 
     expect(revalidate).toHaveBeenCalledTimes(1);
     expect(idsInList(posts)).toEqual(['2']);
+  });
+
+  // Editing a post to mention B leaves the post in A's list and in A's count,
+  // so the response names only B. Reloading A's tab would drop the pages the
+  // reader has loaded without anything in it changing.
+  it("keeps the loaded pages when a save changes another user's mentions", async () => {
+    const posts = new PostListState({}, 20);
+    jest
+      .spyOn(app.store, 'find')
+      .mockResolvedValueOnce(pageOf(ids(1, 20), true) as any)
+      .mockResolvedValueOnce(pageOf(ids(21, 40)) as any)
+      .mockResolvedValue(pageOf([]) as any);
+    app.request = jest.fn(() => Promise.resolve(savedPost(['4'])) as any);
+
+    await openMentionsPage('3', posts);
+    await posts.loadNext();
+    const revalidate = jest.spyOn(posts, 'revalidate');
+    expect(posts.getPages()).toHaveLength(2);
+
+    await post().save({ content: 'edited to mention user 4' });
+    await flush();
+
+    expect(revalidate).not.toHaveBeenCalled();
+    expect(posts.getPages()).toHaveLength(2);
+    expect(idsInList(posts)).toHaveLength(40);
   });
 
   // An edit also saves `content`, but when the mention set did not change the
