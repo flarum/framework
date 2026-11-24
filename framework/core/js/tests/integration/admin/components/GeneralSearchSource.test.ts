@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals';
+import mq from 'mithril-query';
 import bootstrapAdmin from '@flarum/jest-config/src/bootstrap/admin';
 import GeneralSearchSource from '../../../../src/admin/components/GeneralSearchSource';
 import { app } from '../../../../src/admin';
@@ -455,6 +456,35 @@ describe('GeneralSearchSource', () => {
 
       expect(result).toBeDefined();
       expect(result!.link).toBe('/mail');
+    });
+  });
+
+  describe('query case', () => {
+    beforeAll(() => {
+      app.generalIndex
+        .group('query-case', { label: 'Query Case', icon: { name: 'fas fa-cog' }, link: '/admin/query-case' })
+        .for('query-case')
+        .add('settings', [
+          { id: 'quota_title', label: 'Quota title' },
+          { id: 'izinler', label: 'İzinler' },
+        ]);
+    });
+
+    const render = async (query: string) => {
+      const source = new GeneralSearchSource();
+      await source.search(query, 10);
+
+      const rendered = mq({ view: () => m('ul', source.view(query)) });
+
+      return rendered.find('.GeneralSearchResult mark').map((mark: Element) => mark.textContent);
+    };
+
+    it.each(['quota title', 'Quota title', 'QUOTA TITLE'])('shows and marks the results for "%s"', async (query) => {
+      expect(await render(query)).toEqual(['Quota title']);
+    });
+
+    it('marks a label whose capital changes length when lowercased', async () => {
+      expect(await render('İzinler')).toEqual(['İzinler']);
     });
   });
 });
