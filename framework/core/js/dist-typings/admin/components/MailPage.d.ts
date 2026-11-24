@@ -2,7 +2,6 @@ import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type { AlertIdentifier } from '../../common/states/AlertManagerState';
 import type Mithril from 'mithril';
-import type { SaveSubmitEvent } from './AdminPage';
 import ItemList from '../../common/utils/ItemList';
 export interface MailSettings {
     data: {
@@ -45,6 +44,6 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     mailSettingItems(): ItemList<Mithril.Children>;
     sendTestEmail(): void;
     provisionWebhook(unregister: boolean): void;
-    saveSettings(e: SaveSubmitEvent): Promise<void>;
+    onsaved(): void;
     static register(): void;
 }
