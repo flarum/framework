@@ -76,4 +76,55 @@ describe('Routes extender', () => {
     // @ts-ignore
     expect(app.route.nonexistent()).toBe('/nonexistent');
   });
+
+  test('removed route no longer works', () => {
+    app.bootExtensions({
+      first: {
+        extend: [new Routes().add('removable', '/removable', null)],
+      },
+      second: {
+        extend: [new Routes().remove('removable')],
+      },
+    });
+
+    app.boot();
+
+    expect(app.routes).not.toHaveProperty('removable');
+    expect(() => app.route('removable')).toThrow();
+  });
+
+  test('a route added and removed by the same extender is removed', () => {
+    app.bootExtensions({
+      test: {
+        extend: [new Routes().add('removableSame', '/removable-same', null).remove('removableSame')],
+      },
+    });
+
+    app.boot();
+
+    expect(app.routes).not.toHaveProperty('removableSame');
+  });
+
+  test('removing a route that does not exist does not throw', () => {
+    app.bootExtensions({
+      test: {
+        extend: [new Routes().remove('neverRegistered')],
+      },
+    });
+
+    expect(() => app.boot()).not.toThrow();
+  });
+
+  test('removing a route leaves other routes intact', () => {
+    app.bootExtensions({
+      test: {
+        extend: [new Routes().add('kept', '/kept', null).add('dropped', '/dropped', null).remove('dropped')],
+      },
+    });
+
+    app.boot();
+
+    expect(app.route('kept')).toBe('/kept');
+    expect(app.routes).not.toHaveProperty('dropped');
+  });
 });
