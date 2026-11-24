@@ -30,8 +30,8 @@ use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\AssetManager;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\DarkBodyBackground;
 use Flarum\Frontend\Frontend;
-use Flarum\Frontend\FrontendServiceProvider;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
@@ -221,7 +221,7 @@ class ForumServiceProvider extends AbstractServiceProvider
             $settings = $container->make(SettingsRepositoryInterface::class);
             $colorScheme = $settings->get('color_scheme') ?? 'auto';
             $secondaryColor = $settings->get('theme_secondary_color') ?? '#536F90';
-            $darkBodyBg = FrontendServiceProvider::computeDarkBodyBg($secondaryColor);
+            $darkBodyBg = DarkBodyBackground::cssColor($secondaryColor);
             $layout->with([
                 'colorScheme' => $colorScheme,
                 'darkBodyBg' => $darkBodyBg,
