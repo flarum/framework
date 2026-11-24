@@ -49,6 +49,9 @@ class PrivateIndex
     /** @var array<string, array<string,string>> package => version => release URL */
     protected array $releaseNotes = [];
 
+    /** @var array<string, array<string,string>> package => version => its flarum/core constraint */
+    protected array $coreRequirements = [];
+
     /** @var list<string>|null the composer repositories' URLs, once read */
     protected ?array $composerUrls = null;
 
@@ -125,6 +128,17 @@ class PrivateIndex
     public function releaseNotesFor(string $package): array
     {
         return $this->releaseNotes[$package] ?? [];
+    }
+
+    /**
+     * The flarum/core constraint of each version a Composer index lists,
+     * version => constraint. A GitHub tag carries none.
+     *
+     * @return array<string,string>
+     */
+    public function coreRequirementsFor(string $package): array
+    {
+        return $this->coreRequirements[$package] ?? [];
     }
 
     /**
@@ -340,6 +354,10 @@ class PrivateIndex
 
                     if ($url !== null) {
                         $this->releaseNotes[(string) $name][$version] = $url;
+                    }
+
+                    if (is_string($meta['require']['flarum/core'] ?? null)) {
+                        $this->coreRequirements[(string) $name][$version] = $meta['require']['flarum/core'];
                     }
                 }
             }

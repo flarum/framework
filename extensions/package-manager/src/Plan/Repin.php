@@ -62,6 +62,7 @@ class Repin
     {
         $available = (array) $this->cachedUpdates();
         $rule = StabilityRule::fromComposerJson($this->composerJsonPath);
+        $core = $this->installedCore();
         $out = [];
 
         foreach ($this->pinned($packages) as $package => $constraint) {
@@ -77,9 +78,11 @@ class Repin
                 continue;
             }
 
-            // A check saved before this rule existed, or before the forum's
-            // minimum-stability was raised, can still name one.
-            if (! $rule->allows($package, $to)) {
+            // A check saved before these rules existed, before the forum's
+            // minimum-stability was raised or under another core can still
+            // name a release this forum cannot install.
+            if (! $rule->allows($package, $to)
+                || ! UpdateCheck::coreRuns($core, is_string($available[$package]['core'] ?? null) ? $available[$package]['core'] : null)) {
                 continue;
             }
 
@@ -135,6 +138,19 @@ class Repin
     protected function cachedUpdates(): array
     {
         return (array) (UpdateCheck::cachedIn($this->updatesJsonPath)['updates'] ?? []);
+    }
+
+    protected function installedCore(): ?string
+    {
+        $lock = $this->readJson(dirname($this->composerJsonPath).'/composer.lock');
+
+        foreach ((array) ($lock['packages'] ?? []) as $package) {
+            if (is_array($package) && ($package['name'] ?? null) === 'flarum/core') {
+                return (string) ($package['version'] ?? '');
+            }
+        }
+
+        return null;
     }
 
     /** @return array<string,mixed> */
