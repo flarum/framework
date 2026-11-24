@@ -56,8 +56,10 @@ class PostResourceFields
                     $db = $post->getConnection();
 
                     $changed = $post->withDiscussionLock(function () use ($db, $post, $actor, $liked) {
-                        // Match the discussion, post, then user lock order in deletion.
-                        // The post's type and visibility decide whether its likes count.
+                        // The discussion lock is the one deletion takes, so a like
+                        // cannot commit against a post while its deletion reads the
+                        // likes. The post's type and visibility then decide whether
+                        // its likes count.
                         $locked = $post->newModelQuery()->whereKey($post->id)->lockForUpdate()
                             ->firstOrFail(['id', 'type', 'is_private']);
                         $db->table('users')->where('id', $actor->id)->lockForUpdate()->get(['id']);

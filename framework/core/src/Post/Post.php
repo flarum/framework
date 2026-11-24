@@ -138,14 +138,14 @@ class Post extends AbstractModel
 
         // The deletion can be retried, and events raised on the model stay
         // pending until the request dispatches them: a rolled back attempt
-        // would raise its events again on the retry and dispatch them twice.
+        // would raise its events again on the retry, and the listeners of the
+        // retry would run with them still pending. Clearing them at the start
+        // of each attempt, before the listeners, leaves only this attempt's.
         $pendingEvents = $this->pendingEvents;
 
         return self::deleteWithEvents(
             $this->newModelQuery()->whereKey($this->getKey()),
-            function ($posts) use ($pendingEvents) {
-                $this->pendingEvents = $pendingEvents;
-
+            function ($posts) {
                 if (! $posts->exists()) {
                     return false;
                 }
@@ -155,6 +155,10 @@ class Post extends AbstractModel
                 $this->exists = true;
 
                 return parent::delete();
+            },
+            [],
+            function () use ($pendingEvents) {
+                $this->pendingEvents = $pendingEvents;
             },
         );
     }
@@ -222,14 +226,21 @@ class Post extends AbstractModel
      * deciding from it would apply its change twice (two moderators approving
      * the same post both saw it as private). Re-reading the row after taking
      * the lock makes `getOriginal()` the state the change is made against.
-     * Only the original values are replaced; the attributes being saved and
-     * the dirty set stay as they are.
+     *
+     * The attributes are refreshed with it: the ones this save means to write
+     * are kept, and every other column takes the locked row's value, so a
+     * column another request changed in the meantime is not written back from
+     * the loaded snapshot. Leaving the loaded attributes in place would make
+     * them dirty against the new originals: approving a post would revert a
+     * concurrent edit or hide of it.
      */
     private function syncOriginalFromLock(): void
     {
+        $intended = $this->getDirty();
         $stored = $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->first();
 
         if ($stored !== null) {
+            $this->attributes = array_merge($stored->getAttributes(), $intended);
             $this->original = $stored->getAttributes();
         }
     }
@@ -273,11 +284,13 @@ class Post extends AbstractModel
      * @param \Closure(\Illuminate\Database\Query\Builder): T $delete Delete the posts the given query selects,
      *                               or return false to cancel. It can run more than once when the transaction is retried.
      * @param list<int> $userIds Other users to lock alongside those requested by deletion listeners.
+     * @param (\Closure(): void)|null $beforeAttempt Run at the start of each attempt, before the
+     *                                listeners, to restore state a failed attempt left behind.
      * @return T
      *
      * Listeners may run once per retry attempt, so they must be idempotent.
      */
-    public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = []): mixed
+    public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = [], ?\Closure $beforeAttempt = null): mixed
     {
         $query = $posts->toBase();
         if ($query->from !== 'posts' || $query->limit !== null || $query->offset !== null ||
@@ -288,7 +301,11 @@ class Post extends AbstractModel
 
         $db = $query->getConnection();
 
-        return $db->transaction(function () use ($query, $db, $delete, $userIds) {
+        return $db->transaction(function () use ($query, $db, $delete, $userIds, $beforeAttempt) {
+            if ($beforeAttempt !== null) {
+                $beforeAttempt();
+            }
+
             // Lock each discussion the posts belong to before its posts. A post
             // whose discussion row is already gone has no discussion to lock,
             // and is still deleted below rather than being left behind.

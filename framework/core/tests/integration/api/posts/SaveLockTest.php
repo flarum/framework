@@ -146,6 +146,34 @@ class SaveLockTest extends TestCase
         $this->assertSame('<t><p>Edited</p></t>', $second->refresh()->content);
     }
 
+    /**
+     * The re-read under the lock must not write the loaded snapshot back over
+     * columns another request changed while this one waited: approving a post
+     * must not revert its author's simultaneous edit.
+     */
+    #[Test]
+    public function a_visibility_save_keeps_a_column_another_request_changed(): void
+    {
+        $db = $this->database();
+
+        $post = CommentPost::findOrFail(1);
+
+        // A simultaneous ordinary edit, committed after this request loaded
+        // the post and before it took the discussion lock.
+        $db->table('posts')->where('id', 1)->update(['content' => '<t><p>Their edit</p></t>']);
+
+        $post->is_private = true;
+        $post->save();
+
+        $this->assertTrue($post->refresh()->is_private, 'The visibility change should have been applied.');
+        // The raw stored form: `$post->content` is unparsed for display.
+        $this->assertSame(
+            '<t><p>Their edit</p></t>',
+            $post->parsed_content,
+            'The visibility change must not put the loaded content back.'
+        );
+    }
+
     #[Test]
     public function an_empty_patch_on_another_users_post_does_not_take_the_discussion_lock(): void
     {

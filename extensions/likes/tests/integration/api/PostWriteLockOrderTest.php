@@ -75,8 +75,23 @@ class PostWriteLockOrderTest extends TestCase
             });
 
             $grammar = $db->getQueryGrammar();
+            $posts = $grammar->wrapTable('posts');
             $users = $grammar->wrapTable('users');
-            $userWasLocked = $likeCountsRead = false;
+            $postWasLocked = $userWasLocked = $likeCountsRead = false;
+            $db->listen(function (QueryExecuted $query) use ($observer, $posts, $id, &$postWasLocked) {
+                if (! str_ends_with($query->sql, 'for update')) {
+                    return;
+                }
+
+                $from = strstr($query->sql, ' from ');
+                if (! $postWasLocked && str_starts_with($from ?: '', " from $posts ")) {
+                    // Only the like write locks the post row itself (to read
+                    // its type and visibility); a deletion does not, it holds
+                    // the discussion's lock instead.
+                    $this->assertLocked($observer, 'discussions', $id);
+                    $postWasLocked = true;
+                }
+            });
             $db->listen(function (QueryExecuted $query) use ($observer, $id, &$likeCountsRead) {
                 // A like takes the discussion lock before touching the pivot,
                 // so this is what keeps a like from slipping in between the
@@ -89,7 +104,7 @@ class PostWriteLockOrderTest extends TestCase
                 $this->assertLocked($observer, 'discussions', $id);
                 $likeCountsRead = true;
             });
-            $db->listen(function (QueryExecuted $query) use ($observer, $users, $id, &$userWasLocked) {
+            $db->listen(function (QueryExecuted $query) use ($observer, $users, $id, $action, &$postWasLocked, &$userWasLocked) {
                 if (! str_ends_with($query->sql, 'for update')) {
                     return;
                 }
@@ -97,9 +112,14 @@ class PostWriteLockOrderTest extends TestCase
                 $from = strstr($query->sql, ' from ');
                 if (! $userWasLocked && str_starts_with($from ?: '', " from $users ")) {
                     // The discussion is what every write changing a like or a
-                    // count takes first: the like itself, a visibility change,
-                    // and the deletion (which no longer locks the post rows).
+                    // count takes first; the like also holds the post row by
+                    // then, which the deletion does not take.
                     $this->assertLocked($observer, 'discussions', $id);
+
+                    if ($action === 'unlike') {
+                        $this->assertTrue($postWasLocked, 'The like should lock the post before the liker.');
+                    }
+
                     $userWasLocked = true;
                 }
             });
@@ -118,8 +138,11 @@ class PostWriteLockOrderTest extends TestCase
             $this->assertSame($status, $response->getStatusCode(), (string) $response->getBody());
             $this->assertTrue($userWasLocked);
 
-            if ($action !== 'unlike') {
+            if ($action === 'unlike') {
+                $this->assertTrue($postWasLocked, 'The like should lock the post.');
+            } else {
                 $this->assertTrue($likeCountsRead, 'The deletion should have read the likes it has to remove.');
+                $this->assertFalse($postWasLocked, 'A deletion should not lock the post row itself.');
             }
         } finally {
             $db->rollBack();

@@ -55,7 +55,7 @@ class DeletingPostsTest extends TestCase
     }
 
     #[Test]
-    public function a_discussion_cascade_delivers_its_locked_posts(): void
+    public function a_discussion_cascade_delivers_its_posts(): void
     {
         $delivered = null;
         $presentDuringDispatch = false;
@@ -147,7 +147,7 @@ class DeletingPostsTest extends TestCase
         });
 
         $this->assertFalse($result);
-        $this->assertSame([1, 2, 3], $delivered, 'The delete callback should receive the locked posts.');
+        $this->assertSame([1, 2, 3], $delivered, 'The delete callback should receive the posts the deletion selected.');
         $this->assertSame(0, $callbacks, 'A cancelled deletion must not run the deletion callbacks.');
         $this->assertSame(3, Post::query()->where('discussion_id', 1)->count());
     }

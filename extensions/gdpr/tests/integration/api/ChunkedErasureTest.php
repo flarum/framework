@@ -33,7 +33,15 @@ class ChunkedErasureTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /** Discussions 1-100 are the first chunk, discussion 101 the second. */
+    /**
+     * One more discussion than fits in one transaction.
+     *
+     * The erasure deletes and refreshes 100 discussions per transaction
+     * (Flarum\Gdpr\Data\Posts::DISCUSSIONS_PER_TRANSACTION), so discussions
+     * 1-100 are the first chunk and discussion 101 is the second. The tests
+     * below rely on a failure in the second chunk happening after the first
+     * has been committed; if that constant changes, so must this fixture.
+     */
     private const DISCUSSIONS = 101;
 
     protected function setUp(): void
@@ -94,12 +102,24 @@ class ChunkedErasureTest extends TestCase
         // first and last post, its comment and participant counts, and the
         // discussion row. That is one refresh per discussion by design, and
         // this fixture is large enough to need two chunks of them.
+        //
+        // Each shape names its table, so an unrelated query is not excused.
+        // The identifiers are wrapped the way the connection under test wraps
+        // them, so the list also holds on MySQL and PostgreSQL.
+        $grammar = $this->database()->getQueryGrammar();
+        $posts = $grammar->wrapTable('posts');
+        $users = $grammar->wrapTable('users');
+        $discussions = $grammar->wrapTable('discussions');
+        $discussionId = $grammar->wrap('posts.discussion_id');
+
         return [
-            'select exists(select * from ',
-            'asc limit ?',
-            'select count(*) as ',
-            'select count(distinct ',
-            'comment_count',
+            // The remaining posts check, the opening comment lookup, and the
+            // comment count.
+            "from $posts where $discussionId = ?",
+            // The participant count, joined to the posts of the discussion.
+            "from $users inner join $posts on",
+            // The refreshed discussion row.
+            "update $discussions set ".$grammar->wrap('comment_count'),
         ];
     }
 
