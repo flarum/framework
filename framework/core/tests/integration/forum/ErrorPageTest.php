@@ -16,6 +16,7 @@ use Flarum\Foundation\ErrorHandling\ViewFormatter;
 use Flarum\Http\Middleware\AuthenticateWithSession;
 use Flarum\Http\RequestUtil;
 use Flarum\Notification\UnsubscribeToken;
+use Flarum\Testing\CompiledColors;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\EmailToken;
@@ -283,8 +284,10 @@ class ErrorPageTest extends TestCase
 
     /**
      * Dark-mode links keep the primary colour, lightened until they are readable
-     * rather than falling back to the text colour. Buttons pick their label the
-     * way the forum does: white or the dark body background.
+     * against the brighter of the declared background colour and the bytes it
+     * rounds to, rather than falling back to the text colour. Buttons pick their
+     * label the way the forum does: white or the dark body background, compared
+     * against the declared colour.
      *
      * @return array<string, array{string, string, string, string, string, string}>
      */
@@ -302,8 +305,10 @@ class ErrorPageTest extends TestCase
             'mid-light grey on a blue secondary' => ['#818181', '#00f', '#818181', 'hsl(240,20%,10%)', $themeText, '#818181'],
             'mid-light grey on a yellow secondary' => ['#818181', '#ff0', '#818181', 'hsl(60,20%,10%)', $themeText, '#868686'],
             'yellow on a blue secondary' => ['#ff0', '#00f', '#ff0', 'hsl(240,20%,10%)', $themeText, '#ff0'],
+            'green on a green secondary lightens against the rounded bytes' => ['#090', '#0f0', '#090', 'hsl(120,20%,10%)', $themeText, '#009e00'],
+            'blue on a yellow secondary labels the button like the forum does' => ['#27f', '#ff0', '#27f', 'hsl(60,20%,10%)', $themeText, '#3684ff'],
             'invalid secondary falls back to the dark body background' => ['#ffffff', 'red', '#ffffff', '#1a2333', $themeText, '#ffffff'],
-            'secondary with leading space uses the same fallback as the page' => ['#777', ' #536F90', '#777', '#fff', $themeText, '#898989'],
+            'secondary with leading space uses the same fallback as the page' => ['#828282', ' #536F90', '#828282', '#1a2333', $themeText, '#8a8a8a'],
             'unset' => ['', '#536F90', '#000', '#fff', '#000', $themeText],
             'named colour falls back to black' => ['red', '#536F90', '#000', '#fff', '#000', $themeText],
             'rgb() falls back to black' => ['rgb(1, 2, 3)', '#536F90', '#000', '#fff', '#000', $themeText],
@@ -325,16 +330,15 @@ class ErrorPageTest extends TestCase
             $matches,
         ));
 
-        $linearize = static fn (float $channel): float => $channel <= 0.04045
-            ? $channel / 12.92
-            : (($channel + 0.055) / 1.055) ** 2.4;
-        $luminance = static fn (float $red, float $green, float $blue): float => 0.2126 * $linearize($red) + 0.7152 * $linearize($green) + 0.0722 * $linearize($blue);
+        // hsl(212,20%,10%) declares rgb(20.4, 25.16, 30.6), which is not the
+        // same as the rgb(20, 25, 31) its bytes round to. The link has to stay
+        // readable against both, so check both.
+        $declared = [20.4, 25.16, 30.6, 1];
+        $rounded = [20, 25, 31, 1];
+        $link = [...array_map(static fn (string $channel): int => hexdec($channel), str_split($matches[1], 2)), 1];
 
-        // The declared CSS background is rgb(20.4, 25.16, 30.6) before byte rounding.
-        $background = $luminance(20.4 / 255, 25.16 / 255, 30.6 / 255);
-        $link = $luminance(...array_map(static fn (string $channel): float => hexdec($channel) / 255, str_split($matches[1], 2)));
-
-        $this->assertGreaterThanOrEqual(4.5, ($link + 0.05) / ($background + 0.05));
+        $this->assertGreaterThanOrEqual(4.5, CompiledColors::contrast($link, $declared));
+        $this->assertGreaterThanOrEqual(4.5, CompiledColors::contrast($link, $rounded));
     }
 
     #[Test]
@@ -372,6 +376,22 @@ class ErrorPageTest extends TestCase
         $this->assertStringNotContainsString('prefers-color-scheme: dark', $html);
         $this->assertStringNotContainsString('@media all', $html);
         $this->assertStringNotContainsString('color-scheme: dark', $html);
+    }
+
+    #[Test]
+    public function error_page_is_light_when_the_forum_is_light_high_contrast(): void
+    {
+        $this->setting('color_scheme', 'light-hc');
+        $this->setting('theme_primary_color', '#777');
+
+        $html = $this->render();
+
+        $this->assertStringNotContainsString('prefers-color-scheme: dark', $html);
+        $this->assertStringNotContainsString('@media all', $html);
+        $this->assertStringNotContainsString('color-scheme: dark', $html);
+        // High-contrast themes label this mid-grey button black, not with the
+        // dark body background.
+        $this->assertMatchesRegularExpression('/background: #777;\s+color: #000;/', $html);
     }
 
     #[Test]
