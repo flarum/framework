@@ -131,10 +131,9 @@ class PrivateIndex
     }
 
     /**
-     * The flarum/core constraint of each version a Composer index lists,
-     * version => constraint. A GitHub tag carries none.
+     * Filled by versionsFor(); a GitHub tag carries none.
      *
-     * @return array<string,string>
+     * @return array<string,string> version => flarum/core constraint
      */
     public function coreRequirementsFor(string $package): array
     {
@@ -356,8 +355,9 @@ class PrivateIndex
                         $this->releaseNotes[(string) $name][$version] = $url;
                     }
 
-                    if (is_string($meta['require']['flarum/core'] ?? null)) {
-                        $this->coreRequirements[(string) $name][$version] = $meta['require']['flarum/core'];
+                    // The first repository listing a version wins, as in Composer.
+                    if (is_string($needs = $meta['require']['flarum/core'] ?? null)) {
+                        $this->coreRequirements[(string) $name][$version] ??= $needs === 'self.version' ? $version : $needs;
                     }
                 }
             }

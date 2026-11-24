@@ -78,9 +78,9 @@ class Repin
                 continue;
             }
 
-            // A check saved before these rules existed, before the forum's
-            // minimum-stability was raised or under another core can still
-            // name a release this forum cannot install.
+            // A check saved before this rule existed, before the forum's
+            // minimum-stability was raised, or under another core can still
+            // name one.
             if (! $rule->allows($package, $to)
                 || ! UpdateCheck::coreRuns($core, is_string($available[$package]['core'] ?? null) ? $available[$package]['core'] : null)) {
                 continue;

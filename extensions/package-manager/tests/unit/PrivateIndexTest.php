@@ -398,6 +398,16 @@ class PrivateIndexTest extends TestCase
         $this->assertSame([], $index->coreRequirementsFor('vendor/unknown'));
     }
 
+    /** Composer takes a version from the first repository that lists it. */
+    public function test_the_first_composer_index_to_list_a_version_gives_its_core_requirement(): void
+    {
+        $index = $this->index([]);
+        $this->parse($index, ['packages' => ['vendor/paid' => ['1.1.0' => ['version' => '1.1.0', 'require' => ['flarum/core' => '^2.1']]]]]);
+        $this->parse($index, ['packages' => ['vendor/paid' => ['1.1.0' => ['version' => '1.1.0', 'require' => ['flarum/core' => '^2.2']]]]]);
+
+        $this->assertSame(['1.1.0' => '^2.1'], $index->coreRequirementsFor('vendor/paid'));
+    }
+
     /** @return array<string, list<string>> */
     private function parse(PrivateIndex $index, array $payload): array
     {

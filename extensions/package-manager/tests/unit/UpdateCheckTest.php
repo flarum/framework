@@ -484,8 +484,8 @@ class UpdateCheckTest extends TestCase
     public function test_a_release_with_no_core_requirement_is_offered(): void
     {
         $http = $this->packagist(['acme/thing' => [
+            ['version' => '1.2.0', 'require' => ['flarum/core' => '^9.0']],
             ['version' => '1.1.0', 'require' => '__unset'],
-            ['version' => '1.0.1', 'require' => ['flarum/core' => '^2.1']],
         ]]);
 
         $result = $this->checkSite($http, 'v2.1.0', ['acme/thing' => '1.0.0']);
@@ -507,16 +507,32 @@ class UpdateCheckTest extends TestCase
         $this->assertSame('1.0.1', $result['updates']['acme/thing']['to']);
     }
 
-    /** A branch install has no version to hold the requirement against. */
-    public function test_a_forum_on_a_core_branch_is_offered_every_release(): void
+    public function test_a_forum_on_a_core_branch_is_held_to_its_number_if_it_has_one(): void
     {
         $http = $this->packagist(['acme/thing' => [
+            ['version' => '2.0.0', 'require' => ['flarum/core' => '^3.0']],
             ['version' => '1.1.0', 'require' => ['flarum/core' => '^2.2']],
         ]]);
 
         $result = $this->checkSite($http, '2.x-dev', ['acme/thing' => '1.0.0']);
-
         $this->assertSame('1.1.0', $result['updates']['acme/thing']['to']);
+
+        @unlink($this->cache);
+        $result = $this->checkSite($http, 'dev-main', ['acme/thing' => '1.0.0']);
+        $this->assertSame('2.0.0', $result['updates']['acme/thing']['to']);
+    }
+
+    /** Packagist did not answer this time, and core has been rolled back since the last check. */
+    public function test_a_carried_over_release_the_installed_core_cannot_run_is_dropped(): void
+    {
+        file_put_contents($this->cache, json_encode(['checkedAt' => time(), 'updates' => [
+            'acme/new' => ['from' => '1.0.0', 'to' => '1.1.0', 'core' => '^2.2'],
+            'acme/fits' => ['from' => '1.0.0', 'to' => '1.1.0', 'core' => '^2.1'],
+        ]]));
+
+        $result = $this->check()->refresh(['flarum/core' => 'v2.1.0', 'acme/new' => '1.0.0', 'acme/fits' => '1.0.0'], fn () => false);
+
+        $this->assertSame(['acme/fits'], array_keys($result['updates']));
     }
 
     public function test_a_protected_composer_repository_requirement_is_respected(): void
@@ -574,9 +590,10 @@ class UpdateCheckTest extends TestCase
             ['version' => '1.1.0'],
             ['version' => '1.0.0', 'require' => ['php' => '^8.2']],
             ['version' => '0.9.0', 'require' => '__unset'],
+            ['version' => '0.8.0', 'require' => ['flarum/core' => 'self.version']],
         ]);
 
-        $this->assertSame(['1.2.0' => '^2.2', '1.1.0' => '^2.2'], $core);
+        $this->assertSame(['1.2.0' => '^2.2', '1.1.0' => '^2.2', '0.8.0' => '0.8.0'], $core);
     }
 
     /** A check saved before the rule, or before minimum-stability was raised, stops offering it. */
@@ -744,13 +761,6 @@ class UpdateCheckTest extends TestCase
         return StabilityRule::fromComposerJson($base.'/composer.json');
     }
 
-    /**
-     * A forum directory: composer.json as given, composer.lock with these
-     * extensions installed. Removed in tearDown.
-     *
-     * @param array<string,mixed> $composerJson
-     * @param array<string,string> $installed
-     */
     /** @param array<string,list<array<string,mixed>>> $packages minified p2 entries per package */
     private function packagist(array $packages): \GuzzleHttp\ClientInterface
     {
@@ -776,6 +786,13 @@ class UpdateCheckTest extends TestCase
         return (array) (new UpdateCheck($this->cache, $http))->refreshSite(EnglishTranslator::make(), $base);
     }
 
+    /**
+     * A forum directory: composer.json as given, composer.lock with these
+     * extensions installed. Removed in tearDown.
+     *
+     * @param array<string,mixed> $composerJson
+     * @param array<string,string> $installed
+     */
     private function site(array $composerJson, array $installed): string
     {
         $base = $this->cache.'.site';

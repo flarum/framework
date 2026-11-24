@@ -148,7 +148,10 @@ class UpdateCheck
          * nothing newer. Entries for packages no longer installed are not
          * carried over: a stale one made `update --all` refuse the whole run.
          */
-        $previous = array_intersect_key((array) ($this->cached()['updates'] ?? []), $installed);
+        $previous = array_filter(
+            array_intersect_key((array) ($this->cached()['updates'] ?? []), $installed),
+            fn ($update) => self::coreRuns($installed['flarum/core'] ?? null, is_string($update['core'] ?? null) ? $update['core'] : null)
+        );
 
         $result = [
             'checkedAt' => time(),
@@ -460,13 +463,13 @@ class UpdateCheck
     }
 
     /**
-     * Whether the installed core satisfies a release's flarum/core constraint.
-     * No constraint (a GitHub tag carries none) or no core version to hold it
-     * against, such as a branch install, counts as yes.
+     * No constraint (a GitHub tag carries none) counts as yes, and so does a
+     * core on a named branch, which has no version to compare. A numbered
+     * branch such as 2.x-dev is compared, as Composer does.
      */
     public static function coreRuns(?string $installedCore, ?string $constraint): bool
     {
-        if ($constraint === null || $installedCore === null || $installedCore === '' || self::tracksABranch($installedCore)) {
+        if ($constraint === null || $installedCore === null || $installedCore === '' || str_starts_with($installedCore, 'dev-')) {
             return true;
         }
 
@@ -581,8 +584,8 @@ class UpdateCheck
             $version = (string) $current['version'];
             $versions[] = $version;
 
-            if (is_string($current['require']['flarum/core'] ?? null)) {
-                $core[$version] = $current['require']['flarum/core'];
+            if (is_string($needs = $current['require']['flarum/core'] ?? null)) {
+                $core[$version] = $needs === 'self.version' ? $version : $needs;
             }
 
             $url = self::releaseUrl((string) ($current['source']['url'] ?? ''), $version);
