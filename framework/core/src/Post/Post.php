@@ -136,9 +136,16 @@ class Post extends AbstractModel
             return parent::delete();
         }
 
+        // The deletion can be retried, and events raised on the model stay
+        // pending until the request dispatches them: a rolled back attempt
+        // would raise its events again on the retry and dispatch them twice.
+        $pendingEvents = $this->pendingEvents;
+
         return self::deleteWithEvents(
             $this->newModelQuery()->whereKey($this->getKey()),
-            function ($posts) {
+            function ($posts) use ($pendingEvents) {
+                $this->pendingEvents = $pendingEvents;
+
                 if (! $posts->exists()) {
                     return false;
                 }
@@ -167,6 +174,8 @@ class Post extends AbstractModel
             $this->discussionLocked = true;
 
             try {
+                $this->syncOriginalFromLock();
+
                 return parent::save($options);
             } finally {
                 $this->discussionLocked = false;
@@ -187,6 +196,8 @@ class Post extends AbstractModel
                 $this->discussionLocked = true;
 
                 try {
+                    $this->syncOriginalFromLock();
+
                     return parent::performUpdate($query);
                 } finally {
                     $this->discussionLocked = false;
@@ -200,6 +211,27 @@ class Post extends AbstractModel
     private function visibilityIsDirty(): bool
     {
         return $this->isDirty('is_private') || $this->isDirty('is_approved');
+    }
+
+    /**
+     * Replace the loaded snapshot with the row the discussion lock protects.
+     *
+     * The visibility transaction waits for the lock, so what the model was
+     * loaded with can already be out of date when the lock is granted:
+     * `getOriginal()` would report the state before the wait, and a listener
+     * deciding from it would apply its change twice (two moderators approving
+     * the same post both saw it as private). Re-reading the row after taking
+     * the lock makes `getOriginal()` the state the change is made against.
+     * Only the original values are replaced; the attributes being saved and
+     * the dirty set stay as they are.
+     */
+    private function syncOriginalFromLock(): void
+    {
+        $stored = $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->first();
+
+        if ($stored !== null) {
+            $this->original = $stored->getAttributes();
+        }
     }
 
     /**
@@ -267,12 +299,16 @@ class Post extends AbstractModel
             // The posts being deleted, as a subquery rather than a list.
             // Listeners and the delete callback both work from it, so a big
             // discussion costs SQL work instead of memory.
+            //
+            // The posts are not locked here. A write that can change their
+            // visibility or their likes takes the discussion lock above first
+            // (a like, or a visibility change), so that lock is what
+            // serializes the deletion with those writes. Locking the rows
+            // separately also locked rows of other discussions on MySQL and
+            // MariaDB, where a primary-key scan locks every row it walks under
+            // REPEATABLE READ. A post whose discussion row is gone cannot be
+            // reached to be written: it is not visible without a discussion.
             $deleted = (clone $query)->select('posts.id');
-
-            // Lock the posts in bounded chunks, which are thrown away: the
-            // listeners get the subquery, not the rows.
-            (clone $deleted)->orderBy('posts.id')->lockForUpdate()
-                ->chunkById(1000, fn () => null, 'posts.id', 'id');
 
             $event = new DeletingPosts($db, $deleted, $userIds);
             resolve(Dispatcher::class)->dispatch($event);

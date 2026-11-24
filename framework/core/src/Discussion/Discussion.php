@@ -122,10 +122,17 @@ class Discussion extends AbstractModel
 
         $db = $this->getConnection();
 
+        // Events raised on the model stay pending until the request dispatches
+        // them, and a rollback does not clear them, so a failed attempt's
+        // events would be raised again on the retry and dispatched twice.
+        $pendingEvents = $this->pendingEvents;
+
         // The cascade deletes posts, whose counter updates can collide with a
         // liker's like. MariaDB then reports a deadlock or a changed record, so
         // retry here, at the outermost transaction, rather than in the cascade.
-        return $db->transaction(function () {
+        return $db->transaction(function () use ($pendingEvents) {
+            $this->pendingEvents = $pendingEvents;
+
             // A retry follows a rolled back attempt that left the model marked
             // deleted while its row is back in the database.
             $this->exists = true;

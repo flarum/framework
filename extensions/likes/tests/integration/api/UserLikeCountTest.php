@@ -336,6 +336,31 @@ class UserLikeCountTest extends TestCase
     }
 
     #[Test]
+    public function approving_an_already_approved_post_does_not_add_a_second_time(): void
+    {
+        $this->extension('flarum-approval', 'flarum-flags');
+        $db = $this->database();
+        $db->table('posts')->where('id', 3)->update(['is_approved' => false, 'is_private' => true]);
+        $db->table('post_likes')->insert(['post_id' => 3, 'user_id' => 2]);
+        $db->table('users')->where('id', 2)->update(['like_count' => 0]);
+
+        // Both moderators load the post while it is still pending, as two
+        // requests arriving together do; the first commits before the second
+        // gets the discussion lock.
+        $first = CommentPost::findOrFail(3);
+        $second = CommentPost::findOrFail(3);
+
+        $first->is_approved = true;
+        $first->save();
+        $this->assertSame(1, $this->likeCountOf(2));
+
+        $second->is_approved = true;
+        $second->save();
+
+        $this->assertSame(1, $this->likeCountOf(2), 'The post was already counted, so the second approval must not add again.');
+    }
+
+    #[Test]
     public function hiding_a_liked_post_again_moves_each_liker_back_down_by_one(): void
     {
         $this->extension('flarum-approval', 'flarum-flags');

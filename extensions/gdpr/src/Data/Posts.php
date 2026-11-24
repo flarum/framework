@@ -14,6 +14,7 @@ use Flarum\Discussion\Event\Deleting;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 
 class Posts extends Type
@@ -26,6 +27,11 @@ class Posts extends Type
      * The cap keeps someone who keeps posting from holding the erasure open.
      */
     private const DELETE_PASSES = 10;
+
+    /**
+     * How many discussions are deleted and refreshed in one transaction.
+     */
+    private const DISCUSSIONS_PER_TRANSACTION = 100;
 
     public static function piiFields(): array
     {
@@ -68,56 +74,97 @@ class Posts extends Type
     {
         $db = Post::query()->getConnection();
 
-        // The deletion and the refreshes commit together: if a discussion
-        // cannot be refreshed, its posts are still there for the retry, rather
-        // than leaving stale counts and pointers, or a discussion behind empty.
-        $db->transaction(function () {
-            // The discussions are scanned before each deletion, so a reply
-            // written to a discussion outside the previous scan is caught by
-            // the next pass. The deletion is by author, as it was before the
-            // posts were handed to the event as a fixed set.
-            for ($pass = 0; $pass < self::DELETE_PASSES; $pass++) {
-                $discussionIds = [];
+        // The discussions are scanned before each pass, so a reply written to
+        // a discussion outside the previous scan is caught by the next pass.
+        // The deletion is by author, as it was before the posts were handed to
+        // the event as a fixed set.
+        for ($pass = 0; $pass < self::DELETE_PASSES; $pass++) {
+            $discussionIds = Post::query()
+                ->where('user_id', $this->user->id)
+                ->orderBy('discussion_id')
+                ->distinct()
+                ->pluck('discussion_id')
+                ->all();
 
-                $deleted = Post::deleteWithEvents(
-                    Post::query()->where('user_id', $this->user->id),
-                    function ($targets) use (&$discussionIds) {
-                        $discussionIds = (clone $targets)->select('posts.discussion_id')->distinct()->pluck('discussion_id')->all();
-
-                        Notification::query()
-                            ->whereSubjectModel(Post::class)
-                            ->whereIn('subject_id', $targets)
-                            ->delete();
-
-                        return $targets->delete();
-                    },
-                    [$this->user->id]
-                );
-
-                foreach (array_chunk($discussionIds, 100) as $ids) {
-                    $discussions = Discussion::query()->whereIn('id', $ids)->get();
-
-                    // The chunk's first and last posts are looked up together:
-                    // one query per discussion would be an N+1.
-                    $postIds = $discussions
-                        ->flatMap(fn (Discussion $discussion) => [$discussion->first_post_id, $discussion->last_post_id])
-                        ->filter()
-                        ->unique()
-                        ->values()
-                        ->all();
-
-                    $existingPostIds = $postIds
-                        ? array_flip(array_map('intval', Post::query()->whereIn('id', $postIds)->pluck('id')->all()))
-                        : [];
-
-                    $discussions->each(fn (Discussion $discussion) => $this->refreshDiscussion($discussion, $existingPostIds));
-                }
-
-                if (! $deleted) {
-                    return;
-                }
+            if ($discussionIds === []) {
+                return;
             }
+
+            $deleted = false;
+
+            foreach (array_chunk($discussionIds, self::DISCUSSIONS_PER_TRANSACTION) as $ids) {
+                $deleted = $this->deleteChunk($db, $ids) || $deleted;
+            }
+
+            if (! $deleted) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * Delete the author's posts in the given discussions and refresh them.
+     *
+     * A chunk is one transaction: if a discussion in it cannot be refreshed,
+     * that chunk's posts are still there for the retry, rather than leaving
+     * stale counts and pointers, or a discussion behind empty. Its locks are
+     * released as soon as it is done instead of at the end of the erasure, so
+     * a reply to a discussion the erasure has not reached yet waits for at
+     * most one chunk.
+     *
+     * @param list<int> $discussionIds
+     */
+    protected function deleteChunk(ConnectionInterface $db, array $discussionIds): bool
+    {
+        return $db->transaction(function () use ($discussionIds) {
+            $refreshed = [];
+
+            $deleted = Post::deleteWithEvents(
+                Post::query()
+                    ->where('user_id', $this->user->id)
+                    ->whereIn('discussion_id', $discussionIds),
+                function ($targets) use (&$refreshed) {
+                    $refreshed = (clone $targets)->select('posts.discussion_id')->distinct()->pluck('discussion_id')->all();
+
+                    Notification::query()
+                        ->whereSubjectModel(Post::class)
+                        ->whereIn('subject_id', $targets)
+                        ->delete();
+
+                    return $targets->delete();
+                },
+                [$this->user->id]
+            );
+
+            if ($deleted) {
+                $this->refreshDiscussions($refreshed);
+            }
+
+            return (bool) $deleted;
         }, Post::conflictAttempts($db));
+    }
+
+    /**
+     * @param list<int> $discussionIds
+     */
+    protected function refreshDiscussions(array $discussionIds): void
+    {
+        $discussions = Discussion::query()->whereIn('id', $discussionIds)->get();
+
+        // The chunk's first and last posts are looked up together: one query
+        // per discussion would be an N+1.
+        $postIds = $discussions
+            ->flatMap(fn (Discussion $discussion) => [$discussion->first_post_id, $discussion->last_post_id])
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $existingPostIds = $postIds
+            ? array_flip(array_map('intval', Post::query()->whereIn('id', $postIds)->pluck('id')->all()))
+            : [];
+
+        $discussions->each(fn (Discussion $discussion) => $this->refreshDiscussion($discussion, $existingPostIds));
     }
 
     /**

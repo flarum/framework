@@ -25,6 +25,9 @@ class LikeServiceProvider extends AbstractServiceProvider
         CommentPost::updated(function (CommentPost $post) use ($counts) {
             // A post counts only while it is a visible comment. The saving
             // locks keep the pivot stable, so the change is one per liker.
+            // `getOriginal()` is the row as it was under that lock, not as the
+            // request loaded it (Post::syncOriginalFromLock()), so two
+            // approvals of the same post cannot both count it as private.
             $wasCounted = $post->getOriginal('type') === 'comment' && ! $post->getOriginal('is_private');
             $counted = $post->type === 'comment' && ! $post->is_private;
 

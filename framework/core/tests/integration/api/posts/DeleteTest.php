@@ -16,10 +16,13 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\UserState;
 use Flarum\Extend;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\DeletingPosts;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PDOException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -114,6 +117,66 @@ class DeleteTest extends TestCase
         // see: this is a refusal, not a missing resource.
         $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
         $this->assertTrue($this->database()->table('posts')->where('id', 5)->exists());
+    }
+
+    /**
+     * The same retry applies to deleting one post: its own transaction is
+     * retried, so the events its failed attempt raised must not be raised a
+     * second time.
+     */
+    #[Test]
+    public function a_retried_delete_dispatches_the_deleted_event_once()
+    {
+        $dispatched = 0;
+        $attempts = 0;
+
+        $this->extend(
+            (new Extend\Event())->listen(Deleted::class, function () use (&$dispatched) {
+                $dispatched++;
+            }),
+            (new Extend\Event())->listen(DeletingPosts::class, function (DeletingPosts $event) use (&$attempts) {
+                if (++$attempts === 1) {
+                    $event->afterDeletion(function () {
+                        throw new PDOException('Deadlock found when trying to get lock; try restarting transaction', 1213);
+                    });
+                }
+            })
+        );
+
+        $db = $this->database();
+        $id = random_int(1000000000, 2000000000);
+        $now = Carbon::now()->toDateTimeString();
+
+        // The retry only happens on the outermost transaction.
+        $db->rollBack();
+
+        try {
+            $db->table('discussions')->insert([
+                'id' => $id, 'title' => 'Retried post deletion', 'slug' => "retried-post-$id", 'user_id' => 1,
+                'created_at' => $now, 'comment_count' => 2, 'last_post_number' => 2,
+            ]);
+            $db->table('posts')->insert([
+                ['id' => $id, 'number' => 1, 'discussion_id' => $id, 'user_id' => 1,
+                    'created_at' => $now, 'type' => 'comment', 'content' => '<t><p>kept</p></t>'],
+                ['id' => $id + 1, 'number' => 2, 'discussion_id' => $id, 'user_id' => 1,
+                    'created_at' => $now, 'type' => 'comment', 'content' => '<t><p>deleted</p></t>'],
+            ]);
+            $db->table('discussions')->where('id', $id)->update(['first_post_id' => $id, 'last_post_id' => $id + 1]);
+
+            $response = $this->send($this->request('DELETE', '/api/posts/'.($id + 1), ['authenticatedAs' => 1]));
+
+            $this->assertEquals(204, $response->getStatusCode(), (string) $response->getBody());
+            $this->assertSame(2, $attempts, 'The deletion should have been attempted twice.');
+            $this->assertSame(1, $dispatched, 'A retried deletion must dispatch Deleted once.');
+            $this->assertFalse($db->table('posts')->where('id', $id + 1)->exists());
+        } finally {
+            while ($db->transactionLevel() > 0) {
+                $db->rollBack();
+            }
+
+            $db->table('posts')->where('discussion_id', $id)->delete();
+            $db->table('discussions')->where('id', $id)->delete();
+        }
     }
 
     public static function deleteLastPostsProvider(): array

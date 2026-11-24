@@ -83,4 +83,10 @@ return [
             $db->statement('PRAGMA foreign_keys = ON');
         }
     },
+
+    // Nothing to undo: the keys belong on the table, and removing them would
+    // put back the rows without a cascade that the likes counters rely on.
+    // The migrator still requires the key to roll a migration back.
+    'down' => function (Builder $schema) {
+    },
 ];

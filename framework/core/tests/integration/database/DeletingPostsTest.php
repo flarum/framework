@@ -17,8 +17,12 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Container\Container;
+use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Database\QueryException;
 use PHPUnit\Framework\Attributes\Test;
+use Throwable;
 
 class DeletingPostsTest extends TestCase
 {
@@ -174,13 +178,13 @@ class DeletingPostsTest extends TestCase
     }
 
     #[Test]
-    public function deleting_a_large_discussion_reads_the_posts_in_bounded_chunks(): void
+    public function deleting_a_large_discussion_does_not_read_its_posts(): void
     {
         $db = $this->database();
         $now = Carbon::now()->toDateTimeString();
 
         $rows = [];
-        for ($number = 4; $number <= 20003; $number++) {
+        for ($number = 4; $number <= 2003; $number++) {
             $rows[] = [
                 'discussion_id' => 1,
                 'number' => $number,
@@ -205,10 +209,102 @@ class DeletingPostsTest extends TestCase
 
         Discussion::query()->findOrFail(1)->delete();
 
-        $this->assertGreaterThan(1, count($reads), 'The post ids should be read in more than one piece.');
-        foreach ($reads as $sql) {
-            $this->assertStringContainsString('limit', strtolower($sql), "A post read should be bounded: $sql");
-        }
+        $this->assertSame([], $reads, 'The posts are deleted from one query; their ids are not read into PHP.');
         $this->assertSame(0, Post::query()->where('discussion_id', 1)->count());
+    }
+
+    /**
+     * Deleting a discussion used to lock its posts, chunk by chunk. On MySQL
+     * and MariaDB a primary-key walk locks every row it scans under REPEATABLE
+     * READ, so a post of another discussion sitting between two of them was
+     * locked as well, and edits to it waited for the whole deletion.
+     */
+    #[Test]
+    public function a_delete_does_not_lock_the_posts_of_another_discussion(): void
+    {
+        $otherPost = null;
+        $observer = null;
+        $probe = null;
+
+        // Registered before the app boots: the probe runs while the deletion
+        // holds whatever locks it takes.
+        $this->extend((new Extend\Event())->listen(DeletingPosts::class, function () use (&$observer, &$otherPost, &$probe) {
+            if ($probe !== null) {
+                return;
+            }
+
+            try {
+                $observer->transaction(fn () => $observer->table('posts')->where('id', $otherPost)
+                    ->update(['content' => '<t><p>edited</p></t>']));
+                $probe = false;
+            } catch (QueryException $e) {
+                $probe = $e;
+            }
+        }));
+
+        $db = $this->database();
+        $driver = $db->getDriverName();
+
+        if (! in_array($driver, ['pgsql', 'mysql', 'mariadb'], true)) {
+            $this->markTestSkipped('The independent lock probe needs row locks, which '.$driver.' does not have.');
+        }
+
+        $now = Carbon::now()->toDateTimeString();
+        $id = random_int(1000000000, 2000000000);
+        // The other discussion's post sits between the two posts of the
+        // discussion that is deleted.
+        $otherPost = $id + 1;
+        $observer = (new ConnectionFactory(new Container()))->make($db->getConfig());
+
+        if ($driver === 'pgsql') {
+            $observer->statement("SET lock_timeout = '1s'");
+        } else {
+            // A locked row is proven by the probe timing out, since MySQL 5.7
+            // and MariaDB have no FOR UPDATE NOWAIT.
+            $observer->statement('SET SESSION innodb_lock_wait_timeout = 1');
+        }
+
+        try {
+            // Commit the fixture on the observer so both sessions can see it.
+            $observer->transaction(function () use ($observer, $id, $now) {
+                $observer->table('discussions')->insert([
+                    ['id' => $id, 'title' => 'Deleted', 'slug' => "deleted-$id", 'user_id' => 2, 'created_at' => $now, 'comment_count' => 2, 'last_post_number' => 3],
+                    ['id' => $id + 1, 'title' => 'Other', 'slug' => "other-$id", 'user_id' => 2, 'created_at' => $now, 'comment_count' => 1],
+                ]);
+                $observer->table('posts')->insert([
+                    ['id' => $id, 'number' => 1, 'discussion_id' => $id, 'user_id' => 2, 'created_at' => $now,
+                        'type' => 'comment', 'content' => '<t><p>one</p></t>'],
+                    ['id' => $id + 1, 'number' => 1, 'discussion_id' => $id + 1, 'user_id' => 2, 'created_at' => $now,
+                        'type' => 'comment', 'content' => '<t><p>other</p></t>'],
+                    ['id' => $id + 2, 'number' => 3, 'discussion_id' => $id, 'user_id' => 2, 'created_at' => $now,
+                        'type' => 'comment', 'content' => '<t><p>three</p></t>'],
+                ]);
+                $observer->table('discussions')->where('id', $id)->update(['first_post_id' => $id, 'last_post_id' => $id + 2]);
+                $observer->table('discussions')->where('id', $id + 1)->update(['first_post_id' => $id + 1, 'last_post_id' => $id + 1]);
+            });
+
+            // The fixture of setUp() is in the test's transaction; the
+            // deletion has to run in its own for the probe to see its locks.
+            $db->rollBack();
+
+            Discussion::query()->findOrFail($id)->delete();
+
+            $this->assertNotNull($probe, 'The deletion should dispatch DeletingPosts.');
+            $this->assertFalse(
+                $probe instanceof Throwable,
+                'A post of another discussion must not be locked: '.($probe instanceof Throwable ? $probe->getMessage() : '')
+            );
+            $this->assertTrue(Post::query()->whereKey($otherPost)->exists(), 'The other discussion\'s post survives.');
+        } finally {
+            while ($db->transactionLevel() > 0) {
+                $db->rollBack();
+            }
+
+            $observer->table('posts')->whereIn('discussion_id', [$id, $id + 1])->delete();
+            $observer->table('discussions')->whereIn('id', [$id, $id + 1])->delete();
+            $observer->disconnect();
+
+            $db->beginTransaction();
+        }
     }
 }

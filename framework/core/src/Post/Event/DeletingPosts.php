@@ -17,11 +17,17 @@ use Illuminate\Database\Query\Builder;
  * Covers both model deletion and bulk deletion that skips model events.
  * Listeners can maintain related records within the deletion transaction.
  *
- * The posts are locked, not loaded: deleting a discussion with a hundred
- * thousand posts costs no more memory than deleting one with four.
+ * The posts are not loaded: deleting a discussion with a hundred thousand
+ * posts costs no more memory than deleting one with four.
  * {@see self::posts()} is the subquery selecting the ids of the rows being
  * deleted, which listeners can use in SQL to reach their own rows without
  * walking a list of ids.
+ *
+ * The rows are still present while the listeners run, and the discussion rows
+ * they belong to are locked for the whole deletion. A write that could change
+ * the posts or their likes takes the same discussion lock first, so reading
+ * their related rows here is stable; the post rows themselves are not locked
+ * separately.
  *
  * A post may be an orphan whose discussion row is already gone when the
  * listeners run: do not look its discussion up with `findOrFail()`, which
@@ -46,8 +52,8 @@ final class DeletingPosts
     /**
      * The posts being deleted, as a subquery that selects their `posts.id`.
      *
-     * The rows are locked and still present while the event is dispatched; the
-     * deletion itself runs afterwards, from the same query. Pass it to
+     * The rows are still present while the event is dispatched; the deletion
+     * itself runs afterwards, from the same query. Pass it to
      * `whereIn` to act on related rows in a single statement, for instance
      * `whereIn('post_likes.post_id', $event->posts())`. Callers that need the
      * full rows can `->select('posts.*')` first.

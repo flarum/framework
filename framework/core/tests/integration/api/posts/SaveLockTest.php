@@ -114,6 +114,38 @@ class SaveLockTest extends TestCase
         }
     }
 
+    /**
+     * Two requests load a post before either saves, as two moderators
+     * approving the same post do. The change has to be decided against the row
+     * the lock protects, not the snapshot loaded before the wait, or the
+     * second request repeats the first one's work (a like count moved twice).
+     */
+    #[Test]
+    public function a_visibility_save_decides_from_the_row_under_the_lock(): void
+    {
+        $this->database();
+
+        $first = CommentPost::findOrFail(2);
+        $second = CommentPost::findOrFail(2);
+
+        $first->is_private = true;
+        $first->save();
+
+        $originalSeenByListener = null;
+        CommentPost::updated(function (CommentPost $post) use (&$originalSeenByListener) {
+            $originalSeenByListener = $post->getOriginal('is_private');
+        });
+
+        // Something else changes too, so the update and its listeners run.
+        $second->is_private = true;
+        $second->content = '<t><p>Edited</p></t>';
+        $second->save();
+
+        $this->assertTrue($originalSeenByListener, 'An updated listener should see the row the lock protected as the original.');
+        $this->assertArrayNotHasKey('is_private', $second->getChanges(), 'The locked row already had that visibility.');
+        $this->assertSame('<t><p>Edited</p></t>', $second->refresh()->content);
+    }
+
     #[Test]
     public function an_empty_patch_on_another_users_post_does_not_take_the_discussion_lock(): void
     {

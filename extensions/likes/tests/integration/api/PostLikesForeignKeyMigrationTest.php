@@ -9,11 +9,14 @@
 
 namespace Flarum\Likes\Tests\integration\api;
 
+use Flarum\Database\MigrationRepositoryInterface;
+use Flarum\Database\Migrator;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Container\Container;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Filesystem\Filesystem;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -121,6 +124,62 @@ class PostLikesForeignKeyMigrationTest extends TestCase
         $this->runMigration();
 
         $this->assertSame($before, $this->tableDefinition());
+    }
+
+    /**
+     * The admin panel's uninstall and `migrate:reset --extension` go through
+     * the migrator, which rolls every ran migration back and therefore needs
+     * a `down` key in each one.
+     */
+    #[Test]
+    public function the_migration_can_be_rolled_back()
+    {
+        $this->createPostLikesWithoutKeys();
+        $this->db->table('users')->insert([['id' => 1]]);
+        $this->db->table('posts')->insert([['id' => 1]]);
+        $this->runMigration();
+
+        $file = '2026_11_22_000000_add_sqlite_post_likes_foreign_keys';
+        $repository = new class([$file]) implements MigrationRepositoryInterface {
+            /** @var string[] */
+            public array $deleted = [];
+
+            /** @param string[] $ran */
+            public function __construct(private array $ran)
+            {
+            }
+
+            public function getRan(?string $extension = null): array
+            {
+                return $this->ran;
+            }
+
+            public function log(string $file, ?string $extension = null): void
+            {
+            }
+
+            public function delete(string $file, ?string $extension = null): void
+            {
+                $this->deleted[] = $file;
+            }
+
+            public function createRepository(): void
+            {
+            }
+
+            public function repositoryExists(): bool
+            {
+                return true;
+            }
+        };
+
+        $migrator = new Migrator($repository, $this->db, new Filesystem());
+        $migrator->reset(dirname(__DIR__, 3).'/migrations');
+
+        $this->assertSame([$file], $repository->deleted, 'The migrator should have rolled the migration back.');
+        // The keys belong on the table, so rolling back leaves them: the point
+        // is that the reset runs instead of failing on a missing key.
+        $this->assertSame(2, substr_count(strtolower($this->tableDefinition()), 'foreign key'));
     }
 
     private function createPostLikesWithoutKeys(): void
