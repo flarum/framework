@@ -161,8 +161,16 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->container->singleton(Client::class, function ($container) {
             $exclude = $container->make('flarum.api_client.exclude_middleware');
 
+            // Subclasses too: an extension replacing an excluded middleware with its
+            // own subclass still relies on the client skipping it.
             $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) use ($exclude) {
-                return ! in_array($middlewareClass, $exclude);
+                foreach ($exclude as $excluded) {
+                    if ($middlewareClass === $excluded || is_a($middlewareClass, $excluded, true)) {
+                        return false;
+                    }
+                }
+
+                return true;
             });
 
             $middlewareStack[] = HttpMiddleware\ExecuteRoute::class;

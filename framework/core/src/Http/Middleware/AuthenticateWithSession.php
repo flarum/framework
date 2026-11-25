@@ -73,6 +73,9 @@ class AuthenticateWithSession implements Middleware
      * identity provider that may have revoked it upstream. Runs before the user's
      * activity or the token is touched; rejecting deletes the token and resets the
      * session, and the request continues as a guest.
+     *
+     * Session authentication only: a token sent as `Authorization: Token` is
+     * checked by {@see AuthenticateWithHeader}, which does not call this.
      */
     protected function acceptsToken(AccessToken $token, Request $request): bool
     {

@@ -139,6 +139,30 @@ class MiddlewareTest extends TestCase
     }
 
     #[Test]
+    public function replacing_an_absent_middleware_keeps_the_earlier_mapping()
+    {
+        $container = $this->container(['a', 'b']);
+
+        (new Extend\Middleware('forum'))->replace('b', 'b2')->extend($container);
+        (new Extend\Middleware('forum'))->replace('b', 'b3')->extend($container);
+        (new Extend\Middleware('forum'))->insertAfter('b', 'new')->extend($container);
+
+        $this->assertEquals(['a', 'b2', 'new'], array_values($container->make('flarum.forum.middleware')));
+    }
+
+    #[Test]
+    public function replacing_an_absent_middleware_does_not_make_it_an_anchor()
+    {
+        $container = $this->container(['a', 'b']);
+
+        (new Extend\Middleware('forum'))->replace('gone', 'a')->extend($container);
+
+        $this->expectException(\RuntimeException::class);
+
+        (new Extend\Middleware('forum'))->insertAfter('gone', 'new')->extend($container);
+    }
+
+    #[Test]
     public function anchors_are_compared_strictly()
     {
         // Loosely, the numeric strings '1e1' and '10' are equal.

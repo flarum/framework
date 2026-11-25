@@ -10,11 +10,13 @@
 namespace Flarum\Tests\integration\middleware;
 
 use Carbon\Carbon;
+use Flarum\Api\Client;
 use Flarum\Extend;
 use Flarum\Http\AccessToken;
 use Flarum\Http\Middleware\AuthenticateWithSession;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\Guest;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
@@ -72,6 +74,16 @@ class SessionRevocationTest extends TestCase
         // The cookie cannot sign the session back in once the token is gone.
         RevokingAuthenticateWithSession::$revoked = [];
         $this->assertEquals(401, $this->requestWithRememberCookie());
+    }
+
+    #[Test]
+    public function the_internal_api_client_skips_the_replaced_middleware()
+    {
+        $response = $this->app()->getContainer()->make(Client::class)
+            ->withActor(new Guest())
+            ->get('/discussions');
+
+        $this->assertEquals(200, $response->getStatusCode());
     }
 }
 

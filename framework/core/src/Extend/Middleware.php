@@ -123,15 +123,15 @@ class Middleware implements ExtenderInterface
             $replacements = $this->replacements($container);
 
             foreach ($this->replaceMiddlewares as $originalMiddleware => $newMiddleware) {
-                $existingMiddleware = array_replace(
-                    $existingMiddleware,
-                    array_fill_keys(
-                        array_keys($existingMiddleware, $originalMiddleware),
-                        $newMiddleware
-                    )
-                );
+                $positions = array_keys($existingMiddleware, $originalMiddleware, true);
 
-                $replacements[$originalMiddleware] = $newMiddleware;
+                // Only a replacement that happened is recorded: one of an absent
+                // middleware must neither overwrite an earlier mapping nor make
+                // the absent one a valid anchor.
+                if ($positions) {
+                    $existingMiddleware = array_replace($existingMiddleware, array_fill_keys($positions, $newMiddleware));
+                    $replacements[$originalMiddleware] = $newMiddleware;
+                }
             }
 
             $container->instance("flarum.$this->frontend.middleware.replacements", $replacements);
