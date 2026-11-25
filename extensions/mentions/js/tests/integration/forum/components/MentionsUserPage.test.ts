@@ -112,6 +112,125 @@ describe('a Mentions tab and a saved post', () => {
     expect(app.current.get('mentions').user.id()).toBe('2');
   });
 
+  // The page state is the one still in use, but it has since resolved another
+  // profile. The recorded user catches a response the state has moved on from.
+  it('ignores a profile response that arrives after the reader opened another profile', async () => {
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
+
+    const bobPage = await openMentionsPage('4');
+
+    const alice = app.store.pushPayload({
+      data: makeUser({ id: '9', attributes: { username: 'alice', slug: 'alice' } }),
+    } as any);
+
+    // Alice's profile was requested from her own mentions page before the
+    // reader moved to Bob's, and only now comes back. The state is still the
+    // one in use, so only the recorded user can tell it belongs to Alice.
+    const stalePage: any = Object.create(MentionsUserPage.prototype);
+    stalePage.posts = new PostListState({}, 20);
+    stalePage.pageState = app.current;
+    stalePage.show(alice);
+
+    expect(app.current.get('mentions').user.id()).toBe('4');
+    expect(app.current.get('mentions').posts).toBe(bobPage.posts);
+    expect(app.current.get('user').id()).toBe('4');
+    expect(stalePage.user).toBeUndefined();
+    expect(stalePage.posts.getPages()).toHaveLength(0);
+  });
+
+  // The reader opened another profile, and its loadUser has not resolved yet:
+  // the new page state has no `resolvedUser` to compare with. The state
+  // identity still tells the old page that the reader has left it.
+  it('ignores a profile response that arrives after the reader moved to a profile still loading', async () => {
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
+
+    const bobPage = await openMentionsPage('4');
+
+    app.current = new PageState(MentionsUserPage, {});
+
+    const bob = app.store.getById<User>('users', '4')!;
+
+    // Bob's own mentions page was loading before the reader opened Alice's;
+    // its response arrives now.
+    const stalePage: any = Object.create(MentionsUserPage.prototype);
+    stalePage.posts = new PostListState({}, 20);
+    stalePage.pageState = bobPage.pageState;
+    stalePage.show(bob);
+
+    expect(app.current.get('user')).toBeUndefined();
+    expect(app.current.get('mentions')).toBeUndefined();
+    expect(stalePage.user).toBeUndefined();
+    expect(stalePage.posts.getPages()).toHaveLength(0);
+  });
+
+  // The reader left profiles altogether. The page state that replaced the
+  // mentions page has no `resolvedUser` either, so identity is what stops the
+  // response from writing into it.
+  it('ignores a profile response that arrives after the reader moved to a non-profile page', async () => {
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
+
+    const bobPage = await openMentionsPage('4');
+
+    app.current = new PageState(null, {});
+
+    const bob = app.store.getById<User>('users', '4')!;
+
+    const stalePage: any = Object.create(MentionsUserPage.prototype);
+    stalePage.posts = new PostListState({}, 20);
+    stalePage.pageState = bobPage.pageState;
+    stalePage.show(bob);
+
+    expect(app.current.get('user')).toBeUndefined();
+    expect(app.current.get('mentions')).toBeUndefined();
+    expect(stalePage.user).toBeUndefined();
+    expect(stalePage.posts.getPages()).toHaveLength(0);
+  });
+
+  // With the page still in use but no `resolvedUser` recorded, there is no
+  // competing profile to protect: the page must initialise rather than wait for
+  // a state that will never arrive.
+  it('initialises when the page state has not resolved a user', async () => {
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
+
+    const user = app.store.pushPayload({
+      data: makeUser({ id: '6', attributes: { slug: 'user6' } }),
+    } as any);
+
+    app.current = new PageState(MentionsUserPage, {});
+
+    const page: any = Object.create(MentionsUserPage.prototype);
+    page.posts = new PostListState({}, 20);
+    page.pageState = app.current;
+    page.show(user);
+
+    await flush();
+
+    expect(app.current.get('user').id()).toBe('6');
+    expect(app.current.get('mentions').user.id()).toBe('6');
+    expect(app.current.get('mentions').posts).toBe(page.posts);
+  });
+
+  // `loadUser` records the state before asking for the user, because the
+  // preloaded and stored branches call `show()` synchronously.
+  it('records the page state it loads the user on', async () => {
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
+
+    const user = app.store.pushPayload({
+      data: makeUser({ id: '7', attributes: { slug: 'user7' } }),
+    } as any);
+
+    app.current = new PageState(MentionsUserPage, {});
+
+    const page: any = Object.create(MentionsUserPage.prototype);
+    page.posts = new PostListState({}, 20);
+
+    await page.loadUser(user.slug());
+    await flush();
+
+    expect(page.pageState).toBe(app.current);
+    expect(app.current.get('mentions').user.id()).toBe('7');
+  });
+
   it('reloads the list when the content changes, so a post that no longer matches leaves it', async () => {
     const posts = new PostListState({}, 20);
     jest
