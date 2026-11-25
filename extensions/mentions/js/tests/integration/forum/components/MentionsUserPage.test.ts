@@ -123,6 +123,15 @@ const createdPost = (mentionedUsers: string[] = []) => ({
   included: mentionedUsers.map((id) => ({ type: 'users', id, attributes: { username: `user${id}`, mentionCount: 1 } })),
 });
 
+/** A user resource as a refetch returns it, with the count only when permitted. */
+const userPayload = (id: string, mentionCount?: number) => ({
+  data: {
+    type: 'users',
+    id,
+    attributes: { username: `user${id}`, ...(mentionCount === undefined ? {} : { mentionCount }) },
+  },
+});
+
 describe('a Mentions tab and a saved post', () => {
   it('puts its list on the current page, with the user it belongs to, so a save can reload it', async () => {
     jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
@@ -350,6 +359,8 @@ describe('a Mentions tab and a saved post', () => {
     // The response names a user this reader has not loaded; a partial record
     // would show them with a count but no profile.
     expect(app.store.getById('users', '77')).toBeUndefined();
+    // A save that never overlapped applies its own count; no refetch is needed.
+    expect(app.request).toHaveBeenCalledTimes(1);
   });
 
   // A server from before the attribute reports the users as a relationship.
@@ -463,9 +474,10 @@ describe('a Mentions tab and a saved post', () => {
     expect(idsInList(posts)).toEqual(['1', '2']);
   });
 
-  // A slow first save must not write its older count over the newer one a
-  // faster second save already applied.
-  it('does not let a slow save roll a badge back after a later one', async () => {
+  // The server decides the order, not the browser. The second save's response
+  // carries 1 and the first's carries the final 0; neither is trusted, and the
+  // refetched count is the one shown.
+  it('takes the fresh count when the server processes the second save first', async () => {
     const posts = new PostListState({}, 20);
     jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
 
@@ -475,20 +487,96 @@ describe('a Mentions tab and a saved post', () => {
     user.pushAttributes({ mentionCount: 5 });
 
     let finishFirstSave!: (payload: any) => void;
-    app.request = jest.fn(() => new Promise((resolve) => (finishFirstSave = resolve))) as any;
+    let finishSecondSave!: (payload: any) => void;
+    let saveCount = 0;
+    let userFetches = 0;
+
+    app.request = jest.fn((options: any) => {
+      if (options.url.includes('/users/')) {
+        userFetches++;
+
+        return Promise.resolve(userPayload('3', 0));
+      }
+
+      saveCount++;
+
+      return new Promise((resolve) => {
+        if (saveCount === 1) finishFirstSave = resolve;
+        else finishSecondSave = resolve;
+      });
+    }) as any;
 
     const firstSave = post('10').save({ content: 'first edit' });
     await flush();
+    const secondSave = post('11').save({ content: 'second edit' });
+    await flush();
 
-    app.request = jest.fn(() => Promise.resolve(savedPost([{ id: '3', mentionCount: 0 }]))) as any;
-    await post('11').save({ content: 'second edit' });
+    // The server processes the second save first, and its response says 1.
+    finishSecondSave(savedPost([{ id: '3', mentionCount: 1 }]));
+    await secondSave;
+    await flush();
+
+    expect(user.attribute<number>('mentionCount')).toBe(5);
+
+    // The first save finishes later with the true final count, 0.
+    finishFirstSave(savedPost([{ id: '3', mentionCount: 0 }]));
+    await firstSave;
+    await flush();
     await flush();
 
     expect(user.attribute<number>('mentionCount')).toBe(0);
+    expect(userFetches).toBe(1);
+  });
 
-    // The first save's response finally arrives with the older count.
-    finishFirstSave(savedPost([{ id: '3', mentionCount: 1 }]));
-    await firstSave;
+  // A reply pushes its side-loaded users into the store before the hook runs,
+  // so an older count can be in the badge even though the edit's response is
+  // newer. The refetched count is the one that survives.
+  it('a reply response arriving after a newer edit does not win the badge', async () => {
+    const posts = new PostListState({}, 20);
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
+
+    await openMentionsPage('3', posts);
+
+    const user = app.store.getById<User>('users', '3')!;
+    user.pushAttributes({ mentionCount: 5 });
+
+    let finishEdit!: (payload: any) => void;
+    let finishReply!: (payload: any) => void;
+    let finishFetch!: (payload: any) => void;
+
+    app.request = jest.fn((options: any) => {
+      if (options.url.includes('/users/')) {
+        return new Promise((resolve) => (finishFetch = resolve));
+      }
+
+      return new Promise((resolve) => {
+        if (options.method === 'POST') finishReply = resolve;
+        else finishEdit = resolve;
+      });
+    }) as any;
+
+    const edit = post('10').save({ content: 'edited to remove the mention' });
+    const reply = newPost(6).save({ content: 'a reply mentioning user 3' });
+    await flush();
+
+    // The edit lands first with the newer count, 0. Its response is not trusted
+    // while the reply is still open.
+    finishEdit(savedPost([{ id: '3', mentionCount: 0 }]));
+    await edit;
+    await flush();
+
+    expect(user.attribute<number>('mentionCount')).toBe(5);
+
+    // The reply lands last; its side-loaded user carries the older count, 1,
+    // and the save has already merged it into the store.
+    finishReply(createdPost(['3']));
+    await reply;
+    await flush();
+
+    expect(user.attribute<number>('mentionCount')).toBe(1);
+
+    finishFetch(userPayload('3', 0));
+    await flush();
     await flush();
 
     expect(user.attribute<number>('mentionCount')).toBe(0);

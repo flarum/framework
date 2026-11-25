@@ -1,6 +1,7 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import Post from 'flarum/common/models/Post';
+import type { ApiPayloadSingle } from 'flarum/common/Store';
 import type User from 'flarum/common/models/User';
 import m from 'mithril';
 import revalidateMentionsPage from './revalidateMentionsPage';
@@ -16,16 +17,20 @@ interface AffectedMentionUser {
 }
 
 /**
- * The order saves were started in, and the last save whose count has been
- * applied to each user.
+ * The saves that are open together, and the users their responses named.
  *
- * Responses can arrive out of order, so a slow save must not write an older
- * count over one a later save already applied. Each save takes its number
- * before its response, and a count is skipped when a later save has already
- * written that user's count.
+ * Nothing guarantees that the server processes saves in the order the browser
+ * started them, and a reply pushes its side-loaded users into the store before
+ * this hook runs. So a count from a response is only used when its save never
+ * overlapped another. Once an overlapping batch has drained, the users it
+ * named are fetched again, once each, and those counts are applied.
+ *
+ * `generation` invalidates a refetch still in flight when a newer save starts:
+ * the fetched count may predate that save.
  */
-let saveSequence = 0;
-const lastAppliedCount = new WeakMap<User, number>();
+let inFlight = 0;
+let generation = 0;
+let batch: { overlapping: boolean; userIds: Set<string> } = { overlapping: false, userIds: new Set() };
 
 /**
  * Reload an open Mentions tab after a post is saved and the save changed the
@@ -35,8 +40,7 @@ const lastAppliedCount = new WeakMap<User, number>();
  * or whether those mentions count. When that happens the update response names
  * the users whose count changed in the `affectedMentionUsers` attribute, and
  * the reload takes the post out of, or puts it back into, the list that the
- * count describes. A slow response cannot roll a badge back: counts are
- * applied in the order their saves started.
+ * count describes.
  *
  * A save can also be about something else: liking a post saves `isLiked`,
  * which mentions know nothing about, and an edit that only fixes a typo leaves
@@ -53,9 +57,7 @@ const lastAppliedCount = new WeakMap<User, number>();
  * attribute because that is only sent on updates. The Create endpoint does
  * include `mentionsUsers`, though, so the same decision is made from that
  * relationship: no mentioned users means no count changed and the tab is left
- * alone, while a named user may have gained the post. The counts need no work
- * here, because the side-loaded users are already pushed into the store by the
- * save itself.
+ * alone, while a named user may have gained the post.
  *
  * The attribute is read from the response, not from the stored post: the
  * endpoint always sends it on an update, whatever `include` the caller named,
@@ -73,7 +75,10 @@ export default function refreshMentionsOnPostSave(): void {
     // `exists` is still false here for a new post: the save only marks it as
     // existing when the response is pushed into the store.
     const created = !this.exists;
-    const sequence = ++saveSequence;
+
+    inFlight++;
+    if (inFlight > 1) batch.overlapping = true;
+    generation++;
 
     result?.then(
       (post) => {
@@ -84,22 +89,42 @@ export default function refreshMentionsOnPostSave(): void {
           // `[]` when it mentions nobody.
           const mentioned = data?.relationships?.mentionsUsers?.data;
 
-          if (Array.isArray(mentioned)) {
-            if (mentioned.length > 0) revalidateMentionsPage(mentioned.map((user) => String(user.id)));
+          if (!Array.isArray(mentioned)) {
+            settleSave(
+              [],
+              () => {},
+              () => revalidateMentionsPage(null)
+            );
             return;
           }
 
-          revalidateMentionsPage(null);
+          const ids = mentioned.map((user) => String(user.id));
+
+          settleSave(
+            ids,
+            () => {},
+            () => {
+              if (ids.length > 0) revalidateMentionsPage(ids);
+            }
+          );
+
           return;
         }
 
         const affected = data?.attributes?.affectedMentionUsers;
 
         if (Array.isArray(affected)) {
-          if (affected.length === 0) return;
+          const users = affected as AffectedMentionUser[];
+          const ids = users.map((user) => String(user.id));
 
-          applyMentionCounts(affected as AffectedMentionUser[], sequence);
-          revalidateMentionsPage(affected.map((user) => String(user.id)));
+          settleSave(
+            ids,
+            () => applyCountsFromAttribute(users),
+            () => {
+              if (ids.length > 0) revalidateMentionsPage(ids);
+            }
+          );
+
           return;
         }
 
@@ -108,28 +133,69 @@ export default function refreshMentionsOnPostSave(): void {
         const related = data?.relationships?.affectedMentionUsers?.data;
 
         if (!Array.isArray(related)) {
-          revalidateMentionsPage(null);
+          settleSave(
+            [],
+            () => {},
+            () => revalidateMentionsPage(null)
+          );
           return;
         }
 
-        if (related.length > 0) revalidateMentionsPage(related.map((user) => String(user.id)));
+        const ids = related.map((user) => String(user.id));
+
+        settleSave(
+          ids,
+          () => {},
+          () => {
+            if (ids.length > 0) revalidateMentionsPage(ids);
+          }
+        );
       },
-      () => {}
+      () =>
+        settleSave(
+          [],
+          () => {},
+          () => {}
+        )
     );
   });
 }
 
 /**
- * Give the users already in the store their new counts, so the Mentions tab's
- * badge matches the list after the save.
+ * Close one save: remember the users it named, refresh the list as before, and
+ * settle the batch when the last save finishes.
+ *
+ * A non-overlapping save updates the badge straight from its response. In an
+ * overlapping batch the responses cannot say which count is newer, so they are
+ * applied from the refetch instead, once every save in the batch has settled.
+ */
+function settleSave(namedIds: string[], applyCounts: () => void, refreshList: () => void): void {
+  for (const id of namedIds) batch.userIds.add(id);
+
+  if (!batch.overlapping) applyCounts();
+
+  refreshList();
+
+  inFlight--;
+
+  if (inFlight > 0) return;
+
+  const refetchIds = batch.overlapping ? [...batch.userIds] : [];
+  batch = { overlapping: false, userIds: new Set() };
+
+  if (refetchIds.length > 0) refetchMentionCounts(refetchIds, generation);
+}
+
+/**
+ * Give the users already in the store the counts from a non-overlapping
+ * update response.
  *
  * The response can name users the reader has not loaded, and pushing it would
  * create user records holding only an id and a count. Only models that are
- * already in the store are updated. A count is skipped when a later save has
- * already written the same user's count, so a slow response cannot roll the
- * badge back.
+ * already in the store are updated. A count is only applied when the actor may
+ * read it, which the server decides by leaving it out.
  */
-function applyMentionCounts(affected: AffectedMentionUser[], sequence: number): void {
+function applyCountsFromAttribute(affected: AffectedMentionUser[]): void {
   let updated = false;
 
   for (const { id, mentionCount } of affected) {
@@ -137,12 +203,54 @@ function applyMentionCounts(affected: AffectedMentionUser[], sequence: number): 
 
     if (!user || typeof mentionCount !== 'number') continue;
 
-    if ((lastAppliedCount.get(user) ?? 0) > sequence) continue;
-
-    lastAppliedCount.set(user, sequence);
     user.pushAttributes({ mentionCount });
     updated = true;
   }
 
   if (updated) m.redraw();
+}
+
+/**
+ * Fetch the current counts of the users an overlapping batch named, one
+ * request per user already in the store, and apply them together.
+ *
+ * Failed requests are ignored: the stored count stays as it is. Nothing is
+ * applied if a newer save started while the requests were in flight, because
+ * those counts may predate it.
+ */
+function refetchMentionCounts(userIds: string[], refetchGeneration: number): void {
+  const storedIds = userIds.filter((id) => app.store.getById<User>('users', id) !== undefined);
+
+  if (storedIds.length === 0) return;
+
+  Promise.all(
+    storedIds.map((id) =>
+      app
+        .request<ApiPayloadSingle>({
+          method: 'GET',
+          url: `${app.forum.attribute('apiUrl')}/users/${id}`,
+          errorHandler: () => {},
+        })
+        .catch(() => null)
+    )
+  ).then((payloads) => {
+    if (generation !== refetchGeneration || inFlight > 0) return;
+
+    let updated = false;
+
+    payloads.forEach((payload, index) => {
+      const mentionCount = payload?.data?.attributes?.mentionCount;
+
+      if (typeof mentionCount !== 'number') return;
+
+      const user = app.store.getById<User>('users', storedIds[index]);
+
+      if (!user) return;
+
+      user.pushAttributes({ mentionCount });
+      updated = true;
+    });
+
+    if (updated) m.redraw();
+  });
 }
