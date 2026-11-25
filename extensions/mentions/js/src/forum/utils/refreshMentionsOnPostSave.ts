@@ -3,7 +3,6 @@ import app from 'flarum/forum/app';
 import Post from 'flarum/common/models/Post';
 import type { ApiPayloadSingle } from 'flarum/common/Store';
 import type User from 'flarum/common/models/User';
-import m from 'mithril';
 import revalidateMentionsPage from './revalidateMentionsPage';
 
 /**
@@ -17,7 +16,8 @@ interface AffectedMentionUser {
 }
 
 /**
- * The saves that are open together, and the users their responses named.
+ * The saves that are open together, the users their responses named, and the
+ * users whose count still needs a fresh read.
  *
  * Nothing guarantees that the server processes saves in the order the browser
  * started them, and a reply pushes its side-loaded users into the store before
@@ -25,12 +25,18 @@ interface AffectedMentionUser {
  * overlapped another. Once an overlapping batch has drained, the users it
  * named are fetched again, once each, and those counts are applied.
  *
+ * A read can itself be overtaken by a save before it returns, and then its
+ * counts prove nothing. Its users stay pending until a read runs after the
+ * saves are quiet, so the count is never dropped on the floor.
+ *
  * `generation` invalidates a refetch still in flight when a newer save starts:
  * the fetched count may predate that save.
  */
 let inFlight = 0;
 let generation = 0;
 let batch: { overlapping: boolean; userIds: Set<string> } = { overlapping: false, userIds: new Set() };
+const pendingUserIds = new Set<string>();
+let reading: Promise<void> | null = null;
 
 /**
  * Reload an open Mentions tab after a post is saved and the save changed the
@@ -166,8 +172,8 @@ export default function refreshMentionsOnPostSave(): void {
  * settle the batch when the last save finishes.
  *
  * A non-overlapping save updates the badge straight from its response. In an
- * overlapping batch the responses cannot say which count is newer, so they are
- * applied from the refetch instead, once every save in the batch has settled.
+ * overlapping batch the responses cannot say which count is newer, so those
+ * users are fetched again once every save in the batch has settled.
  */
 function settleSave(namedIds: string[], applyCounts: () => void, refreshList: () => void): void {
   for (const id of namedIds) batch.userIds.add(id);
@@ -183,7 +189,11 @@ function settleSave(namedIds: string[], applyCounts: () => void, refreshList: ()
   const refetchIds = batch.overlapping ? [...batch.userIds] : [];
   batch = { overlapping: false, userIds: new Set() };
 
-  if (refetchIds.length > 0) refetchMentionCounts(refetchIds, generation);
+  for (const id of refetchIds) pendingUserIds.add(id);
+
+  // Even with no new ids, a read discarded by an earlier save still needs its
+  // turn now that the saves are quiet.
+  readPendingCounts();
 }
 
 /**
@@ -211,20 +221,31 @@ function applyCountsFromAttribute(affected: AffectedMentionUser[]): void {
 }
 
 /**
- * Fetch the current counts of the users an overlapping batch named, one
- * request per user already in the store, and apply them together.
+ * Read the current counts of the users still pending, one request per user
+ * that is still in the store, and apply them together.
  *
- * Failed requests are ignored: the stored count stays as it is. Nothing is
- * applied if a newer save started while the requests were in flight, because
- * those counts may predate it.
+ * Only one read runs at a time. A read that comes back while a newer save has
+ * started cannot be trusted: its users stay pending and it is retried once the
+ * saves are quiet. A read that comes back current settles its ids, whether or
+ * not a count was applied (the server decides that by leaving it out). A
+ * failed request is not proof of anything, so its user stays pending for the
+ * next save to settle.
  */
-function refetchMentionCounts(userIds: string[], refetchGeneration: number): void {
-  const storedIds = userIds.filter((id) => app.store.getById<User>('users', id) !== undefined);
+function readPendingCounts(): void {
+  if (reading || inFlight > 0) return;
 
-  if (storedIds.length === 0) return;
+  // A user no longer in the store has no badge to repair.
+  for (const id of pendingUserIds) {
+    if (!app.store.getById<User>('users', id)) pendingUserIds.delete(id);
+  }
 
-  Promise.all(
-    storedIds.map((id) =>
+  if (pendingUserIds.size === 0) return;
+
+  const ids = [...pendingUserIds];
+  const readGeneration = generation;
+
+  reading = Promise.all(
+    ids.map((id) =>
       app
         .request<ApiPayloadSingle>({
           method: 'GET',
@@ -234,16 +255,32 @@ function refetchMentionCounts(userIds: string[], refetchGeneration: number): voi
         .catch(() => null)
     )
   ).then((payloads) => {
-    if (generation !== refetchGeneration || inFlight > 0) return;
+    reading = null;
+
+    if (generation !== readGeneration || inFlight > 0) {
+      // A save started while the read was open, so the counts may predate it.
+      // Keep the users pending and try again now if nothing is in flight;
+      // otherwise the next settle will do it.
+      if (inFlight === 0) readPendingCounts();
+
+      return;
+    }
 
     let updated = false;
 
     payloads.forEach((payload, index) => {
+      const id = ids[index];
+
+      // The request failed: keep the user pending for the next settle.
+      if (payload === null) return;
+
+      pendingUserIds.delete(id);
+
       const mentionCount = payload?.data?.attributes?.mentionCount;
 
       if (typeof mentionCount !== 'number') return;
 
-      const user = app.store.getById<User>('users', storedIds[index]);
+      const user = app.store.getById<User>('users', id);
 
       if (!user) return;
 

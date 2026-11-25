@@ -580,6 +580,138 @@ describe('a Mentions tab and a saved post', () => {
     await flush();
 
     expect(user.attribute<number>('mentionCount')).toBe(0);
+
+    // The current read settled the user, so a later save that names nobody
+    // does not read them again.
+    app.request = jest.fn(() => Promise.resolve(savedPost())) as any;
+    await post('12').save({ content: 'fixed a typo' });
+    await flush();
+
+    expect(app.request).toHaveBeenCalledTimes(1);
+  });
+
+  // A read that is overtaken by a later save cannot be trusted, but its users
+  // must not be forgotten: they stay pending and the read runs again once the
+  // saves are quiet.
+  it('retries the count read when a later save discards it', async () => {
+    const posts = new PostListState({}, 20);
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
+
+    await openMentionsPage('3', posts);
+
+    const user = app.store.getById<User>('users', '3')!;
+    user.pushAttributes({ mentionCount: 2 });
+
+    let finishFirstSave!: (payload: any) => void;
+    let finishSecondSave!: (payload: any) => void;
+    let finishFirstFetch!: (payload: any) => void;
+    let saveCalls = 0;
+    let userFetches = 0;
+
+    app.request = jest.fn((options: any) => {
+      if (options.url.includes('/users/')) {
+        userFetches++;
+
+        if (userFetches === 1) {
+          return new Promise((resolve) => (finishFirstFetch = resolve));
+        }
+
+        return Promise.resolve(userPayload('3', 0));
+      }
+
+      saveCalls++;
+
+      if (saveCalls === 1) return new Promise((resolve) => (finishFirstSave = resolve));
+      if (saveCalls === 2) return new Promise((resolve) => (finishSecondSave = resolve));
+
+      return Promise.resolve(savedPost());
+    }) as any;
+
+    const firstSave = post('10').save({ content: 'first edit' });
+    const secondSave = post('11').save({ content: 'second edit' });
+    await flush();
+
+    finishFirstSave(savedPost([{ id: '3', mentionCount: 1 }]));
+    finishSecondSave(savedPost([{ id: '3', mentionCount: 0 }]));
+    await Promise.all([firstSave, secondSave]);
+    await flush();
+
+    expect(userFetches).toBe(1);
+
+    // A typo fix names nobody, but it starts and settles while the read is
+    // held, which makes that read too old to use.
+    await post('12').save({ content: 'fixed a typo' });
+    await flush();
+
+    expect(userFetches).toBe(1);
+
+    // The held read comes back with a count from before the third save.
+    finishFirstFetch(userPayload('3', 2));
+    await flush();
+    await flush();
+
+    expect(user.attribute<number>('mentionCount')).toBe(0);
+    expect(userFetches).toBe(2);
+  });
+
+  it('retries the count read when a failed later save discards it', async () => {
+    const posts = new PostListState({}, 20);
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
+
+    await openMentionsPage('3', posts);
+
+    const user = app.store.getById<User>('users', '3')!;
+    user.pushAttributes({ mentionCount: 2 });
+
+    let finishFirstSave!: (payload: any) => void;
+    let finishSecondSave!: (payload: any) => void;
+    let finishFirstFetch!: (payload: any) => void;
+    let saveCalls = 0;
+    let userFetches = 0;
+
+    app.request = jest.fn((options: any) => {
+      if (options.url.includes('/users/')) {
+        userFetches++;
+
+        if (userFetches === 1) {
+          return new Promise((resolve) => (finishFirstFetch = resolve));
+        }
+
+        return Promise.resolve(userPayload('3', 0));
+      }
+
+      saveCalls++;
+
+      if (saveCalls === 1) return new Promise((resolve) => (finishFirstSave = resolve));
+      if (saveCalls === 2) return new Promise((resolve) => (finishSecondSave = resolve));
+
+      return Promise.reject(new Error('nope'));
+    }) as any;
+
+    const firstSave = post('10').save({ content: 'first edit' });
+    const secondSave = post('11').save({ content: 'second edit' });
+    await flush();
+
+    finishFirstSave(savedPost([{ id: '3', mentionCount: 1 }]));
+    finishSecondSave(savedPost([{ id: '3', mentionCount: 0 }]));
+    await Promise.all([firstSave, secondSave]);
+    await flush();
+
+    expect(userFetches).toBe(1);
+
+    // A typo fix that fails still starts and settles a save, which makes the
+    // held read too old to use.
+    await expect(post('12').save({ content: 'fixed a typo' })).rejects.toThrow('nope');
+    await flush();
+
+    expect(userFetches).toBe(1);
+
+    finishFirstFetch(userPayload('3', 2));
+    await flush();
+    await flush();
+
+    expect(user.attribute<number>('mentionCount')).toBe(0);
+    expect(userFetches).toBe(2);
   });
 
   // The queued refresh is only for the page that asked for it: once the reader
