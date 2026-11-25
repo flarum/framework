@@ -15,11 +15,18 @@ import type { IMentionsPageState } from '../components/MentionsUserPage';
 const refreshing = new WeakMap<PostListState, Promise<void>>();
 const refreshAgain = new WeakSet<PostListState>();
 
-function refreshMentionsList(posts: PostListState): void {
+function refreshMentionsList(mentions: IMentionsPageState): void {
+  const posts = mentions.posts;
+
   if (refreshing.has(posts)) {
     refreshAgain.add(posts);
     return;
   }
+
+  // The queued refresh runs later, and the reader may have left the page by
+  // then. A request for a list that is no longer on screen is not wanted; a
+  // refresh the reader is still waiting for has already started above.
+  if (app.current.get('mentions') !== mentions) return;
 
   const request = posts.revalidate();
 
@@ -28,7 +35,7 @@ function refreshMentionsList(posts: PostListState): void {
   request.finally(() => {
     refreshing.delete(posts);
 
-    if (refreshAgain.delete(posts)) refreshMentionsList(posts);
+    if (refreshAgain.delete(posts)) refreshMentionsList(mentions);
   });
 }
 
@@ -49,7 +56,8 @@ function refreshMentionsList(posts: PostListState): void {
  *
  * A save that lands while the list is already refreshing queues one more
  * refresh, because the in-flight request was sent before the save could have
- * changed anything.
+ * changed anything. That queued refresh is dropped if the reader has left the
+ * page by the time it would run; the refresh already in flight still finishes.
  */
 export default function revalidateMentionsPage(affectedUserIds: string[] | null): void {
   const mentions: IMentionsPageState | undefined = app.current.get('mentions');
@@ -60,5 +68,5 @@ export default function revalidateMentionsPage(affectedUserIds: string[] | null)
 
   if (userId !== undefined && affectedUserIds !== null && !affectedUserIds.includes(userId)) return;
 
-  refreshMentionsList(mentions.posts);
+  refreshMentionsList(mentions);
 }

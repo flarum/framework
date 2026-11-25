@@ -77,6 +77,11 @@ function post(id = '1') {
   return app.store.getById<Post>('posts', id)!;
 }
 
+/** A post that is not on the server yet, as the composer starts saving it. */
+function newPost(number = 5) {
+  return app.store.createRecord<Post>('posts', { attributes: { number } });
+}
+
 /** An update response whose `affectedMentionUsers` attribute names the users whose count changed. */
 const savedPost = (affectedUsers: { id: string; mentionCount?: number }[] = []) => ({
   data: {
@@ -101,6 +106,22 @@ const savedPostWithRelationship = (affectedUsers: string[]) => ({
 
 /** An update response that says nothing about the users whose count changed. */
 const savedPostWithoutAffectedUsers = () => ({ data: { type: 'posts', id: '1', attributes: { number: 1 } } });
+
+/**
+ * A create response: it has no `affectedMentionUsers` (that is update-only) but
+ * reports the users the new post mentions, with their side-loaded counts.
+ */
+const createdPost = (mentionedUsers: string[] = []) => ({
+  data: {
+    type: 'posts',
+    id: '50',
+    attributes: { number: 5 },
+    relationships: {
+      mentionsUsers: { data: mentionedUsers.map((id) => ({ type: 'users', id })) },
+    },
+  },
+  included: mentionedUsers.map((id) => ({ type: 'users', id, attributes: { username: `user${id}`, mentionCount: 1 } })),
+});
 
 describe('a Mentions tab and a saved post', () => {
   it('puts its list on the current page, with the user it belongs to, so a save can reload it', async () => {
@@ -360,6 +381,46 @@ describe('a Mentions tab and a saved post', () => {
     expect(revalidate).toHaveBeenCalledTimes(1);
   });
 
+  // A new post has no `affectedMentionUsers` (that attribute is update-only),
+  // but the create response reports who it mentions. Mentioning nobody cannot
+  // change the open tab's count, so its loaded pages must stay.
+  it('does not reload when a new post mentions nobody', async () => {
+    const posts = new PostListState({}, 20);
+    jest
+      .spyOn(app.store, 'find')
+      .mockResolvedValueOnce(pageOf(ids(1, 20), true) as any)
+      .mockResolvedValueOnce(pageOf(ids(21, 40)) as any)
+      .mockResolvedValue(pageOf([]) as any);
+    app.request = jest.fn(() => Promise.resolve(createdPost()) as any);
+
+    await openMentionsPage('3', posts);
+    await posts.loadNext();
+    const revalidate = jest.spyOn(posts, 'revalidate');
+    expect(idsInList(posts)).toEqual(ids(1, 40));
+
+    await newPost().save({ content: 'a reply that mentions nobody' });
+    await flush();
+
+    expect(revalidate).not.toHaveBeenCalled();
+    expect(idsInList(posts)).toEqual(ids(1, 40));
+  });
+
+  // The create response names the users the new post mentions; one of them is
+  // the user whose tab is open.
+  it('reloads when a new post mentions the user whose tab is open', async () => {
+    const posts = new PostListState({}, 20);
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf(['1']) as any);
+    app.request = jest.fn(() => Promise.resolve(createdPost(['3'])) as any);
+
+    await openMentionsPage('3', posts);
+    const revalidate = jest.spyOn(posts, 'revalidate');
+
+    await newPost().save({ content: 'a reply mentioning user 3' });
+    await flush();
+
+    expect(revalidate).toHaveBeenCalledTimes(1);
+  });
+
   // The list hands back a refresh that is already in flight instead of sending
   // a second request, so a save that lands during one would be missed. One
   // more refresh runs when that request settles.
@@ -400,6 +461,74 @@ describe('a Mentions tab and a saved post', () => {
 
     expect(revalidate).toHaveBeenCalledTimes(2);
     expect(idsInList(posts)).toEqual(['1', '2']);
+  });
+
+  // A slow first save must not write its older count over the newer one a
+  // faster second save already applied.
+  it('does not let a slow save roll a badge back after a later one', async () => {
+    const posts = new PostListState({}, 20);
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
+
+    await openMentionsPage('3', posts);
+
+    const user = app.store.getById<User>('users', '3')!;
+    user.pushAttributes({ mentionCount: 5 });
+
+    let finishFirstSave!: (payload: any) => void;
+    app.request = jest.fn(() => new Promise((resolve) => (finishFirstSave = resolve))) as any;
+
+    const firstSave = post('10').save({ content: 'first edit' });
+    await flush();
+
+    app.request = jest.fn(() => Promise.resolve(savedPost([{ id: '3', mentionCount: 0 }]))) as any;
+    await post('11').save({ content: 'second edit' });
+    await flush();
+
+    expect(user.attribute<number>('mentionCount')).toBe(0);
+
+    // The first save's response finally arrives with the older count.
+    finishFirstSave(savedPost([{ id: '3', mentionCount: 1 }]));
+    await firstSave;
+    await flush();
+
+    expect(user.attribute<number>('mentionCount')).toBe(0);
+  });
+
+  // The queued refresh is only for the page that asked for it: once the reader
+  // has left, there is no list on screen to bring up to date.
+  it('drops a queued refresh when the reader has left the mentions page', async () => {
+    const posts = new PostListState({}, 20);
+    const find = jest.spyOn(app.store, 'find');
+    find.mockResolvedValueOnce(pageOf(['1']) as any);
+
+    await openMentionsPage('3', posts);
+    await flush();
+
+    let finishFirstRefresh!: (page: any) => void;
+    find.mockReturnValueOnce(new Promise((resolve) => (finishFirstRefresh = resolve)) as any);
+
+    const revalidate = jest.spyOn(posts, 'revalidate');
+
+    app.request = jest.fn(() => Promise.resolve(savedPost([{ id: '3' }]))) as any;
+    await post('2').save({ content: 'first edit' });
+    await flush();
+    expect(revalidate).toHaveBeenCalledTimes(1);
+
+    app.request = jest.fn(() => Promise.resolve(savedPost([{ id: '3' }]))) as any;
+    await post('3').save({ content: 'second edit' });
+    await flush();
+    expect(revalidate).toHaveBeenCalledTimes(1);
+
+    // The reader leaves while the first refresh is still in flight.
+    app.current.set('mentions', undefined);
+
+    finishFirstRefresh(pageOf(['1']));
+    await flush();
+    await flush();
+
+    // The refresh already running finishes; the queued one is not sent.
+    expect(revalidate).toHaveBeenCalledTimes(1);
+    expect(idsInList(posts)).toEqual(['1']);
   });
 
   it('reloads the list when a post is hidden or restored', async () => {
