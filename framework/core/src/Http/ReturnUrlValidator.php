@@ -45,8 +45,10 @@ class ReturnUrlValidator
      * Relative paths are rejected here: they have no host to check, so they are
      * indistinguishable from a protocol-relative URL pointing off-site once a
      * browser resolves them. Use {@see validatePath()} for those.
+     *
+     * @param list<string>|null $allowedHosts Overrides {@see allowedHosts()}.
      */
-    public function validate(?string $url): ?Uri
+    public function validate(?string $url, ?array $allowedHosts = null): ?Uri
     {
         if (empty($url)) {
             return null;
@@ -58,7 +60,7 @@ class ReturnUrlValidator
             return null;
         }
 
-        if (! in_array($uri->getHost(), $this->allowedHosts(), true)) {
+        if (! in_array($uri->getHost(), $allowedHosts ?? $this->allowedHosts(), true)) {
             return null;
         }
 
@@ -67,10 +69,12 @@ class ReturnUrlValidator
 
     /**
      * Validate an absolute return URL, falling back to the forum's base URL.
+     *
+     * @param list<string>|null $allowedHosts Overrides {@see allowedHosts()}.
      */
-    public function sanitize(?string $url, ?string $fallback = null): Uri
+    public function sanitize(?string $url, ?string $fallback = null, ?array $allowedHosts = null): Uri
     {
-        return $this->validate($url)
+        return $this->validate($url, $allowedHosts)
             ?? new Uri($fallback ?? (string) $this->config->url());
     }
 

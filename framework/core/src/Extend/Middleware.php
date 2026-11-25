@@ -13,6 +13,7 @@ use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class Middleware implements ExtenderInterface
 {
@@ -73,14 +74,20 @@ class Middleware implements ExtenderInterface
     /**
      * Inserts a middleware before an existing middleware.
      *
+     * If another extension replaced the anchor, the middleware is inserted relative
+     * to its replacement. If the anchor is not in the stack at all, booting the
+     * frontend fails, unless `$optional` is set: the insertion is then skipped and
+     * a warning logged. Use it for an anchor owned by an extension that may not
+     * be enabled.
+     *
      * @param class-string<MiddlewareInterface> $originalMiddleware: ::class attribute of the original middleware class.
      *                                    Or container binding name.
      * @param class-string<MiddlewareInterface> $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      */
-    public function insertBefore(string $originalMiddleware, string $newMiddleware): self
+    public function insertBefore(string $originalMiddleware, string $newMiddleware, bool $optional = false): self
     {
-        $this->insertBeforeMiddlewares[$originalMiddleware] = $newMiddleware;
+        $this->insertBeforeMiddlewares[$originalMiddleware] = [$newMiddleware, $optional];
 
         return $this;
     }
@@ -88,14 +95,16 @@ class Middleware implements ExtenderInterface
     /**
      * Inserts a middleware after an existing middleware.
      *
+     * Missing and replaced anchors are handled as in {@see insertBefore()}.
+     *
      * @param class-string<MiddlewareInterface> $originalMiddleware: ::class attribute of the original middleware class.
      *                                    Or container binding name.
      * @param class-string<MiddlewareInterface> $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      */
-    public function insertAfter(string $originalMiddleware, string $newMiddleware): self
+    public function insertAfter(string $originalMiddleware, string $newMiddleware, bool $optional = false): self
     {
-        $this->insertAfterMiddlewares[$originalMiddleware] = $newMiddleware;
+        $this->insertAfterMiddlewares[$originalMiddleware] = [$newMiddleware, $optional];
 
         return $this;
     }
@@ -111,6 +120,8 @@ class Middleware implements ExtenderInterface
                 $existingMiddleware[] = $addMiddleware;
             }
 
+            $replacements = $this->replacements($container);
+
             foreach ($this->replaceMiddlewares as $originalMiddleware => $newMiddleware) {
                 $existingMiddleware = array_replace(
                     $existingMiddleware,
@@ -119,18 +130,22 @@ class Middleware implements ExtenderInterface
                         $newMiddleware
                     )
                 );
+
+                $replacements[$originalMiddleware] = $newMiddleware;
             }
 
-            foreach ($this->insertBeforeMiddlewares as $originalMiddleware => $newMiddleware) {
-                $offset = $this->offsetOf($originalMiddleware, $newMiddleware, $existingMiddleware, $container);
+            $container->instance("flarum.$this->frontend.middleware.replacements", $replacements);
+
+            foreach ($this->insertBeforeMiddlewares as $originalMiddleware => [$newMiddleware, $optional]) {
+                $offset = $this->offsetOf($originalMiddleware, $newMiddleware, $optional, $existingMiddleware, $replacements, $container);
 
                 if ($offset !== null) {
                     array_splice($existingMiddleware, $offset, 0, $newMiddleware);
                 }
             }
 
-            foreach ($this->insertAfterMiddlewares as $originalMiddleware => $newMiddleware) {
-                $offset = $this->offsetOf($originalMiddleware, $newMiddleware, $existingMiddleware, $container);
+            foreach ($this->insertAfterMiddlewares as $originalMiddleware => [$newMiddleware, $optional]) {
+                $offset = $this->offsetOf($originalMiddleware, $newMiddleware, $optional, $existingMiddleware, $replacements, $container);
 
                 if ($offset !== null) {
                     array_splice($existingMiddleware, $offset + 1, 0, $newMiddleware);
@@ -142,30 +157,51 @@ class Middleware implements ExtenderInterface
     }
 
     /**
-     * Locate the anchor an insertion is relative to, or null if it is gone.
+     * Every replacement made to this frontend's stack by extenders applied so far.
      *
-     * Extenders run in extension order, so another extension may already have
-     * replaced or removed the anchor, or it may belong to an extension that is
-     * not enabled. The insertion is then skipped with a warning: defaulting to an
-     * offset would put the middleware ahead of the error handler, and throwing
-     * would take down the whole frontend over a load order the admin cannot fix.
+     * Kept in the container because extenders run in extension order, each seeing
+     * only the stack the previous ones left: an anchor named by a later extender
+     * may already have been swapped out.
      *
-     * @param array<string> $existingMiddleware
+     * @return array<string, string>
      */
-    private function offsetOf(string $originalMiddleware, string $newMiddleware, array $existingMiddleware, Container $container): ?int
+    private function replacements(Container $container): array
     {
-        $offset = array_search($originalMiddleware, $existingMiddleware, true);
+        $key = "flarum.$this->frontend.middleware.replacements";
 
-        if ($offset === false) {
-            $container->make(LoggerInterface::class)->warning(
-                "Skipped inserting middleware [$newMiddleware] relative to [$originalMiddleware]:"
-                ." it is not present in the [$this->frontend] middleware stack."
-                .' Another extension may have replaced or removed it, or it was never registered.'
-            );
+        return $container->bound($key) ? $container->make($key) : [];
+    }
 
-            return null;
+    /**
+     * @param array<string> $existingMiddleware
+     * @param array<string, string> $replacements
+     */
+    private function offsetOf(string $originalMiddleware, string $newMiddleware, bool $optional, array $existingMiddleware, array $replacements, Container $container): ?int
+    {
+        $anchor = $originalMiddleware;
+        $seen = [];
+
+        while (! in_array($anchor, $existingMiddleware, true) && isset($replacements[$anchor]) && ! isset($seen[$anchor])) {
+            $seen[$anchor] = true;
+            $anchor = $replacements[$anchor];
         }
 
-        return $offset;
+        $offset = array_search($anchor, $existingMiddleware, true);
+
+        if ($offset !== false) {
+            return $offset;
+        }
+
+        $message = "Cannot insert middleware [$newMiddleware] relative to [$originalMiddleware]:"
+            ." it is not present in the [$this->frontend] middleware stack."
+            .' Another extension may have removed it, or it was never registered.';
+
+        if (! $optional) {
+            throw new RuntimeException($message.' Pass $optional to skip the insertion instead.');
+        }
+
+        $container->make(LoggerInterface::class)->warning($message.' The insertion was skipped.');
+
+        return null;
     }
 }

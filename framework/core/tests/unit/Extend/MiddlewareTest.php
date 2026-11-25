@@ -68,23 +68,32 @@ class MiddlewareTest extends TestCase
     }
 
     #[Test]
-    public function insert_before_a_missing_anchor_is_skipped_with_a_warning()
+    public function inserting_relative_to_a_missing_anchor_fails()
     {
-        $this->assertEquals(['a', 'b'], $this->stack(
-            ['a', 'b'],
-            (new Extend\Middleware('forum'))->insertBefore('gone', 'new')
-        ));
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Cannot insert middleware [new] relative to [gone]');
 
-        $this->assertCount(1, $this->warnings);
-        $this->assertStringContainsString('Skipped inserting middleware [new] relative to [gone]', $this->warnings[0]);
+        $this->stack(['a', 'b'], (new Extend\Middleware('forum'))->insertBefore('gone', 'new'));
     }
 
     #[Test]
-    public function insert_after_a_missing_anchor_is_skipped_with_a_warning()
+    public function insert_before_an_optional_missing_anchor_is_skipped_with_a_warning()
     {
         $this->assertEquals(['a', 'b'], $this->stack(
             ['a', 'b'],
-            (new Extend\Middleware('forum'))->insertAfter('gone', 'new')
+            (new Extend\Middleware('forum'))->insertBefore('gone', 'new', optional: true)
+        ));
+
+        $this->assertCount(1, $this->warnings);
+        $this->assertStringContainsString('[new] relative to [gone]', $this->warnings[0]);
+    }
+
+    #[Test]
+    public function insert_after_an_optional_missing_anchor_is_skipped_with_a_warning()
+    {
+        $this->assertEquals(['a', 'b'], $this->stack(
+            ['a', 'b'],
+            (new Extend\Middleware('forum'))->insertAfter('gone', 'new', optional: true)
         ));
 
         $this->assertCount(1, $this->warnings);
@@ -92,16 +101,40 @@ class MiddlewareTest extends TestCase
     }
 
     #[Test]
-    public function inserting_relative_to_an_anchor_another_extender_replaced_is_skipped()
+    public function inserting_relative_to_an_anchor_another_extender_replaced_uses_the_replacement()
     {
-        // The realistic case: two extensions touching the same region of the stack,
-        // applied in extension order.
-        $container = $this->container(['a', 'b']);
+        // Two extensions touching the same region of the stack, applied in extension order.
+        $container = $this->container(['a', 'b', 'c']);
 
         (new Extend\Middleware('forum'))->replace('b', 'replacement')->extend($container);
+        (new Extend\Middleware('forum'))->insertBefore('b', 'before')->insertAfter('b', 'after')->extend($container);
+
+        $this->assertEquals(['a', 'before', 'replacement', 'after', 'c'], array_values($container->make('flarum.forum.middleware')));
+        $this->assertEmpty($this->warnings);
+    }
+
+    #[Test]
+    public function replacements_are_followed_through_a_chain()
+    {
+        $container = $this->container(['a', 'b']);
+
+        (new Extend\Middleware('forum'))->replace('b', 'b2')->extend($container);
+        (new Extend\Middleware('forum'))->replace('b2', 'b3')->extend($container);
         (new Extend\Middleware('forum'))->insertAfter('b', 'new')->extend($container);
 
-        $this->assertEquals(['a', 'replacement'], array_values($container->make('flarum.forum.middleware')));
+        $this->assertEquals(['a', 'b3', 'new'], array_values($container->make('flarum.forum.middleware')));
+    }
+
+    #[Test]
+    public function an_anchor_replaced_and_then_removed_is_missing()
+    {
+        $container = $this->container(['a', 'b']);
+
+        (new Extend\Middleware('forum'))->replace('b', 'b2')->extend($container);
+        (new Extend\Middleware('forum'))->remove('b2')->extend($container);
+        (new Extend\Middleware('forum'))->insertAfter('b', 'new', optional: true)->extend($container);
+
+        $this->assertEquals(['a'], array_values($container->make('flarum.forum.middleware')));
         $this->assertCount(1, $this->warnings);
     }
 
@@ -111,7 +144,7 @@ class MiddlewareTest extends TestCase
         // Loosely, the numeric strings '1e1' and '10' are equal.
         $this->assertEquals(['10', 'b'], $this->stack(
             ['10', 'b'],
-            (new Extend\Middleware('forum'))->insertAfter('1e1', 'new')
+            (new Extend\Middleware('forum'))->insertAfter('1e1', 'new', optional: true)
         ));
 
         $this->assertCount(1, $this->warnings);

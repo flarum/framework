@@ -32,19 +32,17 @@ class AuthenticateWithSession implements Middleware
         return $handler->handle($request);
     }
 
-    /**
-     * Resolve the actor this session belongs to.
-     *
-     * Extensions that need to validate a resolved actor against an external
-     * authority — an identity provider that may have revoked the upstream session
-     * since it was established — should override this, call `parent::getActor()`,
-     * and act on the result, rather than replacing the whole middleware and
-     * reimplementing the session-invalidation semantics below.
-     */
-    protected function getActor(Session $session, Request $request): Guest|User
+    private function getActor(Session $session, Request $request): Guest|User
     {
         if ($session->has('access_token')) {
             $token = AccessToken::findValid($session->get('access_token'));
+
+            if ($token && ! $this->acceptsToken($token, $request)) {
+                // Deleted, not just dropped from the session: a remember cookie
+                // would otherwise sign the session straight back in.
+                $token->delete();
+                $token = null;
+            }
 
             if ($token) {
                 $actor = $token->user;
@@ -66,5 +64,18 @@ class AuthenticateWithSession implements Middleware
         }
 
         return new Guest;
+    }
+
+    /**
+     * Whether a valid token may still authenticate this request.
+     *
+     * Override to check the session against an external authority, such as an
+     * identity provider that may have revoked it upstream. Runs before the user's
+     * activity or the token is touched; rejecting deletes the token and resets the
+     * session, and the request continues as a guest.
+     */
+    protected function acceptsToken(AccessToken $token, Request $request): bool
+    {
+        return true;
     }
 }

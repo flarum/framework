@@ -32,7 +32,7 @@ class LogOutViewController implements RequestHandlerInterface
         protected Config $config,
         ?ReturnUrlValidator $returnUrl = null
     ) {
-        $this->returnUrl = $returnUrl ?? resolve(ReturnUrlValidator::class);
+        $this->returnUrl = $returnUrl ?? new ReturnUrlValidator($config);
     }
 
     public function handle(Request $request): ResponseInterface
@@ -61,7 +61,7 @@ class LogOutViewController implements RequestHandlerInterface
 
     protected function sanitizeReturnUrl(string $url, string $base): Uri
     {
-        return $this->returnUrl->sanitize($url, $base);
+        return $this->returnUrl->sanitize($url, $base, $this->getAllowedRedirectDomains());
     }
 
     protected function getAllowedRedirectDomains(): array
