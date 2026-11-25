@@ -5,11 +5,12 @@ import Button from 'flarum/common/components/Button';
 import ItemList from 'flarum/common/utils/ItemList';
 import PostControls from 'flarum/forum/utils/PostControls';
 import humanTime from 'flarum/common/utils/humanTime';
+import classList from 'flarum/common/utils/classList';
 
 export default function () {
   extend(Post.prototype, 'elementAttrs', function (attrs) {
     if (this.attrs.post.flags().length) {
-      attrs.className += ' Post--flagged';
+      attrs.className = classList(attrs.className, 'Post--flagged');
     }
   });
 

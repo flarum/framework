@@ -28,7 +28,7 @@ class ApprovePostsTest extends TestCase
     {
         parent::setUp();
 
-        $this->extension('flarum-approval');
+        $this->extension('flarum-flags', 'flarum-approval');
 
         $this->prepareDatabase([
             User::class => [

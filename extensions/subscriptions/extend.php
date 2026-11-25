@@ -9,7 +9,6 @@
 
 use Flarum\Api\Resource;
 use Flarum\Approval\Event\PostWasApproved;
-use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Event\Started;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\UserState;
@@ -55,7 +54,6 @@ return [
         ->fields(UserResourceFields::class),
 
     (new Extend\Event())
-        ->listen(Saving::class, Listener\SaveSubscriptionToDatabase::class)
         ->listen(Posted::class, Listener\SendNotificationWhenReplyIsPosted::class)
         ->listen(PostWasApproved::class, Listener\SendNotificationWhenReplyIsPosted::class)
         ->listen(Hidden::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)

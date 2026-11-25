@@ -9,10 +9,12 @@
 
 namespace Flarum\Mentions\Filter;
 
+use Flarum\Database\IntegerKey;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 
 /**
@@ -39,7 +41,7 @@ class MentionedFilter implements FilterInterface
         $mentionedId = $this->users->getIdForUsername($mentionedUsername);
 
         if (! $mentionedId) {
-            $mentionedId = intval($mentionedUsername);
+            $mentionedId = IntegerKey::fits(new User, $mentionedUsername) ? (int) $mentionedUsername : 0;
         }
 
         $state

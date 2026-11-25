@@ -108,7 +108,7 @@ class NotificationTest extends TestCase
 
         $this->app();
 
-        $users = User::whereIn('id', [1, 2, 3])->get()->all();
+        $users = User::whereIn('id', [1, 2, 3])->orderBy('id')->get()->all();
 
         $notificationSyncer = $this->app()->getContainer()->make(NotificationSyncer::class);
         $notificationSyncer->sync(new CustomNotificationType(), $users);

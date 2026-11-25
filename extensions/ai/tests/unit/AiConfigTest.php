@@ -119,6 +119,23 @@ class AiConfigTest extends TestCase
     }
 
     #[Test]
+    public function streamed_usage_defaults_on_without_overriding_explicit_server_options(): void
+    {
+        $compatible = ['driver' => 'openai-compatible'];
+        $providers = $this->aiConfig([], ['connections' => [
+            'other-option' => $compatible + ['stream_options' => ['include_obfuscation' => false]],
+            'usage-off' => $compatible + ['stream_options' => ['include_usage' => false]],
+            'no-options' => $compatible + ['stream_options' => null],
+            'opt-out' => $compatible + ['include_stream_usage' => false],
+        ]])->toArray()['providers'];
+
+        $this->assertSame(['include_obfuscation' => false, 'include_usage' => true], $providers['other-option']['stream_options']);
+        $this->assertSame(['include_usage' => false], $providers['usage-off']['stream_options']);
+        $this->assertSame($compatible + ['stream_options' => null], $providers['no-options']);
+        $this->assertSame($compatible, $providers['opt-out']);
+    }
+
+    #[Test]
     public function flarums_own_connection_settings_stay_out_of_laravel_ais_config(): void
     {
         $config = $this->aiConfig(

@@ -3,6 +3,7 @@ import mq from 'mithril-query';
 import Comment from '../../../../src/forum/components/Comment';
 import ItemList from '../../../../src/common/utils/ItemList';
 import { app } from '../../../../src/forum';
+import { override } from '../../../../src/common/extend';
 
 beforeAll(() => bootstrapForum());
 
@@ -70,5 +71,75 @@ describe('Comment search highlighting', () => {
 
   test('renders the content as-is without a search', () => {
     expect(mq(Comment, attrs())).not.toHaveElement('.Post-body mark');
+  });
+});
+
+describe('Comment contentHtml hook', () => {
+  const attrs = (overrides: Record<string, unknown> = {}) => ({
+    headerItems: new ItemList(),
+    user: undefined,
+    cardVisible: false,
+    isEditing: false,
+    isHidden: false,
+    contentHtml: '<p>A <img src="photo.png"></p>',
+    ...overrides,
+  });
+
+  const original = Comment.prototype.contentHtml;
+  let calls = 0;
+
+  beforeEach(() => {
+    calls = 0;
+    override(Comment.prototype, 'contentHtml', function (this: Comment, orig: () => string) {
+      calls++;
+      return orig().replace(/<img ([^>]*)>/g, '<a class="Lightbox" href="photo.png"><img $1></a> gallery');
+    });
+  });
+
+  afterEach(() => {
+    Comment.prototype.contentHtml = original;
+  });
+
+  test('renders the transformed HTML', () => {
+    expect(mq(Comment, attrs())).toHaveElement('.Post-body a.Lightbox img');
+  });
+
+  test('transforms before search highlighting', () => {
+    const rendered = mq(Comment, attrs({ search: 'gallery' }));
+
+    expect(rendered.find('.Post-body mark')[0].textContent).toBe('gallery');
+    expect(rendered).toHaveElement('.Post-body a.Lightbox img');
+  });
+
+  test('is not called while the post is being edited', () => {
+    const rendered = mq(Comment, attrs({ isEditing: true }));
+
+    expect(calls).toBe(0);
+    expect(rendered).not.toHaveElement('.Post-body img');
+    expect(rendered).toHaveElement('.Post-body .Post-preview');
+  });
+
+  test('passes an empty string when the post has no HTML', () => {
+    let received: unknown;
+    Comment.prototype.contentHtml = original;
+    override(Comment.prototype, 'contentHtml', function (this: Comment, orig: () => string) {
+      return (received = orig());
+    });
+
+    mq(Comment, attrs({ contentHtml: null }));
+
+    expect(received).toBe('');
+  });
+
+  test('keeps the original HTML when an override fails', () => {
+    Comment.prototype.contentHtml = original;
+    override(Comment.prototype, 'contentHtml', function () {
+      throw new Error('broken transform');
+    });
+
+    const rendered = mq(Comment, attrs());
+
+    expect(rendered).toHaveElement('.Post-body img');
+    expect(rendered).not.toHaveElement('.Post-body a.Lightbox');
   });
 });

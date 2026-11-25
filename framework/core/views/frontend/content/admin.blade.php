@@ -45,7 +45,7 @@
                     </td>
                     <td class="NoJs-ExtensionsTable-title">{{ $extension->getTitle() }}</td>
                     <td class="NoJs-ExtensionsTable-name">{{ $extension->name }}</td>
-                    <td class="NoJs-ExtensionsTable-version">{{ $extension->getVersion() }}</td>
+                    <td class="NoJs-ExtensionsTable-version">{{ $extension->getVersion() }}@if($extension->getCommit()) ({{ substr($extension->getCommit(), 0, 7) }})@endif</td>
                     <td class="NoJs-ExtensionsTable-state">
                         <span class="ExtensionListItem-Dot {{ $isEnabled ? 'enabled' : 'disabled' }}" aria-hidden="true"></span>
                     </td>

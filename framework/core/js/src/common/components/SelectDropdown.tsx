@@ -28,6 +28,37 @@ function isActive(vnode: Mithril.Children): boolean {
   return (typeof tag === 'object' || typeof tag === 'function') && 'isActive' in tag ? (tag as any).isActive(vnode.attrs) : vnode.attrs.active;
 }
 
+/**
+ * Copy a label's vnodes so the same option can be rendered in both the menu and
+ * the toggle. A rendered vnode only has one `dom`, so handing the active
+ * option's children to both leaves the copy that was rendered first showing the
+ * label the option had on the previous redraw. The copy keeps the markup the
+ * option supplies — badges, links, anything a custom item passes — rather than
+ * reducing it to text.
+ */
+function copyVnodes(children: Mithril.Children): Mithril.Children {
+  if (children instanceof Array) return children.map(copyVnodes);
+  if (!children || typeof children !== 'object') return children;
+
+  // A custom item can take any data as a child and decide how to render it, so
+  // anything without a tag is not a vnode to rebuild.
+  if (!children.tag) return children;
+
+  // Text and trusted HTML are not elements, so give them back as they were
+  // supplied and let Mithril normalize them again.
+  if (children.tag === '#') return children.children;
+  if (children.tag === '<') {
+    const copy = m.trust(children.children as string);
+    copy.key = children.key;
+    return copy;
+  }
+
+  // Keys can be set on the vnode itself as well as through its attrs, and
+  // siblings must be keyed consistently, so the copy has to keep the one the
+  // label was built with.
+  return m(children.tag as string, { ...children.attrs, key: children.key }, copyVnodes(children.children));
+}
+
 export interface ISelectDropdownAttrs extends IDropdownAttrs {
   defaultLabel: Mithril.Children;
 }
@@ -57,7 +88,10 @@ export default class SelectDropdown<CustomAttrs extends ISelectDropdownAttrs = I
   }
 
   getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray {
-    const label = this.getLabel(children);
+    // The menu renders the label the active option supplies, so this button
+    // renders its own copies of those vnodes. Sharing them would leave this
+    // copy showing the count the option had on the previous redraw.
+    const label = copyVnodes(this.getLabel(children));
 
     return [
       // An icon is what identifies the control once there is no room for its

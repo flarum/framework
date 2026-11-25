@@ -1,18 +1,44 @@
-import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import m from 'mithril';
 import mq from 'mithril-query';
 import { jest } from '@jest/globals';
 import GlobalSearch from '../../../../src/forum/components/GlobalSearch';
 import SearchState from '../../../../src/common/states/SearchState';
 import app from '../../../../src/forum/app';
+import { bsTooltip, removeTooltips, tooltipShown, useRealBootstrapTooltips } from '../../common/tooltips';
 
-beforeAll(() => {
-  bootstrapForum();
+beforeAll(async () => {
+  await useRealBootstrapTooltips();
   app.boot();
 
   // The component only renders once it has somewhere to search, and the
   // sources it offers depend on what the actor is allowed to see.
   app.forum.pushAttributes({ canViewForum: true, canSearchUsers: true });
+});
+
+let root: HTMLElement | undefined;
+let drawer: HTMLElement | undefined;
+
+beforeEach(() => {
+  // The forum bootstrap creates the drawer's focus trap before the test adds a
+  // #drawer element, so activating it would throw for want of a container;
+  // only the drawer's open state matters here.
+  jest.spyOn(app.drawer.focusTrap, 'activate').mockImplementation(() => {});
+  jest.spyOn(app.drawer.focusTrap, 'deactivate').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  if (root) {
+    m.mount(root, null);
+    root.remove();
+    root = undefined;
+  }
+
+  app.drawer.hide();
+  drawer?.remove();
+  drawer = undefined;
+
+  removeTooltips();
+  jest.restoreAllMocks();
 });
 
 /**
@@ -43,8 +69,15 @@ describe('GlobalSearch renders a button, not a text field', () => {
     expect(search()).toHaveElement('button.Search-input[aria-label]');
   });
 
-  it('describes the control on hover, as the controls beside it do', () => {
-    expect(search()).toHaveElement('button.Search-input[title]');
+  it('describes the control with the standard tooltip', () => {
+    const rendered = search();
+    const button = rendered.find('button.Search-input')[0] as HTMLElement;
+
+    expect(bsTooltip(button).getTitle()).toBe('Search Forum');
+  });
+
+  it('does not add a native tooltip alongside the standard tooltip', () => {
+    expect(search()).not.toHaveElement('button.Search-input[title]:not([title=""])');
   });
 
   it('marks the surrounding element as a search landmark', () => {
@@ -140,5 +173,31 @@ describe('GlobalSearch reflects the current query', () => {
     expect(show).not.toHaveBeenCalled();
 
     show.mockRestore();
+  });
+});
+
+describe('GlobalSearch in the phone drawer', () => {
+  it('shows no tooltip while the drawer is open, and shows it once the drawer closes', () => {
+    // The search control sits in the drawer, so its "Search Forum" tooltip
+    // would otherwise cover the notification row below it.
+    drawer = document.createElement('div');
+    drawer.id = 'drawer';
+    document.body.appendChild(drawer);
+
+    root = document.createElement('div');
+    drawer.appendChild(root);
+    m.mount(root, { view: () => m(GlobalSearch, { state: new SearchState() }) });
+
+    app.drawer.show();
+
+    const button = root.querySelector<HTMLElement>('button.Search-input')!;
+    $(button).trigger('mouseenter');
+    expect(tooltipShown()).toBe(false);
+
+    // The control keeps its tooltip for after the drawer closes.
+    app.drawer.hide();
+    $(button).trigger('mouseleave');
+    $(button).trigger('mouseenter');
+    expect($('.tooltip.in .tooltip-inner').text()).toBe('Search Forum');
   });
 });

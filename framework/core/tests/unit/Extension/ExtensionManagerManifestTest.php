@@ -149,4 +149,176 @@ class ExtensionManagerManifestTest extends TestCase
         $this->assertCount(1, $extensions, 'Only flarum-extension packages are extensions');
         $this->assertNotNull($extensions->get('flarum-tags'));
     }
+
+    #[Test]
+    public function extracts_sanitized_commit_hash_for_dev_versions_only(): void
+    {
+        $extensions = $this->manager(json_encode(['packages' => [
+            [
+                'name' => 'acme/dev-dist',
+                'type' => 'flarum-extension',
+                'version' => '2.x-dev',
+                'dist' => ['reference' => '9AE9C2B5222172709D6E811DA39B6A5BF588E198', 'url' => 'https://token:secret@example.com/archive.zip'],
+                'extra' => ['flarum-extension' => ['title' => 'Dev Dist']],
+            ],
+            [
+                'name' => 'acme/dev-source',
+                'type' => 'flarum-extension',
+                'version' => 'dev-main',
+                'source' => ['reference' => 'abcdef1234567890abcdef1234567890abcdef12'],
+                'extra' => ['flarum-extension' => ['title' => 'Dev Source']],
+            ],
+            [
+                'name' => 'acme/dev-uppercase',
+                'type' => 'flarum-extension',
+                'version' => '2.0.0-DEV',
+                'version_normalized' => '2.0.0.0-dev',
+                'dist' => ['reference' => '7777777777777777777777777777777777777777'],
+                'extra' => ['flarum-extension' => ['title' => 'Dev Uppercase']],
+            ],
+            [
+                'name' => 'acme/stable',
+                'type' => 'flarum-extension',
+                'version' => '2.0.3',
+                'dist' => ['reference' => '1111111111111111111111111111111111111111'],
+                'extra' => ['flarum-extension' => ['title' => 'Stable']],
+            ],
+            [
+                'name' => 'acme/xss',
+                'type' => 'flarum-extension',
+                'version' => 'dev-main',
+                'commit' => '<script>alert(1)</script>',
+                'dist' => ['reference' => '<error>injected</error>'],
+                'extra' => ['flarum-extension' => ['title' => 'XSS']],
+            ],
+            [
+                'name' => 'acme/trailing-newline',
+                'type' => 'flarum-extension',
+                'version' => 'dev-main',
+                'dist' => ['reference' => "abcdef1\n"],
+                'extra' => ['flarum-extension' => ['title' => 'Trailing Newline']],
+            ],
+            [
+                'name' => 'acme/too-short',
+                'type' => 'flarum-extension',
+                'version' => '2.x-dev',
+                'source' => ['reference' => 'abc123'],
+                'extra' => ['flarum-extension' => ['title' => 'Too Short']],
+            ],
+            // Covers both config-hash references and stale install-time .git references on path repos.
+            [
+                'name' => 'acme/path',
+                'type' => 'flarum-extension',
+                'version' => 'dev-main',
+                'installation-source' => 'dist',
+                'dist' => ['type' => 'path', 'url' => '../path', 'reference' => '0123456789abcdef0123456789abcdef01234567'],
+                'extra' => ['flarum-extension' => ['title' => 'Path']],
+            ],
+            [
+                'name' => 'acme/from-source',
+                'type' => 'flarum-extension',
+                'version' => '2.x-dev',
+                'installation-source' => 'source',
+                'dist' => ['type' => 'zip', 'reference' => '1111111111111111111111111111111111111111'],
+                'source' => ['type' => 'git', 'reference' => '2222222222222222222222222222222222222222'],
+                'extra' => ['flarum-extension' => ['title' => 'From Source']],
+            ],
+            [
+                'name' => 'acme/dist-non-hex-fallback',
+                'type' => 'flarum-extension',
+                'version' => '2.x-dev',
+                'installation-source' => 'dist',
+                'dist' => ['type' => 'zip', 'reference' => 'not-a-hex-sha'],
+                'source' => ['type' => 'git', 'reference' => '3333333333333333333333333333333333333333'],
+                'extra' => ['flarum-extension' => ['title' => 'Dist Fallback']],
+            ],
+            [
+                'name' => 'acme/source-missing-ref',
+                'type' => 'flarum-extension',
+                'version' => '2.x-dev',
+                'installation-source' => 'source',
+                'dist' => ['type' => 'zip', 'reference' => '4444444444444444444444444444444444444444'],
+                'extra' => ['flarum-extension' => ['title' => 'Source Missing Ref']],
+            ],
+        ]]))->getExtensions();
+
+        $this->assertSame('9ae9c2b5222172709d6e811da39b6a5bf588e198', $extensions->get('acme-dev-dist')->getCommit());
+        $this->assertSame('9ae9c2b5222172709d6e811da39b6a5bf588e198', $extensions->get('acme-dev-dist')->toArray()['commit']);
+        $this->assertSame('abcdef1234567890abcdef1234567890abcdef12', $extensions->get('acme-dev-source')->getCommit());
+        $this->assertSame('7777777777777777777777777777777777777777', $extensions->get('acme-dev-uppercase')->getCommit());
+        $this->assertNull($extensions->get('acme-stable')->getCommit());
+        $this->assertNull($extensions->get('acme-xss')->getCommit());
+        $this->assertNull($extensions->get('acme-xss')->toArray()['commit']);
+        $this->assertNull($extensions->get('acme-trailing-newline')->getCommit());
+        $this->assertNull($extensions->get('acme-too-short')->getCommit());
+        $this->assertNull($extensions->get('acme-path')->getCommit());
+        $this->assertSame('2222222222222222222222222222222222222222', $extensions->get('acme-from-source')->getCommit());
+        $this->assertSame('3333333333333333333333333333333333333333', $extensions->get('acme-dist-non-hex-fallback')->getCommit());
+        $this->assertNull($extensions->get('acme-source-missing-ref')->getCommit());
+    }
+
+    #[Test]
+    public function subextensions_inherit_parent_version_and_commit_without_leaking_parent_urls(): void
+    {
+        $fs = new Filesystem();
+        $subDirs = [
+            $this->vendor.'/acme/monorepo/extensions/child' => ['name' => 'acme/child', 'title' => 'Child'],
+            $this->vendor.'/acme/monorepo-path/extensions/child' => ['name' => 'acme/path-child', 'title' => 'Path Child'],
+            $this->vendor.'/acme/monorepo-source/extensions/child' => ['name' => 'acme/source-child', 'title' => 'Source Child'],
+        ];
+
+        foreach ($subDirs as $dir => $meta) {
+            $fs->makeDirectory($dir, 0777, true);
+            file_put_contents($dir.'/composer.json', json_encode([
+                'name' => $meta['name'],
+                'type' => 'flarum-extension',
+                'extra' => ['flarum-extension' => ['title' => $meta['title']]],
+            ]));
+        }
+
+        $extensions = $this->manager(json_encode(['packages' => [
+            [
+                'name' => 'acme/monorepo',
+                'type' => 'library',
+                'version' => '2.x-dev',
+                'dist' => [
+                    'reference' => 'deadbeef1234567890abcdef1234567890abcdef',
+                    'url' => 'https://x-access-token:ghp_secret@github.com/acme/monorepo.zip',
+                ],
+                'source' => [
+                    'url' => 'https://x-access-token:ghp_secret@github.com/acme/monorepo.git',
+                ],
+                'extra' => [
+                    'flarum-subextensions' => ['extensions/child'],
+                ],
+            ],
+            [
+                'name' => 'acme/monorepo-path',
+                'type' => 'library',
+                'version' => '2.x-dev',
+                'installation-source' => 'dist',
+                'dist' => ['type' => 'path', 'url' => '../monorepo-path', 'reference' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'],
+                'extra' => ['flarum-subextensions' => ['extensions/child']],
+            ],
+            [
+                'name' => 'acme/monorepo-source',
+                'type' => 'library',
+                'version' => '2.0.0-DEV',
+                'version_normalized' => '2.0.0.0-dev',
+                'installation-source' => 'source',
+                'dist' => ['type' => 'zip', 'reference' => '5555555555555555555555555555555555555555'],
+                'source' => ['type' => 'git', 'reference' => '6666666666666666666666666666666666666666'],
+                'extra' => ['flarum-subextensions' => ['extensions/child']],
+            ],
+        ]]))->getExtensions();
+
+        $child = $extensions->get('acme-child');
+        $this->assertNotNull($child);
+        $this->assertSame('2.x-dev', $child->getVersion());
+        $this->assertSame('deadbeef1234567890abcdef1234567890abcdef', $child->getCommit());
+        $this->assertArrayNotHasKey('url', $child->toArray()['dist'] ?? []);
+        $this->assertArrayNotHasKey('source', $child->toArray());
+        $this->assertNull($extensions->get('acme-path-child')->getCommit());
+        $this->assertSame('6666666666666666666666666666666666666666', $extensions->get('acme-source-child')->getCommit());
+    }
 }

@@ -94,3 +94,9 @@ flarum-subscriptions:
     follow: Follow
     following: Following
     ignoring: Ignoring
+
+core:
+  email:
+    notification:
+      types:
+        newPost: New posts in discussions you follow

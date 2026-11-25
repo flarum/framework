@@ -125,6 +125,23 @@ class RealtimeExtenderTest extends TestCase
     }
 
     #[Test]
+    public function broadcast_to_users_registers_with_registry(): void
+    {
+        $getPayloads = fn ($e) => [3 => ['dialogId' => '2']];
+
+        $extender = (new RealtimeExtender())
+            ->broadcastToUsers(['UserRead', 'UserReadAgain'], $getPayloads);
+
+        $this->runExtender($extender);
+
+        $broadcasts = $this->registry->getUserBroadcasts();
+
+        $this->assertCount(1, $broadcasts);
+        $this->assertSame(['UserRead', 'UserReadAgain'], $broadcasts[0]['events']);
+        $this->assertSame($getPayloads, $broadcasts[0]['getPayloads']);
+    }
+
+    #[Test]
     public function broadcast_flag_event_registers_with_registry(): void
     {
         $getDiscussion = fn ($e) => $e->flag->post->discussion;

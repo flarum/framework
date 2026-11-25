@@ -38,6 +38,18 @@
     height: auto;
   }
 
+  // Native dropdown lists don't reliably follow the field's colours; listboxes are left out so they keep their selection highlight.
+  select&:not([multiple]):not([size]) {
+    option,
+    optgroup {
+      background-color: var(--body-bg);
+
+      &:not(:disabled) {
+        color: var(--text-color);
+      }
+    }
+  }
+
   @media @phone {
     font-size: 16px; // minimum font-size required to prevent page zoom on focus in iOS 10
   }

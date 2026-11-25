@@ -5,6 +5,7 @@ import extractText from '../utils/extractText';
 import ItemList from '../utils/ItemList';
 import classList from '../utils/classList';
 import Icon from './Icon';
+import Tooltip from './Tooltip';
 import type Mithril from 'mithril';
 
 export interface SearchAttrs extends ComponentAttrs {
@@ -66,6 +67,12 @@ export interface GlobalSearchSource {
    * Get to the result item page. Only called if each list item has a data-id.
    */
   gotoItem(id: string): string | null;
+
+  /**
+   * The minimum query length before this source is searched. Defaults to the
+   * forum's configured minimum (`SearchManager.minSearchLength()`).
+   */
+  minSearchLength?(): number;
 }
 
 /**
@@ -91,6 +98,9 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
     if (this.sourceItems().isEmpty()) return <div></div>;
 
     const value = this.searchState.getValue();
+    const buttonLabel = value
+      ? extractText(app.translator.trans('core.lib.search.search_active_button_accessible_label', { query: value }))
+      : extractText(this.attrs.label);
 
     // Search happens in a modal, so this control does not accept text: it is a
     // button that opens the modal, and reads as one to assistive technology
@@ -103,32 +113,24 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
 
     return (
       <div role="search" className={classList('Search', { 'Search--active': !!value })} aria-label={this.attrs.a11yRoleLabel}>
-        <button
-          type="button"
-          // `Button--flat` rather than `Button--link`: this sits among the
-          // notification and message controls, which are flat buttons, and
-          // should pick up the same hover and focus treatment as them.
-          className="Search-input Button Button--flat"
-          aria-label={
-            value
-              ? extractText(app.translator.trans('core.lib.search.search_active_button_accessible_label', { query: value }))
-              : extractText(this.attrs.label)
-          }
-          title={value || extractText(this.attrs.label)}
-          onclick={() => {
-            // On phones the search button lives inside the slide-out drawer. Close the drawer as soon as
-            // search is activated, before the modal is shown, so it isn't left open behind (and overlapping)
-            // the full-screen search modal as it animates in. Hiding it here rather than in `openSearchModal`
-            // lets the drawer finish sliding out during the delay below. No-op where the drawer is never open.
-            app.drawer.hide();
-            setTimeout(() => openSearchModal(), 150);
-          }}
-        >
-          <Icon name="fas fa-search" className="Button-icon" />
-          <span className="Button-label">
-            <span className="Button-labelText">{value || this.attrs.label}</span>
-          </span>
-        </button>
+        <Tooltip text={value || extractText(this.attrs.label)} ariaLabel={buttonLabel} position="bottom" container="body">
+          <button
+            type="button"
+            // Match the hover and focus treatment of the other header controls.
+            className="Search-input Button Button--flat"
+            aria-label={buttonLabel}
+            onclick={() => {
+              // Give the phone drawer time to close before the search modal opens.
+              app.drawer.hide();
+              setTimeout(() => openSearchModal(), 150);
+            }}
+          >
+            <Icon name="fas fa-search" className="Button-icon" />
+            <span className="Button-label">
+              <span className="Button-labelText">{value || this.attrs.label}</span>
+            </span>
+          </button>
+        </Tooltip>
         {!!value && (
           <button
             type="button"

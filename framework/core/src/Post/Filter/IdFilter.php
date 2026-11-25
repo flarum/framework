@@ -9,6 +9,7 @@
 
 namespace Flarum\Post\Filter;
 
+use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
@@ -28,7 +29,7 @@ class IdFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $ids = $this->asIntArray($value);
+        $ids = $this->asKeyArray($value, new Post);
 
         $state->getQuery()->whereIn('posts.id', $ids, 'and', $negate);
     }

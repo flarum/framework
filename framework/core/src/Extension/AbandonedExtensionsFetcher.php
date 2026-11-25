@@ -17,6 +17,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Queue\Queue;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -32,6 +33,22 @@ class AbandonedExtensionsFetcher
      */
     public const PENDING_NOTIFICATION_KEY = 'flarum-core.abandoned_extensions_pending_notification';
 
+    /**
+     * The whole upstream list, installed or not; the setting above holds only
+     * the installed packages, because every setting is loaded on every request.
+     */
+    public const LIST_CACHE_KEY = 'flarum-core.abandoned_extensions_list';
+
+    /**
+     * A week and a day, so the weekly sync refreshes it before it expires.
+     */
+    protected const LIST_TTL = 691200;
+
+    /**
+     * How long a failed fetch waits before it is tried again.
+     */
+    protected const FAILED_LIST_TTL = 3600;
+
     protected const SOURCE_URL = 'https://raw.githubusercontent.com/flarum/abandoned-extensions/main/abandoned.json';
 
     public function __construct(
@@ -41,12 +58,14 @@ class AbandonedExtensionsFetcher
         protected Queue $queue,
         protected TranslatorInterface $translator,
         protected ?LoggerInterface $logger = null,
+        protected ?CacheRepository $cache = null,
     ) {
     }
 
     /**
-     * Fetch the upstream abandoned extensions list, filter to installed packages,
-     * persist the result to settings, and optionally notify admins.
+     * Fetch the upstream abandoned extensions list, keep all of it for
+     * getFullMap(), persist the installed packages' entries to settings, and
+     * optionally notify admins.
      *
      * When $notify is true and the notify-admins setting is enabled:
      * - On a scheduled (automatic) run: only notifies about packages newly flagged
@@ -66,6 +85,8 @@ class AbandonedExtensionsFetcher
 
             throw $e;
         }
+
+        $this->store(fn (CacheRepository $cache) => $cache->put(self::LIST_CACHE_KEY, $map, self::LIST_TTL));
 
         $installed = $this->installedPackageNames();
 
@@ -113,6 +134,58 @@ class AbandonedExtensionsFetcher
         }
 
         return ['count' => count($filtered), 'new' => $new];
+    }
+
+    /**
+     * Every package on the upstream list, installed or not, for checking
+     * packages before they are installed. Fetched when nothing is stored,
+     * unless $fetch is false, and empty when it cannot be fetched.
+     *
+     * @return array<string, array{replacement?: string}>
+     */
+    public function getFullMap(bool $fetch = true): array
+    {
+        $cached = $this->store(fn (CacheRepository $cache) => $cache->get(self::LIST_CACHE_KEY));
+
+        if (is_array($cached) || ! $fetch) {
+            return is_array($cached) ? $cached : [];
+        }
+
+        try {
+            $map = $this->fetch();
+        } catch (RuntimeException $e) {
+            $this->logger?->warning($e->getMessage());
+
+            // Only if still empty: a sync that finished meanwhile must not be overwritten.
+            $this->store(fn (CacheRepository $cache) => $cache->add(self::LIST_CACHE_KEY, [], self::FAILED_LIST_TTL));
+
+            $stored = $this->store(fn (CacheRepository $cache) => $cache->get(self::LIST_CACHE_KEY));
+
+            return is_array($stored) ? $stored : [];
+        }
+
+        $this->store(fn (CacheRepository $cache) => $cache->put(self::LIST_CACHE_KEY, $map, self::LIST_TTL));
+
+        return $map;
+    }
+
+    /**
+     * A store that cannot be used, such as files a command run as another user
+     * left behind, is treated as empty rather than failing the request.
+     */
+    protected function store(callable $use): mixed
+    {
+        if (! $this->cache) {
+            return null;
+        }
+
+        try {
+            return $use($this->cache);
+        } catch (Throwable $e) {
+            $this->logger?->warning('Could not use the stored abandoned extensions list: '.$e->getMessage());
+
+            return null;
+        }
     }
 
     /**

@@ -74,6 +74,24 @@ class WithDefaultIncludesTest extends TestCase
     }
 
     #[Test]
+    public function the_parameter_adds_the_defaults_to_includes_named_as_a_list()
+    {
+        $this->prepareDatabase([
+            Post::class => [
+                ['id' => 2, 'number' => 2, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>something else</p></t>'],
+            ],
+        ]);
+
+        $response = $this->get('/api/posts/2', ['include' => ['discussion.firstPost'], 'withDefaultIncludes' => '1']);
+
+        $included = json_decode($response->getBody()->getContents(), true)['included'] ?? [];
+
+        // Post 1 is only reachable through the named `discussion.firstPost`; `user.groups` is a default.
+        $this->assertContains(['type' => 'posts', 'id' => '1'], array_map(fn ($resource) => ['type' => $resource['type'], 'id' => $resource['id']], $included));
+        $this->assertContains('groups', array_column($included, 'type'));
+    }
+
+    #[Test]
     public function the_parameter_adds_the_defaults_to_named_includes_when_showing()
     {
         $response = $this->get('/api/posts/1', ['include' => 'user', 'withDefaultIncludes' => '1']);

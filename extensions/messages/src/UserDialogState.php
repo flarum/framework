@@ -60,11 +60,13 @@ class UserDialogState extends AbstractModel
 
     public function read(int $messageId): static
     {
-        if ($messageId > $this->last_read_message_id) {
+        $previous = (int) $this->last_read_message_id;
+
+        if ($messageId > $previous) {
             $this->last_read_message_id = $messageId;
             $this->last_read_at = Carbon::now();
 
-            $this->raise(new UserRead($this));
+            $this->raise(new UserRead($this, $previous));
         }
 
         return $this;

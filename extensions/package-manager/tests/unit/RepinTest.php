@@ -107,6 +107,21 @@ class RepinTest extends TestCase
         $this->assertSame(['fof/pwa' => '2.0.0-beta.4'], $out);
     }
 
+    /** A check saved under another core can name a release this one cannot run. */
+    public function test_a_pin_is_never_raised_to_a_release_the_installed_core_cannot_run(): void
+    {
+        file_put_contents($this->dir.'/composer.lock', json_encode(['packages' => [['name' => 'flarum/core', 'version' => 'v2.1.0']]]));
+
+        $out = $this->repinFor(
+            ['a/needs-new', 'a/fits'],
+            ['repin' => true],
+            ['a/needs-new' => '1.0.0', 'a/fits' => '1.0.0'],
+            ['a/needs-new' => ['from' => '1.0.0', 'to' => '1.1.0', 'core' => '^2.2'], 'a/fits' => ['from' => '1.0.0', 'to' => '1.1.0', 'core' => '^2.1']],
+        );
+
+        $this->assertSame(['a/fits' => '1.1.0'], $out);
+    }
+
     public function test_nothing_is_raised_unless_it_was_asked_for(): void
     {
         $out = $this->repinFor(

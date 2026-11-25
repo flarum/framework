@@ -21,6 +21,11 @@ export default class AppearancePage extends AdminPage {
     themeImage(name: string): {
         lockedBy?: string | null;
     };
+    /**
+     * The pages the installed app can open to: the forum's home page, or one of
+     * the pages it can be set to.
+     */
+    startPageOptions(): Record<string, string>;
     colorItems(): ItemList<Mithril.Children>;
     onsaved(): void;
     static register(): void;

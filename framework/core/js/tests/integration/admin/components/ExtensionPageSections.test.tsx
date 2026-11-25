@@ -418,4 +418,46 @@ describe('ExtensionPage settings layout', () => {
       expect(m.route.set).toHaveBeenCalledWith(app.route('extension', { id: 'acme-tabs', tab: 'advanced' }), undefined, { replace: true });
     });
   });
+
+  describe('extension version and commit display', () => {
+    test('renders short commit hash with full SHA tooltip when commit is present', () => {
+      const ext = app.data.extensions['acme-flat'];
+      const prevVersion = ext.version;
+      const prevCommit = ext.commit;
+
+      ext.version = '2.x-dev';
+      ext.commit = '9ae9c2b5222172709d6e811da39b6a5bf588e198';
+
+      try {
+        const page = mq(ExtensionPage, { id: 'acme-flat' });
+        const versionEl = page.first('.ExtensionVersion');
+
+        expect(versionEl.textContent).toBe('2.x-dev (9ae9c2b)');
+        expect(versionEl.getAttribute('title')).toBe('9ae9c2b5222172709d6e811da39b6a5bf588e198');
+      } finally {
+        ext.version = prevVersion;
+        ext.commit = prevCommit;
+      }
+    });
+
+    test('renders only the version when commit is absent', () => {
+      const ext = app.data.extensions['acme-flat'];
+      const prevVersion = ext.version;
+      const prevCommit = ext.commit;
+
+      ext.version = '2.0.3';
+      ext.commit = null;
+
+      try {
+        const page = mq(ExtensionPage, { id: 'acme-flat' });
+        const versionEl = page.first('.ExtensionVersion');
+
+        expect(versionEl.textContent).toBe('2.0.3');
+        expect(versionEl.getAttribute('title')).toBeNull();
+      } finally {
+        ext.version = prevVersion;
+        ext.commit = prevCommit;
+      }
+    });
+  });
 });

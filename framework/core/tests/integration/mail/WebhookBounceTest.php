@@ -9,9 +9,13 @@
 
 namespace Flarum\Tests\integration\mail;
 
+use Flarum\Mail\Event\EmailBounced;
+use Flarum\Mail\Event\EmailComplained;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Flarum\User\UserRepository;
+use Illuminate\Database\Eloquent\Collection;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -336,5 +340,59 @@ class WebhookBounceTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertFalse(User::find(3)->hasBouncedEmail());
+    }
+
+    #[Test]
+    public function bounce_and_complaint_events_list_the_accounts_using_the_address(): void
+    {
+        $recipients = [];
+        $events = $this->app()->getContainer()->make(\Illuminate\Contracts\Events\Dispatcher::class);
+        $capture = function (EmailBounced|EmailComplained $event) use (&$recipients) {
+            $recipients[$event::class] = $event->recipients->pluck('id')->all();
+        };
+        $events->listen(EmailBounced::class, $capture);
+        $events->listen(EmailComplained::class, $capture);
+
+        $this->postWebhook($this->signedPayload('failed', 'bouncer@example.com'));
+        $this->postWebhook($this->signedPayload('complained', 'bouncer@example.com'));
+
+        $this->assertSame([EmailBounced::class => [3], EmailComplained::class => [3]], $recipients);
+    }
+
+    #[Test]
+    public function a_bounce_for_an_unknown_address_has_no_recipients(): void
+    {
+        $recipients = null;
+        $this->app()->getContainer()->make(\Illuminate\Contracts\Events\Dispatcher::class)->listen(
+            EmailBounced::class,
+            function (EmailBounced $event) use (&$recipients) {
+                $recipients = $event->recipients;
+            }
+        );
+
+        $this->postWebhook($this->signedPayload('failed', 'nobody@example.com'));
+
+        $this->assertNotNull($recipients);
+        $this->assertTrue($recipients->isEmpty());
+        $this->assertNull(\Flarum\Mail\EmailBounceEvent::firstOrFail()->user_id);
+    }
+
+    #[Test]
+    public function a_bounce_flags_every_account_that_uses_the_address(): void
+    {
+        // The unique index stops two accounts sharing an address, so a repository stands in for 3.0's lookup.
+        $this->app()->getContainer()->instance(UserRepository::class, new class extends UserRepository {
+            public function findAllByEmail(string $email): Collection
+            {
+                return User::query()->whereIn('id', [2, 3])->orderBy('id')->get();
+            }
+        });
+
+        $response = $this->postWebhook($this->signedPayload('failed', 'bouncer@example.com'));
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertTrue(User::find(2)->hasBouncedEmail());
+        $this->assertTrue(User::find(3)->hasBouncedEmail());
+        $this->assertSame([2, 3], \Flarum\Mail\EmailBounceEvent::query()->orderBy('user_id')->pluck('user_id')->all());
     }
 }

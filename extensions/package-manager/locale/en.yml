@@ -49,10 +49,10 @@ flarum-extension-manager:
         extension:
           downloads: "{count, plural, one {{formattedCount} download} other {{formattedCount} downloads}}"
           badges:
-            abandoned: abandoned by its author
+            abandoned: abandoned
           abandoned_why: >-
-            Its author has marked it as no longer maintained. It may still work.
-          abandoned_for: "Its author says to use {replacement} instead."
+            Its author, or Flarum's list of abandoned extensions, says it is no longer maintained. It may still work.
+          abandoned_for: "No longer maintained: use {replacement} instead."
           replaced: replaced
           replaced_by: "replaced by {replacement}"
           replaced_why: >-
@@ -60,6 +60,7 @@ flarum-extension-manager:
             gives you the new extension under the wrong id, which then cannot be enabled.
           install_replacement: "Install {replacement}"
           installed_as: "installed as {replacement}"
+          replacement_installed: "{replacement} is installed"
         # "Says it works", never "works". A declared constraint is the author's
         # claim; whether the rest of this site allows it is a question only the
         # plan can answer, and it is answered when Install is pressed.
@@ -217,6 +218,12 @@ flarum-extension-manager:
       failed: The release notes could not be loaded from GitHub just now.
 
     run:
+      abandoned:
+        intro: "{count, plural, one {A package} other {# packages}} in this {mode, select, install {install} other {update}} {count, plural, one {is} other {are}} abandoned."
+        intro_stopped: "{count, plural, one {A package} other {# packages}} this {mode, select, install {install} other {update}} would bring in {count, plural, one {is} other {are}} abandoned. That is not why it stopped."
+        announce: "{count, plural, one {A package} other {# packages}} in this {mode, select, install {install} other {update}} {count, plural, one {is} other {are}} abandoned. The list is in the update panel."
+        no_replacement: "{package}: no replacement is named"
+        replaced: "{package}: use {replacement} instead"
       working: Updating
       done: Update finished
       failed: The update stopped
@@ -313,6 +320,7 @@ flarum-extension-manager:
           vcs: Git repository
           composer: Composer repository
           path: Folder on this server
+          artifact: Folder of package archives
         type_help:
           vcs: GitHub, GitLab, Bitbucket or any Git host
           composer: Private Packagist or a paid marketplace
@@ -574,6 +582,8 @@ flarum-extension-manager:
     check:
       no_lock: "The Extension Manager could not read composer.lock, so it cannot tell what is installed."
     composer:
+      abandoned_no_replacement: "{package} is abandoned, and no replacement is named."
+      abandoned_replaced: "{package} is abandoned; use {replacement} instead."
       advice_memory: "Ask your host to raise memory_limit for this site (256 MB is plenty), or update fewer extensions at once."
       advice_time: "Composer keeps what it downloads, so pressing Update again later often gets further. If it keeps stopping, ask your host to raise max_execution_time for this site (120 seconds is plenty), or to allow proc_open so Composer can run in its own process."
       and_more: ", and {count} more"
@@ -622,6 +632,7 @@ flarum-extension-manager:
       registered: "Composer now knows about the change"
       reread_done: "The web server has re-read the new files."
       resolve_failed: "Composer could not work out an update:"
+      abandoned_blocked: "This forum's Composer settings block abandoned packages, and {mode, select, install {the install} other {the update}} needs {packages}, which {count, plural, one {is} other {are}} abandoned. To allow {count, plural, one {it} other {them}}, list {count, plural, one {it} other {them}} under \"{setting}\" in composer.json. Composer's own words:"
       resolve_gave_up: "Nothing was changed. {how} — {attempts} times in a row, before Composer finished working out this update."
       resolve_retrying: "{how} before Composer finished. Nothing was changed. Trying again (attempt {attempt} of {attempts}); Composer kept what it had already downloaded, so this attempt starts further along."
       save_before_resolve_failed: "Could not save a copy of {file} before resolving, so nothing was started."
@@ -815,6 +826,8 @@ flarum-extension-manager:
     stale_cache:
       set_aside: "Set aside a cache owned by another user, which Flarum rebuilds; delete it as root when convenient:"
     start:
+      abandoned_for: "{name} is abandoned and no longer maintained, so it was not installed. Install {replacement} instead."
+      abandoned_no_usable: "{name} is abandoned and no longer maintained, and none of the packages suggested in its place can be installed either, so it was not installed."
       in_progress: "An update is already in progress."
       in_progress_stale: "An update is already in progress, though nothing has moved for {minutes} minutes."
       lock_unwritable: "Could not create the update lock in {path}. Make sure the web server can write to that folder, then try again. Nothing was started."

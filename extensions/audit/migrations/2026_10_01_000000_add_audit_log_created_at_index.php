@@ -42,8 +42,11 @@ return [
         // drops exactly what `up()` created. That is also why it is guarded on
         // the name rather than the column: an index the forum already had is
         // called something else, and rolling back must not remove one this
-        // migration never added.
-        if (! $schema->hasIndex('audit_log', 'audit_log_created_at_index')) {
+        // migration never added. The name comes from a blueprint that is never
+        // run, so it carries the table prefix as the real one does.
+        $name = (new Blueprint($schema->getConnection(), 'audit_log'))->dropIndex(['created_at'])->get('index');
+
+        if (! $schema->hasIndex('audit_log', $name)) {
             return;
         }
 

@@ -11,6 +11,8 @@ namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Audit\Testing\TestCase;
 use Flarum\User\User;
+use Flarum\User\UserRepository;
+use Illuminate\Database\Eloquent\Collection;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -76,5 +78,26 @@ class PasswordResetAttemptTest extends TestCase
             'email' => 'nobody@example.com',
             'matched' => false,
         ], null);
+    }
+
+    #[Test]
+    public function attempt_is_logged_against_every_account_using_the_address()
+    {
+        // The unique index stops two accounts sharing an address, so a repository stands in for 3.0's lookup.
+        $this->app()->getContainer()->instance(UserRepository::class, new class extends UserRepository {
+            public function findAllByEmail(string $email): Collection
+            {
+                return User::query()->whereIn('id', [1, 3])->orderBy('id')->get();
+            }
+        });
+
+        $this->sendSuccessfulRequest('POST', '/api/forgot', [
+            'json' => [
+                'email' => 'user3@example.com',
+            ],
+        ], 204, null);
+
+        $this->assertLogExists('user.password_reset_attempted', ['matched' => true, 'user_id' => 1], null);
+        $this->assertLogExists('user.password_reset_attempted', ['matched' => true, 'user_id' => 3], null, 1);
     }
 }

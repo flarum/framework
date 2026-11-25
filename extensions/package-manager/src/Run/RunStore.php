@@ -141,12 +141,14 @@ class RunStore
         $manifest = json_decode((string) @file_get_contents(rtrim($this->dir, '/').'/'.$run->id.'/requested.json'), true);
 
         $migrations = json_decode((string) @file_get_contents(rtrim($this->dir, '/').'/'.$run->id.'/migrations.json'), true);
+        $plan = json_decode((string) @file_get_contents(rtrim($this->dir, '/').'/'.$run->id.'/plan.json'), true);
 
         return $run->toArray() + [
             'packages' => array_values(array_filter((array) ($manifest['packages'] ?? []), 'is_string')),
             'mode' => (string) ($manifest['mode'] ?? 'update'),
             // The database changes undoing would reverse; see MigrationLedger.
             'migrations' => array_values(array_map(fn ($m) => (string) ($m['migration'] ?? ''), (array) $migrations)),
+            'abandoned' => array_values(array_filter((array) ($plan['abandoned'] ?? []), fn ($a) => is_array($a) && is_string($a['package'] ?? null))),
         ];
     }
 

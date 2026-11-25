@@ -59,7 +59,6 @@ export default class DialogDropdownList<CustomAttrs extends IDialogListDropdownA
             className="Button Button--link"
             data-container=".DialogDropdownList"
             icon="fas fa-check"
-            title={app.translator.trans('flarum-messages.forum.messages_page.mark_all_as_read_tooltip')}
             onclick={state.markAllAsRead.bind(state)}
           />
         </Tooltip>,

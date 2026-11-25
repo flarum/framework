@@ -458,12 +458,12 @@ class SplashScreenTest extends TestCase
     }
 
     #[Test]
-    public function a_splash_screen_can_be_cached_for_good_at_its_current_address(): void
+    public function a_splash_screen_can_be_cached_for_good_at_its_current_address_by_the_browser_only(): void
     {
         $this->uploadAppIcon();
 
-        $this->assertSame('public, max-age=31536000, immutable', $this->fetch($this->iPhone16Link())->getHeaderLine('Cache-Control'));
-        $this->assertSame('public, max-age=3600', $this->fetch('/splash/1179x2556?v=00000000')->getHeaderLine('Cache-Control'));
+        $this->assertSame('private, max-age=31536000, immutable', $this->fetch($this->iPhone16Link())->getHeaderLine('Cache-Control'));
+        $this->assertSame('private, max-age=3600', $this->fetch('/splash/1179x2556?v=00000000')->getHeaderLine('Cache-Control'));
     }
 
     #[Test]

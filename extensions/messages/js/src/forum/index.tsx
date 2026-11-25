@@ -12,6 +12,7 @@ import extendRealtime from './extendRealtime';
 import addMessageSearch from './addMessageSearch';
 import composingMessageTo from './utils/composingMessageTo';
 import addMessageLikes from './addMessageLikes';
+import addReadReceiptsSetting from './addReadReceiptsSetting';
 
 export { default as extend } from './extend';
 
@@ -28,6 +29,8 @@ app.initializers.add('flarum-messages', () => {
   );
 
   app.composer.composingMessageTo = composingMessageTo;
+
+  addReadReceiptsSetting();
 
   extend(IndexSidebar.prototype, 'navItems', function (items) {
     if (app.session.user) {

@@ -139,4 +139,31 @@ class ListTest extends TestCase
             'guest' => [null],
         ];
     }
+
+    public static function outOfRangeFilters(): array
+    {
+        return [
+            'tag' => [['tag' => '2147483648']],
+            'tags' => [['tag' => '2147483648,99999999999999999999']],
+        ];
+    }
+
+    /**
+     * PostgreSQL rejects a query comparing an integer column with a number
+     * beyond its range, so such an id must match nothing instead.
+     */
+    #[Test]
+    #[DataProvider('outOfRangeFilters')]
+    public function out_of_range_id_in_a_filter_matches_nothing(array $filter): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
+                ->withQueryParams(['filter' => $filter])
+        );
+
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertSame([], json_decode($body, true)['data']);
+    }
 }

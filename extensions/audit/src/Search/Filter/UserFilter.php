@@ -34,18 +34,15 @@ class UserFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $ids = array_map(
-            fn (string $username) => $this->users->getIdForUsername($username),
-            $this->asStringArray($value)
-        );
+        $ids = array_values($this->users->getIdsForUsernames($this->asStringArray($value)));
 
         $query = $state->getQuery();
 
-        $query->whereIn(
-            $query->getQuery()->raw('json_extract(payload, "$.user_id")'),
-            $ids,
-            'and',
-            $negate
-        );
+        if ($negate) {
+            // Keep entries about no user: NULL NOT IN (...) is never true.
+            $query->where(fn ($query) => $query->whereNull('payload->user_id')->orWhereNotIn('payload->user_id', $ids));
+        } else {
+            $query->whereIn('payload->user_id', $ids);
+        }
     }
 }

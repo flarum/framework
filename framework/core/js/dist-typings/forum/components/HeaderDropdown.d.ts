@@ -1,11 +1,13 @@
 import Dropdown from '../../common/components/Dropdown';
 import type { IDropdownAttrs } from '../../common/components/Dropdown';
 import type Mithril from 'mithril';
+import type { TooltipAttrs } from '../../common/components/Tooltip';
 export interface IHeaderDropdownAttrs extends IDropdownAttrs {
     state: any;
 }
 export default abstract class HeaderDropdown<CustomAttrs extends IHeaderDropdownAttrs = IHeaderDropdownAttrs> extends Dropdown<CustomAttrs> {
     static initAttrs(attrs: IHeaderDropdownAttrs): void;
+    protected getButtonTooltip(button: Mithril.Vnode<any, any>): TooltipAttrs;
     getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any>;
     getButtonContent(): Mithril.ChildArray;
     getMenu(): JSX.Element;

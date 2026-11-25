@@ -9,15 +9,19 @@
 
 namespace Flarum\Messages\DialogMessage\Filter;
 
+use Flarum\Messages\DialogMessage;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
  */
 class DialogFilter implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     public function getFilterKey(): string
     {
         return 'dialog';
@@ -25,7 +29,7 @@ class DialogFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $ids = array_map('intval', (array) $value);
+        $ids = $this->asKeyArray($value, new DialogMessage, 'dialog_id');
 
         $state->getQuery()->{$negate ? 'whereNotIn' : 'whereIn'}('dialog_id', $ids);
     }

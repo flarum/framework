@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class ListDiscussionsTest extends TestCase
@@ -285,5 +286,39 @@ class ListDiscussionsTest extends TestCase
         // it leads only because it is the most recently posted, not because it
         // is stickied.)
         $this->assertEquals([5, 2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    #[Test]
+    #[DataProvider('pastTheEndOfIntProvider')]
+    public function only_unread_on_returns_an_empty_page_for_an_offset_near_php_int_max(array $page, ?int $actorId)
+    {
+        $this->setting('flarum-sticky.only_sticky_unread_discussions', true);
+        $this->database()->enableQueryLog();
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', array_filter(['authenticatedAs' => $actorId]))
+                ->withQueryParams(['page' => $page])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
+        $this->assertSame([], json_decode($body, true)['data']);
+
+        // SQLite reads a negative LIMIT as no limit, so only the SQL shows the overflow there.
+        foreach ($this->database()->getQueryLog() as $entry) {
+            $this->assertDoesNotMatchRegularExpression('/\blimit -/i', $entry['query']);
+        }
+    }
+
+    public static function pastTheEndOfIntProvider(): array
+    {
+        // The largest multiple of the default page size (20) that fits in an int.
+        $offset = intdiv(PHP_INT_MAX, 20) * 20;
+
+        return [
+            'offset as guest' => [['offset' => (string) $offset], null],
+            'offset as user' => [['offset' => (string) $offset], 3],
+            'number as guest' => [['number' => (string) (intdiv($offset, 20) + 1)], null],
+            'PHP_INT_MAX offset as guest' => [['offset' => (string) PHP_INT_MAX], null],
+        ];
     }
 }

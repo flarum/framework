@@ -313,7 +313,10 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     this.searchTimeout = window.setTimeout(() => {
       if (source.isCached(query)) return;
 
-      if (query.length >= SearchManager.minSearchLength()) {
+      // Some existing sources use `minSearchLength` as a number property.
+      const minSearchLength = typeof source.minSearchLength === 'function' ? source.minSearchLength() : SearchManager.minSearchLength();
+
+      if (SearchManager.queryLength(query) >= minSearchLength) {
         if (!source.search) return;
 
         this.loadingSources.push(source.resource);

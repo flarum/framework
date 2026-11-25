@@ -7,6 +7,7 @@ import WelcomeHero from './WelcomeHero';
 import DiscussionPage from './DiscussionPage';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
+import Tooltip from '../../common/components/Tooltip';
 import GlobalSearch from './GlobalSearch';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
@@ -220,31 +221,27 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
     items.add(
       'refresh',
-      <Button
-        title={app.translator.trans('core.forum.index.refresh_tooltip')}
-        aria-label={app.translator.trans('core.forum.index.refresh_tooltip')}
-        icon="fas fa-sync"
-        className="Button Button--icon"
-        onclick={() => {
-          app.discussions.refresh();
-          if (app.session.user) {
-            app.store.find('users', app.session.user.id()!);
-            m.redraw();
-          }
-        }}
-      />
+      <Tooltip text={app.translator.trans('core.forum.index.refresh_tooltip')} container="body">
+        <Button
+          icon="fas fa-sync"
+          className="Button Button--icon"
+          onclick={() => {
+            app.discussions.refresh();
+            if (app.session.user) {
+              app.store.find('users', app.session.user.id()!);
+              m.redraw();
+            }
+          }}
+        />
+      </Tooltip>
     );
 
     if (app.session.user) {
       items.add(
         'markAllAsRead',
-        <Button
-          title={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
-          aria-label={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
-          icon="fas fa-check"
-          className="Button Button--icon"
-          onclick={this.markAllAsRead.bind(this)}
-        />
+        <Tooltip text={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')} container="body">
+          <Button icon="fas fa-check" className="Button Button--icon" onclick={this.markAllAsRead.bind(this)} />
+        </Tooltip>
       );
     }
 

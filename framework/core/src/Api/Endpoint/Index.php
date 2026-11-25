@@ -21,6 +21,7 @@ use Flarum\Api\Resource\Contracts\Countable;
 use Flarum\Api\Resource\Contracts\Listable;
 use Flarum\Api\Serializer;
 use Flarum\Database\Eloquent\Collection;
+use Flarum\Http\RequestUtil;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchManager;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -31,6 +32,7 @@ use Tobyz\JsonApiServer\Exception\BadRequestException;
 use Tobyz\JsonApiServer\Exception\Sourceable;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 use Tobyz\JsonApiServer\Pagination\Pagination;
+use Tobyz\JsonApiServer\Resource\Paginatable;
 use Tobyz\JsonApiServer\Schema\Concerns\HasMeta;
 
 use function Tobyz\JsonApiServer\json_api_response;
@@ -116,18 +118,38 @@ class Index extends Endpoint
                     );
                 }
 
+                $this->rejectPagesOfUnpaginatableLists($context);
+
+                // Reading the parameters first refuses the ones that can't be read before
+                // a hook acts on the request or a pagination is built from them.
+                $extracts = $this->defaultExtracts($context);
+
                 $this->callBeforeHook($context);
 
                 $query = $collection->query($context);
 
                 $pagination = ($this->paginationResolver)($context);
 
-                $extracts = $this->defaultExtracts($context);
-
                 $filters = $this->extractFilterValue($context, $extracts);
                 $sort = $this->extractSortValue($context, $extracts);
                 $limit = $this->extractLimitValue($context, $extracts);
+
+                // page[number] counts pages of the limit that applies, which a callback may change,
+                // and an offset callback is given that limit.
+                if ($limit !== $extracts['limit']) {
+                    $extracts['limit'] = $limit;
+                    $extracts['offset'] = RequestUtil::extractOffset($context->request, $limit);
+                }
+
                 $offset = $this->extractOffsetValue($context, $extracts);
+
+                // A limit on a list that isn't paginated still makes the response a page, with
+                // links to the rest; without one, the whole list has no offset to start from.
+                if (! $pagination && $limit !== null && $context->collection instanceof Paginatable) {
+                    $pagination = $this->paginationOfSize($context, $limit);
+                } elseif (! $pagination && $limit === null) {
+                    $offset = 0;
+                }
 
                 if ($pagination instanceof OffsetPagination) {
                     $pagination->offset = $offset;
@@ -204,6 +226,10 @@ class Index extends Endpoint
                 $links = [];
 
                 if ($pagination) {
+                    if ($pagination instanceof OffsetPagination) {
+                        $pagination->context = $this->withoutPagePosition($pagination->context);
+                    }
+
                     $meta['page'] = array_merge($meta['page'] ?? [], $pagination->meta());
                     $links = array_merge($links, $pagination->links(count($data), $total));
 
@@ -289,7 +315,8 @@ class Index extends Endpoint
 
         try {
             $context = $context->withCollection($collection);
-            $availableFilters = $collection->filters();
+            // A database resource filters only through a searcher; without one it has no filters.
+            $availableFilters = $collection instanceof AbstractDatabaseResource ? [] : $collection->filters();
 
             foreach ($filters as $name => $value) {
                 foreach ($availableFilters as $filter) {
@@ -316,6 +343,125 @@ class Index extends Endpoint
         $total = $context->queryParam('page')['total'] ?? null;
 
         return ! in_array($total, ['0', 'false', 0, false], true);
+    }
+
+    protected function paginationOfSize(\Tobyz\JsonApiServer\Context $context, int $limit): OffsetPagination
+    {
+        // The links are built from the request. Without a page[limit] in them, a
+        // link back to offset 0 would ask for the whole list instead of a page.
+        $request = $context->request;
+        $query = $request->getQueryParams();
+
+        if (! is_array($query['page'] ?? null)) {
+            $query['page'] = [];
+        }
+
+        if (($query['page']['limit'] ?? '') === '') {
+            $query['page']['limit'] = (string) $limit;
+        }
+
+        return new OffsetPagination(
+            $context->withRequest($request->withQueryParams($query)),
+            $limit,
+            $this->maxLimit,
+        );
+    }
+
+    /**
+     * The page family is reserved for pagination, and only a Paginatable resource
+     * can be paginated. A request for a page of any other list can't be answered
+     * as asked, so it's refused rather than given the whole list.
+     */
+    private function rejectPagesOfUnpaginatableLists(\Tobyz\JsonApiServer\Context $context): void
+    {
+        if ($context->collection instanceof Paginatable) {
+            return;
+        }
+
+        $page = $context->queryParam('page');
+
+        // page[total] only asks whether to count the list.
+        $others = is_array($page)
+            ? array_filter(array_diff_key($page, ['limit' => 0, 'offset' => 0, 'number' => 0, 'total' => 0]), fn ($value) => $value !== null && $value !== '')
+            : [];
+
+        if ($name = $this->pageAskedFor($context) ?? array_key_first($others)) {
+            throw (new BadRequestException("page[$name] is not supported: this list is not paginated"))->setSource([
+                'parameter' => "page[$name]",
+            ]);
+        }
+    }
+
+    /**
+     * The pagination links page by offset, but page[number] and page[near] take
+     * precedence over page[offset], so a link that kept either would lead back
+     * to the same page.
+     */
+    private function withoutPagePosition(\Tobyz\JsonApiServer\Context $context): \Tobyz\JsonApiServer\Context
+    {
+        $request = $context->request;
+        $query = $request->getQueryParams();
+
+        if (! is_array($query['page'] ?? null) || ! array_intersect_key($query['page'], ['number' => true, 'near' => true])) {
+            return $context;
+        }
+
+        unset($query['page']['number'], $query['page']['near']);
+
+        return $context->withRequest($request->withQueryParams($query));
+    }
+
+    /**
+     * A page requested without a page[limit] from an endpoint that isn't
+     * paginated is as large as the endpoint allows.
+     */
+    protected function defaultLimit(\Tobyz\JsonApiServer\Context $context): ?int
+    {
+        return $this->limit ?? ($this->pageRequested($context) ? $this->maxLimit : null);
+    }
+
+    private function pageRequested(\Tobyz\JsonApiServer\Context $context): bool
+    {
+        return $context->collection instanceof Paginatable && $this->pageAskedFor($context) !== null;
+    }
+
+    /**
+     * The page parameter that asks for something other than the whole list from
+     * its start. An empty value, page[offset]=0 and page[number]=1 don't.
+     */
+    private function pageAskedFor(\Tobyz\JsonApiServer\Context $context): ?string
+    {
+        $page = $context->queryParam('page');
+
+        if (! is_array($page)) {
+            return null;
+        }
+
+        // The value each one has at the start of the list; a limit never does.
+        $start = ['limit' => null, 'offset' => 0, 'number' => 1];
+
+        // page[number] takes precedence over page[offset] when the offset is read.
+        if (! in_array($page['number'] ?? null, [null, ''], true)) {
+            unset($start['offset']);
+        }
+
+        foreach ($start as $name => $startValue) {
+            $value = $page[$name] ?? null;
+
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            // 0, '0' and '00' are the same offset. A value that isn't a whole
+            // number asks for something, and is refused when it's read.
+            $isNumber = is_int($value) || (is_string($value) && ctype_digit($value));
+
+            if (! $isNumber || (int) $value !== $startValue) {
+                return $name;
+            }
+        }
+
+        return null;
     }
 
     public function paginate(int $defaultLimit = 20, int $maxLimit = 50): static

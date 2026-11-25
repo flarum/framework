@@ -62,6 +62,8 @@ class GroupRecipientUpgradeTest extends TestCase
                 __DIR__.'/../../migrations/2026_10_31_000000_add_type_to_dialog_messages.php',
                 __DIR__.'/../../migrations/2026_10_31_000001_add_name_to_dialogs.php'
             );
+            // This index uses the type column, which the 2.0 schema drops.
+            $files[] = __DIR__.'/../../migrations/2026_11_19_000001_add_author_index_to_dialog_messages.php';
         }
         foreach (array_reverse($files) as $file) {
             (include $file)['down']($schema);

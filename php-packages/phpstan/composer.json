@@ -5,7 +5,7 @@
     "license": "MIT",
     "require": {
         "flarum/testing": "^2.1",
-        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan": "^2.1.7",
         "larastan/larastan": "^3.8 <3.12"
     },
     "autoload": {

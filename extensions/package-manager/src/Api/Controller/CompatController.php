@@ -10,8 +10,10 @@
 namespace Flarum\ExtensionManager\Api\Controller;
 
 use Composer\Semver\VersionParser;
+use Flarum\Extension\AbandonedExtensionsFetcher;
 use Flarum\ExtensionManager\Config\JsonFile;
 use Flarum\ExtensionManager\Config\Stability;
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
@@ -44,6 +46,7 @@ class CompatController implements RequestHandlerInterface
         protected Paths $paths,
         protected Application $app,
         protected ClientInterface $http,
+        protected AbandonedExtensionsFetcher $abandoned,
     ) {
     }
 
@@ -77,7 +80,7 @@ class CompatController implements RequestHandlerInterface
          */
         $core = $this->targetOr($this->coreVersion(), Arr::get((array) $request->getParsedBody(), 'core'));
 
-        $packagist = new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'), $this->http);
+        $packagist = new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'), $this->http, AbandonedList::fromCore($this->abandoned));
 
         return new JsonResponse([
             'verdicts' => $packagist->verdicts($names, new Compatibility($core)),

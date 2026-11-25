@@ -15,6 +15,7 @@ use Flarum\Messages\DialogMessage;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -76,5 +77,55 @@ class IdFilterTest extends TestCase
     public function messages_the_member_cannot_see_do_not(): void
     {
         $this->assertEquals([], $this->ids(5, '201,202,203'));
+    }
+
+    public static function outOfRangeFilters(): array
+    {
+        return [
+            'id' => [['dialog' => '201', 'id' => '2147483648']],
+            'dialog' => [['dialog' => '2147483648']],
+        ];
+    }
+
+    /**
+     * PostgreSQL rejects a query comparing an integer column with a number
+     * beyond its range, so such an id must match nothing instead.
+     */
+    #[Test]
+    #[DataProvider('outOfRangeFilters')]
+    public function out_of_range_id_in_a_filter_matches_nothing(array $filter): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/dialog-messages', ['authenticatedAs' => 3])
+                ->withQueryParams(['filter' => $filter])
+        );
+
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertSame([], json_decode($body, true)['data']);
+    }
+
+    public static function outOfRangeNearPages(): array
+    {
+        return [
+            'out-of-range dialog' => ['2147483648', '2', []],
+            'out-of-range number' => ['201', '2147483648', ['203', '202', '201']],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('outOfRangeNearPages')]
+    public function near_page_with_an_out_of_range_value_does_not_fail(string $dialog, string $near, array $expected): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/dialog-messages', ['authenticatedAs' => 3])
+                ->withQueryParams(['filter' => ['dialog' => $dialog], 'page' => ['near' => $near]])
+        );
+
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertSame($expected, array_column(json_decode($body, true)['data'], 'id'));
     }
 }

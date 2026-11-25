@@ -38,6 +38,10 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
      * Given a username, load the user's profile from the store, or make a request
      * if we don't have it yet. Then initialize the profile page with that user.
      *
+     * Only the server knows which user an address means under the active slug
+     * driver, so a user in the store is only taken for the address that is their
+     * slug. The page state's `resolvedUser` (`{ slug, user }`) records that pairing.
+     *
      * A user in the store is shown straight away, but the record may have arrived in
      * another endpoint's payload, carrying only the relationships that endpoint
      * included. Every user has `joinTime` whichever endpoint it came from, so that

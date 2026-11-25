@@ -16,6 +16,7 @@ use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
+use Flarum\Database\IntegerKey;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\ValidationException;
@@ -176,12 +177,17 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
 
                         $limit = $defaultExtracts['limit'];
 
-                        $index = DialogMessage::query()
-                            ->where('dialog_id', $dialogId)
-                            ->where('number', '>=', $near)
-                            ->orderBy('number', 'desc')
-                            ->whereVisibleTo($context->getActor())
-                            ->count();
+                        $index = 0;
+
+                        // No message number reaches one beyond the column's range.
+                        if (IntegerKey::fits(new DialogMessage, trim((string) $dialogId), 'dialog_id') && IntegerKey::fits(new DialogMessage, $near, 'number')) {
+                            $index = DialogMessage::query()
+                                ->where('dialog_id', $dialogId)
+                                ->where('number', '>=', $near)
+                                ->orderBy('number', 'desc')
+                                ->whereVisibleTo($context->getActor())
+                                ->count();
+                        }
 
                         return max(0, $index - intdiv($limit, 2));
                     }
