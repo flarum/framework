@@ -12,6 +12,7 @@ namespace Flarum\Mentions\Api;
 use Flarum\Api\Context;
 use Flarum\Api\Schema;
 use Flarum\Post\Post;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -62,12 +63,30 @@ class PostResourceFields
                 ->includable()
                 // The composer uses the updated users to refresh its store.
                 ->visible(fn (Post $post, Context $context) => $context->creating()),
-            Schema\Relationship\ToMany::make('affectedMentionUsers')
-                ->description('Users whose mention count this update changed.')
-                ->type('users')
-                ->includable()
+            // An attribute, not a relationship: it is sent on every update
+            // whatever `include` the caller named, so a response can always say
+            // which counts it changed. AffectedMentionUsers collects the users.
+            // A count is only carried for a user the actor may read it from, as
+            // on the user resource; the entry itself still names the user whose
+            // list changed.
+            Schema\Arr::make('affectedMentionUsers')
+                ->description('Users whose mention count this update changed, as {id, mentionCount}; mentionCount is only present when you may read that user\'s count. Empty when no count changed.')
                 ->visible(fn (Post $post, Context $context) => $context->updating())
-                ->get(fn (Post $post) => $post->relationLoaded('affectedMentionUsers') ? $post->getRelation('affectedMentionUsers')->all() : []),
+                ->get(function (Post $post, Context $context) {
+                    if (! $post->relationLoaded('affectedMentionUsers')) {
+                        return [];
+                    }
+
+                    return array_values(array_map(function (User $user) use ($context) {
+                        $entry = ['id' => (string) $user->id];
+
+                        if ($context->getActor()->id === $user->id || $context->getActor()->can('viewMentionCount', $user)) {
+                            $entry['mentionCount'] = (int) $user->mention_count;
+                        }
+
+                        return $entry;
+                    }, $post->getRelation('affectedMentionUsers')->all()));
+                }),
             Schema\Relationship\ToMany::make('mentionsGroups')
                 ->type('groups'),
         ];

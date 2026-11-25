@@ -69,8 +69,6 @@ return [
         ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint
             ->addDefaultInclude(['mentionsUsers'])
             ->eagerLoadWhenIncluded(['mentionsUsers' => ['mentionsUsers.groups']]))
-        ->endpoint(Endpoint\Update::class, fn (Endpoint\Update $endpoint) => $endpoint
-            ->addDefaultInclude(['affectedMentionUsers']))
         ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint): Endpoint\Endpoint {
             return $endpoint->addDefaultInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion']);
         })

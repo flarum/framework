@@ -3,6 +3,8 @@ import bootstrapForum from '@flarum/jest-config/src/bootstrap/forum';
 import { makeUser } from '@flarum/jest-config/factory';
 import app from 'flarum/forum/app';
 import Post from 'flarum/common/models/Post';
+import type User from 'flarum/common/models/User';
+import PageState from 'flarum/common/states/PageState';
 import PostListState from 'flarum/forum/states/PostListState';
 import MentionsUserPage from '../../../../src/forum/components/MentionsUserPage';
 import refreshMentionsOnPostSave from '../../../../src/forum/utils/refreshMentionsOnPostSave';
@@ -50,10 +52,16 @@ const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
  * app's current-page state.
  */
 async function openMentionsPage(userId: string, posts = new PostListState({}, 20)) {
-  const user = app.store.pushPayload({ data: makeUser({ id: userId }) } as any);
+  const user = app.store.pushPayload({ data: makeUser({ id: userId, attributes: { slug: `user${userId}` } }) } as any);
+
+  // What core's `UserPage.loadUser` does on the page state it started with:
+  // records that state, then records the user it resolved, then calls `show()`.
+  app.current = new PageState(MentionsUserPage, {});
+  app.current.set('resolvedUser', { slug: user.slug(), user });
 
   const page: any = Object.create(MentionsUserPage.prototype);
   page.posts = posts;
+  page.pageState = app.current;
   page.show(user);
 
   await flush();
@@ -61,15 +69,25 @@ async function openMentionsPage(userId: string, posts = new PostListState({}, 20
   return page;
 }
 
-function post() {
+function post(id = '1') {
   app.store.pushPayload({
-    data: { type: 'posts', id: '1', attributes: { number: 1 } },
+    data: { type: 'posts', id, attributes: { number: Number(id) } },
   } as any);
 
-  return app.store.getById<Post>('posts', '1')!;
+  return app.store.getById<Post>('posts', id)!;
 }
 
-const savedPost = (affectedUsers: string[] = []) => ({
+/** An update response whose `affectedMentionUsers` attribute names the users whose count changed. */
+const savedPost = (affectedUsers: { id: string; mentionCount?: number }[] = []) => ({
+  data: {
+    type: 'posts',
+    id: '1',
+    attributes: { number: 1, affectedMentionUsers: affectedUsers },
+  },
+});
+
+/** An update response from a server that reports the affected users as a relationship. */
+const savedPostWithRelationship = (affectedUsers: string[]) => ({
   data: {
     type: 'posts',
     id: '1',
@@ -81,7 +99,7 @@ const savedPost = (affectedUsers: string[] = []) => ({
   included: affectedUsers.map((id) => ({ type: 'users', id, attributes: { username: `user${id}` } })),
 });
 
-/** An update response whose `affectedMentionUsers` relationship is not included at all. */
+/** An update response that says nothing about the users whose count changed. */
 const savedPostWithoutAffectedUsers = () => ({ data: { type: 'posts', id: '1', attributes: { number: 1 } } });
 
 describe('a Mentions tab and a saved post', () => {
@@ -100,7 +118,7 @@ describe('a Mentions tab and a saved post', () => {
       .spyOn(app.store, 'find')
       .mockResolvedValueOnce(pageOf(['1', '2']) as any)
       .mockResolvedValueOnce(pageOf(['2']) as any);
-    app.request = jest.fn(() => Promise.resolve(savedPost(['3', '4']))) as any;
+    app.request = jest.fn(() => Promise.resolve(savedPost([{ id: '3' }, { id: '4' }]))) as any;
 
     await openMentionsPage('3', posts);
     const revalidate = jest.spyOn(posts, 'revalidate');
@@ -118,26 +136,26 @@ describe('a Mentions tab and a saved post', () => {
   // Editing a post to mention B leaves the post in A's list and in A's count,
   // so the response names only B. Reloading A's tab would drop the pages the
   // reader has loaded without anything in it changing.
-  it("keeps the loaded pages when a save changes another user's mentions", async () => {
+  it("keeps the loaded pages, in order, when a save changes another user's mentions", async () => {
     const posts = new PostListState({}, 20);
     jest
       .spyOn(app.store, 'find')
       .mockResolvedValueOnce(pageOf(ids(1, 20), true) as any)
       .mockResolvedValueOnce(pageOf(ids(21, 40)) as any)
       .mockResolvedValue(pageOf([]) as any);
-    app.request = jest.fn(() => Promise.resolve(savedPost(['4'])) as any);
+    app.request = jest.fn(() => Promise.resolve(savedPost([{ id: '4', mentionCount: 1 }]))) as any;
 
     await openMentionsPage('3', posts);
     await posts.loadNext();
     const revalidate = jest.spyOn(posts, 'revalidate');
-    expect(posts.getPages()).toHaveLength(2);
+    expect(idsInList(posts)).toEqual(ids(1, 40));
 
-    await post().save({ content: 'edited to mention user 4' });
+    // The edited post is on the second page, which a reload would discard.
+    await post('30').save({ content: 'edited to mention user 4' });
     await flush();
 
     expect(revalidate).not.toHaveBeenCalled();
-    expect(posts.getPages()).toHaveLength(2);
-    expect(idsInList(posts)).toHaveLength(40);
+    expect(idsInList(posts)).toEqual(ids(1, 40));
   });
 
   // An edit also saves `content`, but when the mention set did not change the
@@ -161,13 +179,54 @@ describe('a Mentions tab and a saved post', () => {
     await flush();
 
     expect(revalidate).not.toHaveBeenCalled();
-    expect(posts.getPages()).toHaveLength(2);
-    expect(idsInList(posts)).toContain('40');
+    expect(idsInList(posts)).toEqual(ids(1, 40));
   });
 
-  // A caller that names its own `include` turns the endpoint's default
-  // includes off, so the response cannot say whether a count changed. Treating
-  // that as "nobody" would leave the open list and its count out of step.
+  // The response also carries the new counts, so the tab's badge can follow the
+  // save without a second request. It is sent whatever `include` the caller
+  // named, which is what makes it reliable.
+  it("updates an affected user's count in the store without creating missing users", async () => {
+    const posts = new PostListState({}, 20);
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf([]) as any);
+
+    await openMentionsPage('3', posts);
+
+    const user = app.store.getById<User>('users', '3')!;
+    user.pushAttributes({ mentionCount: 1 });
+
+    app.request = jest.fn(() =>
+      Promise.resolve(
+        savedPost([
+          { id: '3', mentionCount: 0 },
+          { id: '77', mentionCount: 5 },
+        ])
+      )
+    ) as any;
+
+    await post().save({ content: 'edited' });
+    await flush();
+
+    expect(user.attribute<number>('mentionCount')).toBe(0);
+    // The response names a user this reader has not loaded; a partial record
+    // would show them with a count but no profile.
+    expect(app.store.getById('users', '77')).toBeUndefined();
+  });
+
+  // A server from before the attribute reports the users as a relationship.
+  it('reloads when an older server names the affected users in the relationship', async () => {
+    const posts = new PostListState({}, 20);
+    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf(['1', '2']) as any);
+    app.request = jest.fn(() => Promise.resolve(savedPostWithRelationship(['3']))) as any;
+
+    await openMentionsPage('3', posts);
+    const revalidate = jest.spyOn(posts, 'revalidate');
+
+    await post().save({ content: 'edited' });
+    await flush();
+
+    expect(revalidate).toHaveBeenCalledTimes(1);
+  });
+
   it('reloads when the response does not say which users changed', async () => {
     const posts = new PostListState({}, 20);
     jest.spyOn(app.store, 'find').mockResolvedValue(pageOf(['1', '2']) as any);
@@ -185,7 +244,7 @@ describe('a Mentions tab and a saved post', () => {
   it('reloads the list when a post is hidden or restored', async () => {
     const posts = new PostListState({}, 20);
     jest.spyOn(app.store, 'find').mockResolvedValue(pageOf(['1']) as any);
-    app.request = jest.fn(() => Promise.resolve(savedPost(['3']))) as any;
+    app.request = jest.fn(() => Promise.resolve(savedPost([{ id: '3' }]))) as any;
 
     await openMentionsPage('3', posts);
     const revalidate = jest.spyOn(posts, 'revalidate');
@@ -238,7 +297,7 @@ describe('a Mentions tab and a saved post', () => {
   });
 
   it('saves elsewhere on the forum without a Mentions tab to reload', async () => {
-    app.request = jest.fn(() => Promise.resolve(savedPost(['4']))) as any;
+    app.request = jest.fn(() => Promise.resolve(savedPost([{ id: '4' }]))) as any;
 
     await expect(post().save({ content: 'edited' })).resolves.toBeDefined();
   });

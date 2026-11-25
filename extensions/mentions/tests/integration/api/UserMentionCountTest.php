@@ -98,10 +98,53 @@ class UserMentionCountTest extends TestCase
 
         $payload = $this->patchPost($postId, 2, ['content' => '@"potato"#3 hello, corrected']);
 
-        // The client decides not to reload a Mentions tab from this relationship,
+        // The client decides not to reload a Mentions tab from this attribute,
         // so an edit that changes no count must send it, empty, rather than omit
-        // it: an absent relationship means "cannot say" and reloads.
-        $this->assertSame([], $payload['data']['relationships']['affectedMentionUsers']['data'] ?? null);
+        // it: an absent attribute means "cannot say" and reloads.
+        $this->assertSame([], $payload['data']['attributes']['affectedMentionUsers'] ?? null);
+    }
+
+    #[Test]
+    public function editing_with_an_explicit_user_include_still_reports_the_affected_counts()
+    {
+        $postId = $this->reply('@"potato"#3 hello', 2);
+        $this->agePostPastTheFloodThrottle($postId);
+
+        // Naming `include=user` replaces the endpoint's default includes. The
+        // affected users are an attribute, so they are still reported with
+        // their new counts rather than leaving the client unable to say whether
+        // the tab on screen must reload.
+        $payload = $this->patchPost($postId, 2, ['content' => 'hello'], 'user');
+        $this->assertSame([3 => 0], $this->affectedMentionCounts($payload));
+
+        $this->agePostPastTheFloodThrottle($postId);
+
+        // A save that changes no count says so, empty, with the same include.
+        $payload = $this->patchPost($postId, 2, ['content' => 'hello, corrected'], 'user');
+        $this->assertSame([], $payload['data']['attributes']['affectedMentionUsers'] ?? null);
+    }
+
+    #[Test]
+    public function an_editor_without_the_count_permission_still_learns_which_users_changed()
+    {
+        // A member may edit their own post but may not read another user's
+        // stored count, which includes mentions they cannot see. The response
+        // still names the user whose list changed; the count is left out.
+        $this->database()->table('group_permission')
+            ->where('group_id', Group::MEMBER_ID)
+            ->where('permission', 'user.viewMentionCount')
+            ->delete();
+
+        $postId = $this->reply('@"potato"#3 hello', 2);
+        $this->agePostPastTheFloodThrottle($postId);
+
+        $payload = $this->patchPost($postId, 2, ['content' => 'hello']);
+        $affected = $payload['data']['attributes']['affectedMentionUsers'] ?? null;
+
+        $this->assertIsArray($affected, 'The update must always report the affected users as an attribute.');
+        $this->assertSame(['3'], array_column($affected, 'id'));
+        $this->assertArrayNotHasKey('mentionCount', $affected[0]);
+        $this->assertSame(0, $this->mentionCountOf(3));
     }
 
     #[Test]
@@ -248,19 +291,13 @@ class UserMentionCountTest extends TestCase
         $this->agePostPastTheFloodThrottle($postId);
 
         $payload = $this->patchPost($postId, $editorId, ['content' => '@"moderator"#4 edited']);
-        $affected = array_column($payload['data']['relationships']['affectedMentionUsers']['data'] ?? [], 'id');
-        sort($affected);
-        $this->assertSame(['3', '4'], $affected);
 
-        $counts = [];
-        foreach ($payload['included'] as $item) {
-            if ($item['type'] === 'users' && in_array($item['id'], $affected, true)) {
-                $counts[$item['id']] = $item['attributes']['mentionCount'];
-            }
-        }
-
-        $this->assertSame(1, $counts[3]);
-        $this->assertSame(1, $counts[4]);
+        $counts = $this->affectedMentionCounts($payload);
+        $this->assertSame(
+            [3 => 1, 4 => 1],
+            $counts,
+            'The response must report both the user the post stopped mentioning and the one it started mentioning.'
+        );
         $this->assertSame($this->mentionCountOf(3), $counts[3]);
         $this->assertSame($this->mentionCountOf(4), $counts[4]);
     }
@@ -416,14 +453,18 @@ class UserMentionCountTest extends TestCase
         return (int) json_decode($response->getBody(), true)['data']['id'];
     }
 
-    protected function patchPost(int $postId, int $userId, array $attributes): array
+    protected function patchPost(int $postId, int $userId, array $attributes, ?string $include = null): array
     {
-        $response = $this->send(
-            $this->request('PATCH', "/api/posts/$postId", [
-                'authenticatedAs' => $userId,
-                'json' => ['data' => ['attributes' => $attributes]],
-            ])
-        );
+        $request = $this->request('PATCH', "/api/posts/$postId", [
+            'authenticatedAs' => $userId,
+            'json' => ['data' => ['attributes' => $attributes]],
+        ]);
+
+        if ($include !== null) {
+            $request = $request->withQueryParams(['include' => $include]);
+        }
+
+        $response = $this->send($request);
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
 
@@ -437,13 +478,10 @@ class UserMentionCountTest extends TestCase
      */
     protected function affectedMentionCounts(array $payload): array
     {
-        $affected = array_column($payload['data']['relationships']['affectedMentionUsers']['data'] ?? [], 'id');
         $counts = [];
 
-        foreach ($payload['included'] ?? [] as $item) {
-            if ($item['type'] === 'users' && in_array($item['id'], $affected, true)) {
-                $counts[(int) $item['id']] = $item['attributes']['mentionCount'];
-            }
+        foreach ($payload['data']['attributes']['affectedMentionUsers'] ?? [] as $item) {
+            $counts[(int) $item['id']] = $item['mentionCount'];
         }
 
         ksort($counts);
