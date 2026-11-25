@@ -360,6 +360,48 @@ describe('a Mentions tab and a saved post', () => {
     expect(revalidate).toHaveBeenCalledTimes(1);
   });
 
+  // The list hands back a refresh that is already in flight instead of sending
+  // a second request, so a save that lands during one would be missed. One
+  // more refresh runs when that request settles.
+  it('refreshes once more when a save lands while the list is already refreshing', async () => {
+    const posts = new PostListState({}, 20);
+    const find = jest.spyOn(app.store, 'find');
+    find.mockResolvedValueOnce(pageOf(['1']) as any);
+
+    await openMentionsPage('3', posts);
+    await flush();
+    expect(idsInList(posts)).toEqual(['1']);
+
+    let finishFirstRefresh!: (page: any) => void;
+    find.mockReturnValueOnce(new Promise((resolve) => (finishFirstRefresh = resolve)) as any);
+
+    const revalidate = jest.spyOn(posts, 'revalidate');
+
+    app.request = jest.fn(() => Promise.resolve(savedPost([{ id: '3', mentionCount: 1 }]))) as any;
+    await post('2').save({ content: 'first edit' });
+    await flush();
+    expect(revalidate).toHaveBeenCalledTimes(1);
+
+    // The second save arrives before the first refresh has finished. The badge
+    // already shows its count.
+    app.request = jest.fn(() => Promise.resolve(savedPost([{ id: '3', mentionCount: 0 }]))) as any;
+    await post('3').save({ content: 'second edit' });
+    await flush();
+
+    expect(revalidate).toHaveBeenCalledTimes(1);
+    expect(app.store.getById<User>('users', '3')!.attribute<number>('mentionCount')).toBe(0);
+
+    // The first request finishes with the state from before the second save,
+    // and the queued refresh then shows both posts.
+    find.mockResolvedValueOnce(pageOf(['1', '2']) as any);
+    finishFirstRefresh(pageOf(['1']));
+    await flush();
+    await flush();
+
+    expect(revalidate).toHaveBeenCalledTimes(2);
+    expect(idsInList(posts)).toEqual(['1', '2']);
+  });
+
   it('reloads the list when a post is hidden or restored', async () => {
     const posts = new PostListState({}, 20);
     jest.spyOn(app.store, 'find').mockResolvedValue(pageOf(['1']) as any);
