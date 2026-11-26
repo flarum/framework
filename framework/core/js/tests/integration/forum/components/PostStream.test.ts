@@ -736,7 +736,7 @@ describe('PostStream reply placeholder', () => {
     jest.restoreAllMocks();
   });
 
-  it('renders the same feed markup as before: a trailing article wrapper holding the placeholder', () => {
+  it('renders the placeholder in a trailing article wrapper, as themes expect', () => {
     const { discussion, stream } = seed(2);
     jest.spyOn(discussion, 'canReply').mockReturnValue(true);
 
@@ -817,6 +817,96 @@ describe('PostStream reply placeholder', () => {
     stream.reset(0, 2);
 
     expect(render(discussion, stream)).not.toHaveElement('.ReplyPlaceholder');
+  });
+
+  describe('reply navigation', () => {
+    let container: HTMLElement;
+
+    function mount(discussion: Discussion, stream: PostStreamState): any {
+      let vnode: any;
+      container = document.createElement('div');
+      document.body.appendChild(container);
+      m.mount(container, { view: () => (vnode = m(PostStream, { discussion, stream })) });
+
+      return vnode.state;
+    }
+
+    function replyItem(): Element {
+      return container.querySelector('.ReplyPlaceholder')!.closest('.PostStream-item')!;
+    }
+
+    function addBelowReply() {
+      extend(PostStream.prototype, 'endItems', function (items: ItemList<any>) {
+        items.add('below', m('div', { className: 'PostStream-item TestBelow', key: 'below', role: 'article' }), -200);
+      });
+    }
+
+    function flashedByReplyJump(instance: any): Element | undefined {
+      instance.scrollToItem = jest.fn();
+      instance.flashItem = jest.fn();
+      instance.scrollToIndex(instance.stream.count(), false, true);
+
+      return (instance.flashItem as jest.Mock<any>).mock.calls[0]?.[0]?.[0];
+    }
+
+    function scrolledToBySettling(instance: any): Element | undefined {
+      const seen: Element[] = [];
+      const offset = jest.spyOn($.fn, 'offset').mockImplementation(function (this: JQuery) {
+        seen.push(this[0]);
+        return { top: 0, left: 0 };
+      } as any);
+
+      instance.getMarginTop = () => 0;
+      instance.settlingTarget = { index: instance.stream.count(), reply: true };
+      instance.reScrollToTarget();
+      offset.mockRestore();
+
+      return seen[0];
+    }
+
+    afterEach(() => {
+      m.mount(container, null);
+      container.remove();
+    });
+
+    it('jumps to the placeholder', () => {
+      const { discussion, stream } = seed(2);
+      jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+      const instance = mount(discussion, stream);
+
+      expect(flashedByReplyJump(instance)).toBe(replyItem());
+    });
+
+    it('jumps to the placeholder when an extension renders an item below it', () => {
+      addBelowReply();
+      const { discussion, stream } = seed(2);
+      jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+      const instance = mount(discussion, stream);
+
+      expect(container.querySelector('.PostStream > :last-child')!.classList.contains('TestBelow')).toBe(true);
+      expect(flashedByReplyJump(instance)).toBe(replyItem());
+    });
+
+    it('keeps the placeholder in place while settling when an extension renders an item below it', () => {
+      addBelowReply();
+      const { discussion, stream } = seed(2);
+      jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+      const instance = mount(discussion, stream);
+
+      expect(scrolledToBySettling(instance)).toBe(replyItem());
+    });
+
+    it('jumps to the last post when an extension removes the placeholder', () => {
+      extend(PostStream.prototype, 'endItems', function (items: ItemList<any>) {
+        items.remove('reply');
+        items.add('below', m('div', { className: 'TestNotAnItem', key: 'below' }));
+      });
+      const { discussion, stream } = seed(2);
+      jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+      const instance = mount(discussion, stream);
+
+      expect(flashedByReplyJump(instance)).toBe(container.querySelector('.PostStream-item[data-index="1"]'));
+    });
   });
 
   function render(discussion: Discussion, stream: PostStreamState) {

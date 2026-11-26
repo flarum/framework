@@ -168,6 +168,7 @@ export default class PostStream extends Component {
   /**
    * Items rendered after the last post, only while the end of the discussion
    * is in view. Includes the reply placeholder as `reply` at priority -100.
+   * Each item must have a `key`: they render among the stream's keyed posts.
    *
    * @returns {ItemList<import('mithril').Children>}
    */
@@ -476,13 +477,28 @@ export default class PostStream extends Component {
    * @return {JQueryDeferred}
    */
   scrollToIndex(index, animate, reply) {
-    const $item = reply ? $('.PostStream-item:last-child') : this.$(`.PostStream-item[data-index=${index}]`);
+    const $item = reply ? this.$replyItem() : this.$(`.PostStream-item[data-index=${index}]`);
 
     this.scrollToItem($item, animate, true, reply);
 
     if (reply) {
       this.flashItem($item);
     }
+  }
+
+  /**
+   * The item that reply navigation scrolls to: the reply placeholder, or the
+   * last item in the stream when an extension has removed it.
+   *
+   * The placeholder is found by its `data-index`, one past the last post's,
+   * because extensions may render items below it.
+   *
+   * @return {JQuery}
+   */
+  $replyItem() {
+    const $placeholder = this.$(`.PostStream-item[data-index=${this.stream.count()}]`);
+
+    return $placeholder.length ? $placeholder : this.$('.PostStream-item').last();
   }
 
   /**
@@ -544,7 +560,7 @@ export default class PostStream extends Component {
       // as it will soon be rendered by the "load more" system.
       let itemOffset;
       if (reply) {
-        const $placeholder = $('.PostStream-item:last-child');
+        const $placeholder = this.$replyItem();
         $(window).scrollTop($placeholder.offset().top + $placeholder.height() - $(window).height() + app.composer.computedHeight());
       } else if (index === 0) {
         $(window).scrollTop(0);
@@ -624,7 +640,7 @@ export default class PostStream extends Component {
     if ('number' in target) {
       $item = this.$(`.PostStream-item[data-number=${target.number}]`);
     } else if ('index' in target) {
-      $item = target.reply ? this.$('.PostStream-item:last-child') : this.$(`.PostStream-item[data-index=${target.index}]`);
+      $item = target.reply ? this.$replyItem() : this.$(`.PostStream-item[data-index=${target.index}]`);
     }
 
     if (!$item || !$item.length) return;
