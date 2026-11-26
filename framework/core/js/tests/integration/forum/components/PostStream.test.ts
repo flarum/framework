@@ -679,3 +679,147 @@ describe('PostStream.afterPostItems', () => {
     expect(children.every((child: any) => child.getAttribute('role') === 'article')).toBe(true);
   });
 });
+
+describe('PostStream reply placeholder', () => {
+  let nextId = 500;
+
+  function seed(postCount = 2) {
+    const base = nextId;
+    nextId += postCount + 1;
+
+    const discussionId = String(base);
+    const postIds = Array.from({ length: postCount }, (_, i) => String(base + 1 + i));
+
+    app.store.pushPayload({
+      data: {
+        id: discussionId,
+        type: 'discussions',
+        attributes: { title: 'Discussion title' },
+        relationships: { posts: { data: postIds.map((id) => ({ id, type: 'posts' })) } },
+      },
+    });
+
+    app.store.pushPayload({
+      data: postIds.map((id, i) => ({
+        id,
+        type: 'posts',
+        attributes: { number: i + 1, contentType: 'comment', canEdit: false, createdAt: new Date(), contentHtml: `<p>Post ${id}</p>` },
+        relationships: { discussion: { data: { id: discussionId, type: 'discussions' } } },
+      })),
+    });
+
+    const discussion = app.store.getById<Discussion>('discussions', discussionId)!;
+    const stream = new PostStreamState(discussion, []);
+    stream.reset(0, postCount);
+
+    return { discussion, stream };
+  }
+
+  function endItemsOf(discussion: Discussion, stream: PostStreamState): ItemList<any> {
+    const instance = new (PostStream as any)();
+    instance.discussion = discussion;
+    instance.stream = stream;
+
+    return instance.endItems();
+  }
+
+  const originalEndItems = PostStream.prototype.endItems;
+  let originalUser: any;
+
+  beforeEach(() => {
+    originalUser = app.session.user;
+  });
+
+  afterEach(() => {
+    PostStream.prototype.endItems = originalEndItems;
+    app.session.user = originalUser;
+    jest.restoreAllMocks();
+  });
+
+  it('renders the same feed markup as before: a trailing article wrapper holding the placeholder', () => {
+    const { discussion, stream } = seed(2);
+    jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+
+    const rendered = render(discussion, stream);
+    const children = rendered.find('.PostStream > *') as any[];
+    const last = children[children.length - 1];
+
+    expect(children).toHaveLength(3);
+    // `fadeIn` is added by the wrapper's oncreate and cleared 500ms later.
+    expect(last.className).toBe('PostStream-item fadeIn');
+    expect(last.getAttribute('role')).toBe('article');
+    expect(last.getAttribute('data-index')).toBe('2');
+    expect(last.children).toHaveLength(1);
+    expect(last.children[0].classList.contains('ReplyPlaceholder')).toBe(true);
+    expect(rendered.find('.ReplyPlaceholder')).toHaveLength(1);
+  });
+
+  it('adds the placeholder to endItems as "reply" at priority -100', () => {
+    const { discussion, stream } = seed(2);
+    jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+
+    const items = endItemsOf(discussion, stream);
+
+    expect(items.has('reply')).toBe(true);
+    expect(items.getPriority('reply')).toBe(-100);
+    expect(items.get('reply').key).toBe('reply');
+    expect(items.get('reply').attrs['data-index']).toBe(2);
+  });
+
+  it('offers the placeholder to guests', () => {
+    const { discussion, stream } = seed(2);
+    app.session.user = null;
+    jest.spyOn(discussion, 'canReply').mockReturnValue(false);
+
+    expect(endItemsOf(discussion, stream).has('reply')).toBe(true);
+  });
+
+  it('leaves the placeholder out for a signed-in user who cannot reply', () => {
+    const { discussion, stream } = seed(2);
+    app.session.user = { id: () => '1' } as any;
+    jest.spyOn(discussion, 'canReply').mockReturnValue(false);
+
+    expect(endItemsOf(discussion, stream).has('reply')).toBe(false);
+    expect(render(discussion, stream)).not.toHaveElement('.ReplyPlaceholder');
+  });
+
+  it('renders extension items at the default priority above the placeholder and lower ones below it', () => {
+    const { discussion, stream } = seed(2);
+    jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+
+    extend(PostStream.prototype, 'endItems', function (items: ItemList<any>) {
+      items.add('above', m('div', { className: 'PostStream-item TestAbove', key: 'above', role: 'article' }));
+      items.add('below', m('div', { className: 'PostStream-item TestBelow', key: 'below', role: 'article' }), -200);
+    });
+
+    const children = render(discussion, stream).find('.PostStream > *') as any[];
+    const order = children.slice(-3).map((child: any) =>
+      child.classList.contains('TestAbove') ? 'above' : child.classList.contains('TestBelow') ? 'below' : child.querySelector('.ReplyPlaceholder') ? 'reply' : '?'
+    );
+
+    expect(order).toEqual(['above', 'reply', 'below']);
+  });
+
+  it('lets an extension remove the placeholder', () => {
+    const { discussion, stream } = seed(2);
+    jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+
+    extend(PostStream.prototype, 'endItems', function (items: ItemList<any>) {
+      items.remove('reply');
+    });
+
+    expect(render(discussion, stream)).not.toHaveElement('.ReplyPlaceholder');
+  });
+
+  it('does not render the placeholder when not viewing the end', () => {
+    const { discussion, stream } = seed(4);
+    jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+    stream.reset(0, 2);
+
+    expect(render(discussion, stream)).not.toHaveElement('.ReplyPlaceholder');
+  });
+
+  function render(discussion: Discussion, stream: PostStreamState) {
+    return mq(PostStream, { discussion, stream });
+  }
+});

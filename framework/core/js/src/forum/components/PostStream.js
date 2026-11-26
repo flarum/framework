@@ -7,6 +7,13 @@ import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
 import PostType from './PostType';
 
+function postFadeIn(vnode) {
+  $(vnode.dom).addClass('fadeIn');
+  // 500 is the duration of the fadeIn CSS animation + 100ms,
+  // so the animation has time to complete
+  setTimeout(() => $(vnode.dom).removeClass('fadeIn'), 500);
+}
+
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
  * a discussion. Posts that have not loaded will be displayed as placeholders.
@@ -34,13 +41,6 @@ export default class PostStream extends Component {
     const viewingEnd = this.stream.viewingEnd();
     const posts = this.stream.posts();
     const postIds = this.discussion.postIds();
-
-    const postFadeIn = (vnode) => {
-      $(vnode.dom).addClass('fadeIn');
-      // 500 is the duration of the fadeIn CSS animation + 100ms,
-      // so the animation has time to complete
-      setTimeout(() => $(vnode.dom).removeClass('fadeIn'), 500);
-    };
 
     const items = posts.map((post, i) => {
       let content;
@@ -131,16 +131,6 @@ export default class PostStream extends Component {
       items.push(...this.endItems().toArray());
     }
 
-    // If we're viewing the end of the discussion, the user can reply, and
-    // is not already doing so, then show a 'write a reply' placeholder.
-    if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
-      items.push(
-        <div className="PostStream-item" key="reply" role="article" data-index={this.stream.count()} oncreate={postFadeIn}>
-          <ReplyPlaceholder discussion={this.discussion} />
-        </div>
-      );
-    }
-
     return (
       <div className="PostStream" role="feed" aria-live="off" aria-busy={this.stream.pagesLoading ? 'true' : 'false'}>
         {items}
@@ -176,10 +166,23 @@ export default class PostStream extends Component {
   }
 
   /**
+   * Items rendered after the last post, only while the end of the discussion
+   * is in view. Includes the reply placeholder as `reply` at priority -100.
+   *
    * @returns {ItemList<import('mithril').Children>}
    */
   endItems() {
     const items = new ItemList();
+
+    if (!app.session.user || this.discussion.canReply()) {
+      items.add(
+        'reply',
+        <div className="PostStream-item" key="reply" role="article" data-index={this.stream.count()} oncreate={postFadeIn}>
+          <ReplyPlaceholder discussion={this.discussion} />
+        </div>,
+        -100
+      );
+    }
 
     return items;
   }
