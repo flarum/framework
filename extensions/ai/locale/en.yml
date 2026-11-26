@@ -71,6 +71,8 @@ flarum-ai:
       guardrail_id_placeholder: Guardrail ID or ARN
       guardrail_label: Guardrail
       guardrail_version_label: Guardrail version
+      include_stream_usage_label: Include usage in streamed replies
+      include_stream_usage_help: Flarum requests token counts for streamed replies to track usage and enforce token limits. Turn this off if your server rejects the request for counts.
       key_bedrock_help: A Bedrock API key. Access keys and roles to assume are set in config.php, which can also let connections use the server's own AWS credentials when the key is left empty.
       key_link: "Get an API key from {provider}"
       key_dropped_text: A saved key is only used with the provider and API URL it was saved for. Enter it again to use it here.
@@ -183,8 +185,9 @@ flarum-ai:
         rate_limited_text: The provider is limiting calls with this key just now. Try again in a moment.
         unreachable_text: The provider couldn't be reached. Check the API URL, and that this server can reach it.
       ms_text: "{ms} ms"
-      passed_empty_text: "Connected, but {model} wrote nothing within the test's token limit, using {tokens} tokens. It may spend its tokens reasoning first: features that allow longer replies still work."
-      passed_text: "Connected: {model} started answering after {first} and finished after {total}, using {tokens} tokens."
+      no_usage_text: Flarum counted no tokens for this reply. Usage limits depend on token counts from the provider.
+      passed_empty_text: "Connected, but {model} wrote nothing within the test's token limit. It may spend its tokens reasoning first: features that allow longer replies still work."
+      passed_text: "Connected: {model} started answering after {first} and finished after {total}."
       provider_status_text: "The provider answered {status}: {message}"
       provider_text: "The provider said: {message}"
       reply_label: The reply so far
@@ -192,6 +195,7 @@ flarum-ai:
       streams_text: The reply reached this page as it was written.
       title: "Testing {name}"
       too_quick_text: The reply came too quickly to tell whether this server holds streamed replies back.
+      usage_text: "Tokens used: {tokens}."
       waiting_text: Waiting for the first words…
 
     # These translations are used on the Permissions tab.

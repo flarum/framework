@@ -13,13 +13,6 @@ html {
   scrollbar-gutter: stable;
 }
 
-// Fix to prevent horizontal scrolling bug on iOS
-@media @phone {
-  html {
-    overflow-x: hidden;
-  }
-}
-
 body {
   background: var(--body-bg);
   color: var(--text-color);
@@ -28,6 +21,23 @@ body {
   line-height: 1.5;
   overflow-y: scroll;
   overflow-x: hidden;
+}
+
+// On phones, html's hidden overflow stops iOS scrolling the page sideways, but
+// it also keeps body's overflow off the viewport, which made body a scroll
+// container that never scrolls and broke position: sticky. `clip` clips without
+// one, and needs overflow-y: visible as clip next to scroll computes to hidden.
+@media @phone {
+  html {
+    overflow-x: hidden;
+  }
+
+  @supports (overflow: clip) {
+    body {
+      overflow-x: clip;
+      overflow-y: visible;
+    }
+  }
 }
 
 h1, h2, h3, h4, h5, h6 {

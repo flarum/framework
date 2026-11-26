@@ -50,7 +50,6 @@ export interface ApiPayloadPlural {
     };
     meta?: MetaInformation & {
         total?: number;
-        page?: number;
         perPage?: number;
     };
 }

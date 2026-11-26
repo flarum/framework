@@ -23,6 +23,12 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     isHidden: Stream<boolean>;
     isPrimary: Stream<boolean>;
     defaultSort: Stream<string>;
+    /**
+     * Whether typing a name should still suggest the slug: only for a new tag
+     * whose slug field hasn't been edited. An existing tag's slug is in links
+     * and search results, so it changes only when the admin edits it.
+     */
+    suggestSlug: boolean;
     oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>): void;
     onremove(vnode: Mithril.VnodeDOM<EditTagModalAttrs, this>): void;
     className(): string;

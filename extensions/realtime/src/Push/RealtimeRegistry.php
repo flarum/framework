@@ -60,6 +60,18 @@ class RealtimeRegistry
     protected array $dialogRemovals = [];
 
     /**
+     * Registrations of payloads sent to particular users.
+     *
+     * Each entry: [
+     *   'events'      => string[],
+     *   'getPayloads' => callable(object): array<int, array<string, mixed>>,
+     * ]
+     *
+     * @var array<int, array{events: string[], getPayloads: callable}>
+     */
+    protected array $userBroadcasts = [];
+
+    /**
      * Flag/moderation event registrations (permission-filtered broadcasts).
      *
      * Each entry: [
@@ -114,6 +126,17 @@ class RealtimeRegistry
     }
 
     /**
+     * Register payloads sent to particular users, keyed by user ID.
+     *
+     * @param string[] $events
+     * @param callable(object): array<int, array<string, mixed>> $getPayloads
+     */
+    public function addUserBroadcast(array $events, callable $getPayloads): void
+    {
+        $this->userBroadcasts[] = compact('events', 'getPayloads');
+    }
+
+    /**
      * Register a flag/moderation event broadcast (permission-filtered).
      *
      * @param string[] $events
@@ -150,6 +173,12 @@ class RealtimeRegistry
     public function getDialogRemovals(): array
     {
         return $this->dialogRemovals;
+    }
+
+    /** @return array<int, array{events: string[], getPayloads: callable}> */
+    public function getUserBroadcasts(): array
+    {
+        return $this->userBroadcasts;
     }
 
     /** @return array<int, array{events: string[], getDiscussion: callable, eventName: string}> */

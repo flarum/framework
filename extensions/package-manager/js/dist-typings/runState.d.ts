@@ -22,6 +22,20 @@ export interface RunLike {
     items?: unknown[];
     index?: number;
 }
+/**
+ * Whether a run that just ended reloads the page, and which installed
+ * package's page it opens. Not when the run has abandoned packages: the page
+ * reloads onto the run's panel instead, where they are listed, since a run
+ * that finished between two polls showed them nowhere else.
+ */
+export declare function reloadAfter(run: (RunLike & {
+    packages?: string[];
+    mode?: string;
+    abandoned?: unknown[];
+}) | null, self: string): {
+    reload: boolean;
+    open: string | null;
+};
 export declare function runIsLive(run: RunLike | null | undefined): boolean;
 export declare function runIsOver(run: RunLike | null | undefined): boolean;
 /**

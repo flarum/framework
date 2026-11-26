@@ -281,10 +281,14 @@ The `included` resources are simplified the same way and returned under `include
 de-duplicated. Normalisation:
 - Attributes ending in `Html` are converted to plain text with paragraph breaks and
   links kept as `text (url)`. They are emitted under the same name without the `Html`
-  suffix, unless a raw attribute of that name already exists.
-- String values over 4000 characters are truncated with `… [truncated, N more characters]`.
+  suffix, unless a raw attribute of that name already exists; then they stay HTML and
+  are truncated as below.
+- String values over 4000 characters are truncated with `… [truncated, N more characters]`,
+  except in the primary data of `get_resource`, which returns a single resource's
+  strings in full (a long post's source, for editing).
 - The whole tool payload is capped at 100 000 characters. On overflow, list results
-  are cut and `meta.truncated: true` plus a `next` page hint is added.
+  are cut and `meta.truncated: true` plus a `next` page hint is added; a single
+  resource has its longest strings truncated until it fits.
 
 ## Generic tools (auto-discovered)
 
@@ -344,7 +348,7 @@ Exposure rules:
 | `list_notifications` | tool | yes | Requires sign-in. Unread first, limit ≤ 50. Reads through core's `NotificationRepository` (the grouping and subject visibility of the Index endpoint), not the Index endpoint, which marks the actor's notifications seen; listing changes nothing. |
 | `start_discussion` | tool | no | `title`, `content` (Markdown / BBCode as the forum supports), plus integration args (`tags`). |
 | `reply_to_discussion` | tool | no | `discussionId`, `content`. |
-| `edit_post` | tool | no | `postId`, `content`. |
+| `edit_post` | tool | no | `postId`, and either `content` (the whole new source) or `edits` (≤ 50 `{find, replace}`, applied in order; each `find` must match the comment's current source exactly once, overlaps included, and the result must not be empty). |
 | `mark_notifications_read` | tool | no | `ids?` (all when omitted). |
 | `flarum://forum` | resource | n/a | The forum overview (below). |
 | `flarum://discussions/{id}` | template | n/a | Same output as `read_discussion` (first 20 posts), except that the paging hints are the URIs of the neighbouring pages: `paging.next.uri` and `paging.previous.uri`. |

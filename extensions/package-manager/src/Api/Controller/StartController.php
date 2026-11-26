@@ -9,7 +9,9 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
+use Flarum\Extension\AbandonedExtensionsFetcher;
 use Flarum\Extension\ExtensionManager;
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\ExtensionManager\Discover\Packagist;
@@ -57,6 +59,7 @@ class StartController implements RequestHandlerInterface
         protected ExtensionManager $extensions,
         protected Application $app,
         protected ClientInterface $http,
+        protected AbandonedExtensionsFetcher $abandoned,
     ) {
     }
 
@@ -71,7 +74,7 @@ class StartController implements RequestHandlerInterface
      */
     protected function refuseReplaced(array $packages): void
     {
-        (new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'), $this->http))
+        (new Packagist($this->translator, new Cache(StorageDir::of($this->paths->storage).'/packagist'), $this->http, AbandonedList::fromCore($this->abandoned)))
             ->refuseReplaced($packages, new Compatibility(ltrim($this->app->version(), 'v')));
     }
 
@@ -149,7 +152,7 @@ class StartController implements RequestHandlerInterface
 
         foreach ($packages as $package) {
             // The only user-supplied value that reaches a command line.
-            if (! preg_match('#^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9](([_.]|-{1,2})?[a-z0-9]+)*$#', (string) $package)) {
+            if (! preg_match('#^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9](([_.]|-{1,2})?[a-z0-9]+)*$#D', (string) $package)) {
                 throw new ValidationException(['packages' => $this->translator->trans('flarum-extension-manager.api.start.not_a_package', ['package' => (string) $package])]);
             }
         }

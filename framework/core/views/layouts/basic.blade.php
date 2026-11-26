@@ -1,6 +1,4 @@
 @php
-  $primaryColor = $settings->get('theme_primary_color', '#000');
-
   // Follow the forum's color scheme: always dark for a dark one (dark, dark-hc),
   // the visitor's system setting for auto, and light otherwise.
   $darkMedia = match (true) {
@@ -34,6 +32,7 @@
         color-scheme: light;
         --body-bg: #fff;
         --text-color: #333;
+        --link-color: {{ $lightLinkColor }};
         --control-bg: #fff;
         --control-border-color: #eee;
       }
@@ -43,6 +42,7 @@
           color-scheme: dark;
           --body-bg: {{ $darkBodyBg }};
           --text-color: #ddd;
+          --link-color: {{ $darkLinkColor }};
           --control-bg: rgba(255, 255, 255, .05);
           --control-border-color: rgba(255, 255, 255, .15);
         }
@@ -69,7 +69,7 @@
       }
       a {
         cursor: pointer;
-        color: {{ $primaryColor }};
+        color: var(--link-color);
         text-decoration: none;
         font-weight: bold;
       }
@@ -85,7 +85,7 @@
         display: inline-block;
         padding: 15px 25px;
         background: {{ $primaryColor }};
-        color: #fff;
+        color: {{ $buttonTextColor }};
         text-decoration: none;
         text-align: center;
         vertical-align: middle;

@@ -30,8 +30,8 @@ use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\AssetManager;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\DarkBodyBackground;
 use Flarum\Frontend\Frontend;
-use Flarum\Frontend\FrontendServiceProvider;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
@@ -219,9 +219,18 @@ class ForumServiceProvider extends AbstractServiceProvider
         $view->composer('flarum.forum::layouts.basic', function (View $layout) use ($container) {
             /** @var SettingsRepositoryInterface $settings */
             $settings = $container->make(SettingsRepositoryInterface::class);
+            $colorScheme = $settings->get('color_scheme') ?? 'auto';
+            $secondaryColor = $settings->get('theme_secondary_color') ?? '#536F90';
+            $darkBodyBg = DarkBodyBackground::cssColor($secondaryColor);
             $layout->with([
-                'colorScheme' => $settings->get('color_scheme') ?? 'auto',
-                'darkBodyBg' => FrontendServiceProvider::computeDarkBodyBg($settings->get('theme_secondary_color') ?? '#536F90'),
+                'colorScheme' => $colorScheme,
+                'darkBodyBg' => $darkBodyBg,
+                ...BasicLayoutColors::forPrimaryColor(
+                    $settings->get('theme_primary_color') ?? '#000',
+                    $secondaryColor,
+                    $darkBodyBg,
+                    str_ends_with($colorScheme, '-hc'),
+                ),
                 'faviconUrl' => $container->make(Branding::class)->faviconUrl(),
                 'faviconIcoUrl' => $container->make(Branding::class)->faviconIcoUrl(),
                 'faviconSvgUrl' => $container->make(Branding::class)->faviconSvgUrl(),

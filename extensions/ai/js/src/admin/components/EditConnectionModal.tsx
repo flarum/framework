@@ -3,6 +3,7 @@ import FormModal, { type IFormModalAttrs } from 'flarum/common/components/FormMo
 import Button from 'flarum/common/components/Button';
 import Form from 'flarum/common/components/Form';
 import Select from 'flarum/common/components/Select';
+import Switch from 'flarum/common/components/Switch';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import type Mithril from 'mithril';
@@ -24,7 +25,7 @@ export interface EditConnectionModalAttrs extends IFormModalAttrs {
   onsave: (name: string, connection: Connection) => void;
 }
 
-type Field = 'name' | 'driver' | 'url' | 'region' | 'key' | 'model' | 'monthlyTokens' | 'guardrail';
+type Field = 'name' | 'driver' | 'url' | 'region' | 'key' | 'model' | 'monthlyTokens' | 'guardrail' | 'includeStreamUsage';
 
 const id = (field: Field) => `flarum-ai-connection-${field}`;
 
@@ -43,6 +44,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
   guardrailVersion!: Stream<string>;
   model!: Stream<string>;
   monthlyTokens!: Stream<string>;
+  includeStreamUsage!: Stream<boolean>;
   key!: Stream<string>;
   removeKey = false;
   invalid: Field | null = null;
@@ -61,6 +63,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     this.guardrailVersion = Stream(connection?.guardrail_version || '');
     this.model = Stream(connection?.model || '');
     this.monthlyTokens = Stream(connection?.monthly_tokens ? String(connection.monthly_tokens) : '');
+    this.includeStreamUsage = Stream(connection?.include_stream_usage !== false);
     this.key = Stream(connection?.key || '');
   }
 
@@ -164,6 +167,31 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     }
 
     items.add('key', this.keyField(keyOptional.includes(driver)), 30);
+
+    if (driver === 'openai-compatible') {
+      const inputId = id('includeStreamUsage');
+
+      items.add(
+        'includeStreamUsage',
+        <div className="Form-group">
+          <Switch
+            state={this.includeStreamUsage()}
+            disabled={this.test.status === 'running'}
+            onchange={(checked: boolean) => {
+              this.includeStreamUsage(checked);
+              this.test.reset();
+            }}
+            inputAttrs={{ id: inputId, 'aria-describedby': inputId + '-help' }}
+          >
+            {app.translator.trans('flarum-ai.admin.edit_connection.include_stream_usage_label')}
+          </Switch>
+          <div className="helpText" id={inputId + '-help'}>
+            {app.translator.trans('flarum-ai.admin.edit_connection.include_stream_usage_help')}
+          </div>
+        </div>,
+        15
+      );
+    }
 
     items.add(
       'model',
@@ -400,6 +428,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
 
     if (!forModels) {
       if (this.model().trim()) candidate.model = this.model().trim();
+      if (candidate.driver === 'openai-compatible' && !this.includeStreamUsage()) candidate.include_stream_usage = false;
       if (this.driver() === 'bedrock' && this.guardrailId().trim()) {
         candidate.guardrail_id = this.guardrailId().trim();
         if (this.guardrailVersion().trim()) candidate.guardrail_version = this.guardrailVersion().trim();
@@ -499,6 +528,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     if (region) connection.region = region;
     if (model) connection.model = model;
     if (monthlyTokens) connection.monthly_tokens = monthlyTokens;
+    if (connection.driver === 'openai-compatible' && !this.includeStreamUsage()) connection.include_stream_usage = false;
     if (guardrailId) connection.guardrail_id = guardrailId;
     if (guardrailId && guardrailVersion) connection.guardrail_version = guardrailVersion;
 

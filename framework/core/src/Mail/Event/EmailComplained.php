@@ -10,6 +10,7 @@
 namespace Flarum\Mail\Event;
 
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Fired when a mail driver reports that a recipient marked a message as spam
@@ -20,7 +21,8 @@ class EmailComplained
     public function __construct(
         public readonly string $email,
         public readonly string $reason,
-        public readonly ?User $recipient = null,
+        /** @var Collection<int, User> Every account that uses the address; empty when none does. */
+        public readonly Collection $recipients = new Collection(),
         public readonly array $raw = [],
     ) {
     }

@@ -8,7 +8,11 @@
 </x-slot:content>
 
 <x-slot:footer>
-{!! $translator->trans('core.email.notification.footer.main_text_plain', ['email' => $user->email, 'type' => $type, 'forumTitle' => $forumTitle]) !!}
+@if ($typeName ?? null)
+{!! $translator->trans('core.email.notification.footer.main_text_plain', ['email' => $user->email, 'type' => $typeName, 'forumTitle' => $forumTitle]) !!}
+@else
+{!! $translator->trans('core.email.notification.footer.main_text_generic_plain', ['email' => $user->email, 'forumTitle' => $forumTitle]) !!}
+@endif
 
 {!! $translator->trans('core.email.notification.footer.unsubscribe_text_plain', ['unsubscribeLink' => $unsubscribeLink]) !!}
 

@@ -54,7 +54,8 @@ class FilterManager
 
     protected function applyFulltext(SearchState $search, ?string $query): void
     {
-        if ($this->fulltext && $query) {
+        // A strict check: "0" is a valid search term, not an empty query.
+        if ($this->fulltext && $query !== null && $query !== '') {
             $search->addActiveFilter($this->fulltext);
             $this->fulltext->search($search, $query);
         }

@@ -73,6 +73,19 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function a_page_that_cannot_be_read_leaves_notifications_unread()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/notifications', [
+                'authenticatedAs' => 2,
+            ])->withQueryParams(['page' => ['offset' => '2x']])
+        );
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertNull(User::query()->findOrFail(2)->read_notifications_at);
+    }
+
+    #[Test]
     public function listing_only_returns_own_notifications()
     {
         // User 3 has no notifications — the listing must not return user 2's notification.

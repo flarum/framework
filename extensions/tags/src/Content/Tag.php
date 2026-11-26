@@ -68,7 +68,8 @@ class Tag
 
         $params['filter'] = array_merge($filters, $params['filter']);
 
-        if ($q) {
+        // A strict check: "0" is a valid search term, not an empty query.
+        if ($q !== null && $q !== '') {
             $params['filter']['q'] = $q;
         }
 

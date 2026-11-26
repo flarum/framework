@@ -115,8 +115,12 @@ class DiscussionVisibilityTest extends TestCase
         $user = User::find(2);
         $discussions = Discussion::whereVisibleTo($user, 'arbitraryAbility')->get();
 
+        // Only restricted tags count without the global permission: 3 has the
+        // open tag 2 and its granted restricted child 5, 4 has the open tag 1
+        // and the granted restricted tag 11. (These bare `tagN.arbitraryAbility`
+        // grants only pin the scope; the policy reads `tagN.discussion.*`.)
         $ids = Arr::pluck($discussions, 'id');
-        $this->assertEqualsCanonicalizing([7], $ids);
+        $this->assertEqualsCanonicalizing([3, 4, 7], $ids);
     }
 
     #[Test]

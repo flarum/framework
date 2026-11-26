@@ -9,6 +9,7 @@
 
 namespace Flarum\Messages\DialogMessage\Filter;
 
+use Flarum\Messages\DialogMessage;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
@@ -31,6 +32,6 @@ class IdFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $state->getQuery()->whereIn('dialog_messages.id', $this->asIntArray($value), 'and', $negate);
+        $state->getQuery()->whereIn('dialog_messages.id', $this->asKeyArray($value, new DialogMessage), 'and', $negate);
     }
 }

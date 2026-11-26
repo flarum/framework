@@ -25,13 +25,18 @@ class UserResourceFields
                 ->get(fn (Discussion $discussion) => $discussion->state?->subscription)
                 ->set(function (Discussion $discussion, ?string $subscription, Context $context) {
                     $actor = $context->getActor();
-                    $state = $discussion->stateFor($actor);
 
                     if (! in_array($subscription, ['follow', 'ignore'])) {
                         $subscription = null;
                     }
 
-                    $state->subscription = $subscription;
+                    // Load the state only once the discussion is saved: an earlier callback,
+                    // such as lastReadPostNumber's, may create the row first.
+                    $discussion->afterSave(function (Discussion $discussion) use ($actor, $subscription) {
+                        $state = $discussion->stateFor($actor);
+                        $state->subscription = $subscription;
+                        $state->save();
+                    });
                 }),
         ];
     }

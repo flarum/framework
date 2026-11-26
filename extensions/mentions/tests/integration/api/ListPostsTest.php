@@ -343,4 +343,31 @@ class ListPostsTest extends TestCase
         $this->assertEquals(10, $post101['attributes']['mentionedByCount']);
         $this->assertEquals(0, $post112['attributes']['mentionedByCount']);
     }
+
+    public static function outOfRangeFilters(): array
+    {
+        return [
+            'mentioned user' => [['mentioned' => '2147483648']],
+            'mentioned post' => [['mentionedPost' => '2147483648']],
+        ];
+    }
+
+    /**
+     * PostgreSQL rejects a query comparing an integer column with a number
+     * beyond its range, so such an id must match nothing instead.
+     */
+    #[Test]
+    #[DataProvider('outOfRangeFilters')]
+    public function out_of_range_id_in_a_filter_matches_nothing(array $filter): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
+                ->withQueryParams(['filter' => $filter])
+        );
+
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertSame([], json_decode($body, true)['data']);
+    }
 }

@@ -50,9 +50,35 @@ parameters:
 	  - extensions/gdpr/src
 	  - php-packages/phpstan/tests/fixtures/conditional-model-cast/extend.php
 	  - php-packages/phpstan/tests/fixtures/conditional-model-cast/check.php
+	  - php-packages/phpstan/tests/fixtures/optional-extension/extend.php
 	excludePaths:
 		- *.blade.php
 	ignoreErrors:
+		# Assert that these diagnostics still appear in the optional-extension fixture.
+		-
+			message: '#Class OptionalExtensionFixture\\Events\\MissingOutsideConditional not found\.#'
+			identifier: class.notFound
+			path: php-packages/phpstan/tests/fixtures/optional-extension/extend.php
+			count: 1
+			reportUnmatched: true
+		-
+			message: '#Class Flarum\\Gdpr\\Events\\MissingInsideInstalledExtension not found\.#'
+			identifier: class.notFound
+			path: php-packages/phpstan/tests/fixtures/optional-extension/extend.php
+			count: 1
+			reportUnmatched: true
+		-
+			message: '#Class OptionalExtensionFixture\\Events\\MissingWhenExtensionDisabled not found\.#'
+			identifier: class.notFound
+			path: php-packages/phpstan/tests/fixtures/optional-extension/extend.php
+			count: 1
+			reportUnmatched: true
+		-
+			message: '%Parameter #1 \$event of method Flarum\\Extend\\Event::listen\(\) expects string, int given\.%'
+			identifier: argument.type
+			path: php-packages/phpstan/tests/fixtures/optional-extension/extend.php
+			count: 1
+			reportUnmatched: true
 		# For other extensions' tests, which this doesn't analyse.
 		-
 			identifier: trait.unused

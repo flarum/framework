@@ -1,5 +1,6 @@
 import Dropdown, { IDropdownAttrs } from './Dropdown';
 import Mithril from 'mithril';
+import type { TooltipAttrs } from './Tooltip';
 export interface ISplitDropdownAttrs extends IDropdownAttrs {
     /** An optional main control button, which will be displayed instead of the first child. */
     mainAction?: Mithril.Vnode<any, any>;
@@ -11,6 +12,8 @@ export interface ISplitDropdownAttrs extends IDropdownAttrs {
  */
 export default class SplitDropdown<CustomAttrs extends ISplitDropdownAttrs = ISplitDropdownAttrs> extends Dropdown<CustomAttrs> {
     static initAttrs(attrs: ISplitDropdownAttrs): void;
+    protected renderButton(children: Mithril.ChildArray): Mithril.Vnode<any, any>;
+    protected getButtonTooltip(button: Mithril.Vnode<any, any>): TooltipAttrs | undefined;
     getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any>;
     /**
      * Get the first child. If the first child is an array, the first item in that

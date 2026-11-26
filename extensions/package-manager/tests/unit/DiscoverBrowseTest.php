@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Tests\Unit;
 
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Discover\Cache;
 use Flarum\ExtensionManager\Discover\Packagist;
 use Flarum\ExtensionManager\Testing\EnglishTranslator;
@@ -53,7 +54,7 @@ class DiscoverBrowseTest extends TestCase
             $urls->append($url);
 
             return $body;
-        }));
+        }), new AbandonedList());
 
         return [$p, $urls];
     }
@@ -134,6 +135,27 @@ class DiscoverBrowseTest extends TestCase
         $this->assertStringNotContainsString('tags', $urls[0] ?? '');
     }
 
+    public function test_flarums_list_of_abandoned_extensions_marks_results_packagist_does_not(): void
+    {
+        $body = json_encode(['results' => [
+            ['name' => 'acme/old', 'abandoned' => false],
+            ['name' => 'acme/gone'],
+            ['name' => 'acme/forked', 'abandoned' => 'acme/fork'],
+            ['name' => 'acme/fine'],
+        ]]);
+
+        $p = new Packagist(EnglishTranslator::make(), new Cache($this->dir), FakeHttp::client(fn () => $body), AbandonedList::fromMap([
+            'acme/old' => ['replacement' => 'acme/new'],
+            'acme/gone' => [],
+            'acme/forked' => ['replacement' => 'acme/maintained'],
+        ]));
+
+        $this->assertSame(
+            ['acme/old' => 'acme/new', 'acme/gone' => true, 'acme/forked' => 'acme/maintained', 'acme/fine' => false],
+            array_column($p->search('')['results'], 'abandoned', 'name')
+        );
+    }
+
     public function test_an_unreachable_packagist_is_reported_not_silently_empty(): void
     {
         /*
@@ -141,7 +163,7 @@ class DiscoverBrowseTest extends TestCase
          * screen and mean opposite things: the first ends a search, the second
          * means try again in a minute.
          */
-        $p = new Packagist(EnglishTranslator::make(), new Cache($this->dir), FakeHttp::client(fn () => null));
+        $p = new Packagist(EnglishTranslator::make(), new Cache($this->dir), FakeHttp::client(fn () => null), new AbandonedList());
         $found = $p->search('');
 
         $this->assertSame([], $found['results']);

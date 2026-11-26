@@ -9,6 +9,7 @@
 
 namespace Flarum\Tags\Access;
 
+use Flarum\Group\PermissionCache;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Flarum\User\Access\AbstractPolicy;
@@ -16,18 +17,9 @@ use Flarum\User\User;
 
 class GlobalPolicy extends AbstractPolicy
 {
-    /**
-     * Verdicts per "{actor id}:{ability}", so repeated checks within a
-     * request (e.g. canStartDiscussion serialized per tag) don't re-count.
-     * An instance property rather than a function static: policies live for
-     * one container, so this can never leak across requests — or tests.
-     *
-     * @var array<string, bool>
-     */
-    protected array $enoughTags = [];
-
     public function __construct(
-        protected SettingsRepositoryInterface $settings
+        protected SettingsRepositoryInterface $settings,
+        protected PermissionCache $permissions
     ) {
     }
 
@@ -54,14 +46,36 @@ class GlobalPolicy extends AbstractPolicy
                 return null;
             }
 
-            $this->enoughTags["$actor->id:$ability"] ??= Tag::whereHasPermission($actor, $ability)->exists();
+            $anyTag = $this->remember($actor, "$ability.any", fn () => Tag::whereHasPermission($actor, $ability)->exists());
 
-            return $this->enoughTags["$actor->id:$ability"] ? $this->allow() : null;
+            return $anyTag ? $this->allow() : null;
         }
 
-        $this->enoughTags["$actor->id:$ability"] ??= $this->enoughTagsWithPermission($actor, $ability, $minPrimary, $minSecondary);
+        $enoughTags = $this->remember(
+            $actor,
+            "$ability.$minPrimary.$minSecondary",
+            fn () => $this->enoughTagsWithPermission($actor, $ability, $minPrimary, $minSecondary)
+        );
 
-        return $this->enoughTags["$actor->id:$ability"] ? $this->allow() : $this->deny();
+        return $enoughTags ? $this->allow() : $this->deny();
+    }
+
+    /**
+     * A verdict depends only on the actor's permissions, so it is shared by
+     * every actor with the same groups (a page can bring dozens of User
+     * instances, such as a Guest per post rendered without a request) and
+     * forgotten with their permissions: when they change, and as a queue
+     * worker's job starts or the realtime daemon refreshes them.
+     *
+     * @param callable(): bool $verdict
+     */
+    protected function remember(User $actor, string $key, callable $verdict): bool
+    {
+        // An administrator passes every permission check, whatever their
+        // permission groups: an unactivated one has only the guest group.
+        $admin = $actor->isAdmin() ? '.admin' : '';
+
+        return $this->permissions->remember($actor->permissionGroupIds(), "flarum-tags.enough-tags.$key$admin", $verdict);
     }
 
     /**

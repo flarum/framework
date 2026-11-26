@@ -27,13 +27,19 @@ return [
             // With this index, the count query can be satisfied with an index range
             // scan on (user_id, is_deleted=0, read_at IS NULL) without touching the
             // table rows, regardless of how many notifications a user has in total.
-            $table->index(['user_id', 'is_deleted', 'read_at', 'type'], 'notifications_user_unread_type_index');
+            $table->index(['user_id', 'is_deleted', 'read_at', 'type']);
         });
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('notifications', function (Blueprint $table) {
-            $table->dropIndex('notifications_user_unread_type_index');
-        });
+        // Found by its columns: installs from 2.0 may still have the name it was
+        // first created with (see 2026_11_14_000000).
+        foreach ($schema->getIndexes('notifications') as $index) {
+            if ($index['columns'] === ['user_id', 'is_deleted', 'read_at', 'type']) {
+                $schema->table('notifications', function (Blueprint $table) use ($index) {
+                    $table->dropIndex($index['name']);
+                });
+            }
+        }
     }
 ];

@@ -50,7 +50,7 @@ class ResponseFactory
 
         $provided = $registration->getProvided();
 
-        if (! empty($provided['email']) && $user = User::where(Arr::only($provided, 'email'))->first()) {
+        if ($user = $this->findUserToLink($provider, $identifier, $provided)) {
             $user->loginProviders()->create(compact('provider', 'identifier'));
 
             // Append _flarum_linked so the frontend can show a confirmation modal.
@@ -69,6 +69,26 @@ class ResponseFactory
         $token->save();
 
         return $this->makeRegistrationResponse($token->token, $returnTo);
+    }
+
+    /**
+     * Find an existing account to link this provider identity to, when it has
+     * no link yet. By default that is the account with the email address the
+     * provider vouched for ({@see Registration::provideTrustedEmail()}).
+     *
+     * Override this to change which account is linked. Returning null sends
+     * the user to sign up, where an address already in use is rejected until
+     * 3.0 makes email addresses non-unique (flarum/framework#4426).
+     *
+     * @param array<string, mixed> $provided
+     */
+    protected function findUserToLink(string $provider, string $identifier, array $provided): ?User
+    {
+        if (empty($provided['email'])) {
+            return null;
+        }
+
+        return User::where(Arr::only($provided, 'email'))->first();
     }
 
     /**

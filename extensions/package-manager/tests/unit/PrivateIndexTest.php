@@ -385,6 +385,29 @@ class PrivateIndexTest extends TestCase
         $this->assertSame(['1.1.0' => 'https://github.com/vendor/paid/releases/tag/1.1.0'], $index->releaseNotesFor('vendor/paid'));
     }
 
+    public function test_a_composer_index_carries_each_versions_core_requirement(): void
+    {
+        $index = $this->index([]);
+        $this->parse($index, ['packages' => ['vendor/paid' => [
+            '1.1.0' => ['version' => '1.1.0', 'require' => ['flarum/core' => '^2.2', 'php' => '^8.3']],
+            '1.0.0' => ['version' => '1.0.0', 'require' => ['php' => '^8.2']],
+            '0.9.0' => ['version' => '0.9.0'],
+        ]]]);
+
+        $this->assertSame(['1.1.0' => '^2.2'], $index->coreRequirementsFor('vendor/paid'));
+        $this->assertSame([], $index->coreRequirementsFor('vendor/unknown'));
+    }
+
+    /** Composer takes a version from the first repository that lists it. */
+    public function test_the_first_composer_index_to_list_a_version_gives_its_core_requirement(): void
+    {
+        $index = $this->index([]);
+        $this->parse($index, ['packages' => ['vendor/paid' => ['1.1.0' => ['version' => '1.1.0', 'require' => ['flarum/core' => '^2.1']]]]]);
+        $this->parse($index, ['packages' => ['vendor/paid' => ['1.1.0' => ['version' => '1.1.0', 'require' => ['flarum/core' => '^2.2']]]]]);
+
+        $this->assertSame(['1.1.0' => '^2.1'], $index->coreRequirementsFor('vendor/paid'));
+    }
+
     /** @return array<string, list<string>> */
     private function parse(PrivateIndex $index, array $payload): array
     {

@@ -45,15 +45,20 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     };
     /** The run the loop is following, so a new one starts with a clean slate. */
     protected following: string | null;
+    /** The run whose abandoned packages the live region has already announced. */
+    protected abandonedSaid: string | null;
     oncreate(vnode: Mithril.VnodeDOM<RunPanelAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<RunPanelAttrs, this>): void;
     protected follow(): void;
     onremove(): void;
     /** Which extensions this run is for: the names, or the first few and a count. */
     target(packages: string[]): string;
+    abandoned(run: Run): JSX.Element | null;
     view(): JSX.Element | null;
     /** The live region's sentence: progress while running, the outcome once it ends, nothing for a failure (the alert says it). */
     announcement(run: Run): string;
+    abandonedNews(run: Run): string;
+    progress(run: Run): string;
     /**
      * A removal only takes things away (it resolves with
      * `--no-update-with-dependencies`), so it has no Downloading step. Shown and

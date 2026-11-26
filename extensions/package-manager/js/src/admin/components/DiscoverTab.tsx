@@ -273,13 +273,17 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
              * beside the button read like a verdict on the wrong question.
              */}
             {/*
-             * "Installed as X" already says it was replaced, and by what, so
+             * "Installed as X" or "X is installed" already names the replacement, so
              * "replaced by X" beside it only said it twice (ClaudiusH, 2026-10-13).
              */}
             {instead && this.installedNames.includes(instead) ? null : instead ? (
               <span
                 className="ExtensionManager-tag ExtensionManager-tag--warn"
-                title={app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.replaced_why', {}, true)}
+                title={
+                  v?.moved
+                    ? app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.replaced_why', {}, true)
+                    : app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.abandoned_for', { replacement: instead }, true)
+                }
               >
                 {app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.replaced_by', { replacement: instead })}
               </span>
@@ -367,10 +371,6 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
     );
   }
 
-  /**
-   * Packagist records a replacement package when the author names one, and that
-   * is the single most useful thing to say about an abandoned extension.
-   */
   abandonedTitle(r: Found): string {
     return typeof r.abandoned === 'string' && r.abandoned
       ? app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.abandoned_for', { replacement: r.abandoned }, true)
@@ -378,11 +378,11 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
   }
 
   /**
-   * The package to use instead of this one, if any: the one Packagist names for
-   * an abandoned package, or the new name of a repository that moved.
+   * The search result's replacement stands in only until the verdict arrives:
+   * the verdict has followed the chain, and null there means nothing usable.
    */
   replacement(r: Found, v?: Verdict): string | null {
-    if (v?.replacedBy) return v.replacedBy;
+    if (v) return v.replacedBy || null;
     return typeof r.abandoned === 'string' && r.abandoned ? r.abandoned : null;
   }
 
@@ -408,13 +408,16 @@ export default class DiscoverTab extends Component<DiscoverAttrs> {
       if (this.installedNames.includes(instead)) {
         return (
           <span className="ExtensionManager-tag ExtensionManager-tag--ok">
-            {app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.installed_as', { replacement: instead })}
+            {app.translator.trans(
+              'flarum-extension-manager.admin.sections.discover.extension.' + (v?.moved ? 'installed_as' : 'replacement_installed'),
+              { replacement: instead }
+            )}
           </span>
         );
       }
 
       const iv = this.verdicts[instead];
-      return iv?.compatible !== true || !this.allowed(iv) ? null : (
+      return iv?.replaced || iv?.compatible !== true || !this.allowed(iv) ? null : (
         <Button className="Button Button--primary Button--sm" disabled={this.attrs.starting} onclick={() => this.attrs.oninstall(instead)}>
           {app.translator.trans('flarum-extension-manager.admin.sections.discover.extension.install_replacement', { replacement: instead })}
         </Button>

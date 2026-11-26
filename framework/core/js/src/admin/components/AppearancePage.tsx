@@ -13,6 +13,8 @@ import ThemeMode from '../../common/components/ThemeMode';
 import AppIconPreview from './AppIconPreview';
 import FaviconPreview from './FaviconPreview';
 import SplashScreenPreview from './SplashScreenPreview';
+import BasicsPage, { type HomePageItem } from './BasicsPage';
+import extractText from '../../common/utils/extractText';
 
 export default class AppearancePage extends AdminPage {
   headerInfo() {
@@ -184,6 +186,14 @@ export default class AppearancePage extends AdminPage {
           help: app.translator.trans('core.admin.appearance.open_as_app_help'),
         })}
         {this.buildSettingComponent({
+          type: 'select',
+          setting: 'app_start_page',
+          label: app.translator.trans('core.admin.appearance.app_start_page_label'),
+          help: app.translator.trans('core.admin.appearance.app_start_page_help'),
+          options: this.startPageOptions(),
+          default: '',
+        })}
+        {this.buildSettingComponent({
           type: 'color-preview',
           setting: 'splash_screen_background',
           label: app.translator.trans('core.admin.appearance.splash_screen_background_label'),
@@ -247,6 +257,24 @@ export default class AppearancePage extends AdminPage {
     const themeImages = this.themeImages();
 
     return name in themeImages ? { lockedBy: themeImages[name] } : {};
+  }
+
+  /**
+   * The pages the installed app can open to: the forum's home page, or one of
+   * the pages it can be set to.
+   */
+  startPageOptions(): Record<string, string> {
+    const options: Record<string, string> = {
+      '': extractText(app.translator.trans('core.admin.appearance.app_start_page_options.home_page')),
+    };
+
+    BasicsPage.homePageItems()
+      .toArray()
+      .forEach((item: HomePageItem) => {
+        options[item.path] = extractText(item.label);
+      });
+
+    return options;
   }
 
   colorItems() {
@@ -382,6 +410,11 @@ export default class AppearancePage extends AdminPage {
         id: 'open_as_app',
         label: app.translator.trans('core.admin.appearance.open_as_app_label', {}, true),
         help: app.translator.trans('core.admin.appearance.open_as_app_help', {}, true),
+      },
+      {
+        id: 'app_start_page',
+        label: app.translator.trans('core.admin.appearance.app_start_page_label', {}, true),
+        help: app.translator.trans('core.admin.appearance.app_start_page_help', {}, true),
       },
       {
         id: 'custom_header_heading',

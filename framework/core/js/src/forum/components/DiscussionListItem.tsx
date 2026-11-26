@@ -6,6 +6,7 @@ import highlight from '../../common/helpers/highlight';
 import humanTime from '../../common/utils/humanTime';
 import ItemList from '../../common/utils/ItemList';
 import abbreviateNumber from '../../common/utils/abbreviateNumber';
+import extractText from '../../common/utils/extractText';
 import Dropdown from '../../common/components/Dropdown';
 import TerminalPost from './TerminalPost';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
@@ -267,7 +268,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
    * @return {boolean}
    */
   showRepliesCount() {
-    return this.attrs.params.sort === 'replies';
+    return this.attrs.params.sort === 'top';
   }
 
   /**
@@ -333,7 +334,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
           )
         }
         label={showUnread ? abbreviateNumber(discussion.unreadCount()) : abbreviateNumber(discussion.replyCount())}
-        ariaLabel={app.translator.trans(a11yKey, { count: discussion.unreadCount() })}
+        a11yLabel={extractText(app.translator.trans(a11yKey, { count: showUnread ? discussion.unreadCount() : discussion.replyCount() }))}
         onclick={showUnread ? this.markAsRead.bind(this) : undefined}
       />
     );

@@ -11,6 +11,8 @@ namespace Flarum\Audit\Tests\integration;
 
 use Flarum\Audit\Testing\TestCase;
 use Flarum\User\User;
+use Flarum\User\UserRepository;
+use Illuminate\Database\Eloquent\Collection;
 use PHPUnit\Framework\Attributes\Test;
 
 class MailBounceTest extends TestCase
@@ -115,5 +117,22 @@ class MailBounceTest extends TestCase
             'matched' => false,
             'email' => 'nobody@example.com',
         ], null);
+    }
+
+    #[Test]
+    public function bounce_is_logged_against_every_account_using_the_address()
+    {
+        // The unique index stops two accounts sharing an address, so a repository stands in for 3.0's lookup.
+        $this->app()->getContainer()->instance(UserRepository::class, new class extends UserRepository {
+            public function findAllByEmail(string $email): Collection
+            {
+                return User::query()->whereIn('id', [1, 3])->orderBy('id')->get();
+            }
+        });
+
+        $this->webhook('failed', 'user3@example.com');
+
+        $this->assertLogExists('user.email_bounced', ['matched' => true, 'user_id' => 1, 'reason' => 'No such mailbox'], null);
+        $this->assertLogExists('user.email_bounced', ['matched' => true, 'user_id' => 3, 'reason' => 'No such mailbox'], null, 1);
     }
 }

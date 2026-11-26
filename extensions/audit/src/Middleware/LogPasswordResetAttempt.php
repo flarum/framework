@@ -50,14 +50,16 @@ class LogPasswordResetAttempt implements MiddlewareInterface
         // The controller returns an EmptyResponse on success (and only then); a validation
         // failure throws before reaching here, so we only log genuine, well-formed requests.
         if ($email && $response instanceof EmptyResponse) {
-            $user = $this->users->findByEmail($email);
+            $users = $this->users->findAllByEmail($email);
 
-            if ($user) {
+            if ($users->isNotEmpty()) {
                 // Known account: identify it by user_id and don't store the raw email.
-                AuditLogger::log('user.password_reset_attempted', [
-                    'matched' => true,
-                    'user_id' => $user->id,
-                ]);
+                foreach ($users as $user) {
+                    AuditLogger::log('user.password_reset_attempted', [
+                        'matched' => true,
+                        'user_id' => $user->id,
+                    ]);
+                }
             } else {
                 // No matching account: keep the attempted email, which is the useful detail
                 // for spotting reset abuse / enumeration.

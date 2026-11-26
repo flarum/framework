@@ -96,6 +96,9 @@ export default class RunPanel extends Component<RunPanelAttrs> {
   /** The run the loop is following, so a new one starts with a clean slate. */
   protected following: string | null = null;
 
+  /** The run whose abandoned packages the live region has already announced. */
+  protected abandonedSaid: string | null = null;
+
   oncreate(vnode: Mithril.VnodeDOM<RunPanelAttrs, this>) {
     super.oncreate(vnode);
     this.follow();
@@ -147,6 +150,36 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     );
   }
 
+  abandoned(run: Run) {
+    const abandoned = run.abandoned || [];
+
+    // Undone, or put back after failing: the packages are gone again.
+    if (!abandoned.length || run.state === 'rolled-back') return null;
+
+    return (
+      <Alert type="warning" dismissible={false} className="ExtensionManager-runNotice ExtensionManager-abandoned">
+        <p>
+          {app.translator.trans('flarum-extension-manager.admin.run.abandoned.' + (run.state === 'failed' ? 'intro_stopped' : 'intro'), {
+            count: abandoned.length,
+            mode: run.mode,
+          })}
+        </p>
+        <ul>
+          {abandoned.map((a) => (
+            <li key={a.package}>
+              {a.replacement
+                ? app.translator.trans('flarum-extension-manager.admin.run.abandoned.replaced', {
+                    package: <code>{a.package}</code>,
+                    replacement: <code>{a.replacement}</code>,
+                  })
+                : app.translator.trans('flarum-extension-manager.admin.run.abandoned.no_replacement', { package: <code>{a.package}</code> })}
+            </li>
+          ))}
+        </ul>
+      </Alert>
+    );
+  }
+
   view() {
     const run = this.attrs.run;
     if (!run) return null;
@@ -188,6 +221,8 @@ export default class RunPanel extends Component<RunPanelAttrs> {
 
         {!done && !failed && !rolled ? this.phases(run) : null}
         {!done && !failed && !rolled ? this.bar(run) : null}
+
+        {this.abandoned(run)}
 
         {failed ? (
           <div className="ExtensionManager-error">
@@ -331,6 +366,23 @@ export default class RunPanel extends Component<RunPanelAttrs> {
     if (run.state === 'rolled-back') return app.translator.trans('flarum-extension-manager.admin.run.rolled_back', {}, true);
     if (run.state === 'failed') return '';
 
+    const news = this.abandonedNews(run);
+    const progress = this.progress(run);
+
+    return news && progress ? news + ' ' + progress : news || progress;
+  }
+
+  abandonedNews(run: Run): string {
+    const count = (run.abandoned || []).length;
+
+    if (!count || this.abandonedSaid === run.id) return '';
+
+    this.abandonedSaid = run.id;
+
+    return app.translator.trans('flarum-extension-manager.admin.run.abandoned.announce', { count, mode: run.mode }, true);
+  }
+
+  progress(run: Run): string {
     const total = (run.items || []).length;
 
     if (!total) return run.phase === 'plan' ? app.translator.trans('flarum-extension-manager.admin.run.working_out', {}, true) : '';

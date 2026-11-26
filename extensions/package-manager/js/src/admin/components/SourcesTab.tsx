@@ -31,8 +31,8 @@ import type { ConfigPayload, Repository as Repo, StoredCredential as Stored } fr
 
 /** What a repository URL points at, for the icon and the readable name. */
 function describe(url: string, type: string): { icon: string; name: string; where: string; tone: string } {
-  if (type === 'path') {
-    return { icon: 'fas fa-folder-open', name: url.replace(/\/+$/, '').split('/').pop() || url, where: url, tone: 'path' };
+  if (type === 'path' || type === 'artifact') {
+    return { icon: TYPES[type].icon, name: url.replace(/\/+$/, '').split('/').pop() || url, where: url, tone: 'path' };
   }
 
   const match = /^https?:\/\/([^/]+)\/(.+?)(?:\.git)?\/?$/i.exec(url.trim());
@@ -52,7 +52,13 @@ const TYPES: Record<string, { icon: string }> = {
   vcs: { icon: 'fas fa-code-branch' },
   composer: { icon: 'fas fa-cubes' },
   path: { icon: 'fas fa-folder-open' },
+  artifact: { icon: 'fas fa-file-zipper' },
 };
+
+const OTHER_TYPE = { icon: 'fas fa-box' };
+
+/** Composer's named version-control drivers, which "vcs" picks between by itself. */
+const VCS_DRIVERS = ['vcs', 'git', 'github', 'gitlab', 'bitbucket', 'git-bitbucket', 'hg', 'svn', 'fossil', 'perforce'];
 
 const KINDS: Record<string, { icon: string; host: string }> = {
   'github-oauth': { icon: 'fab fa-github', host: 'github.com' },
@@ -60,6 +66,11 @@ const KINDS: Record<string, { icon: string; host: string }> = {
   bearer: { icon: 'fas fa-key', host: '' },
   'http-basic': { icon: 'fas fa-user-lock', host: '' },
 };
+
+/** composer.json and auth.json can hold any type Composer knows; only some have a label here. */
+function translatedOr(key: string, fallback: string): string {
+  return app.translator.translations[key] ? app.translator.trans(key, {}, true) : fallback;
+}
 
 const LADDER = ['stable', 'RC', 'beta', 'alpha', 'dev'];
 
@@ -244,7 +255,7 @@ export default class SourcesTab extends Component {
 
     for (const r of repos) {
       const d = describe(r.url, r.type);
-      const slash = r.type === 'vcs' ? d.name.indexOf('/') : -1;
+      const slash = VCS_DRIVERS.includes(r.type) ? d.name.indexOf('/') : -1;
       const owner = slash > 0 ? d.name.slice(0, slash) : this.typeLabel(r.type);
       const key = owner + '@' + (slash > 0 ? d.where : r.type);
       let g = out.find((x) => x.key === key);
@@ -254,7 +265,7 @@ export default class SourcesTab extends Component {
           key,
           owner,
           where: slash > 0 ? d.where : '',
-          icon: slash > 0 ? d.icon : (TYPES[r.type] || TYPES.vcs).icon,
+          icon: slash > 0 ? d.icon : (TYPES[VCS_DRIVERS.includes(r.type) ? 'vcs' : r.type] || OTHER_TYPE).icon,
           tone: slash > 0 ? d.tone : 'other',
           repos: [],
         };
@@ -294,7 +305,7 @@ export default class SourcesTab extends Component {
         ) : (
           [
             <span className="ExtensionManager-src-tileName">{short}</span>,
-            r.type !== 'vcs' ? <span className="ExtensionManager-src-badge">{this.typeLabel(r.type)}</span> : null,
+            !VCS_DRIVERS.includes(r.type) ? <span className="ExtensionManager-src-badge">{this.typeLabel(r.type)}</span> : null,
             <span className="ExtensionManager-src-tileActions">
               {linkable ? (
                 <a
@@ -325,7 +336,7 @@ export default class SourcesTab extends Component {
 
   /** A repository type's name: "Git repository", "Folder on this server"… */
   typeLabel(type: string): string {
-    return app.translator.trans('flarum-extension-manager.admin.composer.repositories.types.' + type, {}, true);
+    return translatedOr('flarum-extension-manager.admin.composer.repositories.types.' + type, type);
   }
 
   addRepo(data: ConfigPayload, repos: Repo[]) {
@@ -530,7 +541,7 @@ export default class SourcesTab extends Component {
         <span className="ExtensionManager-src-itemText">
           <strong>{c.host}</strong>
           <span>
-            <span className="ExtensionManager-src-badge">{app.translator.trans('flarum-extension-manager.admin.auth_config.types.' + c.kind)}</span>
+            <span className="ExtensionManager-src-badge">{translatedOr('flarum-extension-manager.admin.auth_config.types.' + c.kind, c.kind)}</span>
             <span className="ExtensionManager-src-held">
               <i className="fas fa-lock" aria-hidden="true" />{' '}
               {c.username === null
