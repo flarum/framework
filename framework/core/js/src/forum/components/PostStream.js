@@ -7,6 +7,13 @@ import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
 import PostType from './PostType';
 
+function postFadeIn(vnode) {
+  $(vnode.dom).addClass('fadeIn');
+  // 500 is the duration of the fadeIn CSS animation + 100ms,
+  // so the animation has time to complete
+  setTimeout(() => $(vnode.dom).removeClass('fadeIn'), 500);
+}
+
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
  * a discussion. Posts that have not loaded will be displayed as placeholders.
@@ -34,13 +41,6 @@ export default class PostStream extends Component {
     const viewingEnd = this.stream.viewingEnd();
     const posts = this.stream.posts();
     const postIds = this.discussion.postIds();
-
-    const postFadeIn = (vnode) => {
-      $(vnode.dom).addClass('fadeIn');
-      // 500 is the duration of the fadeIn CSS animation + 100ms,
-      // so the animation has time to complete
-      setTimeout(() => $(vnode.dom).removeClass('fadeIn'), 500);
-    };
 
     const items = posts.map((post, i) => {
       let content;
@@ -131,16 +131,6 @@ export default class PostStream extends Component {
       items.push(...this.endItems().toArray());
     }
 
-    // If we're viewing the end of the discussion, the user can reply, and
-    // is not already doing so, then show a 'write a reply' placeholder.
-    if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
-      items.push(
-        <div className="PostStream-item" key="reply" role="article" data-index={this.stream.count()} oncreate={postFadeIn}>
-          <ReplyPlaceholder discussion={this.discussion} />
-        </div>
-      );
-    }
-
     return (
       <div className="PostStream" role="feed" aria-live="off" aria-busy={this.stream.pagesLoading ? 'true' : 'false'}>
         {items}
@@ -176,10 +166,26 @@ export default class PostStream extends Component {
   }
 
   /**
+   * Items rendered after the last post, only while the last post is within
+   * the loaded window. Includes the reply placeholder as `reply` at priority
+   * -100 for guests and users who can reply, so check `has('reply')` before
+   * moving it. Each item must have a `key`: they render among the stream's
+   * keyed posts.
+   *
    * @returns {ItemList<import('mithril').Children>}
    */
   endItems() {
     const items = new ItemList();
+
+    if (!app.session.user || this.discussion.canReply()) {
+      items.add(
+        'reply',
+        <div className="PostStream-item" key="reply" role="article" data-index={this.stream.count()} oncreate={postFadeIn}>
+          <ReplyPlaceholder discussion={this.discussion} />
+        </div>,
+        -100
+      );
+    }
 
     return items;
   }
@@ -473,13 +479,39 @@ export default class PostStream extends Component {
    * @return {JQueryDeferred}
    */
   scrollToIndex(index, animate, reply) {
-    const $item = reply ? $('.PostStream-item:last-child') : this.$(`.PostStream-item[data-index=${index}]`);
+    const $item = reply ? this.$replyItem() : this.$(`.PostStream-item[data-index=${index}]`);
 
     this.scrollToItem($item, animate, true, reply);
 
     if (reply) {
       this.flashItem($item);
     }
+  }
+
+  /**
+   * The item that reply navigation scrolls to: the reply placeholder, or the
+   * last post when an extension has removed it.
+   *
+   * The placeholder is found by its `data-index`, one past the last post's,
+   * because extensions may render items below it.
+   *
+   * @return {JQuery}
+   */
+  $replyItem() {
+    const $placeholder = this.$(`.PostStream-item[data-index=${this.stream.count()}]`);
+
+    return $placeholder.length ? $placeholder : this.$('.PostStream-item[data-index]').last();
+  }
+
+  /**
+   * The scroll position that lines the bottom of the reply item up with the
+   * top of the composer.
+   *
+   * @param {JQuery} $item
+   * @return {number}
+   */
+  replyScrollTop($item) {
+    return $item.offset().top + $item.height() - $(window).height() + app.composer.computedHeight();
   }
 
   /**
@@ -506,7 +538,7 @@ export default class PostStream extends Component {
       // If we're scrolling to the reply placeholder, we'll make sure its
       // bottom will line up with the top of the composer.
       if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-        const top = reply ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
+        const top = reply ? this.replyScrollTop($item) : $item.is(':first-child') ? 0 : itemTop;
 
         if (!animate) {
           $container.scrollTop(top);
@@ -541,8 +573,8 @@ export default class PostStream extends Component {
       // as it will soon be rendered by the "load more" system.
       let itemOffset;
       if (reply) {
-        const $placeholder = $('.PostStream-item:last-child');
-        $(window).scrollTop($placeholder.offset().top + $placeholder.height() - $(window).height() + app.composer.computedHeight());
+        const $placeholder = this.$replyItem();
+        if ($placeholder.length) $(window).scrollTop(this.replyScrollTop($placeholder));
       } else if (index === 0) {
         $(window).scrollTop(0);
       } else if ((itemOffset = $(`.PostStream-item[data-index=${index}]`).offset())) {
@@ -621,12 +653,12 @@ export default class PostStream extends Component {
     if ('number' in target) {
       $item = this.$(`.PostStream-item[data-number=${target.number}]`);
     } else if ('index' in target) {
-      $item = target.reply ? this.$('.PostStream-item:last-child') : this.$(`.PostStream-item[data-index=${target.index}]`);
+      $item = target.reply ? this.$replyItem() : this.$(`.PostStream-item[data-index=${target.index}]`);
     }
 
     if (!$item || !$item.length) return;
 
-    const desiredTop = $item.is(':first-child') ? 0 : $item.offset().top - this.getMarginTop();
+    const desiredTop = target.reply ? this.replyScrollTop($item) : $item.is(':first-child') ? 0 : $item.offset().top - this.getMarginTop();
     $(window).scrollTop(desiredTop);
   }
 
