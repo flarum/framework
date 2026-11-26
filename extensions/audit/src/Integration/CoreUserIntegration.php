@@ -18,6 +18,7 @@ use Flarum\User\PasswordToken;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -153,18 +154,23 @@ class CoreUserIntegration
 
     public function emailBounced(EmailBounced $event): void
     {
-        $this->logDeliveryFailure('email_bounced', $event->recipient, $event->email, ['reason' => $event->reason]);
+        $this->logDeliveryFailure('email_bounced', $event->recipients, $event->email, ['reason' => $event->reason]);
     }
 
     public function emailComplained(EmailComplained $event): void
     {
-        $this->logDeliveryFailure('email_complained', $event->recipient, $event->email);
+        $this->logDeliveryFailure('email_complained', $event->recipients, $event->email);
     }
 
-    protected function logDeliveryFailure(string $action, ?User $recipient, string $email, array $payload = []): void
+    /**
+     * @param Collection<int, User> $recipients
+     */
+    protected function logDeliveryFailure(string $action, Collection $recipients, string $email, array $payload = []): void
     {
-        if ($recipient) {
-            $this->log($recipient, $action, ['matched' => true] + $payload);
+        if ($recipients->isNotEmpty()) {
+            foreach ($recipients as $recipient) {
+                $this->log($recipient, $action, ['matched' => true] + $payload);
+            }
         } else {
             AuditLogger::log("user.$action", ['matched' => false, 'email' => $email] + $payload);
         }

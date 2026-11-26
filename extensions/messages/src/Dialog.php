@@ -97,6 +97,7 @@ class Dialog extends AbstractModel
         $connection = $query->getConnection();
         $latest = $connection->table('dialog_messages')->select('id')
             ->whereColumn('dialog_id', 'dialogs.id')->where('type', DialogMessage::COMMENT)
+            ->where('id', '>', (int) $actor->marked_all_dialogs_read_id)
             ->orderByDesc('id')->limit(1);
         $read = $connection->table('dialog_user')->select('last_read_message_id')
             ->whereColumn('dialog_id', 'dialogs.id')->where('user_id', $actor->id);

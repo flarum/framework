@@ -201,7 +201,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     // Build critical CSS with the theme-accurate dark body background.
                     // Formula mirrors the LESS: hsl(@secondary-hue, min(20%, @secondary-sat), 10%).
                     $secondaryHex = $settings->get('theme_secondary_color') ?? '#536F90';
-                    $darkBg = self::computeDarkBodyBg($secondaryHex);
+                    $darkBg = DarkBodyBackground::cssColor($secondaryHex);
                     $document->criticalCss = 'body{margin:0;background:#fff}'
                         .'[data-theme^=dark] body{background:'.$darkBg.'}'
                         .'#flarum-loading{text-align:center;padding:50px 0;font-size:18px;color:#aaa}';
@@ -347,56 +347,14 @@ class FrontendServiceProvider extends AbstractServiceProvider
     }
 
     /**
-     * Compute the dark-mode body background colour from the forum's secondary colour hex.
-     * Mirrors the LESS formula: hsl(@secondary-hue, min(20%, @secondary-sat), 10%).
+     * The dark-mode body background colour for a secondary colour hex, as
+     * hsl(@secondary-hue, min(20%, @secondary-sat), 10%).
      *
-     * Also used by the layout of the standalone pages (errors, password reset...),
-     * which have no compiled stylesheet to take it from.
+     * @deprecated Use {@see DarkBodyBackground::cssColor()} instead.
      */
     public static function computeDarkBodyBg(string $hex): string
     {
-        $hex = ltrim($hex, '#');
-
-        if (strlen($hex) === 3) {
-            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
-        }
-
-        if (strlen($hex) !== 6 || ! ctype_xdigit($hex)) {
-            return '#1a2333'; // safe fallback
-        }
-
-        $r = hexdec(substr($hex, 0, 2)) / 255;
-        $g = hexdec(substr($hex, 2, 2)) / 255;
-        $b = hexdec(substr($hex, 4, 2)) / 255;
-
-        $max = max($r, $g, $b);
-        $min = min($r, $g, $b);
-        $delta = $max - $min;
-
-        // Hue
-        if ($delta == 0) {
-            $h = 0;
-        } elseif ($max === $r) {
-            $h = 60 * fmod(($g - $b) / $delta, 6);
-        } elseif ($max === $g) {
-            $h = 60 * (($b - $r) / $delta + 2);
-        } else {
-            $h = 60 * (($r - $g) / $delta + 4);
-        }
-
-        if ($h < 0) {
-            $h += 360;
-        }
-
-        // Saturation (HSL)
-        $l = ($max + $min) / 2;
-        $s = $delta == 0 ? 0 : $delta / (1 - abs(2 * $l - 1));
-
-        // Apply formula: hsl(hue, min(20%, sat), 10%)
-        $sFinal = min(0.20, $s) * 100;
-        $lFinal = 10;
-
-        return 'hsl('.round($h).','.round($sFinal).'%,'.$lFinal.'%)';
+        return DarkBodyBackground::cssColor($hex);
     }
 
     private function addLessVariables(SourceCollector $sources): void

@@ -48,12 +48,17 @@ class WebManifest
     public function build(): array
     {
         $base = $this->url->to('forum')->base().'/';
+        $startPage = $this->startPage();
 
         $manifest = array_filter([
+            // Browsers tell installed apps apart by their id, which is the
+            // start URL when there is none: pin it to the forum's address, so
+            // a start page doesn't turn existing installs into another app.
+            'id' => $startPage === '' ? null : $base,
             'name' => $this->settings->get('forum_title'),
             'short_name' => $this->shortName->setting(),
             'description' => $this->settings->get('forum_description'),
-            'start_url' => $base,
+            'start_url' => $base.$startPage,
             'scope' => $base,
             'display' => $this->opensAsApp() ? 'standalone' : 'browser',
             'theme_color' => $this->settings->get('theme_primary_color'),
@@ -66,6 +71,26 @@ class WebManifest
         }
 
         return $manifest;
+    }
+
+    /**
+     * Whether the path is a page the app can open to: a forum route that
+     * takes no parameters, as for the home page setting.
+     */
+    public function isStartPage(string $path): bool
+    {
+        return isset($this->container->make('flarum.forum.routes')->getRouteData()[0]['GET'][$path]);
+    }
+
+    /**
+     * The page the app opens to, as a path after the forum's address. A page
+     * whose extension was disabled falls back to the forum's address.
+     */
+    protected function startPage(): string
+    {
+        $path = (string) $this->settings->get('app_start_page');
+
+        return $path !== '' && $this->isStartPage($path) ? ltrim($path, '/') : '';
     }
 
     /**

@@ -354,6 +354,35 @@
   margin-top: 8px;
 }
 
+.MessageReadStatus {
+  color: var(--muted-more-color);
+
+  &.Button {
+    padding: 0;
+    font-size: inherit;
+    line-height: inherit;
+    color: var(--muted-more-color);
+  }
+
+  &--all, &--all.Button {
+    color: var(--primary-color);
+  }
+}
+
+.ReadByModal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ReadByModal-reader .Avatar {
+  --size: 24px;
+  margin-inline-end: 6px;
+  vertical-align: middle;
+}
+
 // The author's badges sit over the top of their avatar, as in a discussion,
 // sized to a message's smaller avatar. More than it holds run back over the
 // stream's margin, not over the author's name. The preview of a reply being

@@ -1,0 +1,5 @@
+core:
+  email:
+    notification:
+      types:
+        footerNamed: Replies to your test posts

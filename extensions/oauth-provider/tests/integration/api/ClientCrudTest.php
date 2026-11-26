@@ -137,6 +137,22 @@ class ClientCrudTest extends TestCase
     }
 
     #[Test]
+    public function a_requested_page_of_clients_links_to_the_rest(): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/oauth-provider-clients', ['authenticatedAs' => 1])
+                ->withQueryParams(['page' => ['limit' => '2']])
+                ->withAttribute('bypassCsrfToken', true)
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertCount(2, $body['data']);
+        $this->assertStringContainsString('page%5Boffset%5D=2', $body['links']['next'] ?? '');
+    }
+
+    #[Test]
     public function admin_can_create_confidential_client_and_receives_plain_secret(): void
     {
         $response = $this->send(

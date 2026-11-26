@@ -99,7 +99,12 @@ class PinStickiedDiscussionsToTop
             $query->unionLimit = $query->limit;
             $query->unionOffset = $query->offset;
 
-            $query->limit = $sticky->limit = $query->offset + $query->limit;
+            // Past PHP_INT_MAX the sum turns into a float, which Laravel casts to a
+            // negative LIMIT. No table holds PHP_INT_MAX rows, so clamping is exact.
+            $offset = (int) $query->offset;
+            $limit = (int) $query->limit;
+
+            $query->limit = $sticky->limit = $offset > PHP_INT_MAX - $limit ? PHP_INT_MAX : $offset + $limit;
             $query->offset = null;
             $sticky->offset = null;
         }

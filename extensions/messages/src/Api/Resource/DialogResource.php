@@ -9,7 +9,6 @@
 
 namespace Flarum\Messages\Api\Resource;
 
-use Carbon\Carbon;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
@@ -25,10 +24,10 @@ use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogEventMessages;
 use Flarum\Messages\DialogMessage;
 use Flarum\Messages\GroupNames;
-use Flarum\Messages\UserDialogState;
+use Flarum\Messages\ReadReceipts;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Grammars\PostgresGrammar;
+use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 
@@ -45,6 +44,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
         protected Dispatcher $bus,
         protected GroupNames $names,
         protected DialogEventMessages $eventMessages,
+        protected ReadReceipts $receipts,
     ) {
     }
 
@@ -76,48 +76,14 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->route('POST', '/read')
                 ->authenticated()
                 ->action(function (Context $context) {
+                    // Only the member's own conversations: the column is in their GDPR export.
                     $actor = $context->getActor();
-                    $select = UserDialogState::query()->getGrammar() instanceof PostgresGrammar
-                        ? 'CAST(? AS INTEGER) as user_id, CAST(? AS TIMESTAMP) as joined_at, CAST(? AS BOOLEAN) as is_recipient'
-                        : '? as user_id, ? as joined_at, ? as is_recipient';
-                    $missing = Dialog::whereVisibleTo($actor)->unread($actor)
-                        ->whereDoesntHave('states', fn (Builder $states) => $states->where('user_id', $actor->id))
-                        ->select('dialogs.id')->selectRaw($select, [$actor->id, Carbon::now()->toDateTimeString(), false]);
-                    UserDialogState::query()->getConnection()->table('dialog_user')->insertOrIgnoreUsing(
-                        ['dialog_id', 'user_id', 'joined_at', 'is_recipient'],
-                        $missing->toBase()
-                    );
+                    $latest = (int) Dialog::whereVisibleTo($actor)->max('last_message_id');
 
-                    $connection = UserDialogState::query()->getConnection();
-                    $grammar = UserDialogState::query()->getGrammar();
-
-                    // Only rows with something unread, so a dialog with no
-                    // messages yet (its last_message_id is null) is left alone
-                    // rather than having null written into a NOT NULL column,
-                    // which fails the whole statement on MySQL.
-                    UserDialogState::query()
-                        ->where('dialog_user.user_id', $context->getActor()->id)
-                        // DISTINCT prevents MySQL merging a subquery that reads this update's target table.
-                        ->whereIn('dialog_id', $connection->query()->fromSub(
-                            Dialog::whereVisibleTo($actor)->select('dialogs.id')->distinct()->toBase(),
-                            'visible_dialogs'
-                        )->select('visible_dialogs.id'))
-                        ->whereExists(function ($query) {
-                            $query->selectRaw('1')
-                                ->from('dialogs')
-                                ->whereColumn('dialogs.id', 'dialog_user.dialog_id')
-                                ->whereColumn('dialogs.last_message_id', '>', 'dialog_user.last_read_message_id');
-                        })
-                        ->update([
-                            'last_read_message_id' => $connection->raw('COALESCE(('.$grammar->compileSelect(
-                                Dialog::query()
-                                    ->select('last_message_id')
-                                    ->from('dialogs')
-                                    ->whereColumn('dialogs.id', 'dialog_user.dialog_id')
-                                    ->toBase()
-                            ).'), 0)'),
-                            'last_read_at' => Carbon::now(),
-                        ]);
+                    User::query()
+                        ->whereKey($actor->id)
+                        ->where('marked_all_dialogs_read_id', '<', $latest)
+                        ->update(['marked_all_dialogs_read_id' => $latest]);
                 })
                 ->response(fn () => new EmptyResponse(204)),
             Endpoint\Endpoint::make('leave')
@@ -196,6 +162,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
                         $join->on('dialog_messages.dialog_id', '=', 'dialog_user.dialog_id')
                             ->where('dialog_user.user_id', $context->getActor()->id);
                     })->where('dialog_messages.type', DialogMessage::COMMENT)
+                        ->where('dialog_messages.id', '>', (int) $context->getActor()->marked_all_dialogs_read_id)
                         ->where(function ($query) {
                             $query->whereNull('dialog_user.id')
                                 ->orWhereColumn('dialog_messages.id', '>', 'dialog_user.last_read_message_id');
@@ -207,6 +174,11 @@ class DialogResource extends Resource\AbstractDatabaseResource
                     return $dialog->state->last_read_at;
                 }),
             Schema\Integer::make('lastMessageId'),
+            Schema\Arr::make('readReceipts')
+                ->description('Who has read your messages: how many other members share read receipts, the last message sent before read receipts began, and the latest of your messages each member has read. Null when you do not share yours.')
+                ->nullable()
+                ->visible(fn (Dialog $dialog, Context $context) => $this->opensStream($dialog, $context))
+                ->get(fn (Dialog $dialog, Context $context) => $this->receipts->for($dialog, $context->getActor())),
             Schema\Boolean::make('anyoneCanReply')
                 ->description('Whether members without messaging permission may reply.')
                 ->get(fn (Dialog $dialog) => (bool) $dialog->anyone_can_reply),
@@ -247,6 +219,18 @@ class DialogResource extends Resource\AbstractDatabaseResource
                     ->filter(fn ($group) => ! $group->is_hidden || $context->getActor()->can('viewHiddenGroups'))->values()->all())
                 ->withLinkage()
                 ->includable(),
+            // Readers in a recipient Group may be users the browser has never loaded.
+            Schema\Relationship\ToMany::make('readers')
+                ->description('Members who share read receipts and have read any of your messages.')
+                ->type('users')
+                ->includable()
+                ->visible(fn (Dialog $dialog, Context $context) => $context->showing(self::class))
+                ->get(function (Dialog $dialog, Context $context) {
+                    $ids = array_column($this->receipts->for($dialog, $context->getActor())['readers'] ?? [], 'userId');
+
+                    // Serialising a user reads their groups for those who may edit them.
+                    return $ids ? User::query()->whereVisibleTo($context->getActor())->whereIn('id', $ids)->with('groups')->get()->all() : [];
+                }),
             // Individually addressed members, not the members of recipient Groups.
             Schema\Relationship\ToMany::make('users')
                 ->description('Individually addressed participants.')
@@ -267,6 +251,24 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->type('users')
                 ->includable(),
         ];
+    }
+
+    /**
+     * Whether this is the open conversation's first load of its messages, not
+     * a further page or a refresh of held messages by ID.
+     */
+    protected function opensStream(Dialog $dialog, Context $context): bool
+    {
+        if (! $context->listing(DialogMessageResource::class)) {
+            return false;
+        }
+
+        $query = $context->request->getQueryParams();
+        $dialogId = Arr::get($query, 'filter.dialog');
+
+        return is_scalar($dialogId) && (string) $dialogId === (string) $dialog->id
+            && ! Arr::has($query, 'filter.id')
+            && (Arr::has($query, 'page.near') || ! (int) Arr::get($query, 'page.offset', 0));
     }
 
     /**

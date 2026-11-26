@@ -62,11 +62,13 @@ module.exports = function autoChunkNameLoader(source) {
         const absolutePathToImport = path.resolve(path.dirname(pathToThisModule), relativePathToImport);
         let chunkPath = relativePathToImport;
 
+        const srcDir = path.resolve(this.rootContext, 'src') + path.sep;
+
         if (!relativePathToImport.startsWith('.') && !path.isAbsolute(relativePathToImport)) {
-          const frontend = path.relative(path.resolve(this.rootContext, 'src'), pathToThisModule).split(path.sep)[0];
+          const frontend = path.relative(srcDir, pathToThisModule).split(path.sep)[0];
           chunkPath = `${frontend}/npm/${relativePathToImport}`;
-        } else if (absolutePathToImport.includes('src')) {
-          chunkPath = absolutePathToImport.split(`src${path.sep}`)[1];
+        } else if (absolutePathToImport.startsWith(srcDir)) {
+          chunkPath = absolutePathToImport.slice(srcDir.length);
         }
 
         if (path.sep == '\\') {

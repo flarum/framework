@@ -48,6 +48,7 @@ class NotificationMailerTest extends TestCase
         $this->settings->shouldReceive('get')->with('mail_suppress_bounced')->andReturn(false);
         $this->translator->shouldReceive('setLocale')->once();
         $this->translator->shouldReceive('trans')->with('core.email.notification.default_title')->andReturn('Notification')->byDefault();
+        $this->translator->shouldReceive('trans')->with('core.email.notification.types.testNotification')->andReturn('Test notifications')->byDefault();
         $this->settings->shouldReceive('get')->with('default_locale')->andReturn('en');
         $this->settings->shouldReceive('get')->with('forum_title')->andReturn('Test Forum');
 

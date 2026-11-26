@@ -103,6 +103,10 @@ class ForumResource extends AbstractResource implements Findable
                 ->get(fn () => $this->settings->get('show_theme_selector', true)),
             Schema\Boolean::make('showPostSource')
                 ->get(fn () => (bool) $this->settings->get('show_post_source')),
+            Schema\Boolean::make('searchCjkMode')
+                ->get(fn () => (bool) $this->settings->get('search_cjk_mode')),
+            Schema\Integer::make('searchMinLength')
+                ->get(fn () => filter_var($this->settings->get('search_min_length'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 3),
             Schema\Str::make('baseUrl')
                 ->get(fn () => $forumUrl),
             Schema\Str::make('basePath')

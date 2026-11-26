@@ -13,6 +13,7 @@ use Flarum\ExtensionManager\Config\AuthTokens;
 use Flarum\ExtensionManager\Config\JsonFile;
 use Flarum\ExtensionManager\Config\Repositories;
 use Flarum\ExtensionManager\Config\StabilityRule;
+use Flarum\ExtensionManager\Discover\Compatibility;
 use Flarum\Locale\TranslatorInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
@@ -47,6 +48,9 @@ class UpdateCheck
      * @var array<string,array<string,string>>
      */
     protected array $releaseNotes = [];
+
+    /** @var array<string,array<string,string>> package => version => its flarum/core constraint */
+    protected array $coreRequires = [];
 
     /** When the check in progress has to stop asking, if it has a budget. */
     protected ?float $deadline = null;
@@ -144,7 +148,10 @@ class UpdateCheck
          * nothing newer. Entries for packages no longer installed are not
          * carried over: a stale one made `update --all` refuse the whole run.
          */
-        $previous = array_intersect_key((array) ($this->cached()['updates'] ?? []), $installed);
+        $previous = array_filter(
+            array_intersect_key((array) ($this->cached()['updates'] ?? []), $installed),
+            fn ($update) => self::coreRuns($installed['flarum/core'] ?? null, is_string($update['core'] ?? null) ? $update['core'] : null)
+        );
 
         $result = [
             'checkedAt' => time(),
@@ -194,8 +201,13 @@ class UpdateCheck
                  * implies it is up to date, which is a guess presented as a fact.
                  */
                 $result['uncheckable'][] = $name;
-            } elseif (($newest = $this->newestComparable($versions, $version, $name, $rule)) !== null && $this->isNewer($newest, $version)) {
+            } elseif (($newest = $this->newestComparable($versions, $version, $name, $rule, $installed['flarum/core'] ?? null)) !== null && $this->isNewer($newest, $version)) {
                 $result['updates'][$name] = ['from' => $version, 'to' => $newest];
+
+                // Kept so a saved check can be held against the core installed when it is read.
+                if (isset($this->coreRequires[$name][$newest])) {
+                    $result['updates'][$name]['core'] = $this->coreRequires[$name][$newest];
+                }
 
                 // "What does this update give me?" (ClaudiusH, 2026-10-09). A
                 // link to the release, never a guess: absent when the package
@@ -274,10 +286,17 @@ class UpdateCheck
             function (string $name) use ($protected) {
                 $public = $this->fromPackagist($name);
 
+                if (is_array($public)) {
+                    return $public;
+                }
+
                 // Still asked when Packagist is down: a protected package's
                 // answer does not depend on it. Unknown to both, the package
                 // is "could not ask" if Packagist could not be asked.
-                return is_array($public) ? $public : ($protected->versionsFor($name) ?? $public);
+                $versions = $protected->versionsFor($name);
+                $this->coreRequires[$name] = $protected->coreRequirementsFor($name);
+
+                return $versions ?? $public;
             },
             fn (string $name) => $protected->releaseNotesFor($name),
             $rule,
@@ -343,9 +362,10 @@ class UpdateCheck
      * composer.lock says now: dropped once reached, and its "from" kept true
      * when only part of the way.
      *
-     * Dropped too when the package is no longer installed, or the forum no
-     * longer allows a release that unfinished: either way Update cannot
-     * deliver it, and `update --all` refused the whole run over the first.
+     * Dropped too when the package is no longer installed, the forum no
+     * longer allows a release that unfinished, or the installed core cannot
+     * run it: either way Update cannot deliver it, and `update --all` refused
+     * the whole run over the first.
      *
      * @return array<string,mixed>
      */
@@ -364,7 +384,9 @@ class UpdateCheck
         foreach ((array) ($cached['updates'] ?? []) as $name => $update) {
             $installed = $now[$name] ?? null;
 
-            if ($installed === null || ! $rule->allows($name, (string) ($update['to'] ?? ''))) {
+            if ($installed === null
+                || ! $rule->allows($name, (string) ($update['to'] ?? ''))
+                || ! self::coreRuns($now['flarum/core'] ?? null, is_string($update['core'] ?? null) ? $update['core'] : null)) {
                 continue;
             }
 
@@ -404,14 +426,18 @@ class UpdateCheck
      * prefer-stable, Composer picks the most stable release there is, so only
      * the most stable ones are compared.
      *
+     * And only releases the installed core can run. An extension update leaves
+     * flarum/core where it is, so a release needing a newer core resolves to
+     * an older one and the badge never clears.
+     *
      * @param list<string> $versions
      */
-    protected function newestComparable(array $versions, string $installed, string $name = '', ?StabilityRule $rule = null): ?string
+    protected function newestComparable(array $versions, string $installed, string $name = '', ?StabilityRule $rule = null, ?string $core = null): ?string
     {
         $installedIsDev = self::tracksABranch($installed);
 
-        $candidates = array_values(array_filter($versions, function (string $v) use ($installedIsDev, $name, $rule) {
-            return self::tracksABranch($v) === $installedIsDev && ($rule === null || $rule->allows($name, $v));
+        $candidates = array_values(array_filter($versions, function (string $v) use ($installedIsDev, $name, $rule, $core) {
+            return self::tracksABranch($v) === $installedIsDev && ($rule === null || $rule->allows($name, $v)) && $this->runsOn($name, $v, $core);
         }));
 
         if ($candidates === []) {
@@ -429,6 +455,25 @@ class UpdateCheck
         ));
 
         return end($candidates) ?: null;
+    }
+
+    protected function runsOn(string $name, string $version, ?string $core): bool
+    {
+        return self::coreRuns($core, $this->coreRequires[$name][$version] ?? null);
+    }
+
+    /**
+     * No constraint (a GitHub tag carries none) counts as yes, and so does a
+     * core on a named branch, which has no version to compare. A numbered
+     * branch such as 2.x-dev is compared, as Composer does.
+     */
+    public static function coreRuns(?string $installedCore, ?string $constraint): bool
+    {
+        if ($constraint === null || $installedCore === null || $installedCore === '' || str_starts_with($installedCore, 'dev-')) {
+            return true;
+        }
+
+        return (new Compatibility(ltrim($installedCore, 'v')))->admitsCore($constraint);
     }
 
     protected function isNewer(string $candidate, string $installed): bool
@@ -489,8 +534,9 @@ class UpdateCheck
             return false;
         }
 
-        [$list, $notes] = self::readP2($versions);
+        [$list, $notes, $core] = self::readP2($versions);
         $this->releaseNotes[$name] = $notes;
+        $this->coreRequires[$name] = $core;
 
         return $list;
     }
@@ -508,12 +554,14 @@ class UpdateCheck
      * name Packagist read from the repository.
      *
      * @param list<array<string,mixed>> $entries
-     * @return array{0: list<string>, 1: array<string,string>}
+     * @return array{0: list<string>, 1: array<string,string>, 2: array<string,string>} versions,
+     *         release links, and each version's flarum/core constraint
      */
     public static function readP2(array $entries): array
     {
         $versions = [];
         $notes = [];
+        $core = [];
         $current = [];
 
         foreach ($entries as $entry) {
@@ -536,6 +584,10 @@ class UpdateCheck
             $version = (string) $current['version'];
             $versions[] = $version;
 
+            if (is_string($needs = $current['require']['flarum/core'] ?? null)) {
+                $core[$version] = $needs === 'self.version' ? $version : $needs;
+            }
+
             $url = self::releaseUrl((string) ($current['source']['url'] ?? ''), $version);
 
             if ($url !== null) {
@@ -543,7 +595,7 @@ class UpdateCheck
             }
         }
 
-        return [$versions, $notes];
+        return [$versions, $notes, $core];
     }
 
     /**

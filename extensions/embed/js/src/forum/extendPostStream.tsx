@@ -42,10 +42,10 @@ export default function extendPostStream(): void {
     const reply = args[3];
 
     if (reply) {
-      const $last = this.$('.PostStream-item:last-child');
+      const $reply = this.$replyItem();
 
-      if ($last.length) {
-        scrollParentToReply($last.offset().top);
+      if ($reply.length) {
+        scrollParentToReply($reply.offset().top);
       }
     }
   });

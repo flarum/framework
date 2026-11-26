@@ -33,6 +33,11 @@ class RequestUtilTest extends TestCase
         return $request->withQueryParams($limit === null ? [] : ['page' => ['limit' => $limit]]);
     }
 
+    private function requestWithPageNumber(mixed $number): ServerRequestInterface
+    {
+        return (new ServerRequest([], [], '/', 'GET'))->withQueryParams(['page' => ['number' => $number]]);
+    }
+
     #[Test]
     public function extract_limit_uses_an_explicitly_requested_limit(): void
     {
@@ -149,5 +154,49 @@ class RequestUtilTest extends TestCase
             '',
             RequestUtil::getPreferredContentType($request, ['application/vnd.api+json', 'text/html'])
         );
+    }
+
+    #[Test]
+    public function extract_offset_accepts_the_largest_page_whose_offset_fits(): void
+    {
+        $page = intdiv(PHP_INT_MAX, 20) + 1;
+
+        $this->assertSame(($page - 1) * 20, RequestUtil::extractOffset($this->requestWithPageNumber((string) $page), 20));
+    }
+
+    #[Test]
+    public function extract_offset_rejects_the_first_page_whose_offset_overflows(): void
+    {
+        $this->expectException(BadRequestException::class);
+
+        RequestUtil::extractOffset($this->requestWithPageNumber((string) (intdiv(PHP_INT_MAX, 20) + 2)), 20);
+    }
+
+    #[Test]
+    public function extract_offset_accepts_an_int_page_number(): void
+    {
+        $this->assertSame(40, RequestUtil::extractOffset($this->requestWithPageNumber(3), 20));
+    }
+
+    #[Test]
+    public function extract_offset_rejects_an_overflowing_int_page_number(): void
+    {
+        $this->expectException(BadRequestException::class);
+
+        RequestUtil::extractOffset($this->requestWithPageNumber(PHP_INT_MAX), 20);
+    }
+
+    #[Test]
+    public function extract_offset_is_zero_for_a_page_number_without_a_limit(): void
+    {
+        $this->assertSame(0, RequestUtil::extractOffset($this->requestWithPageNumber('2'), null));
+    }
+
+    #[Test]
+    public function extract_offset_validates_a_page_number_without_a_limit(): void
+    {
+        $this->expectException(BadRequestException::class);
+
+        RequestUtil::extractOffset($this->requestWithPageNumber('abc'), null);
     }
 }

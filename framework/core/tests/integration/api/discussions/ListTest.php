@@ -366,4 +366,30 @@ class ListTest extends TestCase
 
         $this->assertEquals(['2'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
+
+    #[Test]
+    #[DataProvider('pageNumbers')]
+    public function page_number_selects_the_page(string $number)
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'sort' => 'createdAt',
+                    'page' => ['number' => $number, 'limit' => '1'],
+                ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $this->assertEquals(['2'], Arr::pluck(json_decode($body, true)['data'], 'id'));
+    }
+
+    public static function pageNumbers(): array
+    {
+        return [
+            'plain' => ['2'],
+            'leading zero' => ['02'],
+        ];
+    }
 }

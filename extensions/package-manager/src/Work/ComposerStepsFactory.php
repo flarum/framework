@@ -11,6 +11,7 @@ namespace Flarum\ExtensionManager\Work;
 
 use Flarum\ExtensionManager\Apply\Applier;
 use Flarum\ExtensionManager\Apply\Journal;
+use Flarum\ExtensionManager\Discover\AbandonedList;
 use Flarum\ExtensionManager\Run\Steps;
 use Flarum\ExtensionManager\Run\StepsFactory;
 use Flarum\Foundation\Config;
@@ -43,6 +44,8 @@ class ComposerStepsFactory implements StepsFactory
         protected Paths $paths,
         protected Config $config,
         protected ClientInterface $http,
+        /** @var \Closure(): AbandonedList */
+        protected \Closure $abandonedList,
     ) {
     }
 
@@ -92,7 +95,8 @@ class ComposerStepsFactory implements StepsFactory
             $this->paths->vendor,
             $this->paths->storage,
             $this->siteUrl(),
-            $workDir->repin()
+            $workDir->repin(),
+            $this->abandonedList
         );
     }
 }

@@ -98,4 +98,20 @@ class ReadAllWithFulltextSearchTest extends TestCase
         // must stay unset — only the matched rows are written.
         $this->assertNull($this->database()->table('users')->find(1)->marked_all_as_read_at);
     }
+
+    #[Test]
+    public function an_array_search_is_a_bad_request_and_marks_nothing_read()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/discussions/read', ['authenticatedAs' => 1])
+                ->withQueryParams(['filter' => ['q' => ['lightsail']]])
+        );
+
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(400, $response->getStatusCode(), $body);
+        $this->assertEquals('filter[q]', json_decode($body, true)['errors'][0]['source']['parameter'] ?? null, $body);
+        $this->assertEquals(0, $this->database()->table('discussion_user')->where('user_id', 1)->count());
+        $this->assertNull($this->database()->table('users')->find(1)->marked_all_as_read_at);
+    }
 }

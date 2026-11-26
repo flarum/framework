@@ -37,6 +37,12 @@ class Registration
         return $this;
     }
 
+    /**
+     * Provide an email address the provider has verified belongs to the user.
+     * An account registered with it starts activated, and the provider may be
+     * linked to an existing account that uses it ({@see ResponseFactory::findUserToLink()}).
+     * Use {@see suggestEmail()} for an address the provider hasn't verified.
+     */
     public function provideTrustedEmail(string $email): self
     {
         return $this->provide('email', $email);

@@ -20,7 +20,8 @@ class ScopeUserVisibility
             if ($actor->isGuest()) {
                 $query->whereRaw('FALSE');
             } else {
-                $query->where('id', $actor->id);
+                // Qualified: an unqualified `id` is ambiguous on joined queries.
+                $query->whereKey($actor->id);
             }
         }
     }

@@ -14,6 +14,8 @@ import type MessageStreamState from '../states/MessageStreamState';
 import Icon from 'flarum/common/components/Icon';
 import listItems from 'flarum/common/helpers/listItems';
 import MessageEdited from './MessageEdited';
+import MessageReadStatus from './MessageReadStatus';
+import { readStatus } from '../utils/readReceipts';
 
 export interface IMessageAttrs extends IAbstractPostAttrs {
   message: DialogMessage;
@@ -29,8 +31,11 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    // Opening the composer to edit it changes nothing on the message itself.
-    this.subtree.check(() => this.isEditing());
+    // Neither editing nor being read changes the message model itself.
+    this.subtree.check(
+      () => this.isEditing(),
+      () => (this.attrs.message.dialog() || null)?.readReceipts()
+    );
   }
 
   user(): User | null | false {
@@ -113,6 +118,7 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
           isHidden={false}
           contentHtml={message.contentHtml() || ''}
           user={message.user()}
+          post={message}
         />,
       ]);
   }
@@ -160,6 +166,10 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
 
     if (message.editedAt() && !message.isHidden()) {
       items.add('edited', <MessageEdited message={message} />);
+    }
+
+    if (readStatus(message.dialog() || null, message)) {
+      items.add('readStatus', <MessageReadStatus message={message} />, -10);
     }
 
     return items;

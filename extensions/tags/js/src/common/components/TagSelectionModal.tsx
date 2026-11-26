@@ -105,7 +105,7 @@ export default class TagSelectionModal<
     this.navigator
       .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
-      .onSelect(this.select.bind(this))
+      .onSelect(this.select.bind(this), true)
       .onRemove(() => this.selected.splice(this.selected.length - 1, 1));
 
     app.tagList.load(['parent']).then((tags: Tag[]) => {

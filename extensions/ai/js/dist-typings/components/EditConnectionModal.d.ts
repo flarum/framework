@@ -17,7 +17,7 @@ export interface EditConnectionModalAttrs extends IFormModalAttrs {
     lists?: ModelLists;
     onsave: (name: string, connection: Connection) => void;
 }
-type Field = 'name' | 'driver' | 'url' | 'region' | 'key' | 'model' | 'monthlyTokens' | 'guardrail';
+type Field = 'name' | 'driver' | 'url' | 'region' | 'key' | 'model' | 'monthlyTokens' | 'guardrail' | 'includeStreamUsage';
 /**
  * Adds or edits a connection on the page. Nothing is stored until the admin
  * saves the page.
@@ -31,6 +31,7 @@ export default class EditConnectionModal<CustomAttrs extends EditConnectionModal
     guardrailVersion: Stream<string>;
     model: Stream<string>;
     monthlyTokens: Stream<string>;
+    includeStreamUsage: Stream<boolean>;
     key: Stream<string>;
     removeKey: boolean;
     invalid: Field | null;

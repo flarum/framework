@@ -40,7 +40,7 @@ class AuthorGroupFilter implements FilterInterface
         $query = $state->getQuery();
 
         $groupIds = Group::whereVisibleTo($state->getActor())
-            ->whereIn('id', $this->asIntArray($value))
+            ->whereIn('id', $this->asKeyArray($value, new Group))
             ->pluck('id')
             ->map(fn ($id) => (int) $id)
             ->all();

@@ -1,4 +1,5 @@
 import app from 'flarum/admin/app';
+import { jest } from '@jest/globals';
 import EditConnectionModal from '../../../src/admin/components/EditConnectionModal';
 import { bootAdmin } from './setup';
 
@@ -12,6 +13,66 @@ function modal(attrs: Record<string, unknown> = {}) {
 }
 
 describe('the connection form', () => {
+  it('clears the connection test when the streamed usage setting changes', () => {
+    const form = modal({ name: 'local', connection: { driver: 'openai-compatible', url: 'https://llm.test/v1' } });
+    form.test.status = 'passed';
+    form.test.text = '1';
+    form.test.done = { type: 'done', ms: 100, inputTokens: 0, outputTokens: 0 };
+
+    const container = document.createElement('div');
+    document.body.append(container);
+    try {
+      m.render(container, form.content());
+      container.querySelector<HTMLInputElement>('#flarum-ai-connection-includeStreamUsage')!.click();
+      m.render(container, form.content());
+
+      expect(container.querySelector('.AiConnectionTest')).toBeNull();
+    } finally {
+      m.render(container, null);
+      container.remove();
+    }
+  });
+
+  it('keeps the streamed usage setting disabled during a connection test', () => {
+    const form = modal({ name: 'local', connection: { driver: 'openai-compatible', url: 'https://llm.test/v1' } });
+    form.test.status = 'running';
+    const container = document.createElement('div');
+    m.render(container, form.content());
+
+    expect(container.querySelector<HTMLInputElement>('#flarum-ai-connection-includeStreamUsage')?.disabled).toBe(true);
+    m.render(container, null);
+  });
+
+  it('tests and saves the streamed usage opt-out for an OpenAI-compatible server', () => {
+    const onsave = jest.fn();
+    const form = modal({ name: 'local', connection: { driver: 'openai-compatible', url: 'https://llm.test/v1' }, onsave, animateHide: () => {} });
+    const container = document.createElement('div');
+    document.body.append(container);
+    m.render(container, form.content());
+
+    const checkbox = container.querySelector<HTMLInputElement>('#flarum-ai-connection-includeStreamUsage');
+    expect(checkbox).not.toBeNull();
+    expect(checkbox!.checked).toBe(true);
+    expect(form.candidateFor()).not.toHaveProperty('include_stream_usage');
+    checkbox!.click();
+
+    expect(form.candidateFor()).toMatchObject({ include_stream_usage: false });
+    expect(form.candidateFor(true)).not.toHaveProperty('include_stream_usage');
+    form.onsubmit(new Event('submit') as SubmitEvent);
+    expect(onsave).toHaveBeenCalledWith('local', expect.objectContaining({ include_stream_usage: false }));
+
+    const reopened = modal({ name: 'local', connection: onsave.mock.calls[0][1] });
+    m.render(container, reopened.content());
+    expect(container.querySelector<HTMLInputElement>('#flarum-ai-connection-includeStreamUsage')?.checked).toBe(false);
+
+    reopened.driver('ollama');
+    m.render(container, reopened.content());
+    expect(container.querySelector('#flarum-ai-connection-includeStreamUsage')).toBeNull();
+    expect(reopened.candidateFor()).not.toHaveProperty('include_stream_usage');
+    m.render(container, null);
+    container.remove();
+  });
+
   it('checks names as the server does', () => {
     const form = modal();
 

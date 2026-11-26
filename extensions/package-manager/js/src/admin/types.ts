@@ -25,6 +25,12 @@ export interface Run extends RunLike {
   mode: RunMode;
   /** The database changes undoing this run would reverse. */
   migrations: string[];
+  abandoned?: AbandonedPackage[];
+}
+
+export interface AbandonedPackage {
+  package: string;
+  replacement: string | null;
 }
 
 export interface UpdateHint {
@@ -181,6 +187,8 @@ export interface Verdict {
   replaced?: boolean;
   /** That package, when it could be named. */
   replacedBy?: string | null;
+  /** The repository moved, so the old name installs the replacement's code under the wrong id. */
+  moved?: boolean;
 }
 
 export interface CompatPayload {
@@ -197,7 +205,7 @@ export interface Found {
   downloads: number;
   favers: number;
   repository: string;
-  /** The replacement's name when the author gave one, or true. */
+  /** The replacement's name when one is named, by its author or Flarum's list, or true. */
   abandoned: boolean | string;
   installed: boolean;
 }

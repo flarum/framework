@@ -11,7 +11,6 @@ export default class NotificationsDropdown<CustomAttrs extends INotificationsDro
     attrs.className = classList('NotificationsDropdown', attrs.className);
     attrs.icon ||= 'fas fa-bell';
 
-    // For best a11y support, both `title` and `aria-label` should be used
     attrs.accessibleToggleLabel ||= extractText(app.translator.trans('core.forum.notifications.toggle_dropdown_accessible_label'));
 
     super.initAttrs(attrs);

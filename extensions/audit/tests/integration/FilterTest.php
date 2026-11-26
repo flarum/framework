@@ -59,8 +59,62 @@ class FilterTest extends TestCase
                     'client' => 'api_key',
                     'ip_address' => '10.0.0.3',
                     'action' => 'cache_cleared',
-                    'payload' => json_encode([]),
+                    'payload' => null,
                     'created_at' => '2022-01-01 14:00:00',
+                ],
+                [
+                    'id' => 4,
+                    'actor_id' => 1,
+                    'client' => 'session',
+                    'ip_address' => '10.0.0.4',
+                    'action' => 'discussion.locked',
+                    'payload' => json_encode(['discussion_id' => 5]),
+                    'created_at' => '2022-01-01 15:00:00',
+                ],
+                [
+                    'id' => 5,
+                    'actor_id' => 1,
+                    'client' => 'session',
+                    'ip_address' => '10.0.0.5',
+                    'action' => 'discussion.renamed',
+                    'payload' => json_encode(['discussion_id' => 6]),
+                    'created_at' => '2022-01-01 16:00:00',
+                ],
+                [
+                    'id' => 6,
+                    'actor_id' => 1,
+                    'client' => 'session',
+                    'ip_address' => '10.0.0.6',
+                    'action' => 'user.activated',
+                    'payload' => json_encode(['user_id' => 2]),
+                    'created_at' => '2022-01-01 17:00:00',
+                ],
+                [
+                    'id' => 7,
+                    'actor_id' => 1,
+                    'client' => 'session',
+                    'ip_address' => '10.0.0.7',
+                    'action' => 'message.deleted',
+                    'payload' => json_encode(['user_id' => null]),
+                    'created_at' => '2022-01-01 18:00:00',
+                ],
+                [
+                    'id' => 8,
+                    'actor_id' => 1,
+                    'client' => 'session',
+                    'ip_address' => '10.0.0.8',
+                    'action' => 'post.deleted',
+                    'payload' => json_encode(['discussion_id' => null]),
+                    'created_at' => '2022-01-01 19:00:00',
+                ],
+                [
+                    'id' => 9,
+                    'actor_id' => 1,
+                    'client' => 'session',
+                    'ip_address' => '10.0.0.9',
+                    'action' => 'user.activated',
+                    'payload' => json_encode(['user_id' => 1]),
+                    'created_at' => '2022-01-01 20:00:00',
                 ],
             ],
             User::class => [
@@ -99,7 +153,7 @@ class FilterTest extends TestCase
     #[Test]
     public function no_filter_returns_everything()
     {
-        $this->assertCount(3, $this->search([]));
+        $this->assertCount(9, $this->search([]));
     }
 
     #[Test]
@@ -123,7 +177,7 @@ class FilterTest extends TestCase
     {
         $data = $this->search(['-action' => 'cache_cleared']);
 
-        $this->assertEqualsCanonicalizing(['1', '2'], $this->ids($data));
+        $this->assertEqualsCanonicalizing(['1', '2', '4', '5', '6', '7', '8', '9'], $this->ids($data));
     }
 
     #[Test]
@@ -140,5 +194,65 @@ class FilterTest extends TestCase
         $data = $this->search(['ip' => '10.0.0.2']);
 
         $this->assertEquals(['2'], $this->ids($data));
+    }
+
+    #[Test]
+    public function discussion_filter_narrows_by_payload_discussion_id()
+    {
+        $data = $this->search(['discussion' => '5']);
+
+        $this->assertEquals(['4'], $this->ids($data));
+    }
+
+    #[Test]
+    public function discussion_filter_accepts_comma_separated_values()
+    {
+        $data = $this->search(['discussion' => '5,6']);
+
+        $this->assertEqualsCanonicalizing(['4', '5'], $this->ids($data));
+    }
+
+    #[Test]
+    public function negated_discussion_filter_excludes_matches()
+    {
+        $data = $this->search(['-discussion' => '5']);
+
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '5', '6', '7', '8', '9'], $this->ids($data));
+    }
+
+    #[Test]
+    public function user_filter_narrows_by_payload_user_id()
+    {
+        $data = $this->search(['user' => 'normal']);
+
+        $this->assertEquals(['6'], $this->ids($data));
+    }
+
+    #[Test]
+    public function negated_user_filter_keeps_entries_about_no_user()
+    {
+        $data = $this->search(['-user' => 'normal']);
+
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5', '7', '8', '9'], $this->ids($data));
+    }
+
+    #[Test]
+    public function user_filter_with_unknown_username_matches_nothing()
+    {
+        $this->assertEquals([], $this->search(['user' => 'nobody']));
+    }
+
+    #[Test]
+    public function negated_user_filter_with_unknown_username_excludes_nothing()
+    {
+        $this->assertCount(9, $this->search(['-user' => 'nobody']));
+    }
+
+    #[Test]
+    public function negated_user_filter_ignores_unknown_usernames_among_known_ones()
+    {
+        $data = $this->search(['-user' => 'normal,nobody']);
+
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5', '7', '8', '9'], $this->ids($data));
     }
 }

@@ -2,7 +2,8 @@ import Dropdown, { IDropdownAttrs } from './Dropdown';
 import Button from './Button';
 import Mithril from 'mithril';
 import classList from '../utils/classList';
-import Tooltip from './Tooltip';
+import extractText from '../utils/extractText';
+import type { TooltipAttrs } from './Tooltip';
 import Icon from './Icon';
 
 export interface ISplitDropdownAttrs extends IDropdownAttrs {
@@ -23,6 +24,29 @@ export default class SplitDropdown<CustomAttrs extends ISplitDropdownAttrs = ISp
     attrs.menuClassName = classList(attrs.menuClassName, 'Dropdown-menu--right');
   }
 
+  protected renderButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
+    // getButton attaches the tooltip to the primary action inside the split control.
+    return this.getButton(children);
+  }
+
+  protected getButtonTooltip(button: Mithril.Vnode<any, any>): TooltipAttrs | undefined {
+    const tooltip = super.getButtonTooltip(button);
+
+    if (!tooltip) return;
+
+    // The tooltip usually describes the action ("Get an email when there are new
+    // posts"), whereas the button shows its own label: name the button after
+    // that label, not after the description.
+    //
+    // `Button` accepts translation arrays for `aria-label`, so flatten it the
+    // way `Button` does: an array passed straight to `setAttribute` would be
+    // comma-joined, and an empty one would wipe the name.
+    const label = extractText(button.children as Mithril.Children).trim();
+    const ariaLabel = extractText(button.attrs['aria-label']).trim();
+
+    return { ...tooltip, ariaLabel: ariaLabel || label || undefined };
+  }
+
   getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
     // Make a copy of the attrs of the first child component. We will assign
     // these attrs to a new button, so that it has exactly the same behaviour as
@@ -31,15 +55,7 @@ export default class SplitDropdown<CustomAttrs extends ISplitDropdownAttrs = ISp
     const buttonAttrs = Object.assign({}, firstChild?.attrs);
     buttonAttrs.className = classList(buttonAttrs.className, 'SplitDropdown-button Button', this.attrs.buttonClassName);
 
-    let button = <Button {...buttonAttrs}>{firstChild.children}</Button>;
-
-    if (this.attrs.tooltip) {
-      button = (
-        <Tooltip text={this.attrs.tooltip} position="bottom">
-          {button}
-        </Tooltip>
-      );
-    }
+    const button = this.wrapButton(<Button {...buttonAttrs}>{firstChild.children}</Button>);
 
     return (
       <>

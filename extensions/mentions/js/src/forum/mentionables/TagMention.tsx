@@ -41,7 +41,7 @@ export default class TagMention extends MentionableModel<Tag, HashMentionFormat>
   }
 
   async search(typed: string): Promise<Tag[]> {
-    return await app.store.find<Tag[]>('tags', { filter: { q: typed }, page: { limit: 5 } });
+    return await app.store.find<Tag[]>('tags', { filter: { q: typed }, page: { limit: 5, total: 0 } });
   }
 
   suggestion(model: Tag, typed: string): Mithril.Children {

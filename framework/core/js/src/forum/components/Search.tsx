@@ -59,16 +59,21 @@ export interface SearchAttrs extends ComponentAttrs {
  */
 export default class Search<T extends SearchAttrs = SearchAttrs> extends Component<T, SearchState> {
   /**
-   * The minimum query length before sources are searched.
+   * A subclass may set its own minimum query length, which then takes
+   * precedence over the forum's configured minimum.
    */
   protected static MIN_SEARCH_LEN = 3;
 
   /**
-   * The minimum query length for the current forum. Experimental CJK search mode
-   * drops it to 1; otherwise the (subclass-overridable) MIN_SEARCH_LEN applies.
+   * The minimum query length before sources are searched: a subclass's own
+   * MIN_SEARCH_LEN if it sets one, otherwise the forum's configured minimum.
    */
   static minSearchLength(): number {
-    return SearchManager.isCjkMode() ? 1 : this.MIN_SEARCH_LEN;
+    for (let cls: typeof Search = this; cls !== Search; cls = Object.getPrototypeOf(cls)) {
+      if (Object.prototype.hasOwnProperty.call(cls, 'MIN_SEARCH_LEN')) return this.MIN_SEARCH_LEN;
+    }
+
+    return SearchManager.minSearchLength();
   }
 
   /**
@@ -237,7 +242,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
         search.searchTimeout = window.setTimeout(() => {
           if (state.isCached(query)) return;
 
-          if (query.length >= (search.constructor as typeof Search).minSearchLength()) {
+          if (SearchManager.queryLength(query) >= (search.constructor as typeof Search).minSearchLength()) {
             search.sources?.map((source) => {
               if (!source.search) return;
 

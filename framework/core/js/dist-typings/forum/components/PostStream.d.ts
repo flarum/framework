@@ -34,6 +34,12 @@ export default class PostStream extends Component<import("../../common/Component
      */
     afterPostItems(post: import("../../common/models/Post").default, index: number): ItemList<import("mithril").Children>;
     /**
+     * Items rendered after the last post, only while the last post is within
+     * the loaded window. Includes the reply placeholder as `reply` at priority
+     * -100 for guests and users who can reply, so check `has('reply')` before
+     * moving it. Each item must have a `key`: they render among the stream's
+     * keyed posts.
+     *
      * @returns {ItemList<import('mithril').Children>}
      */
     endItems(): ItemList<import("mithril").Children>;
@@ -124,6 +130,24 @@ export default class PostStream extends Component<import("../../common/Component
      * @return {JQueryDeferred}
      */
     scrollToIndex(index: number, animate: boolean, reply: boolean): JQueryDeferred<any>;
+    /**
+     * The item that reply navigation scrolls to: the reply placeholder, or the
+     * last post when an extension has removed it.
+     *
+     * The placeholder is found by its `data-index`, one past the last post's,
+     * because extensions may render items below it.
+     *
+     * @return {JQuery}
+     */
+    $replyItem(): JQuery;
+    /**
+     * The scroll position that lines the bottom of the reply item up with the
+     * top of the composer.
+     *
+     * @param {JQuery} $item
+     * @return {number}
+     */
+    replyScrollTop($item: JQuery): number;
     /**
      * Scroll down to the given post.
      *

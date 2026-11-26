@@ -47,6 +47,10 @@ class NotificationMailer
         $unsubscribeLink = $this->url->to('forum')->route('notifications.unsubscribe', ['userId' => $user->id, 'token' => $unsubscribeRecord->token]);
         $settingsLink = $this->url->to('forum')->route('settings');
         $type = $blueprint::getType();
+        $typeKey = "core.email.notification.types.$type";
+        $typeName = $this->translator->trans($typeKey);
+        // The translator returns the key itself when no name has been defined for this type.
+        $typeName = $typeName === $typeKey ? null : $typeName;
         $forumTitle = $this->settings->get('forum_title');
         $username = $user->display_name;
         $userEmail = $user->email;
@@ -55,7 +59,7 @@ class NotificationMailer
         // password reset's "Reset Your Password". See flarum/framework#4767.
         $title = $this->translator->trans('core.email.notification.default_title');
 
-        $data = compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle', 'username', 'userEmail', 'title');
+        $data = compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'typeName', 'forumTitle', 'username', 'userEmail', 'title');
 
         $this->view->share($data);
 

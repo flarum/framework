@@ -9,8 +9,10 @@
 
 namespace Flarum\Search;
 
+use Flarum\Database\IntegerKey;
 use Flarum\Foundation\ValidationException as FlarumValidationException;
 use Flarum\Locale\Translator;
+use Illuminate\Database\Eloquent\Model;
 
 trait ValidateFilterTrait
 {
@@ -70,6 +72,38 @@ trait ValidateFilterTrait
         return array_map(function ($value) {
             return $this->asInt($value);
         }, $this->asStringArray($filterValue));
+    }
+
+    /**
+     * Keeps the ids that fit the model's key, or another of its integer columns
+     * (see IntegerKey): one beyond the range, or not a whole number, matches
+     * nothing rather than failing the query.
+     *
+     * @throws FlarumValidationException
+     * @return array<int>
+     */
+    protected function asKeyArray(string|array $filterValue, Model $model, ?string $column = null): array
+    {
+        $ids = array_map(function (string $value) {
+            $value = trim($value);
+
+            if (! is_numeric($value)) {
+                $this->throwValidationException('core.api.invalid_filter_type.must_be_numeric_message');
+            }
+
+            return $value;
+        }, $this->asStringArray($filterValue));
+
+        return array_values(array_map(intval(...), IntegerKey::filter($model, $ids, $column)));
+    }
+
+    /**
+     * @throws FlarumValidationException
+     * @return array<int> the id, or none when it cannot be a key
+     */
+    protected function asKey(string|array $filterValue, Model $model, ?string $column = null): array
+    {
+        return $this->asKeyArray([$this->asString($filterValue)], $model, $column);
     }
 
     /**

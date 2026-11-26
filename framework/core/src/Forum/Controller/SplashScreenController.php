@@ -40,9 +40,10 @@ class SplashScreenController implements RequestHandlerInterface
 
         return new Response($body, 200, [
             'Content-Type' => $this->splashScreen->type(),
+            // Not public: the forum adds the visitor's session cookie.
             'Cache-Control' => Arr::get($query, 'v') === $this->splashScreen->version()
-                ? 'public, max-age=31536000, immutable'
-                : 'public, max-age=3600',
+                ? 'private, max-age=31536000, immutable'
+                : 'private, max-age=3600',
         ]);
     }
 }

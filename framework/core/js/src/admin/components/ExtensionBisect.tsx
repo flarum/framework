@@ -50,6 +50,7 @@ export default class ExtensionBisect<CustomAttrs extends IInternalModalAttrs = I
 
     if (result && result.extension) {
       const extension = app.data.extensions[result.extension];
+      const commit = extension.commit || undefined;
 
       return (
         <div className="Modal-body">
@@ -62,7 +63,9 @@ export default class ExtensionBisect<CustomAttrs extends IInternalModalAttrs = I
               <div className="ExtensionBisectModal-extension-info">
                 <div className="ExtensionBisectModal-extension-name">{extension.extra['flarum-extension'].title}</div>
                 <div className="ExtensionBisectModal-extension-version">
-                  <span className="ExtensionBisectModal-extension-version">{extension.version}</span>
+                  <span className="ExtensionBisectModal-extension-version" title={commit}>
+                    {commit ? `${extension.version} (${commit.slice(0, 7)})` : extension.version}
+                  </span>
                 </div>
               </div>
             </div>
