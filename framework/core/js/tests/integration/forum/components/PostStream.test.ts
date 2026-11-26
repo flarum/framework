@@ -745,7 +745,7 @@ describe('PostStream reply placeholder', () => {
     const last = children[children.length - 1];
 
     expect(children).toHaveLength(3);
-    // `fadeIn` is added by the wrapper's oncreate and cleared 500ms later.
+    // The wrapper's oncreate fade-in is part of the default markup too.
     expect(last.className).toBe('PostStream-item fadeIn');
     expect(last.getAttribute('role')).toBe('article');
     expect(last.getAttribute('data-index')).toBe('2');
@@ -894,6 +894,73 @@ describe('PostStream reply placeholder', () => {
       const instance = mount(discussion, stream);
 
       expect(scrolledToBySettling(instance)).toBe(replyItem());
+    });
+
+    it('keeps the placeholder aligned with the composer while settling when an extension renders an item below it', () => {
+      addBelowReply();
+      const { discussion, stream } = seed(2);
+      jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+      const instance = mount(discussion, stream);
+      const reply = replyItem();
+
+      jest.spyOn($.fn, 'offset').mockImplementation(function (this: JQuery) {
+        return { top: this[0] === reply ? 1000 : 0, left: 0 };
+      } as any);
+      jest.spyOn($.fn, 'height').mockImplementation(function (this: JQuery) {
+        return this[0] === (window as any) ? 800 : 100;
+      } as any);
+      jest.spyOn((app as any).composer, 'computedHeight').mockReturnValue(300);
+      const scrolledTo: number[] = [];
+      jest.spyOn($.fn, 'scrollTop').mockImplementation(function (this: JQuery, value?: number) {
+        if (value !== undefined) scrolledTo.push(value);
+        return this;
+      } as any);
+
+      instance.getMarginTop = () => 50;
+      instance.settlingTarget = { index: stream.count(), reply: true };
+      instance.reScrollToTarget();
+
+      // The placeholder's bottom (1000 + 100) meets the composer's top (800 - 300).
+      expect(scrolledTo).toEqual([600]);
+    });
+
+    it('finishes a reply jump when there is no item to scroll to', async () => {
+      const { discussion, stream } = seed(2);
+      jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+      const instance = mount(discussion, stream);
+
+      instance.$replyItem = () => $();
+      instance.calculatePosition = jest.fn();
+      instance.beginSettling = jest.fn();
+      instance.loadPostsIfNeeded = jest.fn();
+      instance.updateScrubber = jest.fn();
+      stream.loadPromise = Promise.resolve();
+      stream.paused = true;
+
+      await instance.scrollToItem($(), false, true, true);
+
+      expect(stream.paused).toBe(false);
+    });
+
+    it('falls back to the last post rather than an item rendered after it', () => {
+      extend(PostStream.prototype, 'endItems', function (items: ItemList<any>) {
+        items.remove('reply');
+      });
+      const originalAfterPost = PostStream.prototype.afterPostItems;
+      extend(PostStream.prototype, 'afterPostItems', function (items: ItemList<any>) {
+        items.add('advert', m('div', { className: 'TestAfterPost' }));
+      });
+
+      try {
+        const { discussion, stream } = seed(2);
+        jest.spyOn(discussion, 'canReply').mockReturnValue(true);
+        const instance = mount(discussion, stream);
+
+        expect(container.querySelector('.PostStream > :last-child')!.classList.contains('PostStream-afterPost')).toBe(true);
+        expect(flashedByReplyJump(instance)).toBe(container.querySelector('.PostStream-item[data-index="1"]'));
+      } finally {
+        PostStream.prototype.afterPostItems = originalAfterPost;
+      }
     });
 
     it('jumps to the last post when an extension removes the placeholder', () => {

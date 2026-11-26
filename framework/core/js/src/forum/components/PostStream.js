@@ -166,9 +166,11 @@ export default class PostStream extends Component {
   }
 
   /**
-   * Items rendered after the last post, only while the end of the discussion
-   * is in view. Includes the reply placeholder as `reply` at priority -100.
-   * Each item must have a `key`: they render among the stream's keyed posts.
+   * Items rendered after the last post, only while the last post is within
+   * the loaded window. Includes the reply placeholder as `reply` at priority
+   * -100 for guests and users who can reply, so check `has('reply')` before
+   * moving it. Each item must have a `key`: they render among the stream's
+   * keyed posts.
    *
    * @returns {ItemList<import('mithril').Children>}
    */
@@ -488,7 +490,7 @@ export default class PostStream extends Component {
 
   /**
    * The item that reply navigation scrolls to: the reply placeholder, or the
-   * last item in the stream when an extension has removed it.
+   * last post when an extension has removed it.
    *
    * The placeholder is found by its `data-index`, one past the last post's,
    * because extensions may render items below it.
@@ -498,7 +500,18 @@ export default class PostStream extends Component {
   $replyItem() {
     const $placeholder = this.$(`.PostStream-item[data-index=${this.stream.count()}]`);
 
-    return $placeholder.length ? $placeholder : this.$('.PostStream-item').last();
+    return $placeholder.length ? $placeholder : this.$('.PostStream-item[data-index]').last();
+  }
+
+  /**
+   * The scroll position that lines the bottom of the reply item up with the
+   * top of the composer.
+   *
+   * @param {JQuery} $item
+   * @return {number}
+   */
+  replyScrollTop($item) {
+    return $item.offset().top + $item.height() - $(window).height() + app.composer.computedHeight();
   }
 
   /**
@@ -525,7 +538,7 @@ export default class PostStream extends Component {
       // If we're scrolling to the reply placeholder, we'll make sure its
       // bottom will line up with the top of the composer.
       if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-        const top = reply ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
+        const top = reply ? this.replyScrollTop($item) : $item.is(':first-child') ? 0 : itemTop;
 
         if (!animate) {
           $container.scrollTop(top);
@@ -561,7 +574,7 @@ export default class PostStream extends Component {
       let itemOffset;
       if (reply) {
         const $placeholder = this.$replyItem();
-        $(window).scrollTop($placeholder.offset().top + $placeholder.height() - $(window).height() + app.composer.computedHeight());
+        if ($placeholder.length) $(window).scrollTop(this.replyScrollTop($placeholder));
       } else if (index === 0) {
         $(window).scrollTop(0);
       } else if ((itemOffset = $(`.PostStream-item[data-index=${index}]`).offset())) {
@@ -645,7 +658,7 @@ export default class PostStream extends Component {
 
     if (!$item || !$item.length) return;
 
-    const desiredTop = $item.is(':first-child') ? 0 : $item.offset().top - this.getMarginTop();
+    const desiredTop = target.reply ? this.replyScrollTop($item) : $item.is(':first-child') ? 0 : $item.offset().top - this.getMarginTop();
     $(window).scrollTop(desiredTop);
   }
 

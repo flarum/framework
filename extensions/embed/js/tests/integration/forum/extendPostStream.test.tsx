@@ -123,3 +123,44 @@ describe('scrollParentToReply', () => {
     expect(scrollToOffset).not.toHaveBeenCalled();
   });
 });
+
+describe('the reply scroll hook', () => {
+  beforeEach(() => {
+    app.boot();
+    (app as any).composer = { isFullScreen: () => true };
+  });
+
+  afterEach(() => {
+    delete (window as any).parentIFrame;
+    jest.restoreAllMocks();
+  });
+
+  it('scrolls the parent frame to the reply placeholder, not to an item rendered below it', () => {
+    // Stands in for PostStream: an extension item sits below the placeholder.
+    class PostStream {
+      $replyItem() {
+        return $('<div>').data('top', 400);
+      }
+
+      $(selector: string) {
+        return selector.includes(':last-child') ? $('<div>').data('top', 900) : $();
+      }
+
+      scrollToItem() {}
+    }
+
+    jest.spyOn($.fn, 'offset').mockImplementation(function (this: JQuery) {
+      return { top: this.data('top'), left: 0 };
+    } as any);
+
+    const scrollToOffset = jest.fn();
+    (window as any).parentIFrame = { scrollToOffset };
+
+    extendPostStream();
+    flarum.reg.add('core', 'forum/components/PostStream', PostStream);
+
+    new PostStream().scrollToItem($(), false, true, true);
+
+    expect(scrollToOffset).toHaveBeenCalledWith(0, 400);
+  });
+});
