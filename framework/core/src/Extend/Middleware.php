@@ -12,6 +12,7 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Server\MiddlewareInterface;
+use Psr\Log\LoggerInterface;
 
 class Middleware implements ExtenderInterface
 {
@@ -72,6 +73,10 @@ class Middleware implements ExtenderInterface
     /**
      * Inserts a middleware before an existing middleware.
      *
+     * Several middlewares inserted before the same one keep the order they were
+     * registered in. If the existing middleware is not in the stack, nothing is
+     * inserted and a warning is logged, as with {@see replace()}.
+     *
      * @param class-string<MiddlewareInterface> $originalMiddleware: ::class attribute of the original middleware class.
      *                                    Or container binding name.
      * @param class-string<MiddlewareInterface> $newMiddleware: ::class attribute of the middleware class.
@@ -79,13 +84,17 @@ class Middleware implements ExtenderInterface
      */
     public function insertBefore(string $originalMiddleware, string $newMiddleware): self
     {
-        $this->insertBeforeMiddlewares[$originalMiddleware] = $newMiddleware;
+        $this->insertBeforeMiddlewares[$originalMiddleware][] = $newMiddleware;
 
         return $this;
     }
 
     /**
      * Inserts a middleware after an existing middleware.
+     *
+     * Several middlewares inserted after the same one keep the order they were
+     * registered in. If the existing middleware is not in the stack, nothing is
+     * inserted and a warning is logged, as with {@see replace()}.
      *
      * @param class-string<MiddlewareInterface> $originalMiddleware: ::class attribute of the original middleware class.
      *                                    Or container binding name.
@@ -94,14 +103,14 @@ class Middleware implements ExtenderInterface
      */
     public function insertAfter(string $originalMiddleware, string $newMiddleware): self
     {
-        $this->insertAfterMiddlewares[$originalMiddleware] = $newMiddleware;
+        $this->insertAfterMiddlewares[$originalMiddleware][] = $newMiddleware;
 
         return $this;
     }
 
     public function extend(Container $container, ?Extension $extension = null): void
     {
-        $container->extend("flarum.$this->frontend.middleware", function ($existingMiddleware) {
+        $container->extend("flarum.$this->frontend.middleware", function ($existingMiddleware, Container $container) {
             foreach ($this->addMiddlewares as $addMiddleware) {
                 $existingMiddleware[] = $addMiddleware;
             }
@@ -116,25 +125,43 @@ class Middleware implements ExtenderInterface
                 );
             }
 
-            foreach ($this->insertBeforeMiddlewares as $originalMiddleware => $newMiddleware) {
-                array_splice(
-                    $existingMiddleware,
-                    array_search($originalMiddleware, $existingMiddleware),
-                    0,
-                    $newMiddleware
-                );
+            foreach ($this->insertBeforeMiddlewares as $originalMiddleware => $newMiddlewares) {
+                $existingMiddleware = $this->insert($container, $existingMiddleware, $originalMiddleware, $newMiddlewares, 0);
             }
 
-            foreach ($this->insertAfterMiddlewares as $originalMiddleware => $newMiddleware) {
-                array_splice(
-                    $existingMiddleware,
-                    array_search($originalMiddleware, $existingMiddleware) + 1,
-                    0,
-                    $newMiddleware
-                );
+            foreach ($this->insertAfterMiddlewares as $originalMiddleware => $newMiddlewares) {
+                $existingMiddleware = $this->insert($container, $existingMiddleware, $originalMiddleware, $newMiddlewares, 1);
             }
 
             return array_diff($existingMiddleware, $this->removeMiddlewares);
         });
+    }
+
+    /**
+     * `array_search()` returns false for a missing anchor, which `array_splice()`
+     * reads as offset 0: the middleware would silently run first, before the
+     * actor or session exist.
+     *
+     * @param string[] $middlewares
+     * @param string[] $newMiddlewares
+     * @return string[]
+     */
+    private function insert(Container $container, array $middlewares, string $anchor, array $newMiddlewares, int $offset): array
+    {
+        $position = array_search($anchor, $middlewares, true);
+
+        if ($position === false) {
+            if ($container->bound(LoggerInterface::class)) {
+                $container->make(LoggerInterface::class)->warning(
+                    "Middleware [$anchor] is not in the $this->frontend middleware stack; ".implode(', ', $newMiddlewares).' not inserted.'
+                );
+            }
+
+            return $middlewares;
+        }
+
+        array_splice($middlewares, $position + $offset, 0, $newMiddlewares);
+
+        return $middlewares;
     }
 }
