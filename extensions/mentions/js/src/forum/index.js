@@ -10,6 +10,7 @@ import addPostReplyAction from './addPostReplyAction';
 import addPostQuoteButton from './addPostQuoteButton';
 import addComposerAutocomplete from './addComposerAutocomplete';
 import MentionFormats from './mentionables/formats/MentionFormats';
+import keepNewestMentionCount from './utils/keepNewestMentionCount';
 import refreshMentionsOnPostSave from './utils/refreshMentionsOnPostSave';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
@@ -74,6 +75,10 @@ app.initializers.add('flarum-mentions', () => {
 
   // Remove post mentions when rendering post previews.
   getPlainContent.removeSelectors.push('a.PostMention');
+
+  // Responses carrying a user's mention count can arrive in any order; keep
+  // the newest count rather than the last one to arrive.
+  keepNewestMentionCount();
 
   // A saved post can mention, or stop mentioning, users: editing, hiding,
   // restoring and approving all change who a post mentions or whether its

@@ -27,5 +27,6 @@ export default [
 
   new Extend.Model(User) //
     .attribute<boolean>('canMentionGroups')
-    .attribute<number | undefined>('mentionCount'),
+    .attribute<number | undefined>('mentionCount')
+    .attribute<number | undefined>('mentionCountRevision'),
 ];
