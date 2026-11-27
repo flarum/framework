@@ -26,6 +26,7 @@ global.requestAnimationFrame = (callback) => callback();
 window.$ = jquery;
 window.testing = true;
 window.m = m;
+global.dayjs = dayjs;
 window.$.fn.tooltip = () => {};
 window.matchMedia = () => ({
   addListener: () => {},
