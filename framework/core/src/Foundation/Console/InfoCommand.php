@@ -92,6 +92,7 @@ class InfoCommand extends AbstractCommand
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
         $this->output->writeln('<info>Queue driver:</info> '.$this->appInfo->identifyQueueDriver());
         $this->output->writeln('<info>Session driver:</info> '.$this->appInfo->identifySessionDriver());
+        $this->output->writeln('<info>Image driver:</info> '.$this->appInfo->identifyImageDriver());
 
         if ($this->appInfo->scheduledTasksRegistered()) {
             $this->output->writeln('<info>Scheduler status:</info> '.$this->appInfo->getSchedulerStatus());

@@ -21,6 +21,7 @@ use Flarum\User\User;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\ImageManager;
 use Laminas\Diactoros\Stream;
 use Laminas\Diactoros\UploadedFile;
@@ -333,6 +334,21 @@ class IconImageTest extends TestCase
         $response = $this->upload($path, 'icon.svg', 'image/svg+xml');
 
         $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertNull($this->storedPath());
+    }
+
+    #[Test]
+    public function an_animated_webp_the_driver_cannot_read_is_rejected_with_a_specific_message(): void
+    {
+        $this->app()->getContainer()->instance(ImageManager::class, new ImageManager(GdDriver::class));
+
+        $response = $this->upload(__DIR__.'/../../../fixtures/assets/animated.webp', 'icon.webp', 'image/webp');
+
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
+        $this->assertSame(
+            "Animated WebP images aren't supported. Use a GIF or a still image instead.",
+            json_decode((string) $response->getBody(), true)['errors'][0]['detail']
+        );
         $this->assertNull($this->storedPath());
     }
 

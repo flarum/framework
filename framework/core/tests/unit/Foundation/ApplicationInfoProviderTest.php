@@ -21,7 +21,11 @@ use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Queue\QueueRoutes;
 use Illuminate\Queue\SyncQueue;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
+use Intervention\Image\ImageManager;
 use Mockery as m;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\Attributes\Test;
 use SessionHandlerInterface;
 
@@ -98,12 +102,29 @@ class ApplicationInfoProviderTest extends TestCase
         $this->assertSame('sync', $provider->identifyQueueDriver());
     }
 
+    #[Test]
+    public function image_driver_reports_gd()
+    {
+        $provider = $this->provider('sqlite', null, imageManager: new ImageManager(GdDriver::class));
+
+        $this->assertSame('GD', $provider->identifyImageDriver());
+    }
+
+    #[Test]
+    #[RequiresPhpExtension('imagick')]
+    public function image_driver_reports_imagick()
+    {
+        $provider = $this->provider('sqlite', null, imageManager: new ImageManager(ImagickDriver::class));
+
+        $this->assertSame('Imagick', $provider->identifyImageDriver());
+    }
+
     /**
      * Build a provider with a configured driver and the version string the
      * server would report from `select version()`. Pass a null version for
      * drivers that should never trigger a version query (pgsql/sqlite).
      */
-    private function provider(string $configuredDriver, ?string $serverVersion, ?Queue $queue = null): ApplicationInfoProvider
+    private function provider(string $configuredDriver, ?string $serverVersion, ?Queue $queue = null, ?ImageManager $imageManager = null): ApplicationInfoProvider
     {
         $cache = m::mock(CacheRepository::class);
         // Execute the cached closure inline so the detection logic is exercised.
@@ -134,6 +155,7 @@ class ApplicationInfoProviderTest extends TestCase
             m::mock(SessionManager::class),
             m::mock(SessionHandlerInterface::class),
             $queue ?? m::mock(Queue::class),
+            $imageManager ?? new ImageManager(GdDriver::class),
         );
     }
 }

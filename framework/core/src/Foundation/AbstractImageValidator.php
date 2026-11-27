@@ -14,6 +14,7 @@ namespace Flarum\Foundation;
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Validation\Factory;
 use Intervention\Gif\Exceptions\DecoderException as GifDecoderException;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Exceptions\DecoderException;
 use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
@@ -108,8 +109,40 @@ abstract class AbstractImageValidator extends AbstractValidator
         try {
             $this->imageManager->read($file->getStream()->getMetadata('uri'));
         } catch (DecoderException|GifDecoderException) {
-            $this->raise('image');
+            $this->raiseUndecodable($file);
         }
+    }
+
+    protected function raiseUndecodable(UploadedFileInterface $file): void
+    {
+        // GD cannot decode animated WebP at all.
+        if ($this->imageManager->driver() instanceof GdDriver && $this->isAnimatedWebp($file)) {
+            $this->raise('animated_webp');
+        }
+
+        $this->raise('image');
+    }
+
+    /**
+     * An animated WebP starts with an extended (VP8X) header with the animation flag set.
+     *
+     * @see https://developers.google.com/speed/webp/docs/riff_container#extended_file_format
+     */
+    protected function isAnimatedWebp(UploadedFileInterface $file): bool
+    {
+        $stream = $file->getStream();
+
+        if (! $stream->isSeekable()) {
+            return false;
+        }
+
+        $stream->rewind();
+        $header = $stream->read(21);
+
+        return strlen($header) === 21
+            && str_starts_with($header, 'RIFF')
+            && substr($header, 8, 8) === 'WEBPVP8X'
+            && (ord($header[20]) & 0x02) !== 0;
     }
 
     protected function assertFileSize(UploadedFileInterface $file): void

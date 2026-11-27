@@ -333,6 +333,7 @@ core:
           scheduler-status: Scheduler
           queue-driver: Queue Driver
           session-driver: Session Driver
+          image-driver: Image Driver
         scheduler:
           active: Active
           inactive: Inactive
@@ -1473,7 +1474,7 @@ core:
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the prefix (e.g. <code>fas fa-flag</code> or <code>fa-solid fa-flag</code>)."
     icon_image: Icon image
-    icon_image_text: "An image to show instead of the icon. The icon is still used where an image can't be shown. PNG, JPEG, GIF, WebP or BMP; animated images keep their first frame."
+    icon_image_text: "An image to show instead of the icon. The icon is still used where an image can't be shown. PNG, JPEG, GIF, WebP or BMP; animated images keep their first frame. Animated WebP needs the Imagick image driver."
     invalid_login_message: Your login details were incorrect.
     light_hc_mode_label: Light High Contrast Mode
     light_mode_label: Light Mode
