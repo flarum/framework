@@ -31,4 +31,21 @@ describe('EditGroupModal', () => {
   test.each(['4', '100'])('shows Delete for group %s', (id) => {
     expect(render(id)).toHaveElement('.EditGroupModal-delete');
   });
+
+  describe('icon image help text', () => {
+    beforeAll(() => app.translator.addTranslations({ 'core.admin.edit_group.icon_image_animated_webp_text': 'Needs Imagick.' }));
+    afterEach(() => delete (app.data as any).imageDriver);
+
+    test('mentions the Imagick driver on GD', () => {
+      app.data.imageDriver = 'GD';
+
+      expect(render('4')).toContainRaw('Needs Imagick.');
+    });
+
+    test.each(['Imagick', undefined])('does not mention it on %s', (driver) => {
+      (app.data as any).imageDriver = driver;
+
+      expect(render('4')).not.toContainRaw('Needs Imagick.');
+    });
+  });
 });
