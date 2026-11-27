@@ -12,7 +12,7 @@ flarum-mcp:
       capabilities_failed: The list could not be loaded.
       chatgpt_steps: "In ChatGPT's settings, open Connectors (developer mode must be on), create a connector, paste the server URL and choose OAuth. ChatGPT then asks you to sign in to the forum."
       chatgpt_title: ChatGPT
-      claude_steps: "In Claude, open Settings > Customize > Connectors, choose Add > Add custom connector and paste the server URL. Claude then asks you to sign in to the forum."
+      claude_steps: "In Claude, open Settings > Customize > Connectors (or Plugins, on accounts that have the newer Plugins page), choose Add > Add custom connector and paste the server URL. Claude then asks you to sign in to the forum."
       claude_title: Claude
       column_access: Access
       column_kind: Kind
