@@ -1,0 +1,8 @@
+#!/bin/bash
+pkill -f flarum-realtime-loop || true
+pkill -f 'flarum realtime:serve' || true
+apachectl stop 2>/dev/null || true
+# apachectl returns before Apache has exited; a following flarum-start would otherwise skip starting it.
+for _ in $(seq 60); do pgrep -x apache2 >/dev/null || break; sleep 0.5; done
+mariadb-admin shutdown 2>/dev/null || true
+pg_ctlcluster "$(ls /etc/postgresql)" main stop 2>/dev/null || true

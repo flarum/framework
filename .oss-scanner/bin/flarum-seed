@@ -1,0 +1,49 @@
+#!/bin/bash
+# Seeds the users, tags, permissions and content that threat_model.md describes. Needs a running, freshly
+# installed forum.
+set -euo pipefail
+api="${FLARUM_URL:-http://127.0.0.1}/api"
+
+call() { # call <token> <method> <path> [json]
+  curl -fsS -X "$2" -H "Authorization: Token $1" -H 'Content-Type: application/vnd.api+json' \
+    ${4:+--data "$4"} "$api$3"
+}
+
+admin="$(flarum-token admin)"
+
+user() { # user <username> -> id
+  call "$admin" POST /users "{\"data\":{\"type\":\"users\",\"attributes\":{\"username\":\"$1\",\"email\":\"$1@example.com\",\"password\":\"password\",\"isEmailConfirmed\":true}}}" \
+    | jq -r .data.id
+}
+
+member="$(user member)"
+mod="$(user mod)"
+other="$(user other)"
+call "$admin" PATCH "/users/$mod" \
+  "{\"data\":{\"type\":\"users\",\"id\":\"$mod\",\"relationships\":{\"groups\":{\"data\":[{\"type\":\"groups\",\"id\":\"4\"}]}}}}" >/dev/null
+
+# A restricted primary tag for Mods (admins see every tag), next to the default General tag (id 1).
+staff="$(call "$admin" POST /tags '{"data":{"type":"tags","attributes":{"name":"Staff","slug":"staff","color":"#888888","description":"Moderators only"}}}' | jq -r .data.id)"
+call "$admin" PATCH "/tags/$staff" "{\"data\":{\"type\":\"tags\",\"id\":\"$staff\",\"attributes\":{\"isRestricted\":true}}}" >/dev/null
+call "$admin" POST /tags/order "{\"order\":[{\"id\":\"1\"},{\"id\":\"$staff\"}]}" >/dev/null
+for p in viewForum startDiscussion addToDiscussion discussion.reply discussion.startWithoutApproval discussion.replyWithoutApproval; do
+  call "$admin" POST /permission "{\"permission\":\"tag$staff.$p\",\"groupIds\":[4]}" >/dev/null
+done
+
+general=1
+
+discussion() { # discussion <token> <tag id> <title> <content> -> id
+  call "$1" POST /discussions "{\"data\":{\"type\":\"discussions\",\"attributes\":{\"title\":\"$3\",\"content\":\"$4\"},\"relationships\":{\"tags\":{\"data\":[{\"type\":\"tags\",\"id\":\"$2\"}]}}}}" \
+    | jq -r .data.id
+}
+
+m="$(flarum-token member)"
+o="$(flarum-token other)"
+d="$(discussion "$m" "$general" "Hello from member" "A public discussion started by **member**.")"
+call "$o" POST /posts "{\"data\":{\"type\":\"posts\",\"attributes\":{\"content\":\"A reply from other.\"},\"relationships\":{\"discussion\":{\"data\":{\"type\":\"discussions\",\"id\":\"$d\"}}}}}" >/dev/null
+discussion "$(flarum-token mod)" "$staff" "Staff only" "Visible to moderators and admins, not to members or guests." >/dev/null
+
+# A private conversation between member and admin; other must not be able to read it.
+call "$m" POST /dialog-messages "{\"data\":{\"type\":\"dialog-messages\",\"attributes\":{\"content\":\"A private message from member to admin.\",\"users\":[{\"id\":\"1\"}]}}}" >/dev/null
+
+echo "Seeded: admin (1), member ($member), mod ($mod, Mods), other ($other); Staff tag $staff; discussion $d."

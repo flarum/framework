@@ -1,0 +1,8 @@
+# Local dependencies and test state; the image installs its own.
+vendor
+**/vendor
+**/node_modules
+composer.lock
+**/tests/integration/tmp
+**/.phpunit.cache
+**/.phpunit.result.cache

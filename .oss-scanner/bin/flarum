@@ -1,0 +1,3 @@
+#!/bin/sh
+# The forum's console, run as www-data (Apache's user) so files it writes stay writable by the forum.
+cd /opt/flarum && exec setpriv --reuid=www-data --regid=www-data --init-groups env HOME=/tmp php flarum "$@"

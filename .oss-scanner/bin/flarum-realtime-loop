@@ -1,0 +1,6 @@
+#!/bin/sh
+# realtime:serve exits when an extension is enabled or disabled, and on realtime:halt, expecting to be restarted.
+while :; do
+    flarum realtime:serve
+    sleep 1
+done

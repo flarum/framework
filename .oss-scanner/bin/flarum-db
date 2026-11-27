@@ -1,0 +1,20 @@
+#!/bin/bash
+# Runs a command against the test database of one driver, e.g. from a package directory:
+#   flarum-db pgsql composer test:setup
+#   flarum-db pgsql composer test:integration:filter -- <pattern>
+# Each driver keeps its own test installation, so switching drivers needs no new setup once each has run it.
+# These are flarum_test databases, separate from the forum's: test setup drops every table in them.
+set -euo pipefail
+
+driver="${1:-}"
+case "$driver" in
+    mariadb) export DB_HOST=127.0.0.1 DB_PORT=3306 ;;
+    pgsql) export DB_HOST=127.0.0.1 DB_PORT=5432 ;;
+    sqlite) ;;
+    *) echo "usage: flarum-db mariadb|pgsql|sqlite <command...>" >&2; exit 2 ;;
+esac
+shift
+
+export DB_DRIVER="$driver" DB_DATABASE=flarum_test DB_USERNAME=flarum DB_PASSWORD=flarum \
+    FLARUM_TEST_TMP_DIR_LOCAL="/tmp/flarum-test-$driver"
+exec "$@"

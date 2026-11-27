@@ -1,0 +1,8 @@
+#!/bin/sh
+# Prints the end of every log the forum writes to.
+for f in /var/log/php/error.log /var/log/apache2/flarum-error.log /var/log/flarum-realtime.log \
+         /var/log/mysql/error.log /opt/flarum/storage/logs/*.log; do
+    [ -f "$f" ] || continue
+    echo "==> $f <=="
+    tail -n 40 "$f"
+done
