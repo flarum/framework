@@ -51,7 +51,7 @@ function refreshMentionsList(mentions: IMentionsPageState): void {
  * reloads it.
  *
  * A null list of users means the response could not say which users changed
- * (an older server sends no attribute). Reloading is then the safe answer:
+ * (a sparse fieldset left the attribute out). Reloading is then the safe answer:
  * leaving the list alone could leave it out of step with its count.
  *
  * A save that lands while the list is already refreshing queues one more

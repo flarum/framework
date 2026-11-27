@@ -97,19 +97,6 @@ const savedPost = (affectedUsers: { id: string; mentionCount?: number }[] = []) 
   },
 });
 
-/** An update response from a server that reports the affected users as a relationship. */
-const savedPostWithRelationship = (affectedUsers: string[]) => ({
-  data: {
-    type: 'posts',
-    id: '1',
-    attributes: { number: 1 },
-    relationships: {
-      affectedMentionUsers: { data: affectedUsers.map((id) => ({ type: 'users', id })) },
-    },
-  },
-  included: affectedUsers.map((id) => ({ type: 'users', id, attributes: { username: `user${id}` } })),
-});
-
 /** An update response that says nothing about the users whose count changed. */
 const savedPostWithoutAffectedUsers = () => ({ data: { type: 'posts', id: '1', attributes: { number: 1 } } });
 
@@ -393,21 +380,6 @@ describe('a Mentions tab and a saved post', () => {
     expect(app.store.getById('users', '77')).toBeUndefined();
     // The response carries the count, so the user is not read again.
     expect(app.request).toHaveBeenCalledTimes(1);
-  });
-
-  // A server from before the attribute reports the users as a relationship.
-  it('reloads when an older server names the affected users in the relationship', async () => {
-    const posts = new PostListState({}, 20);
-    jest.spyOn(app.store, 'find').mockResolvedValue(pageOf(['1', '2']) as any);
-    app.request = jest.fn(() => Promise.resolve(savedPostWithRelationship(['3']))) as any;
-
-    await openMentionsPage('3', posts);
-    const revalidate = jest.spyOn(posts, 'revalidate');
-
-    await post().save({ content: 'edited' });
-    await flush();
-
-    expect(revalidate).toHaveBeenCalledTimes(1);
   });
 
   it('reloads when the response does not say which users changed', async () => {

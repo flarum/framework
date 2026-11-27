@@ -49,10 +49,9 @@ interface AffectedMentionUser {
  *
  * The attribute is read from the response, not from the stored post: the
  * endpoint always sends it on an update, whatever `include` the caller named,
- * and an explicit empty array means no count changed. A server from before the
- * attribute sends the relationship instead; one that sends neither cannot say,
- * and a reload is then the safe answer. A sparse fieldset such as
- * `fields[posts]=content` can omit it too, and that conservative reload is
+ * and an explicit empty array means no count changed. Only a sparse fieldset
+ * such as `fields[posts]=content` can leave it out; the response then cannot
+ * say, and the list reloads as the safe answer. That conservative reload is
  * accepted for now: Flarum 2 has no extender for resource meta, and adding one
  * is core work rather than part of this change.
  */
@@ -95,16 +94,9 @@ export default function refreshMentionsOnPostSave(): void {
           return;
         }
 
-        // Older servers report the same users as a relationship, which a
-        // caller that named its own `include` did not get.
-        const related = data?.relationships?.affectedMentionUsers?.data;
-
-        if (!Array.isArray(related)) {
-          revalidateMentionsPage(null);
-          return;
-        }
-
-        if (related.length > 0) revalidateMentionsPage(related.map((user) => String(user.id)));
+        // The response cannot say which users changed (a sparse fieldset
+        // left the attribute out), so reloading is the safe answer.
+        revalidateMentionsPage(null);
       },
       () => {}
     );
