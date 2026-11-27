@@ -95,11 +95,13 @@ RUN composer create-project --no-install --no-scripts --no-progress 'flarum/flar
     && chown -R www-data:www-data /opt/flarum
 
 # The installer only copies the icon fonts; `assets:publish` also publishes core's XSLT polyfill.
+# The PostgreSQL test role is a superuser, as CI's is: flarum/testing sets session_replication_role to load fixtures
+# without foreign key checks, which PostgreSQL allows only superusers. It reaches nothing but the loopback test database.
 RUN flarum-start \
     && mariadb -e "CREATE DATABASE flarum; CREATE DATABASE flarum_test; CREATE USER 'flarum'@'%' IDENTIFIED BY 'flarum'; \
          GRANT ALL ON flarum.* TO 'flarum'@'%'; GRANT ALL ON flarum_test.* TO 'flarum'@'%';" \
     && runuser -u postgres -- psql -q -v ON_ERROR_STOP=1 \
-         -c "CREATE ROLE flarum LOGIN PASSWORD 'flarum'" -c "CREATE DATABASE flarum_test OWNER flarum" \
+         -c "CREATE ROLE flarum LOGIN SUPERUSER PASSWORD 'flarum'" -c "CREATE DATABASE flarum_test OWNER flarum" \
     && ids="$(jq -r '(.packages // .)[] | select(.type == "flarum-extension") \
          | .name | split("/") | "\(.[0])-\(.[1] | gsub("flarum-ext-|flarum-"; ""))"' \
          /opt/flarum/vendor/composer/installed.json | paste -sd, -)" \
@@ -118,16 +120,16 @@ RUN flarum-start \
     && (flarum-seed || { flarum-logs; exit 1; }) \
     && flarum-stop
 
-# A broken test setup fails the build; failing tests only warn.
+# Checks that the forum serves pages and that the test suites run on every driver. ShowTest passes on every driver in
+# CI, so a failure here means the image's test environment is broken, and the build fails rather than hide it.
 RUN flarum-start \
     && (curl -fsS -o /dev/null http://127.0.0.1/ && curl -fsS -o /dev/null http://127.0.0.1/api/discussions \
           || { flarum-logs; exit 1; }) \
     && cd /src/framework/core \
     && for driver in mariadb pgsql sqlite; do \
          flarum-db "$driver" composer test:setup \
-         && (flarum-db "$driver" composer test:integration:filter -- 'Flarum\\Tests\\integration\\api\\discussions\\ShowTest' \
-               || echo "WARNING: core integration tests reported failures on $driver") \
-         || exit 1; \
+         && flarum-db "$driver" composer test:integration:filter -- 'Flarum\\Tests\\integration\\api\\discussions\\ShowTest' \
+         || { echo "The core test suite does not run on $driver" >&2; exit 1; }; \
        done \
     && flarum-stop
 
