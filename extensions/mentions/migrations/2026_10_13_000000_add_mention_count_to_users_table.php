@@ -15,6 +15,12 @@ return [
     'up' => function (Builder $schema) {
         $schema->table('users', function (Blueprint $table) {
             $table->unsignedInteger('mention_count')->default(0);
+
+            // Raised by one with every write of mention_count, in the same
+            // UPDATE, so a client holding two copies of a user's count can tell
+            // which is newer whatever order the responses arrived in. The
+            // backfill leaves it at 0; the first recount moves a user to 1.
+            $table->unsignedBigInteger('mention_count_revision')->default(0);
         });
 
         // The count is refreshed by mentions_user_id. The primary key leads
@@ -55,7 +61,7 @@ return [
         }
 
         $schema->table('users', function (Blueprint $table) {
-            $table->dropColumn('mention_count');
+            $table->dropColumn(['mention_count', 'mention_count_revision']);
         });
     }
 ];

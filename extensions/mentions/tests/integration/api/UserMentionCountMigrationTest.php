@@ -67,52 +67,18 @@ class UserMentionCountMigrationTest extends TestCase
             for ($i = 0; $i < 2; $i++) {
                 $migration['down']($schema);
                 $this->assertFalse($schema->hasColumn('users', 'mention_count'));
+                $this->assertFalse($schema->hasColumn('users', 'mention_count_revision'));
                 $migration['up']($schema);
                 $this->assertSame(1, (int) $db->table('users')->where('id', 1)->value('mention_count'));
                 $this->assertSame(0, (int) $db->table('users')->where('id', 2)->value('mention_count'));
+                $this->assertTrue($schema->hasColumn('users', 'mention_count_revision'));
+                $this->assertSame([0, 0], $db->table('users')->orderBy('id')->pluck('mention_count_revision')->map(fn ($r) => (int) $r)->all());
             }
         } finally {
             // Even a failed assertion between down/up leaves no changed schema
             // or committed rows in the application's test tables.
             $schema->dropIfExists('post_mentions_user');
             $schema->dropIfExists('posts');
-            $schema->dropIfExists('users');
-            $db->disconnect();
-        }
-    }
-
-    #[Test]
-    public function the_revision_migration_starts_existing_users_at_zero_and_rolls_back()
-    {
-        $this->extension('flarum-mentions');
-
-        $config = $this->database()->getConfig();
-        $config['prefix'] = 'rev_'.bin2hex(random_bytes(4)).'_';
-        if ($config['driver'] === 'sqlite') {
-            $config['database'] = ':memory:';
-        }
-        $db = (new ConnectionFactory(new Container))->make($config);
-        $schema = $db->getSchemaBuilder();
-
-        try {
-            $schema->create('users', function (Blueprint $table) {
-                $table->increments('id');
-                $table->unsignedInteger('mention_count')->default(0);
-            });
-            $db->table('users')->insert([['id' => 1, 'mention_count' => 3]]);
-            $migration = require __DIR__.'/../../../migrations/2026_11_27_000000_add_mention_count_revision_to_users_table.php';
-
-            $migration['up']($schema);
-
-            for ($i = 0; $i < 2; $i++) {
-                $this->assertSame(0, (int) $db->table('users')->where('id', 1)->value('mention_count_revision'));
-                $this->assertSame(3, (int) $db->table('users')->where('id', 1)->value('mention_count'), 'Adding the revision must leave the count alone.');
-                $migration['down']($schema);
-                $this->assertFalse($schema->hasColumn('users', 'mention_count_revision'));
-                $this->assertTrue($schema->hasColumn('users', 'mention_count'));
-                $migration['up']($schema);
-            }
-        } finally {
             $schema->dropIfExists('users');
             $db->disconnect();
         }
