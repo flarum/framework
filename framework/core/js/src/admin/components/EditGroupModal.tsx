@@ -114,7 +114,10 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
       'iconImage',
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.edit_group.icon_image_label')}</label>
-        <div className="helpText">{app.translator.trans('core.admin.edit_group.icon_image_text')}</div>
+        <div className="helpText">
+          {app.translator.trans('core.admin.edit_group.icon_image_text')}
+          {app.data.imageDriver === 'GD' && <> {app.translator.trans('core.admin.edit_group.icon_image_animated_webp_text')}</>}
+        </div>
         <IconImageInput state={this.iconImage} />
       </div>,
       10
