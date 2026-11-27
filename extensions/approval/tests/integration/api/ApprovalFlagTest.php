@@ -137,6 +137,60 @@ class ApprovalFlagTest extends TestCase
     }
 
     #[Test]
+    public function restoring_a_hidden_pending_post_without_approve_permission_does_not_leave_a_deferred_approval()
+    {
+        $this->database()->table('users')->insert(['id' => 4, 'username' => 'mod', 'email' => 'mod@machine.local', 'password' => 'x', 'is_email_confirmed' => 1]);
+        $this->database()->table('groups')->insert(['id' => 5, 'name_singular' => 'Hider', 'name_plural' => 'Hiders', 'is_hidden' => 0]);
+        $this->database()->table('group_user')->insert(['user_id' => 4, 'group_id' => 5]);
+        $this->database()->table('group_permission')->insert(['group_id' => 5, 'permission' => 'discussion.hidePosts']);
+
+        $postId = $this->replyAwaitingApproval();
+
+        $approved = 0;
+        $this->app()->getContainer()->make(Dispatcher::class)->listen(PostWasApproved::class, function () use (&$approved) {
+            $approved++;
+        });
+
+        $this->patchPost($postId, 3, ['isHidden' => true]);
+        $this->patchPost($postId, 4, ['isHidden' => false]);
+        $this->patchPost($postId, 3, ['isHidden' => true]);
+        $this->patchPost($postId, 3, ['isHidden' => false]);
+
+        $this->assertEquals(0, $approved);
+    }
+
+    #[Test]
+    public function a_restore_undone_by_another_listener_keeps_the_approval_deferred()
+    {
+        $postId = $this->replyAwaitingApproval();
+
+        $approved = 0;
+        $dispatcher = $this->app()->getContainer()->make(Dispatcher::class);
+        $dispatcher->listen(PostWasApproved::class, function () use (&$approved) {
+            $approved++;
+        });
+
+        $this->patchPost($postId, 3, ['isHidden' => true]);
+
+        $hold = true;
+        $dispatcher->listen(Saving::class, function (Saving $event) use (&$hold) {
+            if ($hold) {
+                $event->post->hide();
+            }
+        });
+
+        $this->patchPost($postId, 3, ['isHidden' => false]);
+
+        $this->assertEquals(0, $approved);
+        $this->assertTrue((bool) Post::query()->findOrFail($postId)->is_approved_silently);
+
+        $hold = false;
+        $this->patchPost($postId, 3, ['isHidden' => false]);
+
+        $this->assertEquals(1, $approved);
+    }
+
+    #[Test]
     public function a_post_held_again_while_being_approved_is_not_announced_and_keeps_its_approval_flag()
     {
         $postId = $this->replyAwaitingApproval();

@@ -44,6 +44,7 @@ class ApproveContent
         }
 
         $approvingSilently = false;
+        $restoring = isset($attributes['isHidden']) && ! $attributes['isHidden'];
 
         if (isset($attributes['isApproved'])) {
             $event->actor->assertCan('approve', $post);
@@ -53,15 +54,28 @@ class ApproveContent
             $isApproved = true;
             // Hiding a pending post rejects it: it is approved, but not announced.
             $approvingSilently = $attributes['isHidden'];
+        } elseif ($post->is_approved && ! $attributes['isHidden']) {
+            // A restore by someone who can't approve makes the post public without announcing it.
+            // Drop the deferred approval so a later moderation action doesn't announce it as new.
+            $post->is_approved_silently = false;
         }
 
         if (! empty($isApproved)) {
             $post->is_approved = true;
             $post->is_approved_silently = $approvingSilently;
 
-            $post->afterSave(function (Post $post) use ($event, $approvingSilently) {
+            $post->afterSave(function (Post $post) use ($event, $approvingSilently, $restoring) {
                 // Another Saving listener (Akismet) may have held the post again.
                 if (! $post->is_approved) {
+                    return;
+                }
+
+                // Another Saving listener (Akismet) may have hidden the restored post again.
+                // Keep the approval deferred until it is actually restored.
+                if ($restoring && $post->hidden_at) {
+                    $post->is_approved_silently = true;
+                    $post->newQuery()->whereKey($post->getKey())->update(['is_approved_silently' => true]);
+
                     return;
                 }
 
