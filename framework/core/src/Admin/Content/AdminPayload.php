@@ -175,6 +175,7 @@ class AdminPayload
         $document->payload['pausedQueues'] = $this->pausedQueues();
         $document->payload['knownQueues'] = $this->container->make('flarum.queue.queues');
         $document->payload['sessionDriver'] = $this->appInfo->identifySessionDriver(true);
+        $document->payload['imageDriver'] = $this->appInfo->identifyImageDriver();
 
         /**
          * Used in the admin user list. Implemented as this as it matches the API in flarum/statistics.

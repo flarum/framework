@@ -99,6 +99,7 @@ export interface AdminApplicationData extends ApplicationData {
   knownQueues: string[];
   schedulerStatus: string;
   sessionDriver: string;
+  imageDriver: string;
 
   sessionByConfig: boolean;
   sessionLifetime: number;

@@ -20,6 +20,7 @@ use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
 use InvalidArgumentException;
 use SessionHandlerInterface;
 
@@ -33,7 +34,8 @@ class ApplicationInfoProvider
         protected Config $config,
         protected SessionManager $session,
         protected SessionHandlerInterface $sessionHandler,
-        protected Queue $queue
+        protected Queue $queue,
+        protected ImageManager $imageManager
     ) {
     }
 
@@ -88,6 +90,11 @@ class ApplicationInfoProvider
                 default => 'Unknown',
             };
         });
+    }
+
+    public function identifyImageDriver(): string
+    {
+        return $this->imageManager->driver()->id();
     }
 
     public function identifyDatabaseDriver(): string

@@ -75,6 +75,16 @@ export default class StatusWidget extends DashboardWidget {
       50
     );
 
+    items.add(
+      'image-driver',
+      <StatusWidgetItem
+        icon="fas fa-image"
+        label={app.translator.trans('core.admin.dashboard.status.headers.image-driver')}
+        value={app.data.imageDriver}
+      />,
+      40
+    );
+
     return items;
   }
 

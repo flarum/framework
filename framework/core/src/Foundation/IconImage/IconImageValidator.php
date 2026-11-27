@@ -47,9 +47,9 @@ class IconImageValidator extends AbstractImageValidator
         try {
             return $this->imageManager->read($file->getStream()->getMetadata('uri'));
         } catch (DecoderException|GifDecoderException $e) {
-            $this->raise('image');
+            $this->raiseUndecodable($file);
 
-            throw $e; // raise() always throws.
+            throw $e; // raiseUndecodable() always throws.
         }
     }
 }

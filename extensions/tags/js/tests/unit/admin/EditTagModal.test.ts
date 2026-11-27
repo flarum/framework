@@ -1,5 +1,6 @@
 import bootstrapAdmin from '@flarum/jest-config/src/bootstrap/admin';
 import app from 'flarum/admin/app';
+import mq from 'mithril-query';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -145,3 +146,28 @@ describe('EditTagModal slug suggestion', () => {
     expect(modal.submitData().slug).toBe('alpha');
   });
 });
+
+describe('EditTagModal icon image help text', () => {
+  beforeAll(() => app.translator.addTranslations({ 'flarum-tags.admin.edit_tag.icon_image_animated_webp_text': 'Needs Imagick.' }));
+  afterEach(() => delete (app.data as any).imageDriver);
+
+  function helpText() {
+    const modal = new (EditTagModal as any)();
+    modal.oninit({ attrs: { state: app.modal } });
+
+    return mq(modal.fields().get('iconImage'));
+  }
+
+  it('mentions the Imagick driver on GD', () => {
+    app.data.imageDriver = 'GD';
+
+    expect(helpText()).toContainRaw('Needs Imagick.');
+  });
+
+  it.each(['Imagick', undefined])('does not mention it on %s', (driver) => {
+    (app.data as any).imageDriver = driver;
+
+    expect(helpText()).not.toContainRaw('Needs Imagick.');
+  });
+});
+

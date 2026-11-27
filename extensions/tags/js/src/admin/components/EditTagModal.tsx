@@ -163,7 +163,10 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
       'iconImage',
       <div className="Form-group">
         <label>{app.translator.trans('flarum-tags.admin.edit_tag.icon_image_label')}</label>
-        <div className="helpText">{app.translator.trans('flarum-tags.admin.edit_tag.icon_image_text')}</div>
+        <div className="helpText">
+          {app.translator.trans('flarum-tags.admin.edit_tag.icon_image_text')}
+          {app.data.imageDriver === 'GD' && <> {app.translator.trans('flarum-tags.admin.edit_tag.icon_image_animated_webp_text')}</>}
+        </div>
         <IconImageInput state={this.iconImage} />
       </div>,
       10
