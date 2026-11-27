@@ -35,7 +35,9 @@ return [
     // Posts should be approved by default
     (new Extend\Model(Post::class))
         ->default('is_approved', true)
-        ->cast('is_approved', 'bool'),
+        ->cast('is_approved', 'bool')
+        ->default('is_approved_silently', false)
+        ->cast('is_approved_silently', 'bool'),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->fields(fn () => [
