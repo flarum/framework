@@ -116,6 +116,27 @@ class ApprovalFlagTest extends TestCase
     }
 
     #[Test]
+    public function restoring_a_post_hidden_while_awaiting_approval_announces_its_approval_once()
+    {
+        $postId = $this->replyAwaitingApproval();
+
+        $approved = 0;
+        $this->app()->getContainer()->make(Dispatcher::class)->listen(PostWasApproved::class, function () use (&$approved) {
+            $approved++;
+        });
+
+        $this->patchPost($postId, 3, ['isHidden' => true]);
+
+        $this->assertEquals(0, $approved);
+
+        $this->patchPost($postId, 3, ['isHidden' => false]);
+        $this->patchPost($postId, 3, ['isHidden' => true]);
+        $this->patchPost($postId, 3, ['isHidden' => false]);
+
+        $this->assertEquals(1, $approved);
+    }
+
+    #[Test]
     public function a_post_held_again_while_being_approved_is_not_announced_and_keeps_its_approval_flag()
     {
         $postId = $this->replyAwaitingApproval();

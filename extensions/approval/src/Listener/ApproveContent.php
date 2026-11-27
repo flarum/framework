@@ -37,9 +37,9 @@ class ApproveContent
             return;
         }
 
-        // Hiding a discussion's pending first post approves the post silently but leaves
-        // the discussion pending, so restoring or approving the post must still approve it.
-        if ($post->is_approved && ($post->number !== 1 || $post->discussion->is_approved)) {
+        // Hiding a pending post approves it silently, and leaves a pending discussion pending,
+        // so restoring or approving the post must still approve it.
+        if ($post->is_approved && ! $post->is_approved_silently && ($post->number !== 1 || $post->discussion->is_approved)) {
             return;
         }
 
@@ -57,6 +57,7 @@ class ApproveContent
 
         if (! empty($isApproved)) {
             $post->is_approved = true;
+            $post->is_approved_silently = $approvingSilently;
 
             $post->afterSave(function (Post $post) use ($event, $approvingSilently) {
                 // Another Saving listener (Akismet) may have held the post again.
