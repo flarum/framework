@@ -8,6 +8,7 @@ type HelperRoute = (...args: any) => string;
 export default class Routes implements IExtender {
   private routes: Record<string, FlarumGenericRoute> = {};
   private helpers: Record<string, HelperRoute> = {};
+  private removedRoutes: string[] = [];
 
   /**
    * Add a mithril route to the application.
@@ -42,6 +43,19 @@ export default class Routes implements IExtender {
     return this;
   }
 
+  /**
+   * Remove a route from the application, such as one registered by core or
+   * by another extension. Removals are applied after this extender's own
+   * additions, so a route added and removed by the same extender is removed.
+   *
+   * @param name The name of the route.
+   */
+  remove(name: string): Routes {
+    this.removedRoutes.push(name);
+
+    return this;
+  }
+
   helper(name: string, callback: HelperRoute): Routes {
     this.helpers[name] = callback;
 
@@ -51,5 +65,7 @@ export default class Routes implements IExtender {
   extend(app: Application, extension: IExtensionModule) {
     Object.assign(app.routes, this.routes);
     Object.assign(app.route, this.helpers);
+
+    this.removedRoutes.forEach((name) => delete app.routes[name]);
   }
 }
