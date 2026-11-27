@@ -22,6 +22,7 @@ use Flarum\Discussion\Event\Deleting;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
+use Flarum\Notification\NotificationScope;
 use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Illuminate\Database\Eloquent\Builder;
@@ -324,6 +325,11 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->ascendingAlias('az')
                 ->descendingAlias('za'),
         ];
+    }
+
+    public function createAction(object $model, \Tobyz\JsonApiServer\Context $context): object
+    {
+        return NotificationScope::run(fn () => parent::createAction($model, $context));
     }
 
     /** @param Discussion $model */

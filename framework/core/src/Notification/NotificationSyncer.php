@@ -22,18 +22,6 @@ use Flarum\User\User;
 class NotificationSyncer
 {
     /**
-     * Whether notifications are being limited to one per user.
-     */
-    protected static bool $onePerUser = false;
-
-    /**
-     * An internal list of user IDs that notifications have been sent to.
-     *
-     * @var int[]
-     */
-    protected static array $sentTo = [];
-
-    /**
      * A map of notification drivers.
      *
      * @var NotificationDriverInterface[]
@@ -80,9 +68,8 @@ class NotificationSyncer
                 }
 
                 $toDelete->forget($toDelete->search($existing));
-            } elseif (! static::$onePerUser || ! in_array($user->id, static::$sentTo)) {
+            } else {
                 $newRecipients[] = $user;
-                static::$sentTo[] = $user->id;
             }
         }
 
@@ -110,11 +97,48 @@ class NotificationSyncer
 
         // Create a notification record, and send an email, for all users
         // receiving this notification for the first time (we know because they
-        // didn't have a record in the database). As both operations can be
-        // intensive on resources (database and mail server), we queue them.
-        foreach (static::getNotificationDrivers() as $driver) {
-            $driver->send($blueprint, $newRecipients);
+        // didn't have a record in the database), unless the notification scope
+        // has already notified them. As both operations can be intensive on
+        // resources (database and mail server), we queue them.
+        foreach (static::getNotificationDrivers() as $channel => $driver) {
+            $driver->send($blueprint, $this->limitToScope($blueprint, $channel, $newRecipients));
         }
+    }
+
+    /**
+     * Only users who turned the channel on for this type claim it, so a type
+     * they muted can't take the place of one they want.
+     *
+     * @param User[] $users
+     * @return User[]
+     */
+    protected function limitToScope(BlueprintInterface $blueprint, string $channel, array $users): array
+    {
+        $scope = NotificationScope::current();
+
+        if ($scope === null || empty($users)) {
+            return $users;
+        }
+
+        $key = User::getNotificationPreferenceKey($blueprint::getType(), $channel);
+        $claiming = [];
+        $others = [];
+
+        foreach ($users as $user) {
+            if ($user->getPreference($key)) {
+                $claiming[$user->id] = $user;
+            } else {
+                $others[] = $user;
+            }
+        }
+
+        if (empty($claiming)) {
+            return $users;
+        }
+
+        $won = resolve(NotificationScope::class)->claim($scope, $channel, $blueprint, array_keys($claiming));
+
+        return array_merge($others, array_values(array_intersect_key($claiming, array_flip($won))));
     }
 
     /**
@@ -156,17 +180,20 @@ class NotificationSyncer
 
     /**
      * Limit notifications to one per user for the entire duration of the given
-     * callback.
-     * @todo: useless when using a queue. replace with a better solution.
+     * callback, including those sent from jobs it queues.
+     *
+     * @deprecated Use NotificationScope::run().
      */
     public function onePerUser(callable $callback): void
     {
-        static::$sentTo = [];
-        static::$onePerUser = true;
+        // Callers inside an action, such as a Posted listener, belong to its scope.
+        if (NotificationScope::current() !== null) {
+            $callback();
 
-        $callback();
+            return;
+        }
 
-        static::$onePerUser = false;
+        NotificationScope::run($callback);
     }
 
     /**
