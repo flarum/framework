@@ -13,6 +13,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Blueprint\DiscussionRenamedBlueprint;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class NotificationServiceProvider extends AbstractServiceProvider
 {
@@ -32,8 +33,10 @@ class NotificationServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Container $container): void
+    public function boot(Container $container, Dispatcher $events): void
     {
+        NotificationScope::registerQueueHooks($events);
+
         $this->setNotificationDrivers($container);
         $this->setNotificationTypes($container);
     }

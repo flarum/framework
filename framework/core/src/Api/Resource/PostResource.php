@@ -20,6 +20,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\NotificationScope;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Deleting;
 use Flarum\Post\Event\Saving;
@@ -314,6 +315,21 @@ class PostResource extends AbstractDatabaseResource
                 ->ascendingAlias('oldest')
                 ->descendingAlias('newest'),
         ];
+    }
+
+    public function createAction(object $model, \Tobyz\JsonApiServer\Context $context): object
+    {
+        // A first post's notifications and its discussion's are one action.
+        if ($context instanceof Context && $context->internal('isFirstPost') && NotificationScope::current() !== null) {
+            return parent::createAction($model, $context);
+        }
+
+        return NotificationScope::run(fn () => parent::createAction($model, $context));
+    }
+
+    public function updateAction(object $model, \Tobyz\JsonApiServer\Context $context): object
+    {
+        return NotificationScope::run(fn () => parent::updateAction($model, $context));
     }
 
     /** @param Post $model */
