@@ -52,7 +52,8 @@ return [
         ->belongsToMany('mentionsGroups', Group::class, 'post_mentions_group', 'post_id', 'mentions_group_id'),
 
     (new Extend\Model(User::class))
-        ->cast('mention_count', 'integer'),
+        ->cast('mention_count', 'integer')
+        ->cast('mention_count_revision', 'integer'),
 
     new Extend\Locales(__DIR__.'/locale'),
 
@@ -103,6 +104,11 @@ return [
             // included through hasPermission()), are told it.
             Schema\Integer::make('mentionCount')
                 ->description('Number of comment posts that mention this user and are not hidden or awaiting approval. Mentions in private discussions and restricted tags are included, so only present for the user themselves and for viewers with the `user.viewMentionCount` permission.')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $context->getActor()->can('viewMentionCount', $user)),
+            // Sent with the count, to whoever may read it, so the forum keeps
+            // the newest count when responses arrive out of order.
+            Schema\Integer::make('mentionCountRevision')
+                ->description('Raised by one each time `mentionCount` is recounted, even when the number stays the same; of two copies of the count, the one with the higher revision is newer. Present exactly when `mentionCount` is.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $context->getActor()->can('viewMentionCount', $user)),
             Schema\Boolean::make('canMentionGroups')
                 ->description('Whether you can mention groups. Only on your own user.')

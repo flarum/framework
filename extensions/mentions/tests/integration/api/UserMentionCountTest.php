@@ -12,6 +12,7 @@ namespace Flarum\Mentions\Tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
+use Flarum\Mentions\UserMentionCount;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -144,6 +145,7 @@ class UserMentionCountTest extends TestCase
         $this->assertIsArray($affected, 'The update must always report the affected users as an attribute.');
         $this->assertSame(['3'], array_column($affected, 'id'));
         $this->assertArrayNotHasKey('mentionCount', $affected[0]);
+        $this->assertArrayNotHasKey('mentionCountRevision', $affected[0], 'The revision must be hidden whenever the count is.');
         $this->assertSame(0, $this->mentionCountOf(3));
     }
 
@@ -231,9 +233,14 @@ class UserMentionCountTest extends TestCase
 
         $fresh = $this->send($this->request('GET', '/api/users/'.$userId, ['authenticatedAs' => $userId]));
         $this->assertEquals(200, $fresh->getStatusCode(), (string) $fresh->getBody());
-        $freshCount = json_decode($fresh->getBody(), true)['data']['attributes']['mentionCount'];
-        $this->assertSame(1, $freshCount);
-        $this->assertSame($freshCount, $users[0]['attributes']['mentionCount']);
+        $freshAttributes = json_decode($fresh->getBody(), true)['data']['attributes'];
+        $this->assertSame(1, $freshAttributes['mentionCount']);
+        $this->assertSame($freshAttributes['mentionCount'], $users[0]['attributes']['mentionCount']);
+        $this->assertSame(
+            $freshAttributes['mentionCountRevision'],
+            $users[0]['attributes']['mentionCountRevision'],
+            'The included author must carry the revision of the count it carries, or the forum could drop the new count as older.'
+        );
     }
 
     public static function selfMentionCreationRequests(): iterable
@@ -370,6 +377,72 @@ class UserMentionCountTest extends TestCase
     }
 
     #[Test]
+    public function every_count_change_raises_the_revision_and_each_response_carries_the_new_one(): void
+    {
+        $this->app();
+        $this->assertSame(0, $this->mentionCountRevisionOf(3));
+
+        $revisions = [];
+
+        // A reply that mentions potato: the creation response side-loads the
+        // user with the count and revision that save wrote.
+        $response = $this->send($this->request('POST', '/api/posts', [
+            'authenticatedAs' => 1,
+            'json' => ['data' => [
+                'type' => 'posts',
+                'attributes' => ['content' => '@"potato"#3 first mention'],
+                'relationships' => ['discussion' => ['data' => ['type' => 'discussions', 'id' => '2']]],
+            ]],
+        ]));
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+        $payload = json_decode((string) $response->getBody(), true);
+        $firstPostId = (int) $payload['data']['id'];
+        $recipient = array_values(array_filter($payload['included'], fn ($item) => $item['type'] === 'users' && $item['id'] === '3'))[0];
+        $this->assertSame([1, $this->mentionCountRevisionOf(3)], [$recipient['attributes']['mentionCount'], $recipient['attributes']['mentionCountRevision']]);
+        $revisions[] = $recipient['attributes']['mentionCountRevision'];
+
+        $secondPostId = $this->reply('@"potato"#3 second mention');
+        $revisions[] = $this->mentionCountRevisionOf(3);
+
+        // An edit that removes a mention, and a hide: each update response
+        // reports the revision of the count it carries.
+        $this->agePostPastTheFloodThrottle($firstPostId);
+        $payload = $this->patchPost($firstPostId, 1, ['content' => 'no mention']);
+        $this->assertSame(['3' => [1, $this->mentionCountRevisionOf(3)]], $this->affectedMentionCountsAndRevisions($payload));
+        $revisions[] = $this->mentionCountRevisionOf(3);
+
+        $payload = $this->patchPost($secondPostId, 1, ['isHidden' => true]);
+        $this->assertSame(['3' => [0, $this->mentionCountRevisionOf(3)]], $this->affectedMentionCountsAndRevisions($payload));
+        $revisions[] = $this->mentionCountRevisionOf(3);
+
+        // A profile read carries the pair as it is stored.
+        $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 3]));
+        $attributes = json_decode((string) $response->getBody(), true)['data']['attributes'];
+        $this->assertSame([0, end($revisions)], [$attributes['mentionCount'], $attributes['mentionCountRevision']]);
+
+        $sorted = $revisions;
+        sort($sorted);
+        $this->assertSame($sorted, $revisions, 'Each count change must raise the revision.');
+        $this->assertCount(count($revisions), array_unique($revisions), 'No two count changes may share a revision: '.implode(', ', $revisions));
+    }
+
+    #[Test]
+    public function a_recount_raises_each_users_revision_by_exactly_one(): void
+    {
+        $this->reply('@"potato"#3 hello');
+        $before = [3 => $this->mentionCountRevisionOf(3), 4 => $this->mentionCountRevisionOf(4)];
+
+        // The same user listed twice, and a recount that leaves the count as it
+        // was: the revision still moves forward, by one.
+        $this->app()->getContainer()->make(UserMentionCount::class)->refresh([3, '3', 4]);
+
+        $this->assertSame($before[3] + 1, $this->mentionCountRevisionOf(3));
+        $this->assertSame($before[4] + 1, $this->mentionCountRevisionOf(4));
+        $this->assertSame(1, $this->mentionCountOf(3));
+        $this->assertSame(0, $this->mentionCountOf(4));
+    }
+
+    #[Test]
     public function approving_a_post_that_was_waiting_for_approval_updates_the_count()
     {
         $this->extension('flarum-approval', 'flarum-flags');
@@ -487,6 +560,27 @@ class UserMentionCountTest extends TestCase
         ksort($counts);
 
         return $counts;
+    }
+
+    /**
+     * The count and revision an update reported for each user it changed, by id.
+     *
+     * @return array<string, array{int, int}>
+     */
+    protected function affectedMentionCountsAndRevisions(array $payload): array
+    {
+        $pairs = [];
+
+        foreach ($payload['data']['attributes']['affectedMentionUsers'] ?? [] as $item) {
+            $pairs[$item['id']] = [$item['mentionCount'], $item['mentionCountRevision']];
+        }
+
+        return $pairs;
+    }
+
+    protected function mentionCountRevisionOf(int $userId): int
+    {
+        return (int) User::query()->findOrFail($userId)->mention_count_revision;
     }
 
     protected function mentionCountOf(int $userId): int

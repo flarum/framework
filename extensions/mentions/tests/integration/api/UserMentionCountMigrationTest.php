@@ -80,4 +80,41 @@ class UserMentionCountMigrationTest extends TestCase
             $db->disconnect();
         }
     }
+
+    #[Test]
+    public function the_revision_migration_starts_existing_users_at_zero_and_rolls_back()
+    {
+        $this->extension('flarum-mentions');
+
+        $config = $this->database()->getConfig();
+        $config['prefix'] = 'rev_'.bin2hex(random_bytes(4)).'_';
+        if ($config['driver'] === 'sqlite') {
+            $config['database'] = ':memory:';
+        }
+        $db = (new ConnectionFactory(new Container))->make($config);
+        $schema = $db->getSchemaBuilder();
+
+        try {
+            $schema->create('users', function (Blueprint $table) {
+                $table->increments('id');
+                $table->unsignedInteger('mention_count')->default(0);
+            });
+            $db->table('users')->insert([['id' => 1, 'mention_count' => 3]]);
+            $migration = require __DIR__.'/../../../migrations/2026_11_27_000000_add_mention_count_revision_to_users_table.php';
+
+            $migration['up']($schema);
+
+            for ($i = 0; $i < 2; $i++) {
+                $this->assertSame(0, (int) $db->table('users')->where('id', 1)->value('mention_count_revision'));
+                $this->assertSame(3, (int) $db->table('users')->where('id', 1)->value('mention_count'), 'Adding the revision must leave the count alone.');
+                $migration['down']($schema);
+                $this->assertFalse($schema->hasColumn('users', 'mention_count_revision'));
+                $this->assertTrue($schema->hasColumn('users', 'mention_count'));
+                $migration['up']($schema);
+            }
+        } finally {
+            $schema->dropIfExists('users');
+            $db->disconnect();
+        }
+    }
 }

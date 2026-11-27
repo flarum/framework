@@ -23,7 +23,10 @@ use Flarum\User\User;
  * the last listener saw.
  *
  * The listeners run after the save, so a later one cannot change the count of
- * a user an earlier one already reported: those models stay as they are. Only
+ * a user an earlier one already reported: those models stay as they are. A
+ * later recount still raises that user's revision, so the response can carry
+ * a revision below the stored one for the same count; the forum only uses the
+ * revision to drop older counts, so the next read simply replaces it. Only
  * the users not in the set yet are queried. Keeping the earlier models is
  * sound because the post resource applies the content field before the
  * visibility ones and dispatches the post's events only after the whole save,

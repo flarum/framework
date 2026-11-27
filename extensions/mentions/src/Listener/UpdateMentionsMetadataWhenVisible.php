@@ -70,15 +70,18 @@ class UpdateMentionsMetadataWhenVisible
 
         // A new discussion caches the request actor as its author. The post
         // can have a separate author instance, so keep both models current.
+        // The count and its revision are read together, so a response that
+        // serializes either model carries a pair from the same write.
         $actor = $event instanceof Posted ? $event->actor : null;
         $author = $event->post->relationLoaded('user') ? $event->post->user : null;
         $counts = [];
 
         foreach ([$actor, $author] as $user) {
             if ($user && in_array($user->id, $affected)) {
-                $counts[$user->id] ??= $user->newQuery()->whereKey($user->id)->value('mention_count');
-                $user->mention_count = $counts[$user->id];
-                $user->syncOriginalAttribute('mention_count');
+                $counts[$user->id] ??= $user->newQuery()->whereKey($user->id)->first(['mention_count', 'mention_count_revision']);
+                $user->mention_count = $counts[$user->id]->mention_count;
+                $user->mention_count_revision = $counts[$user->id]->mention_count_revision;
+                $user->syncOriginalAttributes(['mention_count', 'mention_count_revision']);
             }
         }
 

@@ -96,7 +96,9 @@ class UserMentionCountVisibilityTest extends TestCase
         $response = $this->send($this->request('GET', '/api/users/3'));
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
-        $this->assertArrayNotHasKey('mentionCount', json_decode((string) $response->getBody(), true)['data']['attributes']);
+        $attributes = json_decode((string) $response->getBody(), true)['data']['attributes'];
+        $this->assertArrayNotHasKey('mentionCount', $attributes);
+        $this->assertArrayNotHasKey('mentionCountRevision', $attributes, 'The revision must be hidden whenever the count is.');
     }
 
     #[Test]
@@ -105,7 +107,9 @@ class UserMentionCountVisibilityTest extends TestCase
         $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 2]));
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
-        $this->assertArrayNotHasKey('mentionCount', json_decode((string) $response->getBody(), true)['data']['attributes']);
+        $attributes = json_decode((string) $response->getBody(), true)['data']['attributes'];
+        $this->assertArrayNotHasKey('mentionCount', $attributes);
+        $this->assertArrayNotHasKey('mentionCountRevision', $attributes, 'The revision must be hidden whenever the count is.');
     }
 
     #[Test]
@@ -114,7 +118,9 @@ class UserMentionCountVisibilityTest extends TestCase
         $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 3]));
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
-        $this->assertSame(4, json_decode((string) $response->getBody(), true)['data']['attributes']['mentionCount']);
+        $attributes = json_decode((string) $response->getBody(), true)['data']['attributes'];
+        $this->assertSame(4, $attributes['mentionCount']);
+        $this->assertArrayHasKey('mentionCountRevision', $attributes, 'The revision must be sent whenever the count is.');
 
         $mentions = $this->send($this->request('GET', '/api/posts?filter[type]=comment&filter[mentioned]=3', ['authenticatedAs' => 3]));
         $this->assertEquals(200, $mentions->getStatusCode(), (string) $mentions->getBody());
@@ -134,7 +140,9 @@ class UserMentionCountVisibilityTest extends TestCase
         $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 4]));
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
-        $this->assertArrayNotHasKey('mentionCount', json_decode((string) $response->getBody(), true)['data']['attributes']);
+        $attributes = json_decode((string) $response->getBody(), true)['data']['attributes'];
+        $this->assertArrayNotHasKey('mentionCount', $attributes);
+        $this->assertArrayNotHasKey('mentionCountRevision', $attributes, 'The revision must be hidden whenever the count is.');
     }
 
     #[Test]
@@ -150,7 +158,9 @@ class UserMentionCountVisibilityTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
         // The restricted-tag mentions are in the total even though this member
         // cannot see them: the field is a profile read for privileged viewers.
-        $this->assertSame(4, json_decode((string) $response->getBody(), true)['data']['attributes']['mentionCount']);
+        $attributes = json_decode((string) $response->getBody(), true)['data']['attributes'];
+        $this->assertSame(4, $attributes['mentionCount']);
+        $this->assertArrayHasKey('mentionCountRevision', $attributes, 'The revision must be sent whenever the count is.');
     }
 
     #[Test]
@@ -159,7 +169,9 @@ class UserMentionCountVisibilityTest extends TestCase
         $response = $this->send($this->request('GET', '/api/users/3', ['authenticatedAs' => 1]));
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
-        $this->assertSame(4, json_decode((string) $response->getBody(), true)['data']['attributes']['mentionCount']);
+        $attributes = json_decode((string) $response->getBody(), true)['data']['attributes'];
+        $this->assertSame(4, $attributes['mentionCount']);
+        $this->assertArrayHasKey('mentionCountRevision', $attributes, 'The revision must be sent whenever the count is.');
     }
 
     #[Test]

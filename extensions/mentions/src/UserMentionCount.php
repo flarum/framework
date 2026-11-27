@@ -16,6 +16,12 @@ use Illuminate\Database\Query\Builder;
  * Keeps users.mention_count, the number of posts that mention a user, in step
  * with the Mentions tab on their profile.
  *
+ * Every write also raises users.mention_count_revision by one, in the same
+ * UPDATE, so the pair read from one row says which count is newer. Responses
+ * can reach the browser in any order (a profile read, a new post's mentioned
+ * users, an update's affected users), and the forum keeps the count with the
+ * highest revision instead of the one that arrived last.
+ *
  * Like core's comment_count, it is a full recount each time. Only visible
  * comments count: a post that is private (for example one waiting for
  * approval), hidden, or not a comment (a rename and so on) is left out, even
@@ -57,7 +63,9 @@ class UserMentionCount
         // A popular user can be mentioned in many posts, so write the counts
         // in bounded batches: one UPDATE per batch, not one per user.
         foreach (array_chunk($userIds, 1000) as $ids) {
-            $db->table('users')->whereIn('id', $ids)->update(['mention_count' => $mentionCount]);
+            $db->table('users')
+                ->whereIn('id', $ids)
+                ->increment('mention_count_revision', 1, ['mention_count' => $mentionCount]);
         }
     }
 }

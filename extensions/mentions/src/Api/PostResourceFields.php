@@ -70,7 +70,7 @@ class PostResourceFields
             // on the user resource; the entry itself still names the user whose
             // list changed.
             Schema\Arr::make('affectedMentionUsers')
-                ->description('Users whose mention count this update changed, as {id, mentionCount}; mentionCount is only present when you may read that user\'s count. Empty when no count changed.')
+                ->description('Users whose mention count this update changed, as {id, mentionCount, mentionCountRevision}; the count and its revision are only present when you may read that user\'s count. Empty when no count changed.')
                 ->visible(fn (Post $post, Context $context) => $context->updating())
                 ->get(function (Post $post, Context $context) {
                     if (! $post->relationLoaded('affectedMentionUsers')) {
@@ -82,6 +82,7 @@ class PostResourceFields
 
                         if ($context->getActor()->id === $user->id || $context->getActor()->can('viewMentionCount', $user)) {
                             $entry['mentionCount'] = (int) $user->mention_count;
+                            $entry['mentionCountRevision'] = (int) $user->mention_count_revision;
                         }
 
                         return $entry;
