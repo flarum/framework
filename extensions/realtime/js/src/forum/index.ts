@@ -5,6 +5,7 @@ import DiscussionList from './extend/DiscussionList';
 import Tags from './extend/Tags';
 import User from './extend/User';
 import Visibility from './extend/Visibility';
+import OwnState from './extend/OwnState';
 
 // Registers itself, for other extensions to import with ext:.
 import './extenders/Realtime';
@@ -23,4 +24,5 @@ app.initializers.add('flarum-realtime', () => {
   Tags();
   User();
   Visibility();
+  OwnState();
 });

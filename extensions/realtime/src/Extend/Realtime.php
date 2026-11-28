@@ -174,8 +174,9 @@ class Realtime implements ExtenderInterface
      * the internal API request that generates the personalised JSON:API payload.
      *
      * The optional `$getActor` callback returns the User who caused the event.
-     * That user is excluded from receiving the broadcast (they already know what
-     * happened — they caused it).
+     * Their other sessions receive the broadcast like anyone else's; only the
+     * browser tab whose request caused it is left out, when it sent its
+     * websocket's socket ID (the forum's own requests do).
      *
      * The optional `$eventName` overrides the Pusher channel event name. When
      * omitted the fully-qualified PHP class name of the event is used.

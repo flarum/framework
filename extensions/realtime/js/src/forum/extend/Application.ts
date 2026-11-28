@@ -7,6 +7,7 @@ import NotificationToast from '../components/NotificationToast';
 import NotificationToastState from '../states/NotificationToastState';
 import isIOS from '../utils/isIOS';
 import catchUpDiscussion from '../utils/catchUpDiscussion';
+import { catchUpOwnState } from './OwnState';
 
 export default function () {
   extend(Application.prototype, 'mount' as any, function () {
@@ -182,6 +183,8 @@ export default function () {
     // vanish behind a spinner and lose their scroll position. `revalidate()`
     // leaves the list on screen and swaps the results in when they land.
     const catchUp = (): void => {
+      catchUpOwnState();
+
       const discussions = (app as any).discussions;
 
       if (discussions?.revalidate) {

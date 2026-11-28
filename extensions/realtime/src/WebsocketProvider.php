@@ -11,6 +11,7 @@ namespace Flarum\Realtime;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
+use Flarum\Realtime\Push\OriginSocket;
 use Flarum\Realtime\Push\RealtimeRegistry;
 use Flarum\Realtime\Websocket\Api\PresenceChannelAuthorizer;
 use Flarum\Realtime\Websocket\Channel\Manager;
@@ -27,6 +28,7 @@ class WebsocketProvider extends AbstractServiceProvider
     public function register()
     {
         $this->container->singleton(RealtimeRegistry::class);
+        $this->container->singleton(OriginSocket::class);
         $this->container->singleton(Manager::class);
         $this->container->singleton(IndexTypingPresence::class);
         $this->container->singleton(PresenceChannelAuthorizer::class);

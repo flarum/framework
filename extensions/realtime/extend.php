@@ -38,6 +38,9 @@ return [
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
+    (new Extend\Middleware('api'))
+        ->add(Push\Middleware\RememberOriginSocket::class),
+
     (new Extend\Routes('api'))
         ->post('/websocket/auth', 'websocket.auth', Websocket\Api\AuthController::class),
 
@@ -94,6 +97,7 @@ return [
     (new Extend\Event)
         ->subscribe(Push\EventSubscriber::class)
         ->subscribe(Push\VisibilitySubscriber::class)
+        ->subscribe(Push\OwnStateSubscriber::class)
         ->listen(\Flarum\Notification\Event\Sent::class, Push\Listener\BroadcastNotifications::class)
         ->listen(\Flarum\Settings\Event\Saved::class, Listener\RestartServerOnSettingChange::class)
         ->listen(\Flarum\Frontend\Event\AssetsRecompiled::class, Listener\BroadcastAssetsRevision::class),

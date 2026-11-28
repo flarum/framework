@@ -19,6 +19,14 @@ use Pusher\Pusher;
 
 abstract class Job extends AbstractJob
 {
+    /**
+     * Connections on each connected user's channel, by user ID, from the last
+     * connectedUsers() call; absent where the server didn't say.
+     *
+     * @var array<int, int>
+     */
+    protected array $subscriptionCounts = [];
+
     protected function pusher(): Pusher
     {
         return resolve(Pusher::class);
@@ -40,7 +48,8 @@ abstract class Job extends AbstractJob
     protected function connectedUsers(?Discussion $visible = null): Collection
     {
         $response = $this->pusher()->getChannels([
-            'filter_by_prefix' => 'private-user='
+            'filter_by_prefix' => 'private-user=',
+            'info' => 'subscription_count',
         ]);
 
         $users = Collection::make();
@@ -50,8 +59,15 @@ abstract class Job extends AbstractJob
             return $users;
         }
 
+        $this->subscriptionCounts = [];
+
         foreach ($response->channels as $name => $channel) {
-            $users->put($name, Str::after($name, 'private-user='));
+            $id = Str::after($name, 'private-user=');
+            $users->put($name, $id);
+
+            if (isset($channel->subscription_count)) {
+                $this->subscriptionCounts[(int) $id] = (int) $channel->subscription_count;
+            }
         }
 
         /** @var \Illuminate\Database\Eloquent\Collection<int, User> $users */

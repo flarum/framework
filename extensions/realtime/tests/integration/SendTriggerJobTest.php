@@ -62,9 +62,61 @@ class SendTriggerJobTest extends TestCase
     {
         $recipients = $this->trigger(postId: 2, connected: [1, 2, 3], actorId: 1);
 
-        // The actor is never sent their own reply, and post events stay off
-        // the public channel.
-        $this->assertSame(['2', '3'], $recipients);
+        $this->assertSame(['1', '2', '3'], $recipients);
+    }
+
+    #[Test]
+    public function only_the_tab_that_made_the_change_is_left_out(): void
+    {
+        $params = [];
+        $this->deliver(postId: 2, connected: [1, 2, 3], actorId: 1, originSocket: '123.456', params: $params);
+
+        $this->assertSame([
+            'private-user=1' => ['socket_id' => '123.456'],
+            'private-user=2' => [],
+            'private-user=3' => [],
+        ], $params);
+    }
+
+    #[Test]
+    public function without_an_origin_socket_every_session_of_the_actor_is_sent_it(): void
+    {
+        $params = [];
+        $this->deliver(postId: 2, connected: [1, 2], actorId: 1, params: $params);
+
+        $this->assertSame(['private-user=1' => [], 'private-user=2' => []], $params);
+    }
+
+    /**
+     * Building the actor's payload costs internal API requests: not worth it
+     * when the server would only leave it out again.
+     */
+    #[Test]
+    public function an_actor_whose_only_connection_made_the_change_is_not_sent_it(): void
+    {
+        $recipients = $this->trigger(postId: 2, connected: [1, 2], actorId: 1, originSocket: '123.456', sockets: [1 => ['123.456'], 2 => ['9.9']]);
+
+        $this->assertSame(['2'], $recipients);
+    }
+
+    #[Test]
+    public function an_actor_with_another_connection_is_sent_it(): void
+    {
+        $recipients = $this->trigger(postId: 2, connected: [1, 2], actorId: 1, originSocket: '123.456', sockets: [1 => ['123.456', '7.7'], 2 => ['9.9']]);
+
+        $this->assertSame(['1', '2'], $recipients);
+    }
+
+    /**
+     * Posted from the phone, whose tab closed before the job ran: the one
+     * connection left is the desktop's.
+     */
+    #[Test]
+    public function an_actor_whose_one_connection_is_another_tab_is_sent_it(): void
+    {
+        $recipients = $this->trigger(postId: 2, connected: [1, 2], actorId: 1, originSocket: '123.456', sockets: [1 => ['7.7'], 2 => ['9.9']]);
+
+        $this->assertSame(['1', '2'], $recipients);
     }
 
     #[Test]
@@ -77,8 +129,8 @@ class SendTriggerJobTest extends TestCase
 
     /**
      * A reply awaiting approval in a public discussion: what is actually sent
-     * is decided per recipient, and only the admin, who can approve it, can
-     * see the post.
+     * is decided per recipient, and only the admin, who can approve it, and
+     * its author can see the post.
      */
     #[Test]
     public function a_reply_awaiting_approval_reaches_nobody_who_cannot_approve_it(): void
@@ -93,9 +145,7 @@ class SendTriggerJobTest extends TestCase
             ],
         ]);
 
-        // Posted by member 3, who never receives their own reply; member 2 and
-        // guests cannot see it.
-        $this->assertSame(['private-user=1'], $this->deliver(postId: 5, connected: [1, 2, 3], actorId: 3));
+        $this->assertSame(['private-user=1', 'private-user=3'], $this->deliver(postId: 5, connected: [1, 2, 3], actorId: 3));
     }
 
     /**
@@ -132,19 +182,20 @@ class SendTriggerJobTest extends TestCase
      * return the channels something was actually sent on.
      *
      * @param int[] $connected
+     * @param array<string, array> $params the trigger parameters per channel, filled in
      * @return string[]
      */
-    private function deliver(int $postId, array $connected, ?int $actorId): array
+    private function deliver(int $postId, array $connected, ?int $actorId, ?string $originSocket = null, array &$params = []): array
     {
         $sent = [];
-        $pusher = $this->pusher($connected, $sent);
+        $pusher = $this->pusher($connected, $sent, $params);
         $this->app()->getContainer()->instance(Pusher::class, $pusher);
 
         $post = Post::query()->findOrFail($postId);
         $actor = $actorId ? User::query()->findOrFail($actorId) : null;
 
         $pushed = [];
-        (new SendTriggerJob(Posted::class, $post, $actor))($this->recordingQueue($pushed));
+        (new SendTriggerJob(Posted::class, $post, $actor, $originSocket))($this->recordingQueue($pushed));
 
         $generator = $this->app()->getContainer()->make(Generator::class);
 
@@ -153,6 +204,7 @@ class SendTriggerJobTest extends TestCase
         }
 
         sort($sent);
+        ksort($params);
 
         return $sent;
     }
@@ -164,15 +216,16 @@ class SendTriggerJobTest extends TestCase
      * @param int[] $connected
      * @return string[]
      */
-    private function trigger(int $postId, array $connected, ?int $actorId): array
+    private function trigger(int $postId, array $connected, ?int $actorId, ?string $originSocket = null, array $sockets = []): array
     {
-        $this->app()->getContainer()->instance(Pusher::class, $this->pusher($connected));
+        $sent = $params = [];
+        $this->app()->getContainer()->instance(Pusher::class, $this->pusher($connected, $sent, $params, $sockets));
 
         $post = Post::query()->findOrFail($postId);
         $actor = $actorId ? User::query()->findOrFail($actorId) : null;
 
         $pushed = [];
-        (new SendTriggerJob(Posted::class, $post, $actor))($this->recordingQueue($pushed));
+        (new SendTriggerJob(Posted::class, $post, $actor, $originSocket))($this->recordingQueue($pushed));
 
         $recipients = [];
 
@@ -192,15 +245,19 @@ class SendTriggerJobTest extends TestCase
     /**
      * @param int[] $connected
      * @param string[] $sent channels triggered, filled in as it happens
+     * @param array<string, array> $params trigger parameters per channel
+     * @param array<int, string[]> $sockets each user's connections, as the server reports them
      */
-    private function pusher(array $connected, array &$sent = []): Pusher
+    private function pusher(array $connected, array &$sent = [], array &$params = [], array $sockets = []): Pusher
     {
-        return new class($connected, $sent) extends Pusher {
+        return new class($connected, $sent, $params, $sockets) extends Pusher {
             /**
              * @param int[] $connected
              * @param string[] $sent
+             * @param array<string, array> $params
+             * @param array<int, string[]> $sockets
              */
-            public function __construct(private array $connected, private array &$sent)
+            public function __construct(private array $connected, private array &$sent, private array &$params, private array $sockets)
             {
                 parent::__construct('key', 'secret', 'app');
             }
@@ -209,6 +266,7 @@ class SendTriggerJobTest extends TestCase
             {
                 foreach ((array) $channels as $channel) {
                     $this->sent[] = $channel;
+                    $this->params[$channel] = $params;
                 }
 
                 return (object) [];
@@ -218,11 +276,27 @@ class SendTriggerJobTest extends TestCase
             {
                 $channels = [];
 
+                $info = explode(',', $params['info'] ?? '');
+
                 foreach ($this->connected as $id) {
-                    $channels["private-user=$id"] = (object) [];
+                    $name = "private-user=$id";
+
+                    if (! str_starts_with($name, $params['filter_by_prefix'] ?? '')) {
+                        continue;
+                    }
+
+                    $channels[$name] = new \stdClass;
+
+                    if (isset($this->sockets[$id]) && in_array('subscription_count', $info)) {
+                        $channels[$name]->subscription_count = count($this->sockets[$id]);
+                    }
+
+                    if (isset($this->sockets[$id]) && in_array('socket_ids', $info)) {
+                        $channels[$name]->socket_ids = $this->sockets[$id];
+                    }
                 }
 
-                return (object) ['channels' => $channels];
+                return (object) ['channels' => (object) $channels];
             }
         };
     }
