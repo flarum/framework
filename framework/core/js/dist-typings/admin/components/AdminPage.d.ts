@@ -151,7 +151,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
      * Each section names the item keys it holds. An item it doesn't name, such as
      * one another extension added, joins the section of the item before it, so it
      * stays where it was shown before. Items before the first named one are shown
-     * without a heading.
+     * without a heading. A section's `footer` is shown after all of its items.
      *
      * @example
      * this.itemSections(this.brandingItems(), [
@@ -161,6 +161,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
      */
     itemSections(items: ItemList<Mithril.Children>, sections: (SettingsSectionConfig & {
         items: string[];
+        footer?: Mithril.Children;
     })[]): ItemList<Mithril.Children>;
     /**
      * The id of the tab a registered setting is shown on.
