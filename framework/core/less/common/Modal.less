@@ -8,6 +8,12 @@
   transform: scale(0.9);
   transition: transform 0.2s ease-out, opacity 0.2s ease-out, top 0.2s ease-out;
   z-index: 2;
+
+  // Only fade when the user asks for less motion.
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+    transition: opacity 0.2s ease-out;
+  }
   position: relative;
 
   width: auto;
@@ -217,6 +223,19 @@
 
     &.in {
       top: 0;
+    }
+
+    // Fade in place instead of sliding up when the user asks for less motion.
+    @media (prefers-reduced-motion: reduce) {
+      top: 0;
+
+      &.fade {
+        opacity: 0;
+      }
+
+      &.fade.in {
+        opacity: 1;
+      }
     }
   }
   .Modal-content {

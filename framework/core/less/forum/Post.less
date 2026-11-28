@@ -42,6 +42,10 @@
     transform-origin: left top;
     opacity: 0;
 
+    @media (prefers-reduced-motion: reduce) {
+      transform: none;
+    }
+
     &.in {
       transform: scale(1);
       opacity: 1;
