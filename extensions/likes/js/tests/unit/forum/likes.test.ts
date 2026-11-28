@@ -113,7 +113,7 @@ describe('the like button', () => {
     }
   });
 
-  it('discards an overtaken response, its count and its likers alike', async () => {
+  it('sends clicks one at a time and keeps only the last one\'s likers and count', async () => {
     const user = app.session.user!;
     user.pushAttributes({ likeCount: 2 });
     const post = postWithoutLikes('75');
@@ -126,7 +126,7 @@ describe('the like button', () => {
     // Answer like the API does, through the real Model.save: each response is
     // a whole payload, likers included, and the actor comes back in `included`
     // with the count read for that request.
-    jest.spyOn(app, 'request').mockImplementation(((options: any) => {
+    const request = jest.spyOn(app, 'request').mockImplementation(((options: any) => {
       const liked = options.body.data.attributes.isLiked;
       const payload = {
         data: {
@@ -150,14 +150,17 @@ describe('the like button', () => {
     await Promise.resolve();
     expect((post as any).likes()).toEqual([user]);
 
-    // The newer click wins, even though the older response is delivered last.
+    // The second click is not sent while the first is in flight, so the
+    // server commits them in click order.
     const unlike = likeButton(post).attrs.onclick();
-    await unlike;
-    expect(user.likeCount()).toBe(2);
-    expect((post as any).likes()).toEqual([]);
+    await Promise.resolve();
+    expect(request).toHaveBeenCalledTimes(1);
 
     finishLike();
     await like;
+    await unlike;
+
+    expect(request).toHaveBeenCalledTimes(2);
     expect(user.likeCount()).toBe(2);
     expect((post as any).likes()).toEqual([]);
   });

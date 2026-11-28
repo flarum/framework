@@ -8,8 +8,8 @@ import type Mithril from 'mithril';
 export default function addLikesTabToUserProfile() {
   extend(UserPage.prototype, 'navItems', function (items: ItemList<Mithril.Children>) {
     const user = this.user;
-    // The API only sends the count to the user themselves and to moderators,
-    // so most viewers have no number to show.
+    // The API only sends the count to the user themselves and to holders of the
+    // `user.viewLikeCount` permission, so most viewers have no number to show.
     const likeCount = user?.likeCount();
 
     items.add(

@@ -5,6 +5,7 @@ import CommentPost from 'flarum/forum/components/CommentPost';
 import haptic from 'flarum/common/utils/haptic';
 
 const pendingCounts = new WeakMap();
+const lastSaves = new WeakMap();
 
 /**
  * Strip what an overtaken like response must not write.
@@ -54,20 +55,24 @@ export default function () {
 
           if (isLiked) haptic('success');
 
-          // Latest-wins: a response that arrives after a newer click must not
-          // overwrite the likers or the count that newer mutation returned.
-          // Nothing of an overtaken response is kept, see
+          // The count in a response is read when that request commits, so the
+          // requests are sent one at a time: they commit in click order, and the
+          // last click is the last to commit. A response that a newer click has
+          // overtaken keeps neither its likers nor its count, see
           // withoutOvertakenData().
           const pending = {};
           pendingCounts.set(user, pending);
 
-          const save = post
-            .save(
+          const send = () =>
+            post.save(
               { isLiked },
               {
                 modifyText: (text) => (pendingCounts.get(user) === pending ? text : withoutOvertakenData(text, user.id())),
               }
-            )
+            );
+          const previous = lastSaves.get(user);
+
+          const save = (previous ? previous.catch(() => {}).then(send) : send())
             .then((response) => {
               if (pendingCounts.get(user) !== pending) return;
 
@@ -77,7 +82,12 @@ export default function () {
                 user.pushAttributes({ likeCount });
                 m.redraw();
               }
+            })
+            .finally(() => {
+              if (lastSaves.get(user) === save) lastSaves.delete(user);
             });
+
+          lastSaves.set(user, save);
 
           // We've saved the fact that we do or don't like the post, but in order
           // to provide instantaneous feedback to the user, we'll need to add or
