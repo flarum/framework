@@ -10,6 +10,7 @@ flarum-mentions:
     # These translations are used in the mentions permissions
     permissions:
       mention_groups_label: Mention groups
+      view_mention_count_label: See the mention count on a profile
     # These translations are used for the section headings on the Settings page.
     sections:
       format:

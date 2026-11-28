@@ -10,7 +10,9 @@
 namespace Flarum\Mentions\Listener;
 
 use Flarum\Extension\ExtensionManager;
+use Flarum\Mentions\AffectedMentionUsers;
 use Flarum\Mentions\Notification\UserMentionedBlueprint;
+use Flarum\Mentions\UserMentionCount;
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
@@ -19,15 +21,30 @@ class UpdateMentionsMetadataWhenInvisible
 {
     public function __construct(
         protected NotificationSyncer $notifications,
-        protected ExtensionManager $extensions
+        protected ExtensionManager $extensions,
+        protected UserMentionCount $mentionCount
     ) {
     }
 
     public function handle(Deleted|Hidden $event): void
     {
-        // Remove user mentions
-        $event->post->mentionsUsers()->sync([]);
+        // A deleted post's mention rows are normally already gone (they cascade
+        // with it), and UpdateMentionCountWhenPostsDeleted recounted the users
+        // they named from the ids it read first. Without cascading foreign keys
+        // (SQLite installs) rows can be left behind, and detaching finds them.
+        $changes = $event->post->mentionsUsers()->sync([]);
         $this->notifications->sync(new UserMentionedBlueprint($event->post), []);
+
+        $affected = $changes['detached'];
+        $this->mentionCount->refresh($affected);
+
+        // A hiding request's response reports the users whose count changed so
+        // the forum can refresh them. A deletion has no response to fill. The
+        // same save may have revised the content first, and that listener
+        // reports the recipients it changed too.
+        if ($event instanceof Hidden && $event->actor) {
+            AffectedMentionUsers::add($event->post, $affected, $event->actor);
+        }
 
         // Remove post mentions
         $event->post->mentionsPosts()->sync([]);

@@ -51,6 +51,10 @@ return [
         ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id')
         ->belongsToMany('mentionsGroups', Group::class, 'post_mentions_group', 'post_id', 'mentions_group_id'),
 
+    (new Extend\Model(User::class))
+        ->cast('mention_count', 'integer')
+        ->cast('mention_count_revision', 'integer'),
+
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\View)
@@ -63,6 +67,9 @@ return [
 
     (new Extend\ApiResource(Resource\PostResource::class))
         ->fields(PostResourceFields::class)
+        ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint
+            ->addDefaultInclude(['mentionsUsers'])
+            ->eagerLoadWhenIncluded(['mentionsUsers' => ['mentionsUsers.groups']]))
         ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint): Endpoint\Endpoint {
             return $endpoint->addDefaultInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion']);
         })
@@ -71,6 +78,9 @@ return [
         }),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint
+            ->addDefaultInclude(['firstPost.mentionsUsers'])
+            ->eagerLoadWhenIncluded(['firstPost.mentionsUsers' => ['firstPost.mentionsUsers.groups']]))
         ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
             return $endpoint->eagerLoadWhenIncluded([
                 'firstPost' => [
@@ -86,6 +96,20 @@ return [
 
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [
+            // The stored total counts mentions in comment posts that are
+            // approved and not hidden, including posts in private discussions
+            // and restricted tags. The Mentions tab filters through post
+            // visibility, so the number is a profile read: the user whose
+            // profile it is, and holders of `user.viewMentionCount` (admins
+            // included through hasPermission()), are told it.
+            Schema\Integer::make('mentionCount')
+                ->description('Number of comment posts that mention this user and are not hidden or awaiting approval. Mentions in private discussions and restricted tags are included, so only present for the user themselves and for viewers with the `user.viewMentionCount` permission.')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $context->getActor()->can('viewMentionCount', $user)),
+            // Sent with the count, to whoever may read it, so the forum keeps
+            // the newest count when responses arrive out of order.
+            Schema\Integer::make('mentionCountRevision')
+                ->description('Raised by one each time `mentionCount` is recounted, even when the number stays the same; of two copies of the count, the one with the higher revision is newer. Present exactly when `mentionCount` is.')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $context->getActor()->can('viewMentionCount', $user)),
             Schema\Boolean::make('canMentionGroups')
                 ->description('Whether you can mention groups. Only on your own user.')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
@@ -101,7 +125,8 @@ return [
         ->listen(Revised::class, Listener\UpdateMentionsMetadataWhenVisible::class)
         ->listen(PostWasApproved::class, Listener\UpdateMentionsMetadataWhenVisible::class)
         ->listen(Hidden::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
-        ->listen(Deleted::class, Listener\UpdateMentionsMetadataWhenInvisible::class),
+        ->listen(Deleted::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
+        ->subscribe(Listener\UpdateMentionCountWhenPostsDeleted::class),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(PostSearcher::class, Filter\MentionedFilter::class)

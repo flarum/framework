@@ -11,7 +11,9 @@ namespace Flarum\Mentions\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Mentions\AffectedMentionUsers;
 use Flarum\Mentions\Job\SendMentionsNotificationsJob;
+use Flarum\Mentions\UserMentionCount;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
@@ -24,7 +26,8 @@ class UpdateMentionsMetadataWhenVisible
 {
     public function __construct(
         protected ExtensionManager $extensions,
-        protected Queue $queue
+        protected Queue $queue,
+        protected UserMentionCount $mentionCount
     ) {
     }
 
@@ -40,10 +43,47 @@ class UpdateMentionsMetadataWhenVisible
             return;
         }
 
-        $this->syncUserMentions(
+        $changes = $this->syncUserMentions(
             $event->post,
             $userMentions = Utils::getAttributeValues($content, 'USERMENTION', 'id')
         );
+
+        // An approved post was already synced while it was private, so its
+        // mentions start counting now even though none of them changed.
+        $affected = array_merge(
+            $changes['attached'],
+            $changes['detached'],
+            ($event instanceof PostWasApproved || $event instanceof Restored) ? $userMentions : []
+        );
+        $this->mentionCount->refresh($affected);
+
+        // Removed mentions no longer appear in mentionsUsers, so the update
+        // response reports both sides. Restoring or approving a post changes
+        // counts without changing its mentions, and those responses need the
+        // users too. A new post's response includes its mentioned users
+        // instead, and a restore outside a request has no response to fill.
+        // A save can also hide or restore the post after revising it, and that
+        // listener adds the users it changed to the same set.
+        if ($event->actor && ! ($event instanceof Posted)) {
+            AffectedMentionUsers::add($event->post, $affected, $event->actor);
+        }
+
+        // A new discussion caches the request actor as its author. The post
+        // can have a separate author instance, so keep both models current.
+        // The count and its revision are read together, so a response that
+        // serializes either model carries a pair from the same write.
+        $actor = $event instanceof Posted ? $event->actor : null;
+        $author = $event->post->relationLoaded('user') ? $event->post->user : null;
+        $counts = [];
+
+        foreach ([$actor, $author] as $user) {
+            if ($user && in_array($user->id, $affected)) {
+                $counts[$user->id] ??= $user->newQuery()->whereKey($user->id)->first(['mention_count', 'mention_count_revision']);
+                $user->mention_count = $counts[$user->id]->mention_count;
+                $user->mention_count_revision = $counts[$user->id]->mention_count_revision;
+                $user->syncOriginalAttributes(['mention_count', 'mention_count_revision']);
+            }
+        }
 
         $this->syncPostMentions(
             $event->post,
@@ -65,10 +105,12 @@ class UpdateMentionsMetadataWhenVisible
         $this->queue->push(new SendMentionsNotificationsJob($event->post, $userMentions, $postMentions, $groupMentions));
     }
 
-    protected function syncUserMentions(Post $post, array $mentioned): void
+    protected function syncUserMentions(Post $post, array $mentioned): array
     {
-        $post->mentionsUsers()->sync($mentioned);
+        $changes = $post->mentionsUsers()->sync($mentioned);
         $post->unsetRelation('mentionsUsers');
+
+        return $changes;
     }
 
     protected function syncPostMentions(Post $reply, array $mentioned): void

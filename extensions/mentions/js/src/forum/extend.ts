@@ -26,5 +26,7 @@ export default [
     .add('groupMentioned', GroupMentionedNotification),
 
   new Extend.Model(User) //
-    .attribute<boolean>('canMentionGroups'),
+    .attribute<boolean>('canMentionGroups')
+    .attribute<number | undefined>('mentionCount')
+    .attribute<number | undefined>('mentionCountRevision'),
 ];
