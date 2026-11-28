@@ -93,6 +93,13 @@ flarum-oauth-provider:
       unverified: "unverified, self-registered"
       redirect_host: "After you decide, you will be sent to {host}."
 
+    authorize_error:
+      title: "Authorization failed"
+      intro: "{client} could not be authorized."
+      intro_unknown: "The application could not be authorized."
+      not_redirected: "For your safety, you were not sent on to {host}."
+      error_code: "Error:"
+
     connected_apps:
       heading: "Connected applications"
       help_text: "Applications you allowed to use your account, such as AI assistants. Revoking one signs it out. Logging out everywhere, or changing your password, disconnects them all."
