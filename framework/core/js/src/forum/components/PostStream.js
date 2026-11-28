@@ -33,6 +33,15 @@ export default class PostStream extends Component {
     this.stream = this.attrs.stream;
 
     this.scrollListener = new ScrollListener(this.onscroll.bind(this));
+    this.lastScrollTop = undefined;
+    this.lastScrollAdjustment = this.stream.scrollAdjustment;
+    this.scrollDirection = 0;
+
+    /**
+     * The height each rendered placeholder was first given, by post ID, so
+     * that it doesn't resize on screen before its post arrives.
+     */
+    this.placeholderHeights = {};
   }
 
   view() {
@@ -41,6 +50,8 @@ export default class PostStream extends Component {
     const viewingEnd = this.stream.viewingEnd();
     const posts = this.stream.posts();
     const postIds = this.discussion.postIds();
+    const placeholderHeights = {};
+    let estimatedHeight;
 
     const items = posts.map((post, i) => {
       let content;
@@ -73,9 +84,19 @@ export default class PostStream extends Component {
 
         lastTime = time;
       } else {
-        attrs.key = 'post' + postIds[this.stream.visibleStart + i];
+        const id = postIds[this.stream.visibleStart + i];
 
-        content = <LoadingPost />;
+        if (!(id in this.placeholderHeights)) {
+          if (estimatedHeight === undefined) estimatedHeight = this.estimatePostHeight();
+          this.placeholderHeights[id] = estimatedHeight;
+        }
+
+        placeholderHeights[id] = this.placeholderHeights[id];
+
+        attrs.key = 'post' + id;
+
+        // A post replacing a placeholder of about its height moves less on screen.
+        content = <LoadingPost style={placeholderHeights[id] ? { minHeight: placeholderHeights[id] + 'px' } : undefined} />;
       }
 
       const postStreamElement = (
@@ -131,11 +152,32 @@ export default class PostStream extends Component {
       items.push(...this.endItems().toArray());
     }
 
+    this.placeholderHeights = placeholderHeights;
+
     return (
       <div className="PostStream" role="feed" aria-live="off" aria-busy={this.stream.pagesLoading ? 'true' : 'false'}>
         {items}
       </div>
     );
+  }
+
+  /**
+   * The median height of the posts on the page, or 0 before any has rendered.
+   * The median, so that one very tall post doesn't inflate every placeholder.
+   *
+   * @returns {number}
+   */
+  estimatePostHeight() {
+    if (!this.element) return 0;
+
+    const heights = Array.from(this.element.querySelectorAll('.PostStream-item[data-number] > .Post'), (post) => post.offsetHeight).sort(
+      (a, b) => a - b
+    );
+    const middle = heights.length / 2;
+
+    if (!heights.length) return 0;
+
+    return Math.round(Number.isInteger(middle) ? (heights[middle - 1] + heights[middle]) / 2 : heights[Math.floor(middle)]);
   }
 
   /**
@@ -237,11 +279,20 @@ export default class PostStream extends Component {
    * @param {number} top
    */
   onscroll(top = window.scrollY) {
+    const readerDelta = top - this.lastScrollTop - (this.stream.scrollAdjustment - this.lastScrollAdjustment);
+    this.lastScrollTop = top;
+    this.lastScrollAdjustment = this.stream.scrollAdjustment;
+
+    // A jump that hasn't settled isn't the reader scrolling: fetching pages
+    // ahead of it would only fetch pages they may never scroll to.
+    if (this.settling) this.scrollDirection = 0;
+    else if (readerDelta) this.scrollDirection = Math.sign(readerDelta);
+
     if (this.stream.paused || this.stream.pagesLoading) return;
 
     this.updateScrubber(top);
 
-    this.loadPostsIfNeeded(top);
+    this.loadPostsIfNeeded(top, this.scrollDirection);
 
     // While the page is settling after a programmatic scroll, layout shifts
     // are still happening (images loading, etc). Skip position/URL updates
@@ -255,30 +306,67 @@ export default class PostStream extends Component {
   }
 
   /**
-   * Check if either extreme of the post stream is in the viewport,
-   * and if so, trigger loading the next/previous page.
+   * Load the next or previous page once that end of the stream comes near the
+   * viewport.
    *
    * @param {number} top
+   * @param {number} direction Which way the reader is scrolling (1 down, -1 up,
+   *                           0 neither); pages that way load several viewports early.
    */
-  loadPostsIfNeeded(top = window.scrollY) {
+  loadPostsIfNeeded(top = window.scrollY, direction = 0) {
     const marginTop = this.getMarginTop();
     const viewportHeight = $(window).height() - marginTop;
     const viewportTop = top + marginTop;
-    const loadAheadDistance = 300;
+    const viewportBottom = viewportTop + viewportHeight;
+    const nearDistance = 300;
+    // A page should arrive before the reader reaches it: posts replacing
+    // placeholders on screen, or pushing the footer away, shift the layout.
+    // On phones, going further than four viewports measured no better; see #5643.
+    const aheadDistance = Math.max(nearDistance, viewportHeight * 4);
+    const $itemAt = (index) => this.$('.PostStream-item[data-index=' + index + ']');
+
+    // Loading a page may unload the one two pages away on the other side. An
+    // early load must leave that side's new edge out of the near distance, or
+    // it would load that page straight back, or unload posts on screen.
+    const nearEdgeStaysAway = (edgeIndex, distanceOf) => {
+      const $edge = $itemAt(edgeIndex);
+
+      return !$edge.length || distanceOf($edge) >= nearDistance;
+    };
 
     if (this.stream.visibleStart > 0) {
-      const $item = this.$('.PostStream-item[data-index=' + this.stream.visibleStart + ']');
+      const $item = $itemAt(this.stream.visibleStart);
 
-      if ($item.length && $item.offset().top > viewportTop - loadAheadDistance) {
-        this.stream.loadPrevious();
+      if ($item.length) {
+        const distance = viewportTop - $item.offset().top;
+
+        if (
+          distance < nearDistance ||
+          (direction < 0 &&
+            distance < aheadDistance &&
+            (this.stream.endAfterLoadingPrevious() === this.stream.visibleEnd ||
+              nearEdgeStaysAway(this.stream.endAfterLoadingPrevious() - 1, ($edge) => $edge.offset().top + $edge.outerHeight(true) - viewportBottom)))
+        ) {
+          this.stream.loadPrevious();
+        }
       }
     }
 
     if (this.stream.visibleEnd < this.stream.count()) {
-      const $item = this.$('.PostStream-item[data-index=' + (this.stream.visibleEnd - 1) + ']');
+      const $item = $itemAt(this.stream.visibleEnd - 1);
 
-      if ($item.length && $item.offset().top + $item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
-        this.stream.loadNext();
+      if ($item.length) {
+        const distance = $item.offset().top + $item.outerHeight(true) - viewportBottom;
+
+        if (
+          distance < nearDistance ||
+          (direction > 0 &&
+            distance < aheadDistance &&
+            (this.stream.startAfterLoadingNext() === this.stream.visibleStart ||
+              nearEdgeStaysAway(this.stream.startAfterLoadingNext(), ($edge) => viewportTop - $edge.offset().top)))
+        ) {
+          this.stream.loadNext();
+        }
       }
     }
   }

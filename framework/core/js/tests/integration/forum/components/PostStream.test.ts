@@ -352,6 +352,48 @@ describe('PostStream position sync (immediate emit + settling lifecycle)', () =>
     expect(instance.calculatePosition).not.toHaveBeenCalled();
   });
 
+  it('looks ahead in the direction the reader scrolls, once a jump has settled', () => {
+    const instance = new (PostStream as any)();
+    instance.stream = { paused: false, pagesLoading: 0, scrollAdjustment: 0 };
+    instance.element = document.createElement('div');
+    instance.updateScrubber = jest.fn();
+    instance.loadPostsIfNeeded = jest.fn();
+    instance.calculatePosition = jest.fn();
+
+    instance.settling = true;
+    instance.onscroll(100);
+    instance.onscroll(300);
+    instance.settling = false;
+    instance.onscroll(400);
+    instance.onscroll(350);
+    instance.onscroll(350);
+
+    expect((instance.loadPostsIfNeeded as jest.Mock).mock.calls).toEqual([
+      [100, 0],
+      [300, 0],
+      [400, 1],
+      [350, -1],
+      [350, -1],
+    ]);
+  });
+
+  it("does not count the stream's own scroll adjustments as the reader scrolling", () => {
+    const instance = new (PostStream as any)();
+    instance.stream = { paused: false, pagesLoading: 0, scrollAdjustment: 0 };
+    instance.element = document.createElement('div');
+    instance.updateScrubber = jest.fn();
+    instance.loadPostsIfNeeded = jest.fn();
+    instance.calculatePosition = jest.fn();
+
+    instance.onscroll(10000);
+    instance.onscroll(9900);
+    // A page loaded above the reader, and the stream kept them in place.
+    instance.stream.scrollAdjustment += 4100;
+    instance.onscroll(14000);
+
+    expect((instance.loadPostsIfNeeded as jest.Mock).mock.calls[2]).toEqual([14000, -1]);
+  });
+
   it('endSettling calls calculatePosition for reconciliation', () => {
     const instance = new (PostStream as any)();
     instance.stream = { paused: false };
@@ -979,4 +1021,255 @@ describe('PostStream reply placeholder', () => {
   function render(discussion: Discussion, stream: PostStreamState) {
     return mq(PostStream, { discussion, stream });
   }
+});
+
+describe('PostStream look-ahead loading', () => {
+  const viewport = 800;
+  let nextId = 2000;
+
+  function setUp(postHeight: number, [start, end]: [number, number]) {
+    const base = nextId;
+    nextId += 121;
+    const postIds = Array.from({ length: 120 }, (_, i) => String(base + i));
+    app.store.pushPayload({
+      data: {
+        id: String(base),
+        type: 'discussions',
+        attributes: { title: 'Discussion title' },
+        relationships: { posts: { data: postIds.map((id) => ({ id, type: 'posts' })) } },
+      },
+    });
+
+    const stream = new PostStreamState(app.store.getById<Discussion>('discussions', String(base))!, []);
+    stream.reset(start, end);
+    stream.loadPage = jest.fn();
+    stream.loadNext = jest.fn(() => stream._loadNext());
+    stream.loadPrevious = jest.fn(() => stream._loadPrevious());
+
+    const instance = new (PostStream as any)();
+    instance.stream = stream;
+    instance.getMarginTop = () => 0;
+    instance.element = document.createElement('div');
+    for (let index = 0; index < 120; index++) {
+      instance.element.insertAdjacentHTML('beforeend', `<div class="PostStream-item" data-index="${index}"></div>`);
+    }
+
+    jest.spyOn($.fn, 'height').mockImplementation(function (this: JQuery) {
+      return this[0] === (window as any) ? viewport : 0;
+    } as any);
+    jest.spyOn($.fn, 'offset').mockImplementation(function (this: JQuery) {
+      return { top: Number((this[0] as HTMLElement).dataset.index) * postHeight, left: 0 };
+    } as any);
+    jest.spyOn($.fn, 'outerHeight').mockReturnValue(postHeight as any);
+
+    return { instance, stream };
+  }
+
+  function check({ postHeight, window, top, direction }: { postHeight: number; window: [number, number]; top: number; direction: number }) {
+    const { instance, stream } = setUp(postHeight, window);
+    instance.loadPostsIfNeeded(top, direction);
+
+    return stream;
+  }
+
+  afterEach(() => jest.restoreAllMocks());
+
+  it('requests the next page while the end of the stream is still several viewports below', () => {
+    // The end of the stream (60,000) is 2,000 px below the viewport.
+    const stream = check({ postHeight: 1000, window: [0, 60], top: 57200, direction: 1 });
+
+    expect(stream.loadNext).toHaveBeenCalled();
+  });
+
+  it('requests the previous page while the start of the stream is still several viewports above', () => {
+    const stream = check({ postHeight: 1000, window: [40, 100], top: 42000, direction: -1 });
+
+    expect(stream.loadPrevious).toHaveBeenCalled();
+  });
+
+  it('only looks ahead in the direction the reader scrolls', () => {
+    expect(check({ postHeight: 1000, window: [0, 60], top: 57200, direction: -1 }).loadNext).not.toHaveBeenCalled();
+    expect(check({ postHeight: 1000, window: [40, 100], top: 42000, direction: 1 }).loadPrevious).not.toHaveBeenCalled();
+    expect(check({ postHeight: 1000, window: [0, 60], top: 57200, direction: 0 }).loadNext).not.toHaveBeenCalled();
+  });
+
+  it('does not request pages that are further away than the look-ahead', () => {
+    const stream = check({ postHeight: 1000, window: [40, 100], top: 70000, direction: 1 });
+
+    expect(stream.loadNext).not.toHaveBeenCalled();
+    expect(stream.loadPrevious).not.toHaveBeenCalled();
+  });
+
+  it('does not load the next page early when that would unload posts on screen', () => {
+    // Loading the next page unloads posts 0-40; the viewport shows 32-39.
+    const stream = check({ postHeight: 100, window: [0, 60], top: 3200, direction: 1 });
+
+    expect(stream.loadNext).not.toHaveBeenCalled();
+  });
+
+  it('does not load the previous page early when that would unload posts on screen', () => {
+    // Loading the previous page unloads posts 60-99; the viewport shows 54-61.
+    const stream = check({ postHeight: 100, window: [40, 100], top: 5400, direction: -1 });
+
+    expect(stream.loadPrevious).not.toHaveBeenCalled();
+  });
+
+  it('loads the next page early when what it unloads is well off screen', () => {
+    // Loading the next page unloads posts 41-80, which end 1,000 px above the viewport.
+    const stream = check({ postHeight: 200, window: [41, 100], top: 17200, direction: 1 });
+
+    expect(stream.loadNext).toHaveBeenCalled();
+  });
+
+  it('still loads the next page once its end is about to come into view', () => {
+    const stream = check({ postHeight: 100, window: [0, 60], top: 5000, direction: 0 });
+
+    expect(stream.loadNext).toHaveBeenCalled();
+  });
+
+  it('does not load back the page it has just unloaded while the reader scrolls up', () => {
+    const { instance, stream } = setUp(100, [40, 100]);
+
+    // Within 300 px of the start: the previous page loads and 60-99 unload.
+    instance.loadPostsIfNeeded(4100, -1);
+    expect(stream.visibleEnd).toBe(60);
+
+    instance.loadPostsIfNeeded(4050, -1);
+
+    expect(stream.loadNext).not.toHaveBeenCalled();
+  });
+});
+
+describe('PostStream placeholder height', () => {
+  let nextId = 900;
+  let container: HTMLElement;
+  const heights: Record<string, number> = {};
+  const originalOffsetHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight')!;
+
+  function seed(postCount: number, loadedOffsets: number[]) {
+    const base = nextId;
+    nextId += postCount + 1;
+
+    const discussionId = String(base);
+    const postIds = Array.from({ length: postCount }, (_, i) => String(base + 1 + i));
+
+    app.store.pushPayload({
+      data: {
+        id: discussionId,
+        type: 'discussions',
+        attributes: { title: 'Discussion title' },
+        relationships: { posts: { data: postIds.map((id) => ({ id, type: 'posts' })) } },
+      },
+    });
+
+    const load = (offsets: number[]) =>
+      app.store.pushPayload({
+        data: offsets.map((offset) => ({
+          id: postIds[offset],
+          type: 'posts',
+          attributes: { number: offset + 1, contentType: 'comment', canEdit: true, createdAt: new Date(), contentHtml: `<p>Post</p>` },
+          relationships: { discussion: { data: { id: discussionId, type: 'discussions' } } },
+        })),
+      });
+
+    load(loadedOffsets);
+
+    const discussion = app.store.getById<Discussion>('discussions', discussionId)!;
+    const stream = new PostStreamState(discussion, []);
+    stream.reset(0, loadedOffsets.length);
+
+    return { discussion, stream, load };
+  }
+
+  function mount(discussion: Discussion, stream: PostStreamState) {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    m.mount(container, { view: () => m(PostStream, { discussion, stream }) });
+  }
+
+  function minHeightOf(index: number): string {
+    return (container.querySelector(`.PostStream-item[data-index="${index}"] > .Post`) as HTMLElement).style.minHeight;
+  }
+
+  beforeEach(() => {
+    if (!app.session) app.boot();
+
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.classList.contains('Post') ? heights[this.parentElement?.dataset.number ?? ''] ?? 0 : 0;
+      },
+    });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', originalOffsetHeight);
+    m.mount(container, null);
+    container.remove();
+    for (const key of Object.keys(heights)) delete heights[key];
+  });
+
+  it('sizes placeholders like the posts already loaded', () => {
+    const { discussion, stream } = seed(4, [0, 1]);
+    heights['1'] = 300;
+    heights['2'] = 500;
+    mount(discussion, stream);
+
+    stream.visibleEnd = 4;
+    m.redraw.sync();
+
+    expect(minHeightOf(2)).toBe('400px');
+    expect(minHeightOf(3)).toBe('400px');
+  });
+
+  it('keeps a placeholder at the height it was given while the loaded posts change', () => {
+    const { discussion, stream } = seed(4, [0, 1]);
+    heights['1'] = 300;
+    heights['2'] = 500;
+    mount(discussion, stream);
+    stream.visibleEnd = 4;
+    m.redraw.sync();
+
+    heights['1'] = 900;
+    m.redraw.sync();
+
+    expect(minHeightOf(2)).toBe('400px');
+  });
+
+  it('drops the height once the post has loaded', () => {
+    const { discussion, stream, load } = seed(4, [0, 1]);
+    heights['1'] = 300;
+    heights['2'] = 500;
+    mount(discussion, stream);
+    stream.visibleEnd = 4;
+    m.redraw.sync();
+
+    load([2]);
+    m.redraw.sync();
+
+    expect(minHeightOf(2)).toBe('');
+    expect(minHeightOf(3)).toBe('400px');
+  });
+
+  it('sizes placeholders by the typical post rather than one very tall one', () => {
+    const { discussion, stream } = seed(5, [0, 1, 2]);
+    heights['1'] = 100;
+    heights['2'] = 120;
+    heights['3'] = 15000;
+    mount(discussion, stream);
+
+    stream.visibleEnd = 5;
+    m.redraw.sync();
+
+    expect(minHeightOf(3)).toBe('120px');
+  });
+
+  it('leaves placeholders at their own height when no post has loaded to measure', () => {
+    const { discussion, stream } = seed(2, []);
+    stream.reset(0, 2);
+    mount(discussion, stream);
+    m.redraw.sync();
+
+    expect(minHeightOf(0)).toBe('');
+  });
 });

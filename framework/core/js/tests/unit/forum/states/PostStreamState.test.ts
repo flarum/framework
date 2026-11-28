@@ -4,6 +4,8 @@ import PostStreamState from '../../../../src/forum/states/PostStreamState';
 import DiscussionPage from '../../../../src/forum/components/DiscussionPage';
 import Discussion from '../../../../src/common/models/Discussion';
 import Post from '../../../../src/common/models/Post';
+import m from 'mithril';
+import { jest } from '@jest/globals';
 
 beforeAll(() => bootstrapForum());
 
@@ -193,5 +195,83 @@ describe('PostStreamState', () => {
       expect(state.posts()).toHaveLength(8);
       expect(state.posts().every((p) => p !== null)).toBe(true);
     });
+  });
+});
+
+describe('PostStreamState page unloading', () => {
+  function streamOver(start: number, end: number) {
+    const { discussion } = seedStore(120, []);
+    const stream = new PostStreamState(discussion, []);
+    stream.reset(start, end);
+    stream.loadPage = () => {};
+
+    return stream;
+  }
+
+  it('says where the stream will start after loading the next page', () => {
+    const stream = streamOver(0, 60);
+    const expected = stream.startAfterLoadingNext();
+
+    stream._loadNext();
+
+    expect(expected).toBe(41);
+    expect(stream.visibleStart).toBe(expected);
+  });
+
+  it('says the start stays put when loading the next page unloads nothing', () => {
+    const stream = streamOver(0, 20);
+
+    expect(stream.startAfterLoadingNext()).toBe(0);
+  });
+
+  it('says where the stream will end after loading the previous page', () => {
+    const stream = streamOver(40, 100);
+    const expected = stream.endAfterLoadingPrevious();
+
+    stream._loadPrevious();
+
+    expect(expected).toBe(60);
+    expect(stream.visibleEnd).toBe(expected);
+  });
+
+  it('says the end stays put when loading the previous page unloads nothing', () => {
+    const stream = streamOver(20, 40);
+
+    expect(stream.endAfterLoadingPrevious()).toBe(40);
+  });
+
+  it('adds up how far it scrolls the page to keep the reader in place', () => {
+    jest.useFakeTimers();
+    const stream = streamOver(0, 60);
+    delete (stream as any).loadPage;
+
+    const item = document.createElement('div');
+    item.className = 'PostStream-item';
+    item.dataset.index = '59';
+    document.body.appendChild(item);
+
+    let scrollY = 1000;
+    let grown = false;
+    const scrollYDescriptor = Object.getOwnPropertyDescriptor(window, 'scrollY');
+    Object.defineProperty(window, 'scrollY', { configurable: true, get: () => scrollY });
+    jest.spyOn($.fn, 'scrollTop').mockImplementation(function (this: JQuery, value?: number) {
+      if (value === undefined) return scrollY;
+      scrollY = value;
+      return this;
+    } as any);
+    jest.spyOn($.fn, 'offset').mockImplementation(() => ({ top: grown ? 5000 : 2000, left: 0 }));
+    jest.spyOn(m.redraw, 'sync').mockImplementation(() => {
+      grown = true;
+    });
+
+    stream.loadPage(0, 20, true);
+
+    expect(stream.scrollAdjustment).toBe(3000);
+
+    jest.clearAllTimers();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+    if (scrollYDescriptor) Object.defineProperty(window, 'scrollY', scrollYDescriptor);
+    item.remove();
   });
 });

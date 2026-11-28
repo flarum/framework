@@ -11,7 +11,7 @@ export interface ILoadingPostAttrs extends ComponentAttrs {}
 export default class LoadingPost<CustomAttrs extends ILoadingPostAttrs = ILoadingPostAttrs> extends Component<CustomAttrs> {
   view() {
     return (
-      <div className={classList(this.attrs.className, 'Post CommentPost LoadingPost')}>
+      <div className={classList(this.attrs.className, 'Post CommentPost LoadingPost')} style={this.attrs.style}>
         <header className="Post-header">
           <Avatar user={null} className="PostUser-avatar" />
           <div className="fakeText" />

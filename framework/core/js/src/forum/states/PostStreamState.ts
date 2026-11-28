@@ -24,6 +24,12 @@ export default class PostStreamState {
   loadPageTimeouts: Record<number, NodeJS.Timeout> = {};
   pagesLoading = 0;
 
+  /**
+   * How far, in total, loading pages has scrolled the page to keep the reader's
+   * place, so that it isn't mistaken for the reader scrolling.
+   */
+  scrollAdjustment = 0;
+
   index = 0;
   number = 1;
 
@@ -210,17 +216,38 @@ export default class PostStreamState {
   }
 
   /**
+   * The index the loaded window will start at once `_loadNext()` has unloaded
+   * the page two pages back.
+   */
+  startAfterLoadingNext(): number {
+    const twoPagesAway = this.visibleEnd - PostStreamState.loadCount * 2;
+
+    return twoPagesAway > this.visibleStart && twoPagesAway >= 0 ? twoPagesAway + PostStreamState.loadCount + 1 : this.visibleStart;
+  }
+
+  /**
+   * The index the loaded window will end before (exclusive) once
+   * `_loadPrevious()` has unloaded the page two pages on.
+   */
+  endAfterLoadingPrevious(): number {
+    const twoPagesAway = this.sanitizeIndex(this.visibleStart - PostStreamState.loadCount) + PostStreamState.loadCount * 2;
+
+    return twoPagesAway < this.visibleEnd && twoPagesAway <= this.count() ? twoPagesAway : this.visibleEnd;
+  }
+
+  /**
    * Load the next page of posts.
    */
   _loadNext() {
     const start = this.visibleEnd;
+    const visibleStart = this.startAfterLoadingNext();
     const end = (this.visibleEnd = this.sanitizeIndex(this.visibleEnd + PostStreamState.loadCount));
 
     // Unload the posts which are two pages back from the page we're currently
     // loading.
-    const twoPagesAway = start - PostStreamState.loadCount * 2;
-    if (twoPagesAway > this.visibleStart && twoPagesAway >= 0) {
-      this.visibleStart = twoPagesAway + PostStreamState.loadCount + 1;
+    if (visibleStart !== this.visibleStart) {
+      const twoPagesAway = start - PostStreamState.loadCount * 2;
+      this.visibleStart = visibleStart;
 
       if (this.loadPageTimeouts[twoPagesAway]) {
         clearTimeout(this.loadPageTimeouts[twoPagesAway]);
@@ -237,13 +264,14 @@ export default class PostStreamState {
    */
   _loadPrevious() {
     const end = this.visibleStart;
+    const visibleEnd = this.endAfterLoadingPrevious();
     const start = (this.visibleStart = this.sanitizeIndex(this.visibleStart - PostStreamState.loadCount));
 
     // Unload the posts which are two pages back from the page we're currently
     // loading.
-    const twoPagesAway = start + PostStreamState.loadCount * 2;
-    if (twoPagesAway < this.visibleEnd && twoPagesAway <= this.count()) {
-      this.visibleEnd = twoPagesAway;
+    if (visibleEnd !== this.visibleEnd) {
+      const twoPagesAway = visibleEnd;
+      this.visibleEnd = visibleEnd;
 
       if (this.loadPageTimeouts[twoPagesAway]) {
         clearTimeout(this.loadPageTimeouts[twoPagesAway]);
@@ -265,7 +293,9 @@ export default class PostStreamState {
       if (start < this.visibleStart || end > this.visibleEnd) return;
 
       const anchorIndex = backwards ? this.visibleEnd - 1 : this.visibleStart;
+      const scrollY = window.scrollY;
       anchorScroll(`.PostStream-item[data-index="${anchorIndex}"]`, m.redraw.sync);
+      this.scrollAdjustment += window.scrollY - scrollY;
     };
     redraw();
 
