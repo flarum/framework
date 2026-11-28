@@ -37,6 +37,13 @@ class AuthenticateWithSession implements Middleware
         if ($session->has('access_token')) {
             $token = AccessToken::findValid($session->get('access_token'));
 
+            if ($token && ! $this->acceptsToken($token, $request)) {
+                // Deleted, not just dropped from the session: a remember cookie
+                // would otherwise sign the session straight back in.
+                $token->delete();
+                $token = null;
+            }
+
             if ($token) {
                 $actor = $token->user;
                 $actor->updateLastSeen();
@@ -57,5 +64,21 @@ class AuthenticateWithSession implements Middleware
         }
 
         return new Guest;
+    }
+
+    /**
+     * Whether a valid token may still authenticate this request.
+     *
+     * Override to check the session against an external authority, such as an
+     * identity provider that may have revoked it upstream. Runs before the user's
+     * activity or the token is touched; rejecting deletes the token and resets the
+     * session, and the request continues as a guest.
+     *
+     * Session authentication only: a token sent as `Authorization: Token` is
+     * checked by {@see AuthenticateWithHeader}, which does not call this.
+     */
+    protected function acceptsToken(AccessToken $token, Request $request): bool
+    {
+        return true;
     }
 }
