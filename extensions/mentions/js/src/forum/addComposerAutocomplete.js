@@ -13,6 +13,8 @@ export default function addComposerAutocomplete() {
     this.mentionsDropdown = new AutocompleteDropdown();
     // Searches resolve, and the throttle's trailing call runs, after the user may have left the mention.
     this.mentionsQuery = null;
+    // Escape's keyup, clicks and caret keys re-run the input listeners, which would reopen the dropdown.
+    this.mentionsDismissed = null;
     this.searchMentions = throttle(250, (mentionables, buildSuggestions, query) => {
       if (query !== this.mentionsQuery) return;
 
@@ -28,7 +30,14 @@ export default function addComposerAutocomplete() {
       .onUp(() => this.mentionsDropdown.navigate(-1))
       .onDown(() => this.mentionsDropdown.navigate(1))
       .onSelect(this.mentionsDropdown.complete.bind(this.mentionsDropdown))
-      .onCancel(this.mentionsDropdown.hide.bind(this.mentionsDropdown))
+      .onCancel(() => {
+        if (this.mentionsQuery) {
+          if (this.mentionsDismissed?.value !== this.value) this.mentionsDismissed = { value: this.value, mentions: [] };
+          this.mentionsDismissed.mentions.push(this.mentionsQuery);
+        }
+        this.mentionsQuery = null;
+        this.mentionsDropdown.hide();
+      })
       .bindTo($editor);
 
     $editor.after($('<div class="ComposerBody-mentionsDropdownContainer"></div>'));
@@ -71,6 +80,7 @@ export default function addComposerAutocomplete() {
       this.mentionsDropdown.active = false;
       const previousQuery = this.mentionsQuery;
       this.mentionsQuery = null;
+      if (this.mentionsDismissed?.value !== this.value) this.mentionsDismissed = null;
 
       if (autocompleting) {
         mentionables.init(activeFormat.makeMentionables());
@@ -79,6 +89,11 @@ export default function addComposerAutocomplete() {
         if (!matchTyped) return;
 
         mentionables.typed = matchTyped;
+
+        const dismissed = this.mentionsDismissed?.mentions.some(
+          (mention) => mention.start === autocompleting.absoluteStart && mention.format === activeFormat
+        );
+        if (dismissed) return;
 
         // keyup and click re-run the listeners, usually on the same mention: keep its searches then.
         const unchanged =

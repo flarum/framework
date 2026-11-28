@@ -28,6 +28,22 @@ function type(value: string) {
   textarea.dispatchEvent(new KeyboardEvent('keyup'));
 }
 
+const ESCAPE = { key: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true } as KeyboardEventInit;
+
+// Returns whether the keydown was left for the composer's own Escape handler.
+function pressEscape(): boolean {
+  const keydown = new KeyboardEvent('keydown', ESCAPE);
+  textarea.dispatchEvent(keydown);
+  textarea.dispatchEvent(new KeyboardEvent('keyup', ESCAPE));
+
+  return !keydown.defaultPrevented;
+}
+
+function moveCaretTo(position: number) {
+  textarea.setSelectionRange(position, position);
+  textarea.dispatchEvent(new MouseEvent('click'));
+}
+
 function dropdownText(): string | null {
   const dropdown = root.querySelector<HTMLElement>('.MentionsDropdown');
 
@@ -154,4 +170,89 @@ test('ignores search results for a mention the user has since left for another',
   await wait(0);
 
   expect(dropdownText()).toBeNull();
+});
+
+test('Escape closes the dropdown, and keyup does not reopen it', async () => {
+  type('Hi @ad');
+  resolveSearch([adrian()]);
+  await wait(0);
+  expect(dropdownText()).toContain('adrian');
+
+  expect(pressEscape()).toBe(false);
+  expect(dropdownText()).toBeNull();
+});
+
+test('a second Escape is left for the composer', () => {
+  type('Hi @ad');
+  pressEscape();
+
+  expect(pressEscape()).toBe(true);
+});
+
+test('opens the dropdown for another mention after one is dismissed', () => {
+  type('Hi @ad @ad');
+  pressEscape();
+  moveCaretTo('Hi @ad'.length);
+
+  expect(dropdownText()).toContain('Admin');
+});
+
+test('keeps every dismissed mention closed until the text changes', async () => {
+  type('Hi @ad @ad');
+  pressEscape();
+  moveCaretTo('Hi @ad'.length);
+  pressEscape();
+  moveCaretTo('Hi @ad @ad'.length);
+  await wait(AFTER_THROTTLE);
+
+  expect(dropdownText()).toBeNull();
+});
+
+test('ignores search results that arrive after Escape', async () => {
+  type('Hi @ad');
+  pressEscape();
+  resolveSearch([adrian()]);
+  await wait(AFTER_THROTTLE);
+
+  expect(dropdownText()).toBeNull();
+});
+
+test('ignores search results that arrive while Escape is held down', async () => {
+  type('Hi @ad');
+  textarea.dispatchEvent(new KeyboardEvent('keydown', ESCAPE));
+  resolveSearch([adrian()]);
+  await wait(0);
+
+  expect(dropdownText()).toBeNull();
+});
+
+test('keeps the dropdown closed when the caret moves within the dismissed mention', async () => {
+  type('Hi @ad');
+  pressEscape();
+  moveCaretTo('Hi @a'.length);
+  await wait(AFTER_THROTTLE);
+
+  expect(dropdownText()).toBeNull();
+});
+
+test('keeps the dropdown closed when the caret leaves the dismissed mention and comes back', async () => {
+  type('Hi @ad');
+  pressEscape();
+  moveCaretTo(1);
+  moveCaretTo('Hi @ad'.length);
+  await wait(AFTER_THROTTLE);
+
+  expect(dropdownText()).toBeNull();
+});
+
+test('reopens the dropdown once the dismissed mention changes', async () => {
+  type('Hi @ad');
+  pressEscape();
+  type('Hi @adr');
+  // The search for `adr` is the throttle's trailing call.
+  await wait(AFTER_THROTTLE);
+  resolveSearch([adrian()]);
+  await wait(0);
+
+  expect(dropdownText()).toContain('adrian');
 });
