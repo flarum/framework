@@ -7,7 +7,6 @@ import type Mithril from 'mithril';
 import apiUrl from '../apiUrl';
 import { alertError, serverMessage } from '../errors';
 import type { TrashPayload } from '../types';
-import { confirmAction } from './ConfirmModal';
 
 /** A size in the forum's locale, with the locale's own unit names: 1.5 MB, or 1,5 Mo in French. */
 function human(bytes: number): string {
@@ -152,13 +151,14 @@ export default class TrashPanel extends Component {
   }
 
   confirmPrune(d: TrashPayload) {
-    confirmAction({
-      title: app.translator.trans('flarum-extension-manager.admin.trash.prune'),
-      message: app.translator.trans('flarum-extension-manager.admin.trash.confirm', { count: d.removeCount, size: human(d.removeBytes) }),
-      confirmText: app.translator.trans('flarum-extension-manager.admin.trash.prune'),
-      danger: true,
-      onconfirm: () => this.send({ action: 'prune' }),
-    });
+    app
+      .confirm({
+        title: app.translator.trans('flarum-extension-manager.admin.trash.prune'),
+        message: app.translator.trans('flarum-extension-manager.admin.trash.confirm', { count: d.removeCount, size: human(d.removeBytes) }),
+        confirmText: app.translator.trans('flarum-extension-manager.admin.trash.prune'),
+        danger: true,
+      })
+      .then((confirmed) => confirmed && this.send({ action: 'prune' }));
   }
 
   load() {

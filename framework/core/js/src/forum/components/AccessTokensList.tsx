@@ -5,7 +5,6 @@ import IPAddress from '../../common/components/IPAddress';
 import humanTime from '../../common/helpers/humanTime';
 import ItemList from '../../common/utils/ItemList';
 import LabelValue from '../../common/components/LabelValue';
-import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
 import Tooltip from '../../common/components/Tooltip';
 import type Mithril from 'mithril';
@@ -177,7 +176,15 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
   }
 
   async revoke(token: AccessToken) {
-    if (!confirm(extractText(app.translator.trans('core.forum.security.revoke_access_token_confirmation')))) return;
+    const confirmed = await app.confirm({
+      message: app.translator.trans('core.forum.security.revoke_access_token_confirmation'),
+      confirmText: app.translator.trans(
+        this.attrs.type === 'session' ? 'core.forum.security.terminate_session' : 'core.forum.security.revoke_access_token'
+      ),
+      danger: true,
+    });
+
+    if (!confirmed) return;
 
     this.loading[token.id()!] = true;
 

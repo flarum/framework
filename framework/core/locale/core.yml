@@ -610,6 +610,7 @@ core:
       participate_heading: Participate
       post_without_throttle_label: Reply multiple times without waiting
       read_heading: Read
+      remove_scope_button: => core.ref.remove
       remove_scope_label: Remove scope of {scope}
       remove_scope_confirmation: Are you sure you want to remove the {scope} scope?
       rename_discussions_label: Rename discussions
@@ -720,8 +721,10 @@ core:
     # These translations are used by the composer controls.
     composer:
       close_tooltip: Close
+      discard_button: Discard
       exit_full_screen_tooltip: Exit Full Screen
       full_screen_tooltip: Full Screen
+      keep_writing_button: Keep Writing
       minimize_tooltip: Minimize
       preview_tooltip: Preview
       restore_tooltip: Restore
@@ -802,8 +805,10 @@ core:
     index:
       all_discussions_link: => core.ref.all_discussions
       cannot_start_discussion_button: Can't Start Discussion
+      mark_all_as_read_button: => core.ref.mark_all_as_read
       mark_all_as_read_confirmation: "Are you sure you want to mark all discussions as read?"
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
+      mark_filtered_as_read_button: Mark as Read
       mark_filtered_as_read_confirmation: "Are you sure you want to mark the discussions matching the current filters as read?"
       meta_title_text: => core.ref.all_discussions
       refresh_tooltip: => core.ref.refresh
@@ -836,6 +841,7 @@ core:
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
+      delete_all_button: Delete All
       delete_all_confirm: Are you sure you want to delete all notifications? This action is not reversible
       delete_all_tooltip: Delete all notifications
       discussion_renamed_text: "{username} changed the title"
@@ -1028,6 +1034,11 @@ core:
     # These translations are displayed as tooltips for discussion badges.
     badge:
       hidden_tooltip: Hidden
+
+    # These translations are used in the dialog that asks the user to confirm an action.
+    confirm_modal:
+      cancel_button: Cancel
+      confirm_button: Confirm
 
     # These translations are used in the dropdown component.
     dropdown:

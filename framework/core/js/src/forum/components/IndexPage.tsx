@@ -256,14 +256,15 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
    * confirmation says which of the two is about to happen, since "all
    * discussions" would be a lie for the filtered one.
    */
-  markAllAsRead() {
+  async markAllAsRead() {
     const filtered = !app.discussions.marksEverythingAsRead();
 
-    const confirmation = confirm(
-      extractText(
-        app.translator.trans(filtered ? 'core.forum.index.mark_filtered_as_read_confirmation' : 'core.forum.index.mark_all_as_read_confirmation')
-      )
-    );
+    const confirmation = await app.confirm({
+      message: app.translator.trans(
+        filtered ? 'core.forum.index.mark_filtered_as_read_confirmation' : 'core.forum.index.mark_all_as_read_confirmation'
+      ),
+      confirmText: app.translator.trans(filtered ? 'core.forum.index.mark_filtered_as_read_button' : 'core.forum.index.mark_all_as_read_button'),
+    });
 
     if (confirmation) {
       // Core already shows an error alert for a failed request; this is only

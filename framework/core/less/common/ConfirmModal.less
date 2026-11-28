@@ -1,0 +1,84 @@
+.ConfirmModal {
+  &-message {
+    line-height: 1.5;
+  }
+
+  &-details {
+    margin-top: 12px;
+    font-size: 13px;
+
+    ul {
+      margin: 0;
+      padding-inline-start: 18px;
+    }
+    code {
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+}
+
+@media @tablet-up {
+  // Keeps the message clear of the close button.
+  .ConfirmModal--untitled .ConfirmModal-message {
+    padding-inline-end: 20px;
+  }
+}
+
+// A question with two answers needs neither a full-screen page nor the phone header.
+@media @phone {
+  .ModalManager:has(> .ConfirmModal) {
+    display: flex;
+    flex-direction: column;
+
+    &:before {
+      display: none;
+    }
+  }
+
+  .ConfirmModal {
+    // Not `justify-content: flex-end`: a sheet taller than the screen could
+    // not be scrolled back to its top.
+    margin-top: auto;
+
+    .Modal-content {
+      min-height: 0;
+      padding-top: 0;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      padding-bottom: env(safe-area-inset-bottom);
+      background-color: var(--control-bg);
+    }
+
+    .Modal-close {
+      display: none;
+    }
+
+    .Modal-header {
+      padding: 20px 20px 0;
+      background-color: var(--control-bg);
+
+      h3 {
+        font-size: 17px;
+        margin: 0;
+      }
+    }
+
+    .Modal-body {
+      padding: 20px;
+    }
+
+    &-actions {
+      flex-direction: column-reverse;
+
+      .Button {
+        width: 100%;
+      }
+    }
+  }
+}

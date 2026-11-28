@@ -76,7 +76,7 @@ describe('the connected applications list', () => {
   it('revokes them all', async () => {
     const list = await rendered();
 
-    (globalThis as any).confirm = jest.fn(() => true);
+    app.confirm = jest.fn(() => Promise.resolve(true)) as any;
     const request = jest.fn((options: any) => Promise.resolve());
     app.request = request as any;
     app.alerts.show = jest.fn() as any;
@@ -93,7 +93,7 @@ describe('the connected applications list', () => {
   it('revokes an application', async () => {
     const list = await rendered();
 
-    (globalThis as any).confirm = jest.fn(() => true);
+    app.confirm = jest.fn(() => Promise.resolve(true)) as any;
     app.request = jest.fn(() => Promise.resolve()) as any;
     app.alerts.show = jest.fn() as any;
 

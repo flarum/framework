@@ -25,7 +25,6 @@ import Alert from 'flarum/common/components/Alert';
 import ItemList from 'flarum/common/utils/ItemList';
 import type { TabItem } from 'flarum/common/components/Tabs';
 import type Mithril from 'mithril';
-import { confirmAction } from './ConfirmModal';
 import HostPanel from './HostPanel';
 import TrashPanel from './TrashPanel';
 import RunPanel from './RunPanel';
@@ -548,21 +547,22 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
     const list = Array.isArray(entry) ? entry : [entry];
     const names = packages ?? list.map((e) => e.package);
 
-    confirmAction({
-      title: app.translator.trans('flarum-extension-manager.admin.extensions.update'),
-      message: app.translator.trans('flarum-extension-manager.admin.extensions.repin_confirm', { count: list.length }),
-      details: (
-        <ul className="ExtensionManager-confirm-list">
-          {list.map((e) => (
-            <li key={e.package}>
-              <code>{e.package}</code> {e.constraint} → {e.update?.to ?? '?'}
-            </li>
-          ))}
-        </ul>
-      ),
-      confirmText: app.translator.trans('flarum-extension-manager.admin.extensions.update'),
-      onconfirm: () => this.start(names, 'update', true),
-    });
+    app
+      .confirm({
+        title: app.translator.trans('flarum-extension-manager.admin.extensions.update'),
+        message: app.translator.trans('flarum-extension-manager.admin.extensions.repin_confirm', { count: list.length }),
+        details: (
+          <ul className="ExtensionManager-confirm-list">
+            {list.map((e) => (
+              <li key={e.package}>
+                <code>{e.package}</code> {e.constraint} → {e.update?.to ?? '?'}
+              </li>
+            ))}
+          </ul>
+        ),
+        confirmText: app.translator.trans('flarum-extension-manager.admin.extensions.update'),
+      })
+      .then((confirmed) => confirmed && this.start(names, 'update', true));
   }
 
   /**
@@ -571,13 +571,14 @@ export default class ExtensionManagerPage extends ExtensionPage<ExtensionManager
    * removal can too, but somebody should still mean it.
    */
   confirmRemove(e: Installed) {
-    confirmAction({
-      title: app.translator.trans('flarum-extension-manager.admin.extensions.remove_files'),
-      message: app.translator.trans('flarum-extension-manager.admin.extensions.remove_confirm', { name: e.name }),
-      confirmText: app.translator.trans('flarum-extension-manager.admin.extensions.remove'),
-      danger: true,
-      onconfirm: () => this.start([e.package], 'remove'),
-    });
+    app
+      .confirm({
+        title: app.translator.trans('flarum-extension-manager.admin.extensions.remove_files'),
+        message: app.translator.trans('flarum-extension-manager.admin.extensions.remove_confirm', { name: e.name }),
+        confirmText: app.translator.trans('flarum-extension-manager.admin.extensions.remove'),
+        danger: true,
+      })
+      .then((confirmed) => confirmed && this.start([e.package], 'remove'));
   }
 
   /**

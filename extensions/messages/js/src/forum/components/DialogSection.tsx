@@ -16,7 +16,6 @@ import DetailsModal from './DetailsModal';
 import RenameDialogModal from './RenameDialogModal';
 import listItems from 'flarum/common/helpers/listItems';
 import classList from 'flarum/common/utils/classList';
-import extractText from 'flarum/common/utils/extractText';
 import leaveDialog from '../utils/leaveDialog';
 
 export interface IDialogStreamAttrs extends ComponentAttrs {
@@ -222,10 +221,14 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
   }
 
   /** Leaves the group, once the member has confirmed, and closes it. */
-  leave(): Promise<void> {
-    if (!confirm(extractText(app.translator.trans('flarum-messages.forum.dialog_section.leave_confirmation')))) {
-      return Promise.resolve();
-    }
+  async leave(): Promise<void> {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('flarum-messages.forum.dialog_section.leave_confirmation'),
+      confirmText: app.translator.trans('flarum-messages.forum.dialog_section.controls.leave_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
 
     // A refusal is shown by the request itself.
     return leaveDialog(this.attrs.dialog).then(

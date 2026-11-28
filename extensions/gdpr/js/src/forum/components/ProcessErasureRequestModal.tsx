@@ -139,21 +139,20 @@ export default class ProcessErasureRequestModal<
     return items;
   }
 
-  process(mode: string) {
-    if (
-      !confirm(
-        app.translator.trans(
-          'flarum-gdpr.forum.process_erasure.confirm',
-          {
-            name: extractText(username(this.request.user())),
-            mode,
-          },
-          true
-        )
-      )
-    ) {
-      return;
-    }
+  async process(mode: string) {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('flarum-gdpr.forum.process_erasure.confirm', {
+        name: extractText(username(this.request.user())),
+        mode,
+      }),
+      confirmText:
+        mode === 'anonymization'
+          ? app.translator.trans('flarum-gdpr.forum.process_erasure.anonymization_button')
+          : app.translator.trans('flarum-gdpr.forum.process_erasure.deletion_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
 
     if (mode === 'anonymization') {
       this.loadingAnonymization = true;

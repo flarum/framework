@@ -2,7 +2,6 @@ import app from 'flarum/admin/app';
 import apiUrl from './apiUrl';
 import { alertError } from './errors';
 import type { RollbackPayload, Run } from './types';
-import { confirmAction } from './components/ConfirmModal';
 
 /**
  * Asks before undoing a run, and says whether the database goes back too.
@@ -15,15 +14,16 @@ import { confirmAction } from './components/ConfirmModal';
 export function confirmRollback(run: Run, onconfirm: () => void): void {
   const count = run.migrations?.length || 0;
 
-  confirmAction({
-    title: app.translator.trans('flarum-extension-manager.admin.run.roll_back'),
-    message: count
-      ? app.translator.trans('flarum-extension-manager.admin.run.roll_back_confirm_db', { count })
-      : app.translator.trans('flarum-extension-manager.admin.run.roll_back_confirm'),
-    confirmText: app.translator.trans('flarum-extension-manager.admin.run.roll_back'),
-    danger: true,
-    onconfirm,
-  });
+  app
+    .confirm({
+      title: app.translator.trans('flarum-extension-manager.admin.run.roll_back'),
+      message: count
+        ? app.translator.trans('flarum-extension-manager.admin.run.roll_back_confirm_db', { count })
+        : app.translator.trans('flarum-extension-manager.admin.run.roll_back_confirm'),
+      confirmText: app.translator.trans('flarum-extension-manager.admin.run.roll_back'),
+      danger: true,
+    })
+    .then((confirmed) => confirmed && onconfirm());
 }
 
 /** Undoes the latest run, the only one the endpoint acts on. A refusal is shown as the server's words. */

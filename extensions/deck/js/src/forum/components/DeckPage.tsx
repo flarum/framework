@@ -303,10 +303,14 @@ export default class DeckPage<CustomAttrs extends IDeckPageAttrs = IDeckPageAttr
       <Button
         icon="fas fa-rotate-left"
         disabled={!this.deck.isCustomised()}
-        onclick={() => {
-          if (confirm(extractText(app.translator.trans('flarum-deck.forum.page.reset_confirmation')))) {
-            this.deck.reset();
-          }
+        onclick={async () => {
+          const confirmed = await app.confirm({
+            message: app.translator.trans('flarum-deck.forum.page.reset_confirmation'),
+            confirmText: app.translator.trans('flarum-deck.forum.page.reset_button'),
+            danger: true,
+          });
+
+          if (confirmed) this.deck.reset();
         }}
       >
         {app.translator.trans('flarum-deck.forum.page.reset_button')}

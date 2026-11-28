@@ -97,10 +97,14 @@ const UserControls = {
    *
    * @param {import('../../common/models/User').default} user
    */
-  deleteAction(user) {
-    if (!confirm(app.translator.trans('core.forum.user_controls.delete_confirmation'))) {
-      return;
-    }
+  async deleteAction(user) {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('core.forum.user_controls.delete_confirmation'),
+      confirmText: app.translator.trans('core.forum.user_controls.delete_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
 
     user
       .delete()

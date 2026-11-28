@@ -137,14 +137,14 @@ describe('a group conversation', () => {
     app.dialogs = new DialogListState({}, 1);
     app.dropdownDialogs = new DialogListState({}, 1, 5);
     const request = jest.spyOn(app, 'request').mockImplementation((() => Promise.resolve(null)) as any);
-    const confirm = jest.spyOn(window, 'confirm');
+    const confirm = jest.spyOn(app, 'confirm');
     const target = section(group([{ canSendAnyMessage: true }, { canSendAnyMessage: true }]));
 
-    confirm.mockReturnValue(false);
+    confirm.mockResolvedValue(false);
     await target.leave();
     expect(request).not.toHaveBeenCalled();
 
-    confirm.mockReturnValue(true);
+    confirm.mockResolvedValue(true);
     await target.leave();
     expect(request).toHaveBeenCalledTimes(1);
     expect(target.attrs.onback).toHaveBeenCalled();

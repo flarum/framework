@@ -218,17 +218,23 @@ const DiscussionControls = {
    *
    * @return {Promise<void>}
    */
-  deleteAction() {
-    if (confirm(extractText(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
-      haptic('heavy');
-      // If we're currently viewing the discussion that was deleted, go back
-      // to the previous page.
-      if (app.viewingDiscussion(this)) {
-        app.history.back();
-      }
+  async deleteAction() {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('core.forum.discussion_controls.delete_confirmation'),
+      confirmText: app.translator.trans('core.forum.discussion_controls.delete_forever_button'),
+      danger: true,
+    });
 
-      return this.delete().then(() => app.discussions.removeDiscussion(this));
+    if (!confirmed) return;
+
+    haptic('heavy');
+    // If we're currently viewing the discussion that was deleted, go back
+    // to the previous page.
+    if (app.viewingDiscussion(this)) {
+      app.history.back();
     }
+
+    return this.delete().then(() => app.discussions.removeDiscussion(this));
   },
 
   /**

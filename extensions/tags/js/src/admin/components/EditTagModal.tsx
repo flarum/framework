@@ -195,7 +195,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
         </Button>
 
         {this.tag.exists && (
-          <button type="button" className="Button EditTagModal-delete" onclick={this.delete.bind(this)}>
+          <button type="button" className="Button EditTagModal-delete" disabled={this.loading} onclick={this.delete.bind(this)}>
             {app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_button')}
           </button>
         )}
@@ -291,20 +291,26 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
       );
   }
 
-  delete() {
-    if (confirm(extractText(app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_confirmation')))) {
-      const children = app.store.all<Tag>('tags').filter((tag) => tag.parent() === this.tag);
+  async delete() {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_confirmation'),
+      confirmText: app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_button'),
+      danger: true,
+    });
 
-      this.tag.delete().then(() => {
-        children.forEach((tag) =>
-          tag.pushData({
-            attributes: { isChild: false },
-          })
-        );
-        m.redraw();
-      });
+    if (!confirmed) return;
 
-      this.hide();
-    }
+    const children = app.store.all<Tag>('tags').filter((tag) => tag.parent() === this.tag);
+
+    this.tag.delete().then(() => {
+      children.forEach((tag) =>
+        tag.pushData({
+          attributes: { isChild: false },
+        })
+      );
+      m.redraw();
+    });
+
+    this.hide();
   }
 }

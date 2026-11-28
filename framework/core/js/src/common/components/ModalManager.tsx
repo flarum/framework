@@ -37,6 +37,12 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   protected closingModalKey: number | undefined;
 
   protected keyUpListener: null | ((e: KeyboardEvent) => void) = null;
+  protected keyDownListener: null | ((e: KeyboardEvent) => void) = null;
+
+  // The modal that was on top when Escape went down. An Escape pressed
+  // elsewhere can open a modal, like the composer's discard prompt, and its
+  // keyup must not close that modal again.
+  protected escapeDownModalKey: number | undefined;
 
   view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
     return (
@@ -87,7 +93,11 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
     super.oncreate(vnode);
 
+    this.keyDownListener = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !e.repeat) this.escapeDownModalKey = this.attrs.state.modal?.key;
+    };
     this.keyUpListener = this.handleEscPress.bind(this);
+    document.body.addEventListener('keydown', this.keyDownListener, true);
     document.body.addEventListener('keyup', this.keyUpListener);
   }
 
@@ -96,6 +106,8 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
     this.keyUpListener && document.body.removeEventListener('keyup', this.keyUpListener);
     this.keyUpListener = null;
+    this.keyDownListener && document.body.removeEventListener('keydown', this.keyDownListener, true);
+    this.keyDownListener = null;
   }
 
   onupdate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
@@ -141,7 +153,17 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
         // Activate focus trap if there's a new dialog which is not trapped yet
         if (this.activeDialogElement && this.lastSetFocusTrap !== dialogKey) {
-          this.focusTrap = createFocusTrap(this.activeDialogElement as HTMLElement, { allowOutsideClick: true });
+          const dialog = this.activeDialogElement as HTMLElement;
+
+          // A modal can name its first focus with `data-autofocus`. Moving focus
+          // itself before the trap starts would make the trap return focus to that
+          // element on close, rather than to what opened the modal.
+          const autofocus = dialog.querySelector<HTMLElement>('[data-autofocus]');
+
+          this.focusTrap = createFocusTrap(dialog, {
+            allowOutsideClick: true,
+            ...(autofocus && { initialFocus: autofocus }),
+          });
           this.focusTrap!.activate?.();
 
           if (this.activeDialogManagerElement) {
@@ -152,10 +174,11 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
             disableBodyScroll(this.activeDialogManagerElement, { reserveScrollBarGap });
           }
-        }
 
-        // Update key of current opened modal
-        this.lastSetFocusTrap = dialogKey;
+          // Only once the trap is set: a redraw that lands before the dialog is
+          // drawn must leave it to the next one, or the dialog is never trapped.
+          this.lastSetFocusTrap = dialogKey;
+        }
 
         // Initialize CloseWatcher for the new dialog
         if ('CloseWatcher' in window && this.lastCloseWatcherKey !== dialogKey) {
@@ -270,7 +293,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
     // Close the dialog if the escape key was pressed
     // Check if closing via escape key is enabled
-    if (e.key === 'Escape' && dismissibleState.viaEscKey) {
+    if (e.key === 'Escape' && dismissibleState.viaEscKey && this.escapeDownModalKey === this.attrs.state.modal.key) {
       e.preventDefault();
 
       this.animateHide();
