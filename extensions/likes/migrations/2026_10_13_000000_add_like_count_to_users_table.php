@@ -42,6 +42,9 @@ return [
                 ->whereIn('id', $users->pluck('id')->all())
                 ->update(['like_count' => $likeCount]);
         });
+
+        // The enable that runs this migration does not need to count again.
+        \Flarum\Likes\RefreshLikesOnEnable::$backfilled = true;
     },
 
     'down' => function (Builder $schema) {
