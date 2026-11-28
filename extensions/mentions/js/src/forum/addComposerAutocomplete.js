@@ -11,7 +11,15 @@ import MentionableModels from './mentionables/MentionableModels';
 export default function addComposerAutocomplete() {
   extend('flarum/common/components/TextEditor', 'onbuild', function () {
     this.mentionsDropdown = new AutocompleteDropdown();
-    this.searchMentions = throttle(250, (mentionables, buildSuggestions) => mentionables.search().then(buildSuggestions));
+    // Searches resolve, and the throttle's trailing call runs, after the user may have left the mention.
+    this.mentionsQuery = null;
+    this.searchMentions = throttle(250, (mentionables, buildSuggestions, query) => {
+      if (query !== this.mentionsQuery) return;
+
+      mentionables.search().then(() => {
+        if (query === this.mentionsQuery) buildSuggestions();
+      });
+    });
     const $editor = this.$('.TextEditor-editor').wrap('<div class="ComposerBody-mentionsWrapper"></div>');
 
     this.navigator = new KeyboardNavigatable();
@@ -26,6 +34,10 @@ export default function addComposerAutocomplete() {
     $editor.after($('<div class="ComposerBody-mentionsDropdownContainer"></div>'));
   });
 
+  extend('flarum/common/components/TextEditor', 'onremove', function () {
+    this.mentionsQuery = null;
+  });
+
   extend('flarum/common/components/TextEditor', 'buildEditorParams', function (params) {
     let matchTyped;
 
@@ -34,7 +46,11 @@ export default function addComposerAutocomplete() {
 
       const cursor = selection[0];
 
-      if (selection[1] - cursor > 0) return;
+      if (selection[1] - cursor > 0) {
+        this.mentionsDropdown.hide();
+        this.mentionsQuery = null;
+        return;
+      }
 
       let activeFormat = null;
       const autocompleteReader = new AutocompleteReader((character) => !!(activeFormat = app.mentionFormats.get(character)));
@@ -53,6 +69,8 @@ export default function addComposerAutocomplete() {
 
       this.mentionsDropdown.hide();
       this.mentionsDropdown.active = false;
+      const previousQuery = this.mentionsQuery;
+      this.mentionsQuery = null;
 
       if (autocompleting) {
         mentionables.init(activeFormat.makeMentionables());
@@ -61,6 +79,16 @@ export default function addComposerAutocomplete() {
         if (!matchTyped) return;
 
         mentionables.typed = matchTyped;
+
+        // keyup and click re-run the listeners, usually on the same mention: keep its searches then.
+        const unchanged =
+          previousQuery &&
+          previousQuery.start === autocompleting.absoluteStart &&
+          previousQuery.typed === matchTyped &&
+          previousQuery.format === activeFormat;
+        const query = (this.mentionsQuery = unchanged
+          ? previousQuery
+          : { start: autocompleting.absoluteStart, typed: matchTyped, format: activeFormat });
 
         const buildSuggestions = () => {
           // If the user has started to type a mention,
@@ -105,7 +133,7 @@ export default function addComposerAutocomplete() {
         this.mentionsDropdown.setIndex(0);
         this.mentionsDropdown.$().scrollTop(0);
 
-        this.searchMentions(mentionables, buildSuggestions);
+        this.searchMentions(mentionables, buildSuggestions, query);
       }
     };
 
