@@ -1,0 +1,7 @@
+#!/bin/bash
+# Prints an API access token for a seeded user: flarum-token member
+# Use it as `Authorization: Token <token>`.
+set -euo pipefail
+curl -fsS -H 'Content-Type: application/json' \
+  -d "{\"identification\":\"${1:-admin}\",\"password\":\"password\"}" \
+  "${FLARUM_URL:-http://127.0.0.1}/api/token" | jq -r .token

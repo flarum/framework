@@ -1,0 +1,43 @@
+#!/bin/bash
+# Starts MariaDB, PostgreSQL (for tests), Apache and, once the forum is installed with flarum/realtime enabled, the
+# realtime daemon (the container has no init system). Safe to run again.
+set -euo pipefail
+
+wait_for() { # wait_for <what> <log file> <command...>
+    local what="$1" log="$2"
+    shift 2
+    for _ in $(seq 120); do
+        "$@" >/dev/null 2>&1 && return 0
+        sleep 0.5
+    done
+    echo "flarum-start: $what did not start within 60 seconds; the end of $log:" >&2
+    tail -n 30 "$log" >&2 || true
+    exit 1
+}
+
+mkdir -p /run/mysqld && chown mysql:mysql /run/mysqld
+if ! mariadb-admin ping --silent 2>/dev/null; then
+    mysqld_safe --log-error=/var/log/mysql/error.log >/dev/null 2>&1 &
+fi
+wait_for MariaDB /var/log/mysql/error.log mariadb-admin ping --silent
+
+pg="$(ls /etc/postgresql)"
+pg_isready -q -h 127.0.0.1 || pg_ctlcluster "$pg" main start
+wait_for PostgreSQL "/var/log/postgresql/postgresql-$pg-main.log" pg_isready -q -h 127.0.0.1
+
+pgrep -x apache2 >/dev/null || apachectl start
+wait_for Apache /var/log/apache2/flarum-error.log curl -s --max-time 5 -o /dev/null http://127.0.0.1/
+
+[ -f /opt/flarum/config.php ] || exit 0
+
+if mariadb -N -e "SELECT value FROM flarum.settings WHERE \`key\` = 'extensions_enabled'" | grep -q '"flarum-realtime"'; then
+    if ! pgrep -f flarum-realtime-loop >/dev/null; then
+        setsid flarum-realtime-loop >> /var/log/flarum-realtime.log 2>&1 < /dev/null &
+    fi
+    wait_for 'The realtime daemon' /var/log/flarum-realtime.log curl -s --max-time 5 -o /dev/null http://127.0.0.1:6001/
+fi
+
+if ! curl -fsS --max-time 30 -o /dev/null http://127.0.0.1/api; then
+    echo "flarum-start: the forum is up but its API returns an error; see flarum-logs" >&2
+    exit 1
+fi
