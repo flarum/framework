@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Middleware;
 
+use Flarum\Api\Precognition;
 use Flarum\Post\Exception\FloodingException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -17,8 +18,15 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
 
 class ThrottleApi implements Middleware
 {
+    /**
+     * @param array<string, callable> $throttlers
+     * @param (callable(Request): bool)|null $precognitionThrottler defaults to the
+     *        `flarum.api.precognition_throttler` binding, so precognitive requests
+     *        stay limited when a subclass or custom binding omits it
+     */
     public function __construct(
-        protected array $throttlers
+        protected array $throttlers,
+        protected $precognitionThrottler = null
     ) {
     }
 
@@ -33,6 +41,19 @@ class ThrottleApi implements Middleware
 
     public function throttle(Request $request): bool
     {
+        // A precognitive request never saves, so the write-oriented throttlers
+        // don't apply. It gets its own limit instead, guests included: `unique`
+        // rules would otherwise let anyone enumerate taken usernames and emails.
+        if (Precognition::active($request)) {
+            if ($request->getAttribute('bypassThrottling')) {
+                return false;
+            }
+
+            $this->precognitionThrottler ??= resolve('flarum.api.precognition_throttler');
+
+            return ($this->precognitionThrottler)($request) === true;
+        }
+
         $throttle = false;
         foreach ($this->throttlers as $throttler) {
             $result = $throttler($request);
