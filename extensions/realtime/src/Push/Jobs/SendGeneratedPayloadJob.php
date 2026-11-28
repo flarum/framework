@@ -26,11 +26,17 @@ class SendGeneratedPayloadJob extends Job
      */
     private ?string $dispatch = null;
 
-    public function __construct(private string $event, private AbstractModel $model, private ?User $recipient = null, private ?array $includes = null, ?string $dispatch = null)
+    /**
+     * Declared with its default for the same reason as $dispatch.
+     */
+    private ?string $exceptSocket = null;
+
+    public function __construct(private string $event, private AbstractModel $model, private ?User $recipient = null, private ?array $includes = null, ?string $dispatch = null, ?string $exceptSocket = null)
     {
         parent::__construct();
 
         $this->dispatch = $dispatch;
+        $this->exceptSocket = $exceptSocket;
     }
 
     public function handle(Generator $generator, Pusher $pusher): void
@@ -49,7 +55,8 @@ class SendGeneratedPayloadJob extends Job
         $pusher->trigger(
             $channel,
             $this->event,
-            $payload
+            $payload,
+            $this->recipient && $this->exceptSocket ? ['socket_id' => $this->exceptSocket] : []
         );
     }
 

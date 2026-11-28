@@ -38,7 +38,7 @@ class TriggerEvent extends Controller
             if ($channel) {
                 $channel->broadcastToEveryoneExcept(
                     (object) $payload,
-                    $request->getAttribute('socket_id')
+                    $this->excludedSocket($params) ?? $request->getAttribute('socket_id')
                 );
             }
         }
@@ -46,5 +46,12 @@ class TriggerEvent extends Controller
         $params['channels'] = (object) $channels;
 
         return new JsonResponse($params);
+    }
+
+    private function excludedSocket(mixed $params): ?string
+    {
+        $socketId = is_array($params) ? ($params['socket_id'] ?? null) : null;
+
+        return is_string($socketId) && preg_match('/\A\d+\.\d+\z/', $socketId) ? $socketId : null;
     }
 }

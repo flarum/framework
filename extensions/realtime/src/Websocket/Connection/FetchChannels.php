@@ -36,13 +36,24 @@ class FetchChannels extends Controller
             ->then(function ($channels) use ($filterByPrefix, $attributes) {
                 /** @phpstan-ignore-next-line */
                 $channels = collect($channels)
-                    ->mapWithKeys(function ($channel) {
+                    ->mapWithKeys(function ($channel) use ($attributes) {
                         $key = $channel instanceof Channel
                             ? $channel->getName()
                             : $channel;
 
+                        $info = new stdClass;
+
+                        if ($channel instanceof Channel && in_array('subscription_count', $attributes)) {
+                            $info->subscription_count = count($channel->connections());
+                        }
+
+                        // Not in the Pusher protocol: lets the forum tell which tab is still connected.
+                        if ($channel instanceof Channel && in_array('socket_ids', $attributes)) {
+                            $info->socket_ids = $channel->socketIds();
+                        }
+
                         return [
-                            $key => new stdClass
+                            $key => $info
                         ];
                     });
 
