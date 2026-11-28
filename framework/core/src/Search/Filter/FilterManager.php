@@ -61,6 +61,14 @@ class FilterManager
         }
     }
 
+    /**
+     * @return array<string, FilterInterface[]>
+     */
+    public function all(): array
+    {
+        return $this->filters;
+    }
+
     public function getFulltext(): ?AbstractFulltextFilter
     {
         return $this->fulltext;

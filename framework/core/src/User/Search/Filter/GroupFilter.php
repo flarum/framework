@@ -12,6 +12,7 @@ namespace Flarum\User\Search\Filter;
 use Flarum\Database\IntegerKey;
 use Flarum\Group\Group;
 use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\DescribesFilter;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
@@ -21,13 +22,21 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * @implements FilterInterface<DatabaseSearchState>
  */
-class GroupFilter implements FilterInterface
+class GroupFilter implements FilterInterface, DescribesFilter
 {
     use ValidateFilterTrait;
 
     public function getFilterKey(): string
     {
         return 'group';
+    }
+
+    /**
+     * Ungated, like `filter()`: the groups are scoped to those the actor can see.
+     */
+    public function describe(User $actor): ?array
+    {
+        return ['kind' => 'relationship', 'related' => 'groups', 'negatable' => true];
     }
 
     public function filter(SearchState $state, string|array $value, bool $negate): void

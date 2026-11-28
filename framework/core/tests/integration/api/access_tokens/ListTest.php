@@ -74,6 +74,22 @@ class ListTest extends TestCase
     }
 
     #[Test]
+    public function a_token_without_a_user_agent_has_no_device()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/access-tokens', ['authenticatedAs' => 1])
+                ->withQueryParams(['filter' => ['user' => 2]])
+                ->withHeader('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $devices = Arr::pluck(json_decode((string) $response->getBody(), true)['data'], 'attributes.device');
+
+        $this->assertSame([null, null], $devices);
+    }
+
+    #[Test]
     #[DataProvider('canViewTokensDataProvider')]
     public function user_can_view_access_tokens(int $authenticatedAs, array $canViewIds)
     {

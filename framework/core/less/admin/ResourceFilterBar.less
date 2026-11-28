@@ -1,0 +1,156 @@
+// The filters of a ResourceTable (ResourceFilterBar, FilterChips).
+
+.ResourceTable {
+  &-chips {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  &-filterControl,
+  &-filterSearch {
+    padding: 6px 12px;
+
+    .Form-group {
+      margin-bottom: 0;
+    }
+
+    .FormControl,
+    .Select {
+      width: 100%;
+    }
+  }
+
+  &-filterSearch {
+    padding-bottom: 4px;
+  }
+
+  &-filterError {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 6px 15px;
+    color: var(--muted-color);
+    white-space: normal;
+  }
+
+  // The "Filter" panel: a heading per filter over its choices, records or control.
+  &-filterPanel {
+    .Dropdown-menu {
+      min-width: 280px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .Dropdown-header.ResourceTable-filterGroup {
+      padding-top: 12px;
+      padding-bottom: 4px;
+    }
+  }
+
+  // The panel's search filter chips: the gambits the search takes, as pills.
+  &-searchFilters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 12px 10px;
+    white-space: normal;
+  }
+
+  &-searchFilter {
+    height: auto;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    line-height: 1.4;
+
+    code {
+      padding: 0;
+      background: none;
+      color: inherit;
+    }
+  }
+
+  &-searchFilterHint {
+    margin-inline-start: 4px;
+    color: var(--muted-color);
+  }
+
+  &-filterButtonLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  // The number of set filters on the "Filter" button.
+  &-filterButtonLabel[data-count]::after {
+    content: attr(data-count);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--button-primary-color);
+    background: var(--button-primary-bg);
+  }
+
+  &-chip--overridden .ResourceTable-chipText {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  &-chip--conflict .ResourceTable-chipText {
+    text-decoration: underline wavy var(--alert-error-bg, currentColor);
+    text-underline-offset: 3px;
+  }
+
+  // A filter that cannot be removed: no delete button, shown in the alternate pill colours.
+  &-chip--required {
+    --pill-bg: var(--pill-bg-alt);
+    --pill-color: var(--pill-color-alt);
+  }
+
+  // The range filter input: "from – to" side by side in the filter dropdown.
+  &-range {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .FormControl {
+      flex: 1 1 0;
+      min-width: 0;
+      width: auto;
+    }
+  }
+
+  &-rangeSeparator {
+    flex: none;
+    color: var(--muted-color);
+  }
+
+  &-clearFilters {
+    padding-inline: 4px;
+  }
+
+  @media @phone {
+    // Line the section headings up with core's phone sheet items.
+    &-filterPanel .Dropdown-header.ResourceTable-filterGroup {
+      padding-inline: 20px;
+      padding-top: 16px;
+    }
+
+    &-filterPanel .ResourceTable-filterControl,
+    &-filterPanel .ResourceTable-filterSearch,
+    &-filterPanel .ResourceTable-searchFilters {
+      padding-inline: 20px;
+    }
+  }
+}
