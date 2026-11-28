@@ -170,7 +170,6 @@ export default class AppearancePage extends AdminPage {
             label: app.translator.trans('core.admin.appearance.app_icon_background_label'),
             help: app.translator.trans('core.admin.appearance.app_icon_background_help'),
           })}
-          <div className="Form-group">{this.submitButton()}</div>
         </div>,
         84
       );
