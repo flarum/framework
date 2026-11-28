@@ -1,69 +1,126 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $translator->trans('flarum-oauth-provider.forum.consent.title') }}</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f6f7f9; margin: 0; padding: 2rem; }
-        .card { max-width: 480px; margin: 3rem auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 2rem; }
-        h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
-        .muted { color: #6b7280; font-size: 0.9rem; }
-        ul { padding-left: 1.2rem; }
-        li { margin: 0.25rem 0; }
-        .actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
-        .btn { flex: 1; padding: 0.75rem 1rem; border-radius: 4px; border: 0; cursor: pointer; font-weight: 500; }
-        .btn-primary { background: #4863a6; color: #fff; }
-        .btn-secondary { background: #e5e7eb; color: #111827; }
-        .badge { display: inline-block; margin-left: 0.25rem; padding: 0 0.4rem; border-radius: 3px; background: #fef3c7; color: #92400e; font-size: 0.8rem; }
-    </style>
-</head>
-<body>
-<div class="card">
+@extends('flarum.forum::layouts.basic')
+
+@section('title', $translator->trans('flarum-oauth-provider.forum.consent.title'))
+
+@section('head')
+  <meta name="robots" content="noindex">
+@endsection
+
+@section('styles')
+  .oauth-consent {
+    overflow-wrap: anywhere;
+  }
+  .oauth-consent h1 {
+    font-size: 28px;
+    line-height: 1.2;
+    margin: 0 0 8px;
+  }
+  .oauth-consent p {
+    margin: 0 0 16px;
+  }
+  .oauth-consent-muted {
+    font-size: 16px;
+    color: color-mix(in srgb, var(--text-color) 70%, transparent);
+  }
+  .oauth-consent-badge {
+    display: inline-block;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--text-color);
+    background: rgba(245, 158, 11, .2);
+    border: 1px solid rgba(245, 158, 11, .5);
+  }
+  .oauth-consent-scopes {
+    text-align: start;
+    margin: 24px 0;
+    padding: 16px 20px;
+    background: var(--control-bg);
+    border: 2px solid var(--control-border-color);
+    border-radius: 4px;
+  }
+  .oauth-consent-scopes p {
+    margin: 0 0 8px;
+    font-weight: bold;
+  }
+  .oauth-consent-scopes ul {
+    margin: 0;
+    padding-inline-start: 20px;
+  }
+  .oauth-consent-scopes li + li {
+    margin-top: 4px;
+  }
+  .oauth-consent-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+  }
+  .oauth-consent-actions .button {
+    flex: 1;
+    white-space: normal;
+  }
+  .oauth-consent-actions .button-secondary {
+    color: var(--text-color);
+    background: var(--control-bg);
+    box-shadow: inset 0 0 0 2px var(--control-border-color);
+  }
+  @media (max-width: 400px) {
+    .oauth-consent-actions {
+      flex-direction: column;
+    }
+  }
+@endsection
+
+@section('content')
+  <main class="oauth-consent">
     <h1>{{ $client->getName() }}</h1>
+
     @if ($unverified)
-        <p class="muted">
-            @if ($sourceHost)
-                {{ $translator->trans('flarum-oauth-provider.forum.consent.from_host', ['host' => $sourceHost]) }}
-            @endif
-            <span class="badge">{{ $translator->trans('flarum-oauth-provider.forum.consent.unverified') }}</span>
-        </p>
-        @if ($redirectHost)
-            <p class="muted">
-                {{ $translator->trans('flarum-oauth-provider.forum.consent.redirect_host', ['host' => $redirectHost]) }}
-            </p>
+      <p class="oauth-consent-muted">
+        @if ($sourceHost)
+          {{ $translator->trans('flarum-oauth-provider.forum.consent.from_host', ['host' => $sourceHost]) }}
         @endif
+        <span class="oauth-consent-badge">{{ $translator->trans('flarum-oauth-provider.forum.consent.unverified') }}</span>
+      </p>
     @endif
-    <p class="muted">
-        {{ $translator->trans('flarum-oauth-provider.forum.consent.intro', ['username' => $actor->display_name, 'client' => $client->getName()]) }}
+
+    <p>
+      {{ $translator->trans('flarum-oauth-provider.forum.consent.intro', ['username' => $actor->display_name, 'client' => $client->getName()]) }}
     </p>
 
     @if (count($scopes) > 0)
-        <p><strong>{{ $translator->trans('flarum-oauth-provider.forum.consent.scopes_heading') }}</strong></p>
+      <div class="oauth-consent-scopes">
+        <p>{{ $translator->trans('flarum-oauth-provider.forum.consent.scopes_heading') }}</p>
         <ul>
-            @foreach ($scopes as $id => $description)
-                <li>{{ $description }}</li>
-            @endforeach
+          @foreach ($scopes as $id => $description)
+            <li>{{ $description }}</li>
+          @endforeach
         </ul>
+      </div>
+    @endif
+
+    @if ($unverified && $redirectHost)
+      <p class="oauth-consent-muted">
+        {{ $translator->trans('flarum-oauth-provider.forum.consent.redirect_host', ['host' => $redirectHost]) }}
+      </p>
     @endif
 
     <form method="POST" action="{{ $formAction }}">
-        @if ($csrfToken)
-            <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
-        @endif
-        @foreach ($queryParams as $name => $value)
-            <input type="hidden" name="{{ $name }}" value="{{ $value }}">
-        @endforeach
+      @if ($csrfToken)
+        <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
+      @endif
+      @foreach ($queryParams as $name => $value)
+        <input type="hidden" name="{{ $name }}" value="{{ $value }}">
+      @endforeach
 
-        <div class="actions">
-            <button type="submit" name="oauth_consent_approved" value="0" class="btn btn-secondary">
-                {{ $translator->trans('flarum-oauth-provider.forum.consent.deny_button') }}
-            </button>
-            <button type="submit" name="oauth_consent_approved" value="1" class="btn btn-primary">
-                {{ $translator->trans('flarum-oauth-provider.forum.consent.approve_button') }}
-            </button>
-        </div>
+      <div class="oauth-consent-actions">
+        <button type="submit" name="oauth_consent_approved" value="1" class="button">
+          {{ $translator->trans('flarum-oauth-provider.forum.consent.approve_button') }}
+        </button>
+        <button type="submit" name="oauth_consent_approved" value="0" class="button button-secondary">
+          {{ $translator->trans('flarum-oauth-provider.forum.consent.deny_button') }}
+        </button>
+      </div>
     </form>
-</div>
-</body>
-</html>
+  </main>
+@endsection

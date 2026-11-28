@@ -153,6 +153,22 @@ class AuthorizeEndpointTest extends TestCase
     }
 
     #[Test]
+    public function consent_screen_uses_the_forum_page_layout(): void
+    {
+        $loginResponse = $this->loginNormalUser();
+
+        $response = $this->send($this->authorizeRequest('GET', self::DEFAULT_QUERY, [
+            'cookiesFrom' => $loginResponse,
+        ]));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('<html class="logged-in">', $body);
+        $this->assertStringContainsString('Authorize application - ', $body);
+        $this->assertMatchesRegularExpression('/<button[^>]*value="1" class="button">\s*Authorize\s*<\/button>\s*<button[^>]*value="0" class="button button-secondary">\s*Cancel\s*<\/button>/', $body);
+    }
+
+    #[Test]
     public function consent_form_posts_to_the_configured_forum_url(): void
     {
         // Behind a TLS-terminating proxy that isn't trusted, the request
