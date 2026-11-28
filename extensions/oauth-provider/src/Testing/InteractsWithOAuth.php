@@ -76,6 +76,13 @@ trait InteractsWithOAuth
         );
     }
 
+    protected function consentToken(ResponseInterface $response): ?string
+    {
+        return preg_match('/name="oauth_consent_token" value="([^"]*)"/', (string) $response->getBody(), $matches)
+            ? $matches[1]
+            : null;
+    }
+
     /**
      * @return array<string, string>
      */

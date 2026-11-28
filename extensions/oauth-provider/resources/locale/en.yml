@@ -92,6 +92,8 @@ flarum-oauth-provider:
       from_host: "from {host}"
       unverified: "unverified, self-registered"
       redirect_host: "After you decide, you will be sent to {host}."
+      details_changed: "This application's details changed while you were reviewing them. Check them before you continue."
+      details_changed_to: "This application's details changed while you were reviewing them. It will now send you to {host} — check this is right before you continue."
 
     authorize_error:
       title: "Authorization failed"

@@ -14,6 +14,7 @@ use Flarum\Extend;
 use Flarum\OAuthProvider\ClientRegistration\HostResolver;
 use Flarum\OAuthProvider\ClientRegistration\MetadataDocumentClients;
 use Flarum\OAuthProvider\Models\Client;
+use Flarum\OAuthProvider\Models\Consent;
 use Flarum\OAuthProvider\Testing\CollectingLogger;
 use Flarum\OAuthProvider\Testing\InteractsWithOAuth;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -28,6 +29,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
 class ClientMetadataDocumentTest extends TestCase
@@ -418,6 +420,167 @@ class ClientMetadataDocumentTest extends TestCase
 
         $this->assertSame(302, $this->authorizeClient($login)->getStatusCode());
         $this->assertCount(2, $this->history);
+    }
+
+    /** No redirect_uri, so the client's own registered one is used. */
+    protected function noRedirectQuery(): array
+    {
+        return [
+            'client_id' => self::CLIENT_ID,
+            'response_type' => 'code',
+            'scope' => 'openid profile',
+            'state' => 'xyz',
+            'code_challenge' => $this->challenge(),
+            'code_challenge_method' => 'S256',
+        ];
+    }
+
+    #[Test]
+    public function an_approval_bound_to_the_shown_callback_still_grants(): void
+    {
+        $callback = 'https://client.example.com/callback';
+        $this->http->append($this->document(['redirect_uris' => [$callback]]));
+        $query = $this->noRedirectQuery();
+        $login = $this->loginNormalUser();
+
+        $get = $this->send($this->authorizeGet($query, $login));
+        $token = $this->consentToken($get);
+        $this->assertNotEmpty($token);
+
+        $post = $this->send($this->authorizeDecision($query, $login, '1', $token));
+
+        $this->assertArrayHasKey('code', $this->redirectParams($post));
+        $this->assertStringStartsWith($callback.'?', $post->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function an_approval_is_refused_when_another_request_swapped_the_callback_meanwhile(): void
+    {
+        $swapped = 'https://attacker.example.net/collect';
+        $this->http->append(
+            $this->document(['redirect_uris' => ['https://client.example.com/callback']]),
+            $this->document(['redirect_uris' => [$swapped]]),
+        );
+        $query = $this->noRedirectQuery();
+        $login = $this->loginNormalUser();
+
+        // The member is shown the consent screen for the first document; its
+        // binding token is the one their eventual approval carries.
+        $get = $this->send($this->authorizeGet($query, $login));
+        $this->assertSame(200, $get->getStatusCode());
+        $this->assertStringNotContainsString('attacker.example.net', (string) $get->getBody());
+        $token = $this->consentToken($get);
+        $this->assertNotEmpty($token);
+
+        // The cache lapses and a separate (guest) request refetches the
+        // document, swapping the stored redirect URI out from under the screen.
+        Client::query()->where('id', self::CLIENT_ID)->update(['metadata_expires_at' => Carbon::now()->subMinute()]);
+        $this->send($this->request('GET', '/oauth/authorize?'.http_build_query($query))->withQueryParams($query));
+
+        $this->assertCount(2, $this->history, 'the separate request refetched the document');
+        $this->assertSame([$swapped], array_values((array) Client::query()->findOrFail(self::CLIENT_ID)->redirect_uris));
+
+        // The member approves the screen they saw. Its token no longer signs the
+        // current target, so the screen is shown again for the changed target
+        // rather than granting to the swap.
+        $post = $this->send($this->authorizeDecision($query, $login, '1', $token));
+
+        $this->assertSame(200, $post->getStatusCode(), 'a changed target must re-prompt, not grant: '.$post->getHeaderLine('Location'));
+        $this->assertStringContainsString('attacker.example.net', (string) $post->getBody(), 'the member is now shown the real target');
+        $this->assertStringContainsString('changed while you were reviewing', (string) $post->getBody(), 'the member is warned the details changed');
+        $this->assertNull(Consent::query()->where('client_id', self::CLIENT_ID)->first(), 'no consent was recorded');
+        $this->assertCount(2, $this->history, 'the decision itself does not refetch');
+
+        // Approving the redrawn screen, with its fresh token, now grants to the
+        // target it showed: the member decides on what is really in force.
+        $granted = $this->send($this->authorizeDecision($query, $login, '1', $this->consentToken($post)));
+        $this->assertStringStartsWith($swapped.'?', $granted->getHeaderLine('Location'));
+        $this->assertArrayHasKey('code', $this->redirectParams($granted));
+    }
+
+    #[Test]
+    public function an_unchanged_consent_screen_shows_no_change_notice(): void
+    {
+        $this->http->append($this->document(['redirect_uris' => ['https://client.example.com/callback']]));
+
+        $body = (string) $this->send($this->authorizeGet($this->noRedirectQuery(), $this->loginNormalUser()))->getBody();
+
+        $this->assertStringNotContainsString('changed while you were reviewing', $body);
+    }
+
+    #[Test]
+    public function an_approval_is_refused_when_the_decision_itself_refetches_a_swapped_document(): void
+    {
+        $swapped = 'https://attacker.example.net/collect';
+        $this->http->append(
+            $this->document(['redirect_uris' => ['https://client.example.com/callback']]),
+            $this->document(['redirect_uris' => [$swapped]]),
+        );
+        $query = $this->noRedirectQuery();
+        $login = $this->loginNormalUser();
+
+        $get = $this->send($this->authorizeGet($query, $login));
+        $token = $this->consentToken($get);
+
+        // The cache lapses, so the member's own approval POST refetches and the
+        // document now points elsewhere: still bound to the screen that was shown.
+        Client::query()->where('id', self::CLIENT_ID)->update(['metadata_expires_at' => Carbon::now()->subMinute()]);
+
+        $post = $this->send($this->authorizeDecision($query, $login, '1', $token));
+
+        $this->assertSame(200, $post->getStatusCode(), 'a changed target must re-prompt, not grant: '.$post->getHeaderLine('Location'));
+        $this->assertCount(2, $this->history, 'the decision POST refetched the expired document');
+        $this->assertNull(Consent::query()->where('client_id', self::CLIENT_ID)->first());
+    }
+
+    #[Test]
+    public function a_stale_cancel_does_not_fall_through_to_an_existing_consent(): void
+    {
+        $approved = 'https://client.example.com/callback';
+        $this->http->append(
+            $this->document(['redirect_uris' => [$approved]]),
+            $this->document(['redirect_uris' => ['http://127.0.0.1/callback']]),
+            $this->document(['redirect_uris' => [$approved]]),
+        );
+        $query = $this->noRedirectQuery();
+        $login = $this->loginNormalUser();
+
+        // Approve the client while it points at the first callback: records consent.
+        $first = $this->send($this->authorizeGet($query, $login));
+        $this->redirectParams($this->send($this->authorizeDecision($query, $login, '1', $this->consentToken($first))));
+        $this->assertNotNull(Consent::query()->where('client_id', self::CLIENT_ID)->first());
+
+        // The document changes, so a fresh screen is drawn for the new callback.
+        Client::query()->where('id', self::CLIENT_ID)->update(['metadata_expires_at' => Carbon::now()->subMinute()]);
+        $second = $this->send($this->authorizeGet($query, $login));
+        $this->assertSame(200, $second->getStatusCode());
+        $staleToken = $this->consentToken($second);
+
+        // A separate request swaps the document back to the already-approved callback.
+        Client::query()->where('id', self::CLIENT_ID)->update(['metadata_expires_at' => Carbon::now()->subMinute()]);
+        $this->send($this->request('GET', '/oauth/authorize?'.http_build_query($query))->withQueryParams($query));
+        $this->assertSame([$approved], array_values((array) Client::query()->findOrFail(self::CLIENT_ID)->redirect_uris));
+
+        // Cancelling the stale screen must not let the existing consent grant a code.
+        $post = $this->send($this->authorizeDecision($query, $login, '0', $staleToken));
+
+        $this->assertSame(200, $post->getStatusCode(), 'a stale cancel must re-prompt, not grant: '.$post->getHeaderLine('Location'));
+        $this->assertStringContainsString('name="oauth_consent_approved"', (string) $post->getBody());
+    }
+
+    protected function authorizeGet(array $query, ResponseInterface $login): ServerRequestInterface
+    {
+        return $this->request('GET', '/oauth/authorize?'.http_build_query($query), ['cookiesFrom' => $login])
+            ->withQueryParams($query)
+            ->withAttribute('bypassCsrfToken', true);
+    }
+
+    protected function authorizeDecision(array $query, ResponseInterface $login, string $approved, ?string $token): ServerRequestInterface
+    {
+        return $this->request('POST', '/oauth/authorize?'.http_build_query($query), [
+            'cookiesFrom' => $login,
+            'json' => ['oauth_consent_approved' => $approved, 'oauth_consent_token' => (string) $token],
+        ])->withQueryParams($query)->withAttribute('bypassCsrfToken', true);
     }
 
     #[Test]
