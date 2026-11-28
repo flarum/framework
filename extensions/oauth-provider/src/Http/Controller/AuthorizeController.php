@@ -229,9 +229,6 @@ class AuthorizeController implements RequestHandlerInterface
             'actorClass' => RequestUtil::getActorHtmlClass($request),
             'formAction' => $this->forumUrl($request, $request->getUri()->getQuery()),
             'csrfToken' => $csrfToken,
-            // Replayed as hidden fields; only plain string parameters belong
-            // to an authorization request.
-            'queryParams' => array_filter($queryParams, is_string(...)),
         ])->render();
 
         return new HtmlResponse($html);

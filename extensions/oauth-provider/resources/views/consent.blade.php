@@ -105,13 +105,14 @@
       </p>
     @endif
 
+    {{-- Don't replay request parameters as hidden fields: a crafted link could
+         inject oauth_consent_approved=1, and PHP's max_input_vars could then
+         drop the clicked button, turning a Cancel into a grant. The action URL
+         already carries the authorization parameters. --}}
     <form method="POST" action="{{ $formAction }}">
       @if ($csrfToken)
         <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
       @endif
-      @foreach ($queryParams as $name => $value)
-        <input type="hidden" name="{{ $name }}" value="{{ $value }}">
-      @endforeach
 
       <div class="oauth-consent-actions">
         <button type="submit" name="oauth_consent_approved" value="1" class="button">

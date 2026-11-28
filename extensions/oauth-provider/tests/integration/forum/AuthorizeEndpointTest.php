@@ -101,6 +101,19 @@ class AuthorizeEndpointTest extends TestCase
             ->withAttribute('bypassCsrfToken', true);
     }
 
+    /**
+     * The consent form posts to its action URL, which already carries every
+     * authorization parameter, so the only input it may submit is the CSRF
+     * token. Anything else (a replayed request parameter, array field, or an
+     * injected decision) would be a regression of the truncation fix.
+     */
+    protected function assertFormInputsAreOnlyTheCsrfToken(string $body): void
+    {
+        preg_match_all('/<input\b[^>]*\bname="([^"]*)"/', $body, $matches);
+
+        $this->assertSame(['csrfToken'], $matches[1]);
+    }
+
     #[Test]
     public function missing_client_id_returns_error(): void
     {
@@ -187,6 +200,37 @@ class AuthorizeEndpointTest extends TestCase
             '<form method="POST" action="'.htmlspecialchars('https://example.com/forum/oauth/authorize?'.http_build_query(self::DEFAULT_QUERY)).'">',
             (string) $response->getBody()
         );
+    }
+
+    #[Test]
+    public function consent_form_does_not_replay_oauth_consent_approved_as_a_hidden_field(): void
+    {
+        // So a link that injects oauth_consent_approved can't survive in the
+        // body while max_input_vars drops the real button (see the form comment).
+        $response = $this->send($this->authorizeRequest('GET', self::DEFAULT_QUERY + [
+            'oauth_consent_approved' => '1',
+        ], [
+            'cookiesFrom' => $this->loginNormalUser(),
+        ]));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertFormInputsAreOnlyTheCsrfToken((string) $response->getBody());
+    }
+
+    #[Test]
+    public function oauth_consent_approved_in_the_query_string_does_not_grant(): void
+    {
+        // The decision is read only from the POST body, so an approval the
+        // attacker put in the link (and thus in the form action URL) is ignored.
+        $response = $this->send($this->authorizeRequest('POST', self::DEFAULT_QUERY + [
+            'oauth_consent_approved' => '1',
+        ], [
+            'cookiesFrom' => $this->loginNormalUser(),
+        ]));
+
+        $this->assertEquals(200, $response->getStatusCode(), 'A query-string approval must re-render the consent screen, not grant: '.$response->getHeaderLine('Location'));
+        $this->assertStringContainsString('name="oauth_consent_approved"', (string) $response->getBody(), 'the consent screen is shown again');
+        $this->assertNull(Consent::query()->where('user_id', 2)->where('client_id', 'test-client')->first());
     }
 
     #[Test]
@@ -673,9 +717,11 @@ class AuthorizeEndpointTest extends TestCase
             'cookiesFrom' => $this->loginNormalUser(),
         ]));
 
+        $body = (string) $response->getBody();
+
         $this->assertEquals(200, $response->getStatusCode(), 'An array parameter must not break the consent screen');
-        $this->assertStringNotContainsString('name="extra', (string) $response->getBody());
-        $this->assertStringContainsString('name="state" value="xyz"', (string) $response->getBody());
+        $this->assertFormInputsAreOnlyTheCsrfToken($body);
+        $this->assertStringContainsString('state=xyz', $body);
     }
 
     #[Test]
