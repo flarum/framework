@@ -101,6 +101,20 @@ class AuthorizeEndpointTest extends TestCase
             ->withAttribute('bypassCsrfToken', true);
     }
 
+    /**
+     * The consent form posts to its action URL, which already carries every
+     * authorization parameter, so its only inputs are the two server-generated
+     * fields: the CSRF token and the redirect-binding token. A replayed request
+     * parameter, array field, or injected decision would be a regression of the
+     * truncation fix.
+     */
+    protected function assertFormInputsAreServerGenerated(string $body): void
+    {
+        preg_match_all('/<input\b[^>]*\bname="([^"]*)"/', $body, $matches);
+
+        $this->assertEqualsCanonicalizing(['csrfToken', 'oauth_consent_token'], $matches[1]);
+    }
+
     #[Test]
     public function missing_client_id_returns_error(): void
     {
@@ -187,6 +201,62 @@ class AuthorizeEndpointTest extends TestCase
             '<form method="POST" action="'.htmlspecialchars('https://example.com/forum/oauth/authorize?'.http_build_query(self::DEFAULT_QUERY)).'">',
             (string) $response->getBody()
         );
+    }
+
+    #[Test]
+    public function consent_form_does_not_replay_oauth_consent_approved_as_a_hidden_field(): void
+    {
+        // So a link that injects oauth_consent_approved can't survive in the
+        // body while max_input_vars drops the real button.
+        $response = $this->send($this->authorizeRequest('GET', self::DEFAULT_QUERY + [
+            'oauth_consent_approved' => '1',
+        ], [
+            'cookiesFrom' => $this->loginNormalUser(),
+        ]));
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertFormInputsAreServerGenerated((string) $response->getBody());
+    }
+
+    #[Test]
+    public function oauth_consent_approved_in_the_query_string_does_not_grant(): void
+    {
+        // The decision is read only from the POST body, so an approval the
+        // attacker put in the link (and thus in the form action URL) is ignored.
+        $response = $this->send($this->authorizeRequest('POST', self::DEFAULT_QUERY + [
+            'oauth_consent_approved' => '1',
+        ], [
+            'cookiesFrom' => $this->loginNormalUser(),
+        ]));
+
+        $this->assertEquals(200, $response->getStatusCode(), 'A query-string approval must re-render the consent screen, not grant: '.$response->getHeaderLine('Location'));
+        $this->assertStringContainsString('name="oauth_consent_approved"', (string) $response->getBody(), 'the consent screen is shown again');
+        $this->assertNull(Consent::query()->where('user_id', 2)->where('client_id', 'test-client')->first());
+    }
+
+    #[Test]
+    public function an_approval_with_a_mismatched_binding_token_is_not_granted(): void
+    {
+        // A token that doesn't sign the current target is a stale (or forged)
+        // screen, so the consent form is shown again rather than granting.
+        $response = $this->send($this->authorizeRequest('POST', self::DEFAULT_QUERY, [
+            'cookiesFrom' => $this->loginNormalUser(),
+            'json' => ['oauth_consent_approved' => '1', 'oauth_consent_token' => 'not-the-right-token'],
+        ]));
+
+        $this->assertEquals(200, $response->getStatusCode(), 'a mismatched token must re-render the consent screen: '.$response->getHeaderLine('Location'));
+        $this->assertStringContainsString('name="oauth_consent_approved"', (string) $response->getBody());
+        $this->assertNull(Consent::query()->where('user_id', 2)->where('client_id', 'test-client')->first());
+
+        // A present-but-malformed token (e.g. oauth_consent_token[]=…) is a
+        // mismatch too, not treated as absent.
+        $array = $this->send($this->authorizeRequest('POST', self::DEFAULT_QUERY, [
+            'cookiesFrom' => $this->loginNormalUser(),
+            'json' => ['oauth_consent_approved' => '1', 'oauth_consent_token' => ['x']],
+        ]));
+
+        $this->assertEquals(200, $array->getStatusCode(), 'a malformed token must re-render: '.$array->getHeaderLine('Location'));
+        $this->assertNull(Consent::query()->where('user_id', 2)->where('client_id', 'test-client')->first());
     }
 
     #[Test]
@@ -673,9 +743,11 @@ class AuthorizeEndpointTest extends TestCase
             'cookiesFrom' => $this->loginNormalUser(),
         ]));
 
+        $body = (string) $response->getBody();
+
         $this->assertEquals(200, $response->getStatusCode(), 'An array parameter must not break the consent screen');
-        $this->assertStringNotContainsString('name="extra', (string) $response->getBody());
-        $this->assertStringContainsString('name="state" value="xyz"', (string) $response->getBody());
+        $this->assertFormInputsAreServerGenerated($body);
+        $this->assertStringContainsString('state=xyz', $body);
     }
 
     #[Test]

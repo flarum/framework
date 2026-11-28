@@ -46,6 +46,9 @@ class AuthorizeController implements RequestHandlerInterface
     /** Session key: re-authentication tickets mapped to the login they were issued under. */
     protected const string REAUTH_TICKETS = 'flarum-oauth-provider.reauth_tickets';
 
+    /** Hidden form field binding a consent screen to the redirect target it showed. */
+    public const string CONSENT_TOKEN_PARAM = 'oauth_consent_token';
+
     /** Query parameter carrying a request's re-authentication ticket back from the login form. */
     public const string REAUTH_TICKET_PARAM = 'oauth_reauth_ticket';
 
@@ -170,26 +173,33 @@ class AuthorizeController implements RequestHandlerInterface
         $params = $request->getParsedBody() ?? [];
         $method = strtoupper($request->getMethod());
 
-        // The consent form was submitted — record the decision.
+        // A decision is honoured only while its binding token matches the
+        // redirect target in force; on a mismatch $redirectChanged redraws the
+        // screen below with no shortcut, so a stale Cancel can't grant either.
+        $redirectChanged = false;
+
         if ($method === 'POST' && isset($params['oauth_consent_approved'])) {
-            $approved = $params['oauth_consent_approved'] === '1';
+            if ($this->consentBindingMatches($session, $params[self::CONSENT_TOKEN_PARAM] ?? null, $clientId, $redirectUris)) {
+                $approved = $params['oauth_consent_approved'] === '1';
+                $createdConsentId = $approved ? $this->rememberConsent((int) $actor->id, $clientId, $requestedScopes, $redirectUris) : null;
 
-            $createdConsentId = $approved ? $this->rememberConsent((int) $actor->id, $clientId, $requestedScopes, $redirectUris) : null;
+                $this->forgetReAuthTicket($session, $ticket);
 
-            $this->forgetReAuthTicket($session, $ticket);
+                return $this->completeAuthorization($authRequest, $server, $actor, $session, $approved, $nonce, $authTime, consented: $approved, createdConsentId: $createdConsentId);
+            }
 
-            return $this->completeAuthorization($authRequest, $server, $actor, $session, $approved, $nonce, $authTime, consented: $approved, createdConsentId: $createdConsentId);
+            $redirectChanged = true;
         }
 
         // Previously-granted consent still covers this request — skip the prompt
         // unless the client explicitly asked for re-consent via prompt=consent.
-        if (! in_array('consent', $prompts, true) && $this->hasExistingConsent((int) $actor->id, $clientId, $requestedScopes, $redirectUris)) {
+        if (! $redirectChanged && ! in_array('consent', $prompts, true) && $this->hasExistingConsent((int) $actor->id, $clientId, $requestedScopes, $redirectUris)) {
             $this->forgetReAuthTicket($session, $ticket);
 
             return $this->completeAuthorization($authRequest, $server, $actor, $session, true, $nonce, $authTime, consented: false);
         }
 
-        if ($promptNone) {
+        if (! $redirectChanged && $promptNone) {
             $this->forgetReAuthTicket($session, $ticket);
 
             return $this->errorBeforeConsent($authRequest, $actor, 'interaction_required', 'The user needs to grant consent.');
@@ -203,6 +213,8 @@ class AuthorizeController implements RequestHandlerInterface
 
         $csrfToken = $request->getAttribute('session')?->token();
 
+        $consentToken = $this->consentBindingToken($session, $clientId, $redirectUris);
+
         /** @var Client|null $clientModel */
         $clientModel = Client::query()->find($clientId);
 
@@ -210,7 +222,10 @@ class AuthorizeController implements RequestHandlerInterface
         // choose their own name, so they are marked unverified and the user
         // is shown where they would be sent back to.
         $selfDescribed = $clientModel !== null && $clientModel->source !== Client::SOURCE_ADMIN;
-        $redirectHost = $selfDescribed ? $this->redirectHost($authRequest) : null;
+        $destinationHost = $this->redirectHost($authRequest);
+        // The standing "you'll be sent to" line is for self-described clients;
+        // the changed-details notice names the destination for any client.
+        $redirectHost = $selfDescribed ? $destinationHost : null;
 
         // Only a host the server has checked names the client: the metadata
         // document's own URL. A self-registered client's client_uri is its own
@@ -229,9 +244,11 @@ class AuthorizeController implements RequestHandlerInterface
             'actorClass' => RequestUtil::getActorHtmlClass($request),
             'formAction' => $this->forumUrl($request, $request->getUri()->getQuery()),
             'csrfToken' => $csrfToken,
-            // Replayed as hidden fields; only plain string parameters belong
-            // to an authorization request.
-            'queryParams' => array_filter($queryParams, is_string(...)),
+            'consentToken' => $consentToken,
+            // The redirect target changed while the previous screen was open;
+            // warn so a reflexive second approval isn't taken for granted.
+            'redirectChanged' => $redirectChanged,
+            'destinationHost' => $destinationHost,
         ])->render();
 
         return new HtmlResponse($html);
@@ -556,6 +573,46 @@ class AuthorizeController implements RequestHandlerInterface
         $tickets = (array) $session->get(self::REAUTH_TICKETS, []);
         unset($tickets[$ticket]);
         $session->put(self::REAUTH_TICKETS, $tickets);
+    }
+
+    /**
+     * A token binding a consent screen to the client and redirect target it was
+     * drawn for, keyed by the session's own secret. It rides the form and is
+     * rechecked on submit, so a stale approval can be told from a current one
+     * with no server-side state to lose or evict. Empty when the session has no
+     * token (so nothing to key on); the browser flow this guards always has one.
+     *
+     * @param list<string> $redirectUris
+     */
+    protected function consentBindingToken(?Session $session, string $clientId, array $redirectUris): string
+    {
+        $secret = $session?->token();
+
+        if (! is_string($secret) || $secret === '') {
+            return '';
+        }
+
+        return hash_hmac('sha256', $clientId.'|'.Consent::hashRedirectUris($redirectUris), $secret);
+    }
+
+    /**
+     * Whether a submitted binding token matches the client and redirect target
+     * now in force. No token at all is allowed: the rendered browser form always
+     * carries one, so a token-less POST is the shipped test helper or another
+     * programmatic caller, and a forged cross-site POST is already stopped by
+     * the CSRF check. A token that is present but malformed or stale is refused.
+     *
+     * @param list<string> $redirectUris
+     */
+    protected function consentBindingMatches(?Session $session, mixed $submitted, string $clientId, array $redirectUris): bool
+    {
+        if ($submitted === null) {
+            return true;
+        }
+
+        $expected = $this->consentBindingToken($session, $clientId, $redirectUris);
+
+        return is_string($submitted) && $expected !== '' && hash_equals($expected, $submitted);
     }
 
     protected function loginFingerprint(?Session $session): string

@@ -31,6 +31,14 @@
     background: rgba(245, 158, 11, .2);
     border: 1px solid rgba(245, 158, 11, .5);
   }
+  .oauth-consent-notice {
+    text-align: start;
+    padding: 12px 16px;
+    border-radius: 4px;
+    color: var(--text-color);
+    background: rgba(245, 158, 11, .2);
+    border: 1px solid rgba(245, 158, 11, .5);
+  }
   .oauth-consent-scopes {
     text-align: start;
     margin: 24px 0;
@@ -84,6 +92,16 @@
       </p>
     @endif
 
+    @if ($redirectChanged)
+      <p class="oauth-consent-notice" role="alert">
+        @if ($destinationHost)
+          {{ $translator->trans('flarum-oauth-provider.forum.consent.details_changed_to', ['host' => $destinationHost]) }}
+        @else
+          {{ $translator->trans('flarum-oauth-provider.forum.consent.details_changed') }}
+        @endif
+      </p>
+    @endif
+
     <p>
       {{ $translator->trans('flarum-oauth-provider.forum.consent.intro', ['username' => $actor->display_name, 'client' => $client->getName()]) }}
     </p>
@@ -105,13 +123,15 @@
       </p>
     @endif
 
+    {{-- Don't replay request parameters as hidden fields: an injected field
+         plus max_input_vars truncation could drop the clicked button and turn a
+         Cancel into a grant. oauth_consent_token binds the decision to the
+         target shown here. --}}
     <form method="POST" action="{{ $formAction }}">
       @if ($csrfToken)
         <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
       @endif
-      @foreach ($queryParams as $name => $value)
-        <input type="hidden" name="{{ $name }}" value="{{ $value }}">
-      @endforeach
+      <input type="hidden" name="oauth_consent_token" value="{{ $consentToken }}">
 
       <div class="oauth-consent-actions">
         <button type="submit" name="oauth_consent_approved" value="1" class="button">
