@@ -322,10 +322,11 @@ class Post extends AbstractModel
     }
 
     /**
-     * Attempts for a transaction whose writes can collide with a like counter.
+     * Attempts for a transaction whose writes can collide with any per-post
+     * counter an extension maintains.
      *
-     * A liker can commit their counter update between our reads and our write
-     * to that user. MariaDB 11.6+ reports that as a deadlock (1213) or
+     * Another request can commit a change to the counter's row between our
+     * reads and our write. MariaDB 11.6+ reports that as a deadlock (1213) or
      * "record has changed since last read" (1020) instead of waiting, so the
      * write has to be retried. Retrying only helps on the outermost
      * transaction: InnoDB rolls the whole transaction back on a deadlock, so a
@@ -337,22 +338,25 @@ class Post extends AbstractModel
     }
 
     /**
+     * Delete posts in one transaction, with the discussions they belong to
+     * locked first and the {@see DeletingPosts} listeners run before the delete.
+     *
+     * Listeners may run once per retry attempt, so they must be idempotent.
+     *
+     * @internal
+     *
      * @template T
-     * @param Builder<Post> $posts A single-table, unpaginated filter on posts.
+     * @param Builder<Post> $posts A single-table, unpaginated filter on posts. Without
+     *                             `$discussionIds` it is limited to the discussions that were locked.
      * @param \Closure(\Illuminate\Database\Query\Builder): T $delete Delete the posts the given query selects,
-     *                               or return false to cancel. It can run more than once when the transaction is retried.
+     *                               or return false to cancel, which rolls back what the listeners wrote.
      * @param list<int> $userIds Other users to lock alongside those requested by deletion listeners.
      * @param (\Closure(): (void|bool))|null $beforeAttempt Run after locking the discussions,
      *                                before notifying listeners. Returning false cancels the attempt.
-     * @param list<int>|null $discussionIds The discussions the posts belong to, when the caller
-     *                                knows them. Locking by id avoids opening a read view.
-     * @param bool|null $snapshotMayPrecedeLock Whether the caller could already have a read
-     *                                view, if it opened a transaction itself.
+     * @param list<int>|null $discussionIds The discussions the posts belong to, when the caller knows them.
      * @return T|false
-     *
-     * Listeners may run once per retry attempt, so they must be idempotent.
      */
-    public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = [], ?\Closure $beforeAttempt = null, ?array $discussionIds = null, ?bool $snapshotMayPrecedeLock = null): mixed
+    public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = [], ?\Closure $beforeAttempt = null, ?array $discussionIds = null): mixed
     {
         $query = $posts->toBase();
         if ($query->from !== 'posts' || $query->limit !== null || $query->offset !== null ||
@@ -362,47 +366,65 @@ class Post extends AbstractModel
         }
 
         $db = $query->getConnection();
+        $cancelled = new \Exception('Post deletion was cancelled.');
 
-        $snapshotMayPrecedeLock = $discussionIds === null || ($snapshotMayPrecedeLock ?? $db->transactionLevel() > 0);
+        try {
+            return $db->transaction(function () use ($query, $db, $delete, $userIds, $beforeAttempt, $discussionIds, $cancelled) {
+                $scoped = clone $query;
 
-        return $db->transaction(function () use ($query, $db, $delete, $userIds, $beforeAttempt, $discussionIds, $snapshotMayPrecedeLock) {
-            // Lock each discussion the posts belong to before its posts. A post
-            // whose discussion row is already gone has no discussion to lock,
-            // and is still deleted below rather than being left behind.
-            if ($discussionIds === null) {
-                // The caller did not say which discussions these posts are in.
-                // The lookup below reads posts inside the transaction, which
-                // can create its read view before the lock is granted; a
-                // caller that knows the discussions should pass them.
-                $db->table('discussions')
-                    ->whereIn('id', (clone $query)->select('posts.discussion_id'))
-                    ->orderBy('id')->lockForUpdate()->pluck('id');
-            } elseif ($discussionIds !== []) {
-                $db->table('discussions')
-                    ->whereIn('id', $discussionIds)
-                    ->orderBy('id')->lockForUpdate()->pluck('id');
-            }
+                // Lock each discussion the posts belong to before its posts. A post
+                // whose discussion row is already gone has no discussion to lock,
+                // and is still deleted below rather than being left behind.
+                if ($discussionIds === null) {
+                    $found = (clone $query)->select('posts.discussion_id')->distinct()->pluck('discussion_id')
+                        ->map(fn ($id) => $id === null ? null : (int) $id)->all();
+                    $discussionIds = array_values(array_filter($found, fn ($id) => $id !== null));
 
-            if ($beforeAttempt !== null && $beforeAttempt() === false) {
+                    // Only the posts in the discussions that are locked below
+                    // are deleted, not ones that arrived in other discussions.
+                    $scoped->where(function ($group) use ($discussionIds, $found) {
+                        $group->whereIn('posts.discussion_id', $discussionIds);
+
+                        if (count($found) !== count($discussionIds)) {
+                            $group->orWhereNull('posts.discussion_id');
+                        }
+                    });
+                }
+
+                if ($discussionIds !== []) {
+                    $db->table('discussions')
+                        ->whereIn('id', $discussionIds)
+                        ->orderBy('id')->lockForUpdate()->pluck('id');
+                }
+
+                if ($beforeAttempt !== null && $beforeAttempt() === false) {
+                    return false;
+                }
+
+                $deleted = (clone $scoped)->select('posts.id');
+
+                $event = new DeletingPosts($db, $deleted, $userIds);
+                resolve(Dispatcher::class)->dispatch($event);
+                $event->acquireUserLocks();
+
+                $result = $delete(clone $deleted);
+
+                if ($result === false) {
+                    // Roll back what the listeners wrote.
+                    throw $cancelled;
+                }
+
+                $event->complete();
+
+                return $result;
+            }, self::conflictAttempts($db));
+        } catch (\Exception $e) {
+            if ($e === $cancelled) {
                 return false;
             }
 
-            // Bulk deletion has no separate post pre-lock. The discussion
-            // lock serializes visibility and like writes in its discussions.
-            $deleted = (clone $query)->select('posts.id');
-
-            $event = new DeletingPosts($db, $deleted, $userIds, $snapshotMayPrecedeLock);
-            resolve(Dispatcher::class)->dispatch($event);
-            $event->acquireUserLocks();
-
-            $result = $delete(clone $deleted);
-
-            if ($result !== false) {
-                $event->complete();
-            }
-
-            return $result;
-        }, self::conflictAttempts($db));
+            throw $e;
+        }
     }
 
     /**

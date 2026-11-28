@@ -11,6 +11,7 @@ namespace Flarum\Likes;
 
 use Flarum\Post\Event\DeletingPosts;
 use Flarum\User\User;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Expression;
 
 class LikeCount
@@ -22,17 +23,15 @@ class LikeCount
 
         // Only likes on visible comments count, the same posts that the
         // profile count shows.
-        $posts = $event->posts()->where('posts.type', 'comment')->where('posts.is_private', false);
+        $posts = $event->posts()->where(function ($query) {
+            $query->where('posts.type', 'comment')->where('posts.is_private', false);
+        });
         $counts = $db->table('post_likes')
             ->select('post_likes.user_id')
             ->selectRaw('COUNT(*) as total')
             ->groupBy('post_likes.user_id');
 
-        if ($event->snapshotMayPrecedeLock && in_array($db->getDriverName(), ['mysql', 'mariadb'], true)) {
-            // Repeatable-read snapshots survive savepoints. Read the current
-            // post and pivot rows when a caller could have opened a snapshot
-            // before taking the discussion lock. MariaDB snapshot isolation
-            // can reject the read, so the outer transaction has to retry.
+        if ($this->readsNeedLocks($db)) {
             $posts->sharedLock();
             $counts->sharedLock();
         }
@@ -91,8 +90,13 @@ class LikeCount
         $db = User::query()->getConnection();
 
         $db->transaction(function () use ($db, $postId, $delta) {
-            $userIds = $db->table('post_likes')->where('post_id', $postId)
-                ->orderBy('user_id')->pluck('user_id')->all();
+            $likers = $db->table('post_likes')->where('post_id', $postId)->orderBy('user_id');
+
+            if ($this->readsNeedLocks($db)) {
+                $likers->lockForUpdate();
+            }
+
+            $userIds = $likers->pluck('user_id')->all();
 
             foreach (array_chunk($userIds, 1000) as $ids) {
                 // Same order as the like mutation and deletion: the users in
@@ -182,6 +186,16 @@ class LikeCount
         }
 
         return $repaired;
+    }
+
+    /**
+     * MySQL and MariaDB read from the transaction's snapshot unless the read
+     * locks, which can predate the discussion lock when a caller already has a
+     * transaction open. A locking read sees the committed rows.
+     */
+    private function readsNeedLocks(ConnectionInterface $db): bool
+    {
+        return in_array($db->getDriverName(), ['mysql', 'mariadb'], true);
     }
 
     /** SQL for moving a stored count, without taking a counter below zero. */

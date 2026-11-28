@@ -24,10 +24,10 @@ use Illuminate\Database\Query\Builder;
  * walking a list of ids.
  *
  * The rows are still present while the listeners run, and the discussion rows
- * they belong to are locked for the whole deletion. A write that could change
- * the posts or their likes takes the same discussion lock first, so reading
- * their related rows here is stable. On MySQL and MariaDB, use a locking
- * read if a snapshot could predate the discussion lock.
+ * they belong to are locked for the whole deletion. A write that changes the
+ * posts, or a counter an extension keeps per post, takes the same discussion
+ * lock first. Read related rows with a locking read if the database could
+ * otherwise serve them from an older snapshot.
  *
  * A post may be an orphan whose discussion row is already gone when the
  * listeners run: do not look its discussion up with `findOrFail()`, which
@@ -46,7 +46,6 @@ final class DeletingPosts
         public readonly ConnectionInterface $connection,
         private readonly Builder $posts,
         private array $userIds = [],
-        public readonly bool $snapshotMayPrecedeLock = false,
     ) {
     }
 
@@ -56,7 +55,7 @@ final class DeletingPosts
      * The rows are still present while the event is dispatched; the deletion
      * itself runs afterwards, from the same query. Pass it to
      * `whereIn` to act on related rows in a single statement, for instance
-     * `whereIn('post_likes.post_id', $event->posts())`. Callers that need the
+     * `whereIn('my_table.post_id', $event->posts())`. Callers that need the
      * full rows can `->select('posts.*')` first.
      */
     public function posts(): Builder

@@ -127,22 +127,29 @@ class Discussion extends AbstractModel
         // events would be raised again on the retry and dispatched twice.
         $pendingEvents = $this->pendingEvents;
 
-        // The cascade deletes posts, whose counter updates can collide with a
-        // liker's like. MariaDB then reports a deadlock or a changed record, so
-        // retry here, at the outermost transaction, rather than in the cascade.
-        $snapshotMayPrecedeLock = $db->transactionLevel() > 0;
-
-        return $db->transaction(function () use ($db, $pendingEvents, $snapshotMayPrecedeLock) {
+        // The cascade deletes posts, whose per-post counters can collide with
+        // another request's writes. MariaDB then reports a deadlock or a changed
+        // record, so retry here, at the outermost transaction, rather than in
+        // the cascade.
+        return $db->transaction(function () use ($db, $pendingEvents) {
             $this->exists = true;
             $this->pendingEvents = $pendingEvents;
+
+            // Prevent another post from being inserted before the cascade.
+            $stored = $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->first(['id']);
+
+            // Another request deleted it first; there is nothing left to
+            // delete, and no `Deleted` to raise.
+            if ($stored === null) {
+                $this->exists = false;
+
+                return false;
+            }
 
             $db->afterRollBack(function () use ($pendingEvents) {
                 $this->exists = true;
                 $this->pendingEvents = $pendingEvents;
             });
-
-            // Prevent another post from being inserted before the cascade.
-            $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->get(['id']);
 
             // The cascade includes posts whose types are no longer registered.
             // Its discussion is this one, so the posts' discussion lock can be
@@ -153,7 +160,6 @@ class Discussion extends AbstractModel
                 [],
                 null,
                 [(int) $this->getKey()],
-                $snapshotMayPrecedeLock,
             );
         }, Post::conflictAttempts($db));
     }

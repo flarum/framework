@@ -125,13 +125,7 @@ class Posts extends Type
      */
     protected function deleteChunk(Connection $db, array $discussionIds): void
     {
-        // Domain events raised by a discussion this chunk empties wait for the
-        // commit: a later refresh in the same chunk can fail and roll the whole
-        // chunk back, and an event that escaped first would describe rows that
-        // are back, then be dispatched again by the retry.
-        $snapshotMayPrecedeLock = $db->transactionLevel() > 0;
-
-        $db->transaction(function () use ($db, $discussionIds, $snapshotMayPrecedeLock) {
+        $db->transaction(function () use ($db, $discussionIds) {
             $refreshed = [];
 
             $deleted = Post::deleteWithEvents(
@@ -151,7 +145,6 @@ class Posts extends Type
                 [$this->user->id],
                 null,
                 $discussionIds,
-                $snapshotMayPrecedeLock,
             );
 
             if ($deleted) {

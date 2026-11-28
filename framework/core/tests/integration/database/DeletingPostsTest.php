@@ -135,6 +135,8 @@ class DeletingPostsTest extends TestCase
             $event->afterDeletion(function () use (&$callbacks) {
                 $callbacks++;
             });
+
+            $event->connection->table('users')->where('id', 2)->update(['username' => 'changed']);
         }));
 
         $this->database();
@@ -149,7 +151,39 @@ class DeletingPostsTest extends TestCase
         $this->assertFalse($result);
         $this->assertSame([1, 2, 3], $delivered, 'The delete callback should receive the posts the deletion selected.');
         $this->assertSame(0, $callbacks, 'A cancelled deletion must not run the deletion callbacks.');
+        $this->assertSame('normal', User::query()->findOrFail(2)->username, 'What the listeners wrote should be rolled back.');
         $this->assertSame(3, Post::query()->where('discussion_id', 1)->count());
+    }
+
+    #[Test]
+    public function a_filter_without_discussions_only_deletes_from_the_discussions_it_locked(): void
+    {
+        // A matching post turns up in another discussion once the first has
+        // been locked.
+        $this->extend((new Extend\Event())->listen(DeletingPosts::class, function (DeletingPosts $event) {
+            $event->connection->table('posts')->insert(['id' => 6, 'discussion_id' => 2, 'number' => 2, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>marked</p></t>']);
+        }));
+
+        $this->database();
+        Post::query()->whereKey(1)->update(['content' => '<t><p>marked</p></t>']);
+
+        Post::deleteWithEvents(Post::query()->where('content', 'like', '%marked%'), fn ($posts) => $posts->delete());
+
+        $this->assertFalse(Post::query()->whereKey(1)->exists());
+        $this->assertTrue(Post::query()->whereKey(6)->exists(), 'A post in a discussion that was not locked must be left alone.');
+    }
+
+    #[Test]
+    public function deleting_a_discussion_that_is_already_gone_raises_nothing(): void
+    {
+        $this->database();
+
+        $discussion = Discussion::query()->findOrFail(2);
+        $this->database()->table('discussions')->where('id', 2)->delete();
+
+        $discussion->delete();
+
+        $this->assertSame([], $discussion->releaseEvents());
     }
 
     #[Test]
@@ -214,22 +248,9 @@ class DeletingPostsTest extends TestCase
     }
 
     /**
-     * A deletion locks its discussion, not the post rows.
-     *
-     * The probes write a post of another discussion and one of the posts being
-     * deleted, from a second connection, while the deletion runs. Neither may
-     * block. The first is the lock the review is about; the second is what the
-     * removed pre-lock did, and is the part of this guard that tells the
-     * revisions apart.
-     *
-     * Being honest about the rest: the review could not make this guard fail on
-     * the pre-lock revision on MySQL or MariaDB either. There the old
-     * `where discussion_id in (…) order by posts.id` plan used the
-     * `posts_discussion_id_number_unique` index, so a post of another
-     * discussion between two of the target posts was not scanned and not
-     * locked; only a forced primary-key scan (and the chunked scan before the
-     * order was added) reproduced that. Production code must not force an
-     * index, so that interleaving stays reasoned rather than run here.
+     * A deletion locks its discussion, not the post rows: while it runs, a
+     * second connection can write both a post of another discussion and one of
+     * the posts being deleted.
      */
     #[Test]
     public function a_delete_does_not_lock_post_rows(): void
@@ -276,7 +297,7 @@ class DeletingPostsTest extends TestCase
             $observer->statement("SET lock_timeout = '1s'");
         } else {
             // A locked row is proven by the probe timing out, since MySQL 5.7
-            // and MariaDB have no FOR UPDATE NOWAIT.
+            // has no FOR UPDATE NOWAIT.
             $observer->statement('SET SESSION innodb_lock_wait_timeout = 1');
         }
 
@@ -329,16 +350,8 @@ class DeletingPostsTest extends TestCase
     }
 
     /**
-     * The discussion lock is the deletion transaction's first statement, and it
-     * does not read posts.
-     *
-     * On MySQL and MariaDB the transaction's read view is created by its first
-     * consistent read: a lookup of the discussions inside the lock statement
-     * reads posts, so the view would predate the wait for the lock and the
-     * liker aggregate read afterwards could miss a like that committed while
-     * the deletion waited (the deletion would then cascade the pivot away and
-     * leave the liker's count at 1). The discussions come from the caller, so
-     * the lock is taken by id.
+     * The discussion lock does not read posts. On MySQL and MariaDB that read
+     * would create the transaction's read view before the lock is granted.
      */
     #[Test]
     public function the_discussion_lock_reads_no_posts(): void
