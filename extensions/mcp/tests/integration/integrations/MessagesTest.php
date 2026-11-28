@@ -67,6 +67,14 @@ class MessagesTest extends McpTestCase
     }
 
     #[Test]
+    public function a_conversation_reports_the_bearers_own_read_position(): void
+    {
+        $dialog = $this->toolOutput($this->callTool('get_resource', ['type' => 'dialogs', 'id' => '1'], $this->bearer($this->developerToken(3))))['data'];
+
+        $this->assertSame(1, $dialog['lastReadMessageId']);
+    }
+
+    #[Test]
     public function a_conversation_too_long_for_one_page_is_read_in_full_by_paging_older(): void
     {
         $count = 40;

@@ -256,13 +256,20 @@ $context->api->endpoint(string $type, string $endpoint, string $method, string $
   `JsonApi::forResource(..)->forEndpoint(..)->handle($request)`. That covers method,
   URI `/api/...`, query params, parsed JSON:API body, the actor
   (`RequestUtil::withActor`), the `routeName` attribute `"{type}.{endpoint}"` (with the
-  resource's `routeNamePrefix()` when it has one) and `bypassCsrfToken`. `process()` is
+  resource's `routeNamePrefix()` when it has one), `routeParameters` and
+  `bypassCsrfToken`. `process()` is
   **never** used: it skips the endpoint's `authenticated()/can()` gates and the model
   lookup (findings FND-258, FND-291).
-- Before `handle()`, the client calls the `flarum.api.throttlers` stack (the
-  `ThrottleApi` middleware's `throttle($request)`) with the same request. Core's post
-  flood control and every extension throttler therefore apply to MCP writes.
-  `bypassThrottling` is never set.
+- Around `handle()`, the request goes through the `api` middleware that core's
+  `Api\Client` runs, less route resolution, with error handling off, and with
+  `ThrottleApi` kept even if the client's exclusions drop it. Extensions' middleware
+  sets per-request state there (e.g. flarum/messages' dialog state user), and core's
+  post flood control and every extension throttler apply to MCP writes.
+  `bypassThrottling` is never set. A middleware that answers with an error response
+  instead of throwing is reported like the matching exception: 404 as not found, 5xx
+  as an internal error (details stay on the server), anything else from its
+  `errors` (`ErrorResponse`). Route parameters join the query after the middleware,
+  as `RouteHandlerFactory::toApiResource()` does.
 - The client resolves the resource by type through `JsonApi::getResource($type)`.
   Endpoints are looked up by name on `resolveEndpoints()`.
 - `ApiResult` wraps the decoded JSON:API document:
