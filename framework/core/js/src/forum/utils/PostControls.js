@@ -2,7 +2,6 @@ import app from '../../forum/app';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import ItemList from '../../common/utils/ItemList';
-import extractText from '../../common/utils/extractText';
 import haptic from '../../common/utils/haptic';
 
 /**
@@ -141,8 +140,14 @@ const PostControls = {
    *
    * @return {Promise<void>}
    */
-  hideAction() {
-    if (!confirm(extractText(app.translator.trans('core.forum.post_controls.hide_confirmation')))) return;
+  async hideAction() {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('core.forum.post_controls.hide_confirmation'),
+      confirmText: app.translator.trans('core.forum.post_controls.delete_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
     haptic('heavy');
     this.pushData({ attributes: { hiddenAt: new Date() }, relationships: { hiddenUser: app.session.user } });
 
@@ -165,8 +170,14 @@ const PostControls = {
    *
    * @return {Promise<void>}
    */
-  deleteAction(context) {
-    if (!confirm(extractText(app.translator.trans('core.forum.post_controls.delete_confirmation')))) return;
+  async deleteAction(context) {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('core.forum.post_controls.delete_confirmation'),
+      confirmText: app.translator.trans('core.forum.post_controls.delete_forever_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
     haptic('heavy');
     if (context) context.loading = true;
 

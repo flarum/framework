@@ -6,7 +6,6 @@ import IPAddress from 'flarum/common/components/IPAddress';
 import LabelValue from 'flarum/common/components/LabelValue';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import humanTime from 'flarum/common/helpers/humanTime';
-import extractText from 'flarum/common/utils/extractText';
 import type Mithril from 'mithril';
 
 import type OAuthConsent from '../models/OAuthConsent';
@@ -115,9 +114,13 @@ export default class ConnectedApplications extends Component {
   }
 
   async revoke(consent: OAuthConsent) {
-    const message = extractText(app.translator.trans('flarum-oauth-provider.forum.connected_apps.revoke_confirm', { client: consent.clientName() }));
+    const confirmed = await app.confirm({
+      message: app.translator.trans('flarum-oauth-provider.forum.connected_apps.revoke_confirm', { client: consent.clientName() }),
+      confirmText: app.translator.trans('flarum-oauth-provider.forum.connected_apps.revoke_button'),
+      danger: true,
+    });
 
-    if (!confirm(message)) return;
+    if (!confirmed) return;
 
     this.revoking[consent.id()!] = true;
     m.redraw();
@@ -137,7 +140,13 @@ export default class ConnectedApplications extends Component {
   }
 
   async revokeAll() {
-    if (!confirm(extractText(app.translator.trans('flarum-oauth-provider.forum.connected_apps.revoke_all_confirm')))) return;
+    const confirmed = await app.confirm({
+      message: app.translator.trans('flarum-oauth-provider.forum.connected_apps.revoke_all_confirm'),
+      confirmText: app.translator.trans('flarum-oauth-provider.forum.connected_apps.revoke_all_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
 
     this.revokingAll = true;
     m.redraw();

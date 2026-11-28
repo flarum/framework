@@ -490,17 +490,23 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     );
 
     if (!this.isEnabled()) {
-      const purge = () => {
-        if (confirm(extractText(app.translator.trans('core.admin.extension.confirm_purge')))) {
-          app
-            .request({
-              url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
-              method: 'DELETE',
-            })
-            .then(() => window.location.reload());
+      const purge = async () => {
+        const confirmed = await app.confirm({
+          message: app.translator.trans('core.admin.extension.confirm_purge'),
+          confirmText: app.translator.trans('core.admin.extension.purge_button'),
+          danger: true,
+        });
 
-          app.modal.show(LoadingModal);
-        }
+        if (!confirmed) return;
+
+        app
+          .request({
+            url: app.forum.attribute('apiUrl') + '/extensions/' + this.extension.id,
+            method: 'DELETE',
+          })
+          .then(() => window.location.reload());
+
+        app.modal.show(LoadingModal);
       };
 
       items.add(

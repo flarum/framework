@@ -5,7 +5,6 @@ import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
 import type Mithril from 'mithril';
-import { confirmAction } from './ConfirmModal';
 
 interface CoreAttrs extends ComponentAttrs {
   starting: boolean;
@@ -156,35 +155,37 @@ export default class CorePanel extends Component<CoreAttrs> {
 
     const packages = this.packagesToUpdate();
 
-    confirmAction({
-      title: app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: newest.to }),
-      message: app.translator.trans('flarum-extension-manager.admin.updater.core.confirm', {
-        from: this.current || newest.from,
-        to: newest.to,
-        count: packages.length - 1,
-      }),
-      details:
-        packages.length > 1 ? (
-          <ul className="ExtensionManager-confirm-list">
-            {packages.slice(1).map((name) => (
-              <li key={name}>
-                <code>{name}</code>
-              </li>
-            ))}
-          </ul>
-        ) : null,
-      confirmText: app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: newest.to }),
-      onconfirm: () => this.attrs.onbegin(packages),
-    });
+    app
+      .confirm({
+        title: app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: newest.to }),
+        message: app.translator.trans('flarum-extension-manager.admin.updater.core.confirm', {
+          from: this.current || newest.from,
+          to: newest.to,
+          count: packages.length - 1,
+        }),
+        details:
+          packages.length > 1 ? (
+            <ul className="ExtensionManager-confirm-list">
+              {packages.slice(1).map((name) => (
+                <li key={name}>
+                  <code>{name}</code>
+                </li>
+              ))}
+            </ul>
+          ) : null,
+        confirmText: app.translator.trans('flarum-extension-manager.admin.updater.core.update_to', { version: newest.to }),
+      })
+      .then((confirmed) => confirmed && this.attrs.onbegin(packages));
   }
 
   confirmNightly() {
-    confirmAction({
-      title: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.button'),
-      message: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.confirm'),
-      confirmText: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.button'),
-      onconfirm: () => this.attrs.onnightly(),
-    });
+    app
+      .confirm({
+        title: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.button'),
+        message: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.confirm'),
+        confirmText: app.translator.trans('flarum-extension-manager.admin.updater.core.nightly.button'),
+      })
+      .then((confirmed) => confirmed && this.attrs.onnightly());
   }
 
   summary() {

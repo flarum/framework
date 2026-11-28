@@ -52,10 +52,14 @@ export default class NotificationList extends Component {
         <Button
           className="Button Button--link"
           icon="fas fa-trash-alt"
-          onclick={() => {
-            if (confirm(app.translator.trans('core.forum.notifications.delete_all_confirm'))) {
-              state.deleteAll.call(state);
-            }
+          onclick={async () => {
+            const confirmed = await app.confirm({
+              message: app.translator.trans('core.forum.notifications.delete_all_confirm'),
+              confirmText: app.translator.trans('core.forum.notifications.delete_all_button'),
+              danger: true,
+            });
+
+            if (confirmed) state.deleteAll.call(state);
           }}
         />
       </Tooltip>,

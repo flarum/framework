@@ -8,7 +8,6 @@ import type { Extension } from 'flarum/admin/AdminApplication';
 import type ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
 import UpdateBanner from './components/UpdateBanner';
-import { confirmAction } from './components/ConfirmModal';
 import apiUrl from './apiUrl';
 import { alertError } from './errors';
 
@@ -60,13 +59,14 @@ app.initializers.add('flarum/extension-manager', () => {
 function confirmRemove(extension: Extension) {
   const name = extension.extra?.['flarum-extension']?.title || extension.name;
 
-  confirmAction({
-    title: app.translator.trans('flarum-extension-manager.admin.extensions.remove_files'),
-    message: app.translator.trans('flarum-extension-manager.admin.extensions.remove_confirm', { name }),
-    confirmText: app.translator.trans('flarum-extension-manager.admin.extensions.remove_files'),
-    danger: true,
-    onconfirm: () => removeWithExtensionManager(extension),
-  });
+  app
+    .confirm({
+      title: app.translator.trans('flarum-extension-manager.admin.extensions.remove_files'),
+      message: app.translator.trans('flarum-extension-manager.admin.extensions.remove_confirm', { name }),
+      confirmText: app.translator.trans('flarum-extension-manager.admin.extensions.remove_files'),
+      danger: true,
+    })
+    .then((confirmed) => confirmed && removeWithExtensionManager(extension));
 }
 
 /**

@@ -235,8 +235,14 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     });
   }
 
-  terminateAllOtherSessions() {
-    if (!confirm(extractText(app.translator.trans('core.forum.security.terminate_all_other_sessions_confirmation')))) return;
+  async terminateAllOtherSessions() {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('core.forum.security.terminate_all_other_sessions_confirmation'),
+      confirmText: app.translator.trans('core.forum.security.terminate_all_other_sessions'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
 
     this.state.loadingTerminateSessions = true;
 

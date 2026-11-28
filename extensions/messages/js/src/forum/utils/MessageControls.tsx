@@ -6,7 +6,6 @@ import type Dialog from '../../common/models/Dialog';
 import type Message from '../components/Message';
 import Button from 'flarum/common/components/Button';
 import app from 'flarum/forum/app';
-import extractText from 'flarum/common/utils/extractText';
 import removeMessage from './removeMessage';
 
 const MessageControls = {
@@ -95,8 +94,14 @@ const MessageControls = {
     );
   },
 
-  hideAction(message: DialogMessage) {
-    if (!confirm(extractText(app.translator.trans('flarum-messages.forum.message_controls.delete_confirmation')))) return;
+  async hideAction(message: DialogMessage) {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('flarum-messages.forum.message_controls.delete_confirmation'),
+      confirmText: app.translator.trans('flarum-messages.forum.message_controls.delete_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
 
     message.pushAttributes({ isHidden: true, hiddenAt: new Date().toISOString() });
     m.redraw();
@@ -114,8 +119,14 @@ const MessageControls = {
     return message.save({ isHidden: false }).then(() => m.redraw());
   },
 
-  deleteAction(message: DialogMessage, context: Message) {
-    if (!confirm(extractText(app.translator.trans('flarum-messages.forum.message_controls.delete_forever_confirmation')))) return;
+  async deleteAction(message: DialogMessage, context: Message) {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('flarum-messages.forum.message_controls.delete_forever_confirmation'),
+      confirmText: app.translator.trans('flarum-messages.forum.message_controls.delete_forever_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
 
     const dialogId = message.dialog() ? (message.dialog() as Dialog).id()! : null;
 

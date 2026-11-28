@@ -63,7 +63,10 @@ beforeEach(() => {
     return shown.length;
   };
   (app.alerts as any).dismiss = (key: any) => dismissed.push(key);
-  (app.modal as any).show = (component: any, attrs: any) => modals.push(attrs);
+  (app.modal as any).show = (component: any, attrs: any) => {
+    modals.push(attrs);
+    return Promise.resolve();
+  };
 });
 
 function run(over: Record<string, unknown> = {}) {
@@ -117,7 +120,8 @@ describe('the core Update button', () => {
     expect(modals).toHaveLength(1);
     expect(text(modals[0].message)).toContain('Update Flarum from 2.0.0 to 2.1.0? 1 extension listed below is updated with it');
 
-    modals[0].onconfirm();
+    modals[0].onanswer(true);
+    await flush();
     expect(begun).toEqual([['flarum/core', 'acme/one']]);
   });
 

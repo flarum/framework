@@ -245,18 +245,26 @@ export default class OAuthClientsPage extends ExtensionPage {
     this.loadClients();
   }
 
-  deleteClient(client: OAuthClient) {
-    if (!confirm(app.translator.trans('flarum-oauth-provider.admin.clients.delete_confirm') as unknown as string)) {
-      return;
-    }
+  async deleteClient(client: OAuthClient) {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('flarum-oauth-provider.admin.clients.delete_confirm'),
+      confirmText: app.translator.trans('flarum-oauth-provider.admin.clients.delete_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
 
     client.delete().then(() => this.loadClients());
   }
 
-  rotateSecret(client: OAuthClient) {
-    if (!confirm(app.translator.trans('flarum-oauth-provider.admin.clients.rotate_confirm') as unknown as string)) {
-      return;
-    }
+  async rotateSecret(client: OAuthClient) {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('flarum-oauth-provider.admin.clients.rotate_confirm'),
+      confirmText: app.translator.trans('flarum-oauth-provider.admin.clients.rotate_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
 
     const clientId = client.id();
 

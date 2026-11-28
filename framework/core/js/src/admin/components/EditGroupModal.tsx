@@ -7,7 +7,6 @@ import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
-import extractText from '../../common/utils/extractText';
 import ColorPreviewInput from '../../common/components/ColorPreviewInput';
 import IconInput from '../../common/components/IconInput';
 import IconImageInput from '../../common/components/IconImageInput';
@@ -141,7 +140,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
         </Button>
 
         {this.group.exists && ![Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].includes(this.group.id()!) && (
-          <button type="button" className="Button EditGroupModal-delete" onclick={this.deleteGroup.bind(this)}>
+          <button type="button" className="Button EditGroupModal-delete" disabled={this.loading} onclick={this.deleteGroup.bind(this)}>
             {app.translator.trans('core.admin.edit_group.delete_button')}
           </button>
         )}
@@ -185,10 +184,16 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
       });
   }
 
-  deleteGroup() {
-    if (confirm(extractText(app.translator.trans('core.admin.edit_group.delete_confirmation')))) {
-      this.group.delete().then(() => m.redraw());
-      this.hide();
-    }
+  async deleteGroup() {
+    const confirmed = await app.confirm({
+      message: app.translator.trans('core.admin.edit_group.delete_confirmation'),
+      confirmText: app.translator.trans('core.admin.edit_group.delete_button'),
+      danger: true,
+    });
+
+    if (!confirmed) return;
+
+    this.group.delete().then(() => m.redraw());
+    this.hide();
   }
 }

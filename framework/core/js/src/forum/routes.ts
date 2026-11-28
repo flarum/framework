@@ -46,6 +46,9 @@ export default function (app: ForumApplication) {
   // request on the critical path when the user clicks through to one.
   app.prefetch.add('postStream', () => import('./components/PostStream'), 100);
   app.prefetch.add('postStreamScrubber', () => import('./components/PostStreamScrubber'), 100);
+
+  // So a confirmation, such as the composer's discard prompt, opens without a request.
+  app.prefetch.add('confirmModal', () => import('../common/components/ConfirmModal'), 90);
 }
 
 export function makeRouteHelpers(app: ForumApplication) {

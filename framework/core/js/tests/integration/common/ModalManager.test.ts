@@ -264,6 +264,7 @@ describe('ModalManager', () => {
       expect(document.body.querySelector(`.ModalManager[data-modal-key="${b}"]`)).toBeNull();
 
       // C closes with Escape, and A, visible again, becomes the current modal.
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
       document.body.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape' }));
       dialog(c).dispatchEvent(new Event('transitionend'));
       m.redraw.sync();
@@ -277,6 +278,34 @@ describe('ModalManager', () => {
       m.redraw.sync();
 
       expect(app.modal.isModalOpen()).toBe(false);
+    });
+
+    test('the release of an Escape pressed before a modal opened does not close it', () => {
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      app.modal.show(MyModal);
+      m.redraw.sync();
+
+      document.body.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape' }));
+      expect(document.body.querySelector('.ModalManager .Modal')!.classList.contains('out')).toBe(false);
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      document.body.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape' }));
+      finishHideAnimation();
+
+      expect(app.modal.isModalOpen()).toBe(false);
+    });
+
+    test('a held Escape does not close a modal that opened while it was held', () => {
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      app.modal.show(MyModal);
+      m.redraw.sync();
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', repeat: true }));
+      document.body.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape' }));
+      expect(document.body.querySelector('.ModalManager .Modal')!.classList.contains('out')).toBe(false);
+
+      app.modal.close();
+      m.redraw.sync();
     });
 
     test('a late end to an old hide animation does not end the hide of a newer modal early', () => {

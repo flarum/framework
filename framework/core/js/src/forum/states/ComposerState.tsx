@@ -66,6 +66,9 @@ class ComposerState {
 
   protected onExit: { callback: () => boolean; message: string } | null = null;
 
+  // Shared, so Escape held down in the editor asks once rather than stacking dialogs.
+  protected pendingExitConfirmation: Promise<boolean> | null = null;
+
   /**
    * Fields of the composer.
    */
@@ -86,7 +89,8 @@ class ComposerState {
 
     const body = { componentClass, attrs };
 
-    if (this.preventExit()) return;
+    // Without an await when nothing would be lost: callers may `show()` right after `load()`.
+    if (this.needsExitConfirmation() && !(await this.confirmExit())) return;
 
     // If we load a similar component into the composer, then Mithril will be
     // able to diff the old/new contents and some DOM-related state from the
@@ -162,10 +166,19 @@ class ComposerState {
    * Confirm with the user so they don't lose their content, then close the
    * composer.
    */
-  close() {
-    if (this.preventExit()) return;
+  close(): Promise<void> {
+    // Callers may rely on the composer being hidden as soon as this returns.
+    if (!this.needsExitConfirmation()) {
+      this.hide();
+      return Promise.resolve();
+    }
 
-    this.hide();
+    const body = this.body;
+
+    return this.confirmExit().then((confirmed) => {
+      // A `load()` waiting on the same answer may already have replaced the body.
+      if (confirmed && this.body === body) this.hide();
+    });
   }
 
   /**
@@ -258,8 +271,33 @@ class ComposerState {
   }
 
   /**
+   * Ask the user whether to discard their content, when closing the composer
+   * would lose it.
+   *
+   * @return Whether the composer may close.
+   */
+  confirmExit(): Promise<boolean> {
+    if (!this.needsExitConfirmation()) return Promise.resolve(true);
+
+    return (this.pendingExitConfirmation ??= app
+      .confirm({
+        message: this.onExit!.message,
+        confirmText: app.translator.trans('core.forum.composer.discard_button'),
+        cancelText: app.translator.trans('core.forum.composer.keep_writing_button'),
+        danger: true,
+      })
+      .finally(() => (this.pendingExitConfirmation = null)));
+  }
+
+  protected needsExitConfirmation(): boolean {
+    return this.isVisible() && !!this.onExit?.callback();
+  }
+
+  /**
    * Confirm with the user that they want to close the composer and lose their
    * content.
+   *
+   * @deprecated Use `confirmExit()`, which asks in a Flarum dialog rather than the browser's.
    *
    * @return Whether or not the exit was cancelled.
    */
@@ -278,7 +316,7 @@ class ComposerState {
    *
    * The provided callback will be used to determine whether asking for
    * confirmation is necessary. If the callback returns true at the time of
-   * closing, the provided text will be shown in a standard confirmation dialog.
+   * closing, the provided text will be shown with `app.confirm()`.
    */
   preventClosingWhen(callback: () => boolean, message: string) {
     this.onExit = { callback, message };
