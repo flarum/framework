@@ -157,11 +157,22 @@ class Posts extends Type
             if ($deleted) {
                 $events = $this->refreshDiscussions($refreshed);
 
+                // The events of a discussion this chunk empties wait for the
+                // commit: a later refresh can roll the whole chunk back.
                 if ($events !== []) {
                     $db->afterCommit(static function () use ($events) {
                         $dispatcher = resolve(Dispatcher::class);
 
                         foreach ($events as $event) {
+                            // Each event carries the tags loaded before the
+                            // earlier events were dispatched, and their listeners
+                            // have updated those tags since.
+                            $discussion = $event->discussion ?? null;
+
+                            if ($discussion instanceof Discussion && $discussion->relationLoaded('tags')) {
+                                $discussion->tags->each->refresh();
+                            }
+
                             $dispatcher->dispatch($event);
                         }
                     });
@@ -236,9 +247,8 @@ class Posts extends Type
     {
         $actor = $this->erasureRequest->processedBy ?? $this->user;
 
-        // The "before" event belongs inside the transaction: its listeners are
-        // part of the deletion. The events raised by it are collected for
-        // after the commit instead.
+        // The "before" event is part of the deletion; the events the deletion
+        // raises are dispatched after the commit.
         resolve(Dispatcher::class)->dispatch(new Deleting($discussion, $actor, []));
 
         $discussion->delete();

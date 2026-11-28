@@ -181,6 +181,25 @@ class DeletionModeDiscussionsTest extends TestCase
     }
 
     #[Test]
+    public function a_tag_loses_every_discussion_that_one_chunk_deletes()
+    {
+        $this->app();
+
+        $at = Carbon::parse('2026-01-01 00:08:00');
+        $db = $this->database();
+        $db->table('discussions')->insert(['id' => 4, 'title' => 'Also only theirs', 'slug' => 'also-only-theirs', 'user_id' => 5, 'first_post_id' => 8, 'last_post_id' => 8, 'last_post_number' => 1, 'last_posted_user_id' => 5, 'last_posted_at' => $at, 'comment_count' => 1, 'participant_count' => 1, 'created_at' => $at]);
+        $db->table('posts')->insert(['id' => 8, 'discussion_id' => 4, 'number' => 1, 'user_id' => 5, 'type' => 'comment', 'content' => '<t><p>Opening</p></t>', 'created_at' => $at]);
+        $db->table('discussion_tag')->insert(['discussion_id' => 4, 'tag_id' => 1]);
+        $db->table('tags')->where('id', 1)->update(['discussion_count' => 4]);
+
+        $this->erase();
+
+        $this->assertNull(Discussion::find(3));
+        $this->assertNull(Discussion::find(4));
+        $this->assertEquals(2, Tag::findOrFail(1)->discussion_count);
+    }
+
+    #[Test]
     public function other_peoples_posts_are_kept()
     {
         $this->erase();
