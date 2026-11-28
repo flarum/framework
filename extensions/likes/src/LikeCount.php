@@ -31,7 +31,11 @@ class LikeCount
             ->selectRaw('COUNT(*) as total')
             ->groupBy('post_likes.user_id');
 
-        if ($this->readsNeedLocks($db)) {
+        // The discussion lock is the deletion's first statement, so the reads
+        // below see the committed rows. Only a caller that already had a
+        // transaction open can hold an older snapshot, and only then are the
+        // reads locking: they lock the neighboring pivot rows too.
+        if ($this->readsNeedLocks($db) && $db->transactionLevel() > 1) {
             $posts->sharedLock();
             $counts->sharedLock();
         }
