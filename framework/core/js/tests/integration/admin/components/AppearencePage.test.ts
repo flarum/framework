@@ -51,4 +51,18 @@ describe('AppearancePage', () => {
 
     app.data.themeImages = previous;
   });
+
+  test('keeps the Logos & icons save button when an extension removes the splash screen item', () => {
+    class WithoutSplashScreen extends AppearancePage {
+      brandingItems() {
+        const items = super.brandingItems();
+        items.remove('splash-screen');
+        return items;
+      }
+    }
+
+    const page = mq(WithoutSplashScreen);
+
+    expect(page.rootEl.querySelectorAll('#appearance-logos button[type="submit"]')).toHaveLength(1);
+  });
 });

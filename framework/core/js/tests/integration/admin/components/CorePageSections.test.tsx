@@ -22,6 +22,8 @@ describe('core admin pages in sections', () => {
 
     extend(AppearancePage.prototype, 'brandingItems', function (items: ItemList<Mithril.Children>) {
       items.add('acme-near-logos', <div className="acme-near-logos" />, 84.5);
+      items.add('acme-after-splash', <div className="acme-after-splash" />, 82.5);
+      items.add('acme-last', <div className="acme-last" />, -200);
       items.add('acme-near-css', <div className="acme-near-css" />, 55);
     });
 
@@ -48,6 +50,15 @@ describe('core admin pages in sections', () => {
 
     expect(page).toHaveElement('#appearance-logos .acme-near-logos');
     expect(page).toHaveElement('#appearance-custom-code .acme-near-css');
+    expect(page).toHaveElement('#appearance-custom-code .acme-last');
+  });
+
+  test('the Logos & icons save button stays last in its section when extensions add items to it', () => {
+    const page = mq(AppearancePage);
+    const body = page.first('#appearance-logos .SettingsSection-body');
+
+    expect(body.querySelector('.acme-after-splash')).toBeTruthy();
+    expect(body.lastElementChild!.querySelector('button[type="submit"]')).toBeTruthy();
   });
 
   test('Basics settings are in sections, including a setting another extension placed in one', () => {
