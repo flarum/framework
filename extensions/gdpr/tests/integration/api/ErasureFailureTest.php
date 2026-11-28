@@ -12,6 +12,8 @@ namespace Flarum\Gdpr\tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend\Event;
+use Flarum\Gdpr\Console\ProcessEraseRequests;
+use Flarum\Gdpr\Events\Erasing;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Post\Event\DeletingPosts;
 use Flarum\Post\Post;
@@ -125,6 +127,36 @@ class ErasureFailureTest extends TestCase
         $this->assertSame(1, $discussion->participant_count);
         $this->assertSame(0, $this->likeCountOf(2));
         $this->assertSame(0, ErasureRequest::query()->findOrFail(1)->failure_count);
+    }
+
+    #[Test]
+    public function a_request_that_keeps_failing_does_not_hold_up_the_ones_behind_it(): void
+    {
+        $this->setting('flarum-gdpr.default-erasure', ErasureRequest::MODE_DELETION);
+        $this->extend((new Event())->listen(Erasing::class, function (Erasing $event) {
+            if ((int) $event->user->user_id === 3) {
+                throw new RuntimeException('This request always fails');
+            }
+        }));
+
+        $this->database()->table('users')->insert(['id' => 4, 'username' => 'healthy', 'password' => 'x', 'email' => 'healthy@machine.local', 'is_email_confirmed' => 1]);
+        $this->database()->table('gdpr_erasure')->insert(['id' => 2, 'user_id' => 4, 'verification_token' => 'def456', 'status' => ErasureRequest::STATUS_USER_CONFIRMED, 'created_at' => Carbon::now(), 'user_confirmed_at' => Carbon::now()->subDays(31)]);
+        ErasureRequest::query()->whereKey(1)->update(['user_confirmed_at' => Carbon::now()->subDays(31)]);
+
+        $app = $this->app();
+
+        for ($run = 1; $run <= 2; $run++) {
+            $app->getContainer()->call([new ProcessEraseRequests(), 'handle']);
+        }
+
+        $failing = ErasureRequest::query()->findOrFail(1);
+        $this->assertSame(ErasureRequest::STATUS_USER_CONFIRMED, $failing->status);
+        $this->assertNull($failing->processed_at);
+        $this->assertSame(2, $failing->failure_count);
+        $this->assertNotNull(User::query()->find(3));
+
+        $this->assertSame(ErasureRequest::STATUS_PROCESSED, ErasureRequest::query()->findOrFail(2)->status);
+        $this->assertNull(User::query()->find(4));
     }
 
     protected function attemptErasure(): ResponseInterface
