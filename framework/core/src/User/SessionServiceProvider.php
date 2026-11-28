@@ -65,8 +65,12 @@ class SessionServiceProvider extends AbstractServiceProvider
         // reads how long that is from Laravel's `session.lifetime` config: the
         // file driver does, and so do handlers an extension binds itself. Put the
         // configured lifetime there before any of them is built.
-        $this->container->beforeResolving('session.handler', function () {
-            $this->container->make(ConfigRepository::class)->set('session.lifetime', $this->container->make(SessionConfig::class)->lifetime());
+        // Global rather than keyed: a keyed callback makes every make() run
+        // is_subclass_of(), autoloading string keys like `config` (#5638).
+        $this->container->beforeResolving(function ($abstract) {
+            if ($abstract === 'session.handler') {
+                $this->container->make(ConfigRepository::class)->set('session.lifetime', $this->container->make(SessionConfig::class)->lifetime());
+            }
         });
     }
 }

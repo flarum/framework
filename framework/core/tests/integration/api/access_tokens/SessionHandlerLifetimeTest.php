@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\access_tokens;
 
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Session\NullSessionHandler;
 use PHPUnit\Framework\Attributes\Test;
 use SessionHandlerInterface;
 
@@ -70,5 +71,43 @@ class SessionHandlerLifetimeTest extends TestCase
     {
         $this->assertEquals('still here', $this->sessionIdleFor(100));
         $this->assertEquals('', $this->sessionIdleFor(150));
+    }
+
+    #[Test]
+    public function a_handler_an_extension_binds_sees_the_configured_lifetime()
+    {
+        $this->setting('session.lifetime', 300);
+
+        $container = $this->app()->getContainer();
+        $container->singleton('session.handler', function ($container) {
+            return new class($container->make(Repository::class)->get('session.lifetime')) extends NullSessionHandler {
+                public function __construct(public int $lifetime)
+                {
+                }
+            };
+        });
+
+        $this->assertEquals(300, $container->make(SessionHandlerInterface::class)->lifetime);
+    }
+
+    #[Test]
+    public function resolving_other_bindings_does_not_autoload_their_keys()
+    {
+        $container = $this->app()->getContainer();
+        $autoloaded = [];
+        $logger = function (string $class) use (&$autoloaded) {
+            $autoloaded[] = $class;
+        };
+
+        spl_autoload_register($logger);
+
+        try {
+            $container->make('config');
+            $container->make('events');
+        } finally {
+            spl_autoload_unregister($logger);
+        }
+
+        $this->assertEquals([], $autoloaded);
     }
 }
