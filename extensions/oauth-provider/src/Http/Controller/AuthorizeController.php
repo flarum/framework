@@ -90,6 +90,15 @@ class AuthorizeController implements RequestHandlerInterface
         try {
             $authRequest = $server->validateAuthorizationRequest($request);
         } catch (OAuthServerException $exception) {
+            if ($exception->hasRedirect()) {
+                /** @var Client|null $client */
+                $client = is_string($clientId) ? Client::query()->find($clientId) : null;
+
+                if (! $this->trustsRedirect($client, RequestUtil::getActor($request), array_values((array) $client?->redirect_uris))) {
+                    return $this->untrustedRedirectError($client, $client?->name, Client::hostOf((string) $exception->getRedirectUri()), $exception->getErrorType());
+                }
+            }
+
             return $this->withIssuer($exception->generateHttpResponse(new \Laminas\Diactoros\Response()));
         }
 
@@ -124,7 +133,7 @@ class AuthorizeController implements RequestHandlerInterface
 
         if ($needsReAuth) {
             if ($promptNone) {
-                return $this->authorizationError($authRequest, 'login_required', 'The user needs to authenticate.');
+                return $this->errorBeforeConsent($authRequest, $actor, 'login_required', 'The user needs to authenticate.');
             }
 
             $base = $this->url->to('forum')->base();
@@ -136,7 +145,7 @@ class AuthorizeController implements RequestHandlerInterface
             if ($forcesReAuth && $session !== null) {
                 $returnQuery = $this->withQueryParam($returnQuery, self::REAUTH_TICKET_PARAM, $this->reAuthTicket($session, $ticket));
             } elseif (! $actor->isGuest()) {
-                return $this->authorizationError($authRequest, 'login_required', 'The user needs to authenticate.');
+                return $this->errorBeforeConsent($authRequest, $actor, 'login_required', 'The user needs to authenticate.');
             }
 
             $returnTo = urlencode($this->forumUrl($request, $returnQuery));
@@ -151,7 +160,7 @@ class AuthorizeController implements RequestHandlerInterface
         if (! $this->access->allows($actor)) {
             $this->forgetReAuthTicket($session, $ticket);
 
-            return $this->authorizationError($authRequest, 'access_denied', 'This account may not connect applications.');
+            return $this->errorBeforeConsent($authRequest, $actor, 'access_denied', 'This account may not connect applications.');
         }
 
         $clientId = $authRequest->getClient()->getIdentifier();
@@ -183,7 +192,7 @@ class AuthorizeController implements RequestHandlerInterface
         if ($promptNone) {
             $this->forgetReAuthTicket($session, $ticket);
 
-            return $this->authorizationError($authRequest, 'interaction_required', 'The user needs to grant consent.');
+            return $this->errorBeforeConsent($authRequest, $actor, 'interaction_required', 'The user needs to grant consent.');
         }
 
         $scopeDescriptions = [];
@@ -324,6 +333,63 @@ class AuthorizeController implements RequestHandlerInterface
     }
 
     /**
+     * A self-described client's redirect URI is its own claim, so errors go
+     * back to it only once the member has approved the client (RFC 9700 §4.11.2).
+     */
+    protected function errorBeforeConsent(AuthorizationRequest $authRequest, User $actor, string $error, string $description): ResponseInterface
+    {
+        /** @var Client|null $client */
+        $client = Client::query()->find($authRequest->getClient()->getIdentifier());
+        $validatedUris = array_values((array) $authRequest->getClient()->getRedirectUri());
+
+        if (! $this->trustsRedirect($client, $actor, $validatedUris)) {
+            return $this->untrustedRedirectError($client, $authRequest->getClient()->getName(), $this->redirectHost($authRequest), $error);
+        }
+
+        return $this->authorizationError($authRequest, $error, $description);
+    }
+
+    /**
+     * @param list<string> $redirectUris The redirect URIs the request was validated against.
+     */
+    protected function trustsRedirect(?Client $client, User $actor, array $redirectUris): bool
+    {
+        // Gone since the request was validated: nothing vouches for its URIs.
+        if ($client === null) {
+            return false;
+        }
+
+        if ($client->source === Client::SOURCE_ADMIN) {
+            return true;
+        }
+
+        return ! $actor->isGuest()
+            && (bool) $this->activeConsent((int) $actor->id, $client->id)?->coversRedirectUris($redirectUris);
+    }
+
+    protected function untrustedRedirectError(?Client $client, ?string $clientName, ?string $redirectHost, string $error): ResponseInterface
+    {
+        $html = $this->view->make('flarum-oauth-provider::error', [
+            'clientName' => $clientName,
+            'unverified' => $client !== null && $client->source !== Client::SOURCE_ADMIN,
+            'redirectHost' => $redirectHost,
+            'error' => $error,
+        ])->render();
+
+        return new HtmlResponse($html, 400);
+    }
+
+    protected function activeConsent(int $userId, string $clientId): ?Consent
+    {
+        /** @var Consent|null */
+        return Consent::query()
+            ->where('user_id', $userId)
+            ->where('client_id', $clientId)
+            ->where('revoked', false)
+            ->first();
+    }
+
+    /**
      * Returns an OIDC interaction error to a previously validated redirect URI.
      */
     protected function authorizationError(AuthorizationRequest $authRequest, string $error, string $description): ResponseInterface
@@ -377,12 +443,7 @@ class AuthorizeController implements RequestHandlerInterface
      */
     protected function stillConsented(User $actor, AuthorizationRequest $authRequest): bool
     {
-        /** @var Consent|null $consent */
-        $consent = Consent::query()
-            ->where('user_id', $actor->id)
-            ->where('client_id', $authRequest->getClient()->getIdentifier())
-            ->where('revoked', false)
-            ->first();
+        $consent = $this->activeConsent((int) $actor->id, $authRequest->getClient()->getIdentifier());
 
         return $consent !== null && $consent->covers(array_map(fn ($scope) => $scope->getIdentifier(), $authRequest->getScopes()));
     }
@@ -508,12 +569,7 @@ class AuthorizeController implements RequestHandlerInterface
      */
     protected function hasExistingConsent(int $userId, string $clientId, array $requestedScopes, array $redirectUris): bool
     {
-        /** @var Consent|null $consent */
-        $consent = Consent::query()
-            ->where('user_id', $userId)
-            ->where('client_id', $clientId)
-            ->where('revoked', false)
-            ->first();
+        $consent = $this->activeConsent($userId, $clientId);
 
         // A client that changed where it sends codes (a refetched metadata
         // document, say) has to ask again.
