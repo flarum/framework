@@ -37,4 +37,32 @@ describe('AppearancePage', () => {
 
     app.data.settings.color_scheme = 'auto';
   });
+
+  test.each([
+    ['no theme sets the app icon', {}],
+    ['a theme sets the app icon', { app_icon: 'Theme' }],
+  ])('shows one save button in the Logos & icons section when %s', (_, themeImages) => {
+    const previous = app.data.themeImages;
+    app.data.themeImages = themeImages;
+
+    const page = mq(AppearancePage);
+
+    expect(page.rootEl.querySelectorAll('#appearance-logos button[type="submit"]')).toHaveLength(1);
+
+    app.data.themeImages = previous;
+  });
+
+  test('keeps the Logos & icons save button when an extension removes the splash screen item', () => {
+    class WithoutSplashScreen extends AppearancePage {
+      brandingItems() {
+        const items = super.brandingItems();
+        items.remove('splash-screen');
+        return items;
+      }
+    }
+
+    const page = mq(WithoutSplashScreen);
+
+    expect(page.rootEl.querySelectorAll('#appearance-logos button[type="submit"]')).toHaveLength(1);
+  });
 });

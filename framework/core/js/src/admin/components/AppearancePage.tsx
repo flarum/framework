@@ -59,6 +59,7 @@ export default class AppearancePage extends AdminPage {
             label: app.translator.trans('core.admin.appearance.sections.logos.label'),
             description: app.translator.trans('core.admin.appearance.sections.logos.description'),
             items: ['logo', 'logo-dark-mode', 'email-logo', 'favicon', 'app-icon', 'app-icon-background', 'splash-screen'],
+            footer: <div className="Form-group">{this.submitButton()}</div>,
           },
           {
             id: 'appearance-custom-code',
@@ -170,7 +171,6 @@ export default class AppearancePage extends AdminPage {
             label: app.translator.trans('core.admin.appearance.app_icon_background_label'),
             help: app.translator.trans('core.admin.appearance.app_icon_background_help'),
           })}
-          <div className="Form-group">{this.submitButton()}</div>
         </div>,
         84
       );
@@ -201,7 +201,6 @@ export default class AppearancePage extends AdminPage {
           placeholder: app.forum.attribute<string>('splashScreenBackground'),
         })}
         <SplashScreenPreview />
-        <div className="Form-group">{this.submitButton()}</div>
       </div>,
       83
     );

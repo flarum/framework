@@ -328,7 +328,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
    * Each section names the item keys it holds. An item it doesn't name, such as
    * one another extension added, joins the section of the item before it, so it
    * stays where it was shown before. Items before the first named one are shown
-   * without a heading.
+   * without a heading. A section's `footer` is shown after all of its items.
    *
    * @example
    * this.itemSections(this.brandingItems(), [
@@ -336,7 +336,10 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
    *   { id: 'code', label: app.translator.trans('acme.admin.code'), items: ['custom-css'] },
    * ]).toArray()
    */
-  itemSections(items: ItemList<Mithril.Children>, sections: (SettingsSectionConfig & { items: string[] })[]): ItemList<Mithril.Children> {
+  itemSections(
+    items: ItemList<Mithril.Children>,
+    sections: (SettingsSectionConfig & { items: string[]; footer?: Mithril.Children })[]
+  ): ItemList<Mithril.Children> {
     const result = new ItemList<Mithril.Children>();
     const entries = Object.values(items.toObject()).sort((a, b) => b.priority - a.priority);
     const groups = groupBySection(
@@ -360,6 +363,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
         section.id,
         <SettingsSection id={section.id} label={section.label} description={section.description} icon={section.icon}>
           {content}
+          {section.footer}
         </SettingsSection>,
         priority
       );
