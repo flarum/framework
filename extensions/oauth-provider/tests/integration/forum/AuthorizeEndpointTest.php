@@ -153,6 +153,27 @@ class AuthorizeEndpointTest extends TestCase
     }
 
     #[Test]
+    public function consent_form_posts_to_the_configured_forum_url(): void
+    {
+        // Behind a TLS-terminating proxy that isn't trusted, the request
+        // arrives as http:// while the forum is served over https://.
+        $this->config('url', 'https://example.com/forum');
+
+        $loginResponse = $this->loginNormalUser();
+
+        $request = $this->authorizeRequest('GET', self::DEFAULT_QUERY, ['cookiesFrom' => $loginResponse]);
+        $request = $request->withUri($request->getUri()->withScheme('http')->withHost('example.com')->withPath('/forum/oauth/authorize'));
+
+        $response = $this->send($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString(
+            '<form method="POST" action="'.htmlspecialchars('https://example.com/forum/oauth/authorize?'.http_build_query(self::DEFAULT_QUERY)).'">',
+            (string) $response->getBody()
+        );
+    }
+
+    #[Test]
     public function approving_consent_redirects_with_auth_code(): void
     {
         $loginResponse = $this->loginNormalUser();
