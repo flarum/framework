@@ -13,7 +13,7 @@
         "docs": "https://docs.flarum.org/extensions/messages"
     },
     "require": {
-        "flarum/core": "^2.1"
+        "flarum/core": "^2.1.0-beta.2"
     },
     "conflict": {
         "flarum/realtime": "<2.1"
@@ -98,7 +98,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/testing": "^2.1",
+        "flarum/testing": "^2.1.0-beta.2",
         "flarum/audit": "*",
         "flarum/gdpr": "*",
         "flarum/likes": "*",
