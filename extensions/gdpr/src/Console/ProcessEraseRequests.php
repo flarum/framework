@@ -15,6 +15,8 @@ use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Queue\Queue;
+use Psr\Log\LoggerInterface;
+use Throwable;
 
 class ProcessEraseRequests extends Command
 {
@@ -22,21 +24,27 @@ class ProcessEraseRequests extends Command
     protected $signature = 'gdpr:process-erase-requests';
     protected $description = 'Process open erase requests with community default erase mode.';
 
-    public function handle(Queue $queue, SettingsRepositoryInterface $settings): void
+    public function handle(Queue $queue, SettingsRepositoryInterface $settings, LoggerInterface $logger): void
     {
         ErasureRequest::query()
             ->whereNotNull('user_confirmed_at')
             ->whereNull('processed_at')
             ->where('user_confirmed_at', '<=', Carbon::now()->subDays(static::days))
             ->whereNull('cancelled_at')
-            ->each(function (ErasureRequest $request) use ($queue, $settings) {
+            ->eachById(function (ErasureRequest $request) use ($queue, $settings, $logger) {
                 $request->status = ErasureRequest::STATUS_PROCESSED;
                 $request->processed_at = Carbon::now();
                 $request->processed_mode = $request->processed_mode ?? $settings->get('flarum-gdpr.default-erasure');
                 $request->processor_comment = 'Automatically processed after '.static::days.' days through scheduled task.';
                 $request->save();
 
-                $queue->push(new ErasureJob($request));
+                // On the sync queue a failing job throws after reopening its
+                // request. Carry on, or it would hold up every request behind it.
+                try {
+                    $queue->push(new ErasureJob($request));
+                } catch (Throwable $e) {
+                    $logger->error(sprintf('Erasure request %d could not be processed.', $request->id), ['exception' => $e]);
+                }
             });
     }
 }

@@ -15,7 +15,10 @@ use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
+use Flarum\Post\Event\DeletingPosts;
 use Flarum\User\User;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -81,6 +84,26 @@ class Post extends AbstractModel
      */
     public static string $type = '';
 
+    /**
+     * How many times a write that competes with a per-post counter is attempted.
+     *
+     * @see self::conflictAttempts()
+     */
+    public const CONFLICT_ATTEMPTS = 3;
+
+    /**
+     * The attributes that decide whether a post is visible. A change to one of
+     * them is saved under the discussion lock.
+     *
+     * @var list<string>
+     */
+    protected static array $visibilityAttributes = ['is_private'];
+
+    /**
+     * Whether the current save already holds the discussion lock.
+     */
+    private bool $discussionLocked = false;
+
     public static function boot()
     {
         parent::boot();
@@ -113,6 +136,295 @@ class Post extends AbstractModel
         });
 
         static::addGlobalScope(new RegisteredTypesScope);
+    }
+
+    public function delete()
+    {
+        if (! $this->exists) {
+            return parent::delete();
+        }
+
+        $post = $this->newModelQuery()->whereKey($this->getKey());
+        $discussionId = $this->discussion_id ?? (clone $post)->value('discussion_id');
+        if ($discussionId === null) {
+            return false;
+        }
+
+        $db = $this->getConnection();
+        $pendingEvents = $this->pendingEvents;
+
+        for ($attempt = 0; $attempt < self::conflictAttempts($db); $attempt++) {
+            $moved = false;
+
+            $deleted = self::deleteWithEvents(
+                $post,
+                fn () => parent::delete(),
+                [],
+                function () use ($post, $db, $pendingEvents, &$discussionId, &$moved) {
+                    $this->exists = true;
+                    $this->pendingEvents = $pendingEvents;
+
+                    // Checking the current row by primary key avoids using a
+                    // stale discussion from the model or an earlier snapshot.
+                    $stored = (clone $post)->lockForUpdate()->first(['discussion_id']);
+                    if ($stored === null) {
+                        return false;
+                    }
+
+                    if ((int) $stored->discussion_id !== (int) $discussionId) {
+                        $discussionId = $stored->discussion_id;
+                        $moved = true;
+
+                        return false;
+                    }
+
+                    if ((int) $this->discussion_id !== (int) $discussionId) {
+                        $this->discussion_id = $discussionId;
+                        $this->unsetRelation('discussion');
+                    }
+
+                    // Restore the model even when an enclosing transaction
+                    // rolls back after this savepoint succeeds.
+                    $db->afterRollBack(function () use ($pendingEvents) {
+                        $this->exists = true;
+                        $this->pendingEvents = $pendingEvents;
+                    });
+
+                    return true;
+                },
+                [(int) $discussionId],
+            );
+
+            if (! $moved) {
+                return $deleted;
+            }
+        }
+
+        // An enclosing transaction may still hold the post lock. Retaking
+        // the new discussion lock here would reverse the lock order.
+        throw new \RuntimeException('The post changed discussions while it was being deleted.');
+    }
+
+    public function save(array $options = [])
+    {
+        // Only visibility changes need the discussion locked. The lock has to
+        // be taken before the saving listeners: ModelPrivate checkers derive
+        // `is_private` from other attributes there (Approval derives it from
+        // `is_approved`), and extensions that keep a per-post counter refresh it
+        // from `updated`. Ordinary edits take neither the lock nor a transaction.
+        if (! $this->exists || ! $this->visibilityIsDirty()) {
+            return parent::save($options);
+        }
+
+        return $this->withDiscussionLock(function () use ($options) {
+            $this->discussionLocked = true;
+
+            try {
+                $this->syncOriginalFromLock();
+
+                return parent::save($options);
+            } finally {
+                $this->discussionLocked = false;
+            }
+        });
+    }
+
+    protected function performUpdate(Builder $query)
+    {
+        // A saving listener may have changed visibility after save() looked.
+        // The saving listeners themselves ran unlocked, but the visibility write
+        // and the `updated` listeners, which is what has to be serialized, still
+        // run under the lock. A visibility change made in an `updating`
+        // listener is not covered: it is made after this check.
+        if (! $this->discussionLocked && $this->visibilityIsDirty()) {
+            return $this->withDiscussionLock(function () use ($query) {
+                $this->discussionLocked = true;
+
+                try {
+                    $this->syncOriginalFromLock();
+
+                    return parent::performUpdate($query);
+                } finally {
+                    $this->discussionLocked = false;
+                }
+            });
+        }
+
+        return parent::performUpdate($query);
+    }
+
+    private function visibilityIsDirty(): bool
+    {
+        return $this->isDirty(static::$visibilityAttributes);
+    }
+
+    /**
+     * Register an attribute that decides whether a post is visible, so that
+     * changing it is saved under the discussion lock. Use
+     * {@see \Flarum\Extend\Post::visibilityAttribute()}.
+     *
+     * A change made in an `updating` listener is not covered by the lock.
+     *
+     * @internal
+     */
+    public static function registerVisibilityAttribute(string $attribute): void
+    {
+        if (! in_array($attribute, static::$visibilityAttributes, true)) {
+            static::$visibilityAttributes[] = $attribute;
+        }
+    }
+
+    /**
+     * Re-read the row under the discussion lock and treat it as the original.
+     *
+     * The lock can be granted after a wait, by which time the loaded row is out
+     * of date. Listeners that compare against `getOriginal()` need the state
+     * the change is made against. Attributes this save sets are kept; every
+     * other column takes the locked row's value, so the save does not write
+     * back a stale one.
+     *
+     * `setRawAttributes()` also drops the cast caches, which `save()` would
+     * otherwise merge back over the row.
+     */
+    private function syncOriginalFromLock(): void
+    {
+        $intended = $this->getDirty();
+        $stored = $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->first();
+
+        if ($stored !== null) {
+            $this->setRawAttributes(array_merge($stored->getAttributes(), $intended));
+            $this->original = $stored->getAttributes();
+        }
+    }
+
+    /**
+     * Run a post mutation with its discussion locked before the post.
+     *
+     * @template T
+     * @param \Closure(): T $callback
+     * @return T
+     */
+    public function withDiscussionLock(\Closure $callback, int $attempts = 1): mixed
+    {
+        $db = $this->getConnection();
+
+        // Partial models can omit the foreign key. Find it before opening
+        // our transaction so the lookup cannot open its read view.
+        $discussionId = $this->discussion_id ?? $this->newModelQuery()->whereKey($this->getKey())->value('discussion_id');
+
+        return $db->transaction(function () use ($db, $callback, $discussionId) {
+            if ($discussionId !== null) {
+                $db->table('discussions')->where('id', $discussionId)->lockForUpdate()->first(['id']);
+            }
+
+            return $callback();
+        }, $attempts);
+    }
+
+    /**
+     * Attempts for a transaction whose writes can collide with any per-post
+     * counter an extension maintains.
+     *
+     * Another request can commit a change to the counter's row between our
+     * reads and our write. MariaDB 11.6+ reports that as a deadlock (1213) or
+     * "record has changed since last read" (1020) instead of waiting, so the
+     * write has to be retried. Retrying only helps on the outermost
+     * transaction: InnoDB rolls the whole transaction back on a deadlock, so a
+     * nested retry would repeat a savepoint inside a transaction that is gone.
+     */
+    public static function conflictAttempts(ConnectionInterface $connection): int
+    {
+        return $connection->transactionLevel() === 0 ? self::CONFLICT_ATTEMPTS : 1;
+    }
+
+    /**
+     * Delete posts in one transaction, with the discussions they belong to
+     * locked first and the {@see DeletingPosts} listeners run before the delete.
+     *
+     * Listeners may run once per retry attempt, so they must be idempotent.
+     *
+     * @internal
+     *
+     * @template T
+     * @param Builder<Post> $posts A single-table, unpaginated filter on posts. Without
+     *                             `$discussionIds` it is limited to the discussions that were locked.
+     * @param \Closure(\Illuminate\Database\Query\Builder): T $delete Delete the posts the given query selects,
+     *                               or return false to cancel, which rolls back what the listeners wrote.
+     * @param list<int> $userIds Other users to lock alongside those requested by deletion listeners.
+     * @param (\Closure(): (void|bool))|null $beforeAttempt Run after locking the discussions,
+     *                                before notifying listeners. Returning false cancels the attempt.
+     * @param list<int>|null $discussionIds The discussions the posts belong to, when the caller knows them.
+     * @return T|false
+     */
+    public static function deleteWithEvents(Builder $posts, \Closure $delete, array $userIds = [], ?\Closure $beforeAttempt = null, ?array $discussionIds = null): mixed
+    {
+        $query = $posts->toBase();
+        if ($query->from !== 'posts' || $query->limit !== null || $query->offset !== null ||
+            $query->orders || $query->joins || $query->groups || $query->havings || $query->unions ||
+            $query->groupLimit || $query->distinct) {
+            throw new \InvalidArgumentException('Post deletion requires an unordered, unpaginated query on posts.');
+        }
+
+        $db = $query->getConnection();
+        $cancelled = new \Exception('Post deletion was cancelled.');
+
+        try {
+            return $db->transaction(function () use ($query, $db, $delete, $userIds, $beforeAttempt, $discussionIds, $cancelled) {
+                $scoped = clone $query;
+
+                // Lock each discussion the posts belong to before its posts. A post
+                // whose discussion row is already gone has no discussion to lock,
+                // and is still deleted below rather than being left behind.
+                if ($discussionIds === null) {
+                    $found = (clone $query)->select('posts.discussion_id')->distinct()->pluck('discussion_id')
+                        ->map(fn ($id) => $id === null ? null : (int) $id)->all();
+                    $discussionIds = array_values(array_filter($found, fn ($id) => $id !== null));
+
+                    // Only the posts in the discussions that are locked below
+                    // are deleted, not ones that arrived in other discussions.
+                    $scoped->where(function ($group) use ($discussionIds, $found) {
+                        $group->whereIn('posts.discussion_id', $discussionIds);
+
+                        if (count($found) !== count($discussionIds)) {
+                            $group->orWhereNull('posts.discussion_id');
+                        }
+                    });
+                }
+
+                if ($discussionIds !== []) {
+                    $db->table('discussions')
+                        ->whereIn('id', $discussionIds)
+                        ->orderBy('id')->lockForUpdate()->pluck('id');
+                }
+
+                if ($beforeAttempt !== null && $beforeAttempt() === false) {
+                    return false;
+                }
+
+                $deleted = (clone $scoped)->select('posts.id');
+
+                $event = new DeletingPosts($db, $deleted, $userIds);
+                resolve(Dispatcher::class)->dispatch($event);
+                $event->acquireUserLocks();
+
+                $result = $delete(clone $deleted);
+
+                if ($result === false) {
+                    // Roll back what the listeners wrote.
+                    throw $cancelled;
+                }
+
+                $event->complete();
+
+                return $result;
+            }, self::conflictAttempts($db));
+        } catch (\Exception $e) {
+            if ($e === $cancelled) {
+                return false;
+            }
+
+            throw $e;
+        }
     }
 
     /**

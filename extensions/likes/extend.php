@@ -37,6 +37,9 @@ return [
     (new Extend\Model(Post::class))
         ->belongsToMany('likes', User::class, 'post_likes', 'post_id', 'user_id'),
 
+    (new Extend\Model(User::class))
+        ->cast('like_count', 'integer'),
+
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Notification())
@@ -49,7 +52,16 @@ return [
             function (Endpoint\Index|Endpoint\Show|Endpoint\Create|Endpoint\Update $endpoint): Endpoint\Endpoint {
                 return $endpoint->addDefaultInclude(['likes']);
             }
+        )
+        ->endpoint(
+            Endpoint\Update::class,
+            function (Endpoint\Update $endpoint): Endpoint\Update {
+                return $endpoint->meta([PostResourceFields::actorLikeCount()]);
+            }
         ),
+
+    (new Extend\ApiResource(Resource\UserResource::class))
+        ->fields(Api\UserResourceFields::class),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         // Only default-include post likes where the post is actually displayed
@@ -82,6 +94,11 @@ return [
         ->listen(Deleted::class, function (Deleted $event) {
             $event->post->likes()->detach();
         }),
+
+    (new Extend\ServiceProvider())
+        ->register(LikeServiceProvider::class),
+
+    new RefreshLikesOnEnable(),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(PostSearcher::class, LikedByFilter::class)

@@ -114,6 +114,56 @@ class Discussion extends AbstractModel
         });
     }
 
+    public function delete()
+    {
+        if (! $this->exists) {
+            return parent::delete();
+        }
+
+        $db = $this->getConnection();
+
+        // Events raised on the model stay pending until the request dispatches
+        // them, and a rollback does not clear them, so a failed attempt's
+        // events would be raised again on the retry and dispatched twice.
+        $pendingEvents = $this->pendingEvents;
+
+        // The cascade deletes posts, whose per-post counters can collide with
+        // another request's writes. MariaDB then reports a deadlock or a changed
+        // record, so retry here, at the outermost transaction, rather than in
+        // the cascade.
+        return $db->transaction(function () use ($db, $pendingEvents) {
+            $this->exists = true;
+            $this->pendingEvents = $pendingEvents;
+
+            // Prevent another post from being inserted before the cascade.
+            $stored = $this->newModelQuery()->whereKey($this->getKey())->lockForUpdate()->first(['id']);
+
+            // Another request deleted it first; there is nothing left to
+            // delete, and no `Deleted` to raise.
+            if ($stored === null) {
+                $this->exists = false;
+
+                return false;
+            }
+
+            $db->afterRollBack(function () use ($pendingEvents) {
+                $this->exists = true;
+                $this->pendingEvents = $pendingEvents;
+            });
+
+            // The cascade includes posts whose types are no longer registered.
+            // Its discussion is this one, so the posts' discussion lock can be
+            // taken by id rather than looked up from the posts.
+            return Post::deleteWithEvents(
+                $this->posts()->getQuery()->withoutGlobalScopes(),
+                parent::delete(...),
+                [],
+                null,
+                [(int) $this->getKey()],
+            );
+        }, Post::conflictAttempts($db));
+    }
+
     /**
      * Start a new discussion. Raises the DiscussionWasStarted event.
      */

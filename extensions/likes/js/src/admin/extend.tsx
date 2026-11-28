@@ -14,6 +14,14 @@ export default [
       }),
       'reply'
     )
+    .permission(
+      () => ({
+        icon: 'far fa-thumbs-up',
+        label: app.translator.trans('flarum-likes.admin.permissions.view_like_count_label'),
+        permission: 'user.viewLikeCount',
+      }),
+      'view'
+    )
     .section(
       () => ({
         id: 'liking',

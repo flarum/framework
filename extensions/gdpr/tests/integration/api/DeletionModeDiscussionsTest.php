@@ -16,6 +16,7 @@ use Flarum\Extend;
 use Flarum\Gdpr\Models\ErasureRequest;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Notification;
+use Flarum\Post\Event\DeletingPosts;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -180,11 +181,92 @@ class DeletionModeDiscussionsTest extends TestCase
     }
 
     #[Test]
+    public function a_tag_loses_every_discussion_that_one_chunk_deletes()
+    {
+        $this->app();
+
+        $at = Carbon::parse('2026-01-01 00:08:00');
+        $db = $this->database();
+        $db->table('discussions')->insert(['id' => 4, 'title' => 'Also only theirs', 'slug' => 'also-only-theirs', 'user_id' => 5, 'last_post_number' => 1, 'last_posted_user_id' => 5, 'last_posted_at' => $at, 'comment_count' => 1, 'participant_count' => 1, 'created_at' => $at]);
+        $db->table('posts')->insert(['id' => 8, 'discussion_id' => 4, 'number' => 1, 'user_id' => 5, 'type' => 'comment', 'content' => '<t><p>Opening</p></t>', 'created_at' => $at]);
+        $db->table('discussions')->where('id', 4)->update(['first_post_id' => 8, 'last_post_id' => 8]);
+        $db->table('discussion_tag')->insert(['discussion_id' => 4, 'tag_id' => 1]);
+        $db->table('tags')->where('id', 1)->update(['discussion_count' => 4]);
+
+        $this->erase();
+
+        $this->assertNull(Discussion::find(3));
+        $this->assertNull(Discussion::find(4));
+        $this->assertEquals(2, Tag::findOrFail(1)->discussion_count);
+    }
+
+    #[Test]
     public function other_peoples_posts_are_kept()
     {
         $this->erase();
 
         $this->assertEqualsCanonicalizing([2, 3, 4], Post::query()->pluck('id')->all());
+    }
+
+    #[Test]
+    public function a_reply_written_outside_the_scanned_discussions_is_still_deleted()
+    {
+        $at = fn (int $minute) => Carbon::parse('2026-01-01 00:00:00')->addMinutes($minute);
+
+        $replied = false;
+        $this->extend((new Extend\Event())->listen(DeletingPosts::class, function () use (&$replied, $at) {
+            if ($replied) {
+                return;
+            }
+
+            $replied = true;
+
+            // They reply while the erasure is running, in a discussion the
+            // deletion was not given. Their post was written by them, so it
+            // must go too, even though its discussion was not scanned.
+            $db = $this->database();
+
+            $db->table('posts')->insert([
+                'id' => 9, 'discussion_id' => 4, 'number' => 2, 'user_id' => 5, 'type' => 'comment',
+                'content' => '<t><p>Reply after the scan</p></t>', 'created_at' => $at(10),
+            ]);
+            $db->table('discussions')->where('id', 4)->update([
+                'last_post_id' => 9, 'last_post_number' => 2, 'last_posted_user_id' => 5,
+                'last_posted_at' => $at(10), 'comment_count' => 2,
+            ]);
+        }));
+
+        $db = $this->database();
+
+        // The discussion starts without its post pointers: posts.discussion_id
+        // requires the discussion row, and discussions.first_post_id and
+        // last_post_id require the posts, so the pointers are set afterwards.
+        // Inserting them up front fails where the foreign keys are enforced.
+        $db->table('discussions')->insert([
+            'id' => 4, 'title' => 'Outside the scan', 'slug' => 'outside-the-scan', 'user_id' => 2,
+            'first_post_id' => null, 'last_post_id' => null,
+            'last_post_number' => 1, 'last_posted_user_id' => 2, 'last_posted_at' => $at(9),
+            'comment_count' => 1, 'participant_count' => 1, 'created_at' => $at(9),
+        ]);
+        $db->table('posts')->insert([
+            'id' => 8, 'discussion_id' => 4, 'number' => 1, 'user_id' => 2, 'type' => 'comment',
+            'content' => '<t><p>Opening</p></t>', 'created_at' => $at(9),
+        ]);
+        $db->table('discussions')->where('id', 4)->update([
+            'first_post_id' => 8, 'last_post_id' => 8,
+        ]);
+
+        $this->erase();
+
+        $this->assertTrue($replied, 'The reply was written while the erasure was running.');
+        $this->assertNull(Post::find(9));
+        $this->assertNotNull(Post::find(8));
+
+        $discussion = Discussion::findOrFail(4);
+        $this->assertEquals(1, $discussion->comment_count);
+        $this->assertEquals(8, $discussion->first_post_id);
+        $this->assertEquals(8, $discussion->last_post_id);
+        $this->assertEquals(2, $discussion->last_posted_user_id);
     }
 }
 
