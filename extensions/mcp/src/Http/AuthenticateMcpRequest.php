@@ -17,9 +17,11 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Mcp\Capability\CapabilityResolver;
 use Flarum\Mcp\Capability\McpContext;
 use Flarum\Mcp\Capability\ResolvedCapabilities;
+use Flarum\Mcp\Event\Authenticated;
 use Flarum\OAuthProvider\Models\Client;
 use Flarum\User\Guest;
 use Flarum\User\User;
+use Illuminate\Contracts\Events\Dispatcher;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -47,6 +49,7 @@ class AuthenticateMcpRequest implements MiddlewareInterface
         protected CapabilityResolver $resolver,
         protected UrlGenerator $url,
         protected TranslatorInterface $translator,
+        protected Dispatcher $events,
     ) {
     }
 
@@ -200,8 +203,12 @@ class AuthenticateMcpRequest implements MiddlewareInterface
         // it, discussions report the guest's read and follow state.
         Discussion::setStateUser($authentication->actor);
 
-        return RequestUtil::withActor($request, $authentication->actor)
+        $request = RequestUtil::withActor($request, $authentication->actor)
             ->withAttribute(static::AUTHENTICATION, $authentication);
+
+        $this->events->dispatch(new Authenticated($authentication));
+
+        return $request;
     }
 
     protected function unauthorized(?string $error, string $scope): ResponseInterface

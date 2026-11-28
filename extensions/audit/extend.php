@@ -31,7 +31,7 @@ use Illuminate\Queue\Events\QueueResumed;
 Search\AuditGambits::register('actor', 'actor:guest', 'flarum-audit.lib.browser.filters.actor');
 Search\AuditGambits::register('user', 'user:', 'flarum-audit.lib.browser.filters.user');
 Search\AuditGambits::register('action', 'action:user.logged_in', 'flarum-audit.lib.browser.filters.action');
-Search\AuditGambits::register('client', 'client:session', 'flarum-audit.lib.browser.filters.client', ['session', 'api_key', 'access_token', 'cli', 'unknown']);
+Search\AuditGambits::register('client', 'client:session', 'flarum-audit.lib.browser.filters.client', ['session', 'api_key', 'access_token', 'mcp', 'cli', 'unknown']);
 Search\AuditGambits::register('ip', 'ip:', 'flarum-audit.lib.browser.filters.ip');
 Search\AuditGambits::register('discussion', 'discussion:', 'flarum-audit.lib.browser.filters.discussion');
 
