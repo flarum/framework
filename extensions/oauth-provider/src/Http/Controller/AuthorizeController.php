@@ -225,6 +225,7 @@ class AuthorizeController implements RequestHandlerInterface
             'redirectHost' => $redirectHost,
             'scopes' => $scopeDescriptions,
             'actor' => $actor,
+            'actorClass' => RequestUtil::getActorHtmlClass($request),
             'formAction' => (string) $request->getUri(),
             'csrfToken' => $csrfToken,
             // Replayed as hidden fields; only plain string parameters belong
