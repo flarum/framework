@@ -28,8 +28,8 @@ class VisibilityTest extends McpTestCase
         $this->prepareDatabase([
             User::class => [$this->normalUser()],
             Tag::class => [
-                ['id' => 1, 'name' => 'General', 'slug' => 'general', 'position' => 0],
-                ['id' => 2, 'name' => 'Staff', 'slug' => 'staff', 'position' => 1, 'is_restricted' => true],
+                ['id' => 1, 'name' => 'General', 'slug' => 'general', 'is_primary' => true, 'position' => 0],
+                ['id' => 2, 'name' => 'Staff', 'slug' => 'staff', 'is_primary' => true, 'position' => 1, 'is_restricted' => true],
             ],
         ]);
 

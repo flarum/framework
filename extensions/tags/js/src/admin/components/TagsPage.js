@@ -27,7 +27,7 @@ function tagItem(tag) {
           onclick={() => app.modal.show(EditTagModal, { model: tag })}
         />
       </div>
-      {!tag.isChild() && tag.position() !== null && (
+      {tag.isPrimaryParent() && (
         <ol className="TagListItem-children TagList">
           {sortTags(app.store.all('tags'))
             .filter((child) => child.parent() === tag)
@@ -107,7 +107,7 @@ export default class TagsPage extends ExtensionPage {
         <div className="TagsContent-list" key={this.forcedRefreshKey} oncreate={this.onListOnCreate.bind(this)}>
           <FormSectionGroup>
             <FormSection className="TagGroup" label={app.translator.trans('flarum-tags.admin.tags.primary_heading')}>
-              <ol className="TagList TagList--primary">{tags.filter((tag) => tag.position() !== null && !tag.isChild()).map(tagItem)}</ol>
+              <ol className="TagList TagList--primary">{tags.filter((tag) => tag.isPrimaryParent()).map(tagItem)}</ol>
               <Button className="Button TagList-button" icon="fas fa-plus" onclick={() => app.modal.show(EditTagModal, { primary: true })}>
                 {app.translator.trans('flarum-tags.admin.tags.create_primary_tag_button')}
               </Button>
@@ -116,7 +116,7 @@ export default class TagsPage extends ExtensionPage {
             <FormSection className="TagGroup TagGroup--secondary" label={app.translator.trans('flarum-tags.admin.tags.secondary_heading')}>
               <ul className="TagList TagList--secondary">
                 {tags
-                  .filter((tag) => tag.position() === null)
+                  .filter((tag) => tag.isSecondary())
                   .sort((a, b) => a.name().localeCompare(b.name()))
                   .map(tagItem)}
               </ul>
@@ -244,6 +244,7 @@ export default class TagsPage extends ExtensionPage {
       app.store.getById('tags', e.item.getAttribute('data-id')).pushData({
         attributes: {
           position: null,
+          isPrimary: false,
           isChild: false,
         },
         relationships: { parent: null },
@@ -274,6 +275,7 @@ export default class TagsPage extends ExtensionPage {
       parent.pushData({
         attributes: {
           position: i,
+          isPrimary: true,
           isChild: false,
         },
         relationships: { parent: null },
@@ -283,6 +285,7 @@ export default class TagsPage extends ExtensionPage {
         app.store.getById('tags', child).pushData({
           attributes: {
             position: j,
+            isPrimary: true,
             isChild: true,
           },
           relationships: { parent },

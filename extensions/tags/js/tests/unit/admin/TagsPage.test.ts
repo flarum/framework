@@ -27,7 +27,7 @@ beforeAll(() => {
   const tag = (id: string, name: string, position: number | null, parent: string | null = null) => ({
     id,
     type: 'tags',
-    attributes: { slug: name.toLowerCase(), name, position, isChild: parent !== null },
+    attributes: { slug: name.toLowerCase(), name, position, isPrimary: position !== null, isChild: parent !== null },
     relationships: { parent: { data: parent ? { type: 'tags', id: parent } : null } },
   });
 

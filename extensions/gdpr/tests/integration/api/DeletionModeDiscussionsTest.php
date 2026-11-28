@@ -83,7 +83,7 @@ class DeletionModeDiscussionsTest extends TestCase
                 ['id' => 2, 'user_id' => 3, 'type' => PostSubjectBlueprint::getType(), 'subject_id' => 2, 'created_at' => $at(2)],
             ],
             Tag::class => [
-                ['id' => 1, 'name' => 'General', 'slug' => 'general', 'position' => 0, 'discussion_count' => 3, 'last_posted_discussion_id' => 3, 'last_posted_user_id' => 5, 'last_posted_at' => $at(7)],
+                ['id' => 1, 'name' => 'General', 'slug' => 'general', 'is_primary' => true, 'position' => 0, 'discussion_count' => 3, 'last_posted_discussion_id' => 3, 'last_posted_user_id' => 5, 'last_posted_at' => $at(7)],
             ],
             'discussion_tag' => [
                 ['discussion_id' => 1, 'tag_id' => 1],

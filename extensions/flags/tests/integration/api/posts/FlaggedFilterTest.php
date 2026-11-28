@@ -56,8 +56,8 @@ class FlaggedFilterTest extends TestCase
             ],
             Tag::class => [
                 // Per-tag permissions only apply to restricted tags.
-                ['id' => 1, 'name' => 'Support', 'slug' => 'support', 'position' => 0, 'is_restricted' => true],
-                ['id' => 2, 'name' => 'General', 'slug' => 'general', 'position' => 1],
+                ['id' => 1, 'name' => 'Support', 'slug' => 'support', 'is_primary' => true, 'position' => 0, 'is_restricted' => true],
+                ['id' => 2, 'name' => 'General', 'slug' => 'general', 'is_primary' => true, 'position' => 1],
             ],
             Discussion::class => [
                 ['id' => 1, 'title' => 'In support', 'user_id' => 1, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'first_post_id' => 1, 'comment_count' => 2],

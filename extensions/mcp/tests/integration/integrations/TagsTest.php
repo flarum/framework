@@ -30,7 +30,7 @@ class TagsTest extends McpTestCase
                 ['id' => 1, 'name' => 'General', 'slug' => 'general', 'description' => 'Anything goes', 'position' => 0, 'is_primary' => true, 'discussion_count' => 1],
                 ['id' => 2, 'name' => 'Support', 'slug' => 'support', 'position' => 1, 'is_primary' => true],
                 ['id' => 3, 'name' => 'Billing', 'slug' => 'billing', 'position' => 0, 'is_primary' => true, 'parent_id' => 2],
-                ['id' => 4, 'name' => 'Ideas', 'slug' => 'ideas'],
+                ['id' => 4, 'name' => 'Ideas', 'slug' => 'ideas', 'position' => null, 'is_primary' => false],
                 ['id' => 5, 'name' => 'Staff', 'slug' => 'staff', 'position' => 2, 'is_primary' => true, 'is_restricted' => true],
             ],
             Discussion::class => [

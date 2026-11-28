@@ -21,6 +21,7 @@ class TagFactory extends Factory
             'slug' => $this->faker->slug,
             'description' => $this->faker->sentence,
             'color' => $this->faker->hexColor,
+            'is_primary' => true,
             'position' => 0,
             'parent_id' => null,
             'default_sort' => null,
