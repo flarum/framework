@@ -9,12 +9,7 @@
 
 namespace Flarum\Realtime\Websocket\Api;
 
-use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
-use Flarum\Realtime\Push\Payload\Generator;
-use Flarum\Realtime\Websocket\TypingActivity;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -23,15 +18,28 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Pusher\Pusher;
 
+/**
+ * Signs a client's subscription to a websocket channel, once the
+ * {@link ChannelRegistry} says the actor may join it.
+ *
+ * This only routes: it parses the channel name into a type, a subject and an
+ * optional id, and hands those to the registry. Which channels exist, whether each
+ * takes an id, and what each one requires, lives there — including realtime's
+ * own, which are registered from `extend.php` like any extension's.
+ */
 class AuthController implements RequestHandlerInterface
 {
-    private User $actor;
+    /**
+     * A hyphenated subject needs no special case (`private-index-typing-tag={id}`
+     * and `private-typing-activity` used to). The id is optional in the pattern;
+     * whether a given channel requires or forbids one is the registry's call.
+     */
+    private const CHANNEL = '~^(?<type>private|presence)-(?<subject>[a-zA-Z][a-zA-Z0-9-]*)(?:=(?<id>[0-9]+))?$~';
 
     public function __construct(
         protected Pusher $pusher,
-        protected Generator $generator,
-        protected PresenceChannelAuthorizer $presenceAuthorizer,
-        protected SettingsRepositoryInterface $settings
+        protected ChannelRegistry $registry,
+        protected PresenceChannelAuthorizer $presenceAuthorizer
     ) {
     }
 
@@ -39,146 +47,51 @@ class AuthController implements RequestHandlerInterface
     {
         $attributes = $request->getParsedBody();
 
-        $this->actor = RequestUtil::getActor($request);
+        $actor = RequestUtil::getActor($request);
         $channel = Arr::get($attributes, 'channel_name');
+        $socketId = Arr::get($attributes, 'socket_id');
 
-        if ($channel === TypingActivity::CHANNEL) {
-            if ($this->typingActivity()) {
-                $body = $this->pusher->authorizeChannel($channel, Arr::get($attributes, 'socket_id'));
+        if (! is_string($channel) || ! preg_match(self::CHANNEL, $channel, $m)) {
+            return new EmptyResponse(403);
+        }
 
-                return new JsonResponse(json_decode($body, true));
+        $subject = $m['subject'];
+        $id = ($m['id'] ?? '') === '' ? null : (int) $m['id'];
+
+        if ($m['type'] === ChannelRegistry::PRIVATE) {
+            if ($this->registry->authorizePrivate($subject, $actor, $id)) {
+                return new JsonResponse(json_decode(
+                    $this->pusher->authorizeChannel($channel, $socketId),
+                    true
+                ));
             }
 
             return new EmptyResponse(403);
         }
 
-        if (preg_match('~^private-index-typing-tag=(?<id>[0-9]+)$~', $channel, $m)) {
-            if ($this->indexTypingTag((int) $m['id'])) {
-                $socketId = Arr::get($attributes, 'socket_id');
-                $body = $this->pusher->authorizeChannel($channel, $socketId);
-
-                return new JsonResponse(json_decode($body, true));
-            }
-
+        // A presence channel publishes a member list keyed by user id, so there is
+        // nothing to put in it for a guest. The registry is consulted before the
+        // guards so that they only ever run for channels that exist.
+        if ($actor->isGuest()
+            || ! $this->registry->accepts(ChannelRegistry::PRESENCE, $subject, $id)
+            || ! $this->presenceAuthorizer->authorize($subject, $actor)) {
             return new EmptyResponse(403);
         }
 
-        if (preg_match('~^private-(?<subject>[a-zA-Z]+)=(?<id>[0-9]+)$~', $channel, $m)) {
-            if (method_exists($this, $m['subject']) && call_user_func([$this, $m['subject']], $m['id'])) {
-                $socketId = Arr::get($attributes, 'socket_id');
+        $memberData = $this->registry->authorizePresence($subject, $actor, $id);
 
-                // Compute the auth body
-                $body = $this->pusher->authorizeChannel($channel, $socketId);
-
-                return new JsonResponse(json_decode($body, true));
-            }
+        if ($memberData === null) {
+            return new EmptyResponse(403);
         }
 
-        if (preg_match('~^presence-(?<subject>[a-z-]+)$~', $channel, $m)) {
-            if (! $this->actor->isGuest() && method_exists($this, $m['subject'])
-                && $this->presenceAuthorizer->authorize($m['subject'], $this->actor)
-            ) {
-                $payload = call_user_func([$this, $m['subject']], $this->actor);
-
-                // Only if the method returns anything, will we allow authentication.
-                if ($payload) {
-                    $socketId = Arr::get($attributes, 'socket_id');
-                    $body = $this->pusher->authorizePresenceChannel(
-                        $channel,
-                        $socketId,
-                        (string) $this->actor->id,
-                        $payload
-                    );
-
-                    return new JsonResponse(json_decode($body, true));
-                }
-            }
-        }
-
-        return new EmptyResponse(403);
-    }
-
-    protected function user(int $id): bool
-    {
-        return ! $this->actor->isGuest() && $this->actor->id === $id;
-    }
-
-    protected function typing(int $id): bool
-    {
-        return Discussion::whereVisibleTo($this->actor)->where('id', $id)->exists();
-    }
-
-    protected function privateMessageTyping(int $id): bool
-    {
-        return \Flarum\Messages\Dialog::whereVisibleTo($this->actor)->where('id', $id)->exists();
-    }
-
-    /**
-     * Authorize the channel naming members who type in a private conversation while
-     * hiding their online status: the conversation's members who hold core's
-     * `user.viewLastSeenAt`, the override for that preference. See
-     * {@link \Flarum\Realtime\Websocket\Message\Message::relayDialogTyping()}.
-     */
-    protected function privateMessageTypingIdentified(int $id): bool
-    {
-        return $this->actor->hasPermission('user.viewLastSeenAt')
-            && $this->privateMessageTyping($id);
-    }
-
-    /**
-     * Authorize the channel that discloses who is typing while hiding their online
-     * status. `user.viewLastSeenAt` is core's override for the `discloseOnline`
-     * preference, so it gates this too — plus the ordinary requirements for seeing
-     * the typing indicator at all, since this channel carries nothing else.
-     *
-     * Doing it here means the permission is evaluated once per subscription, against
-     * a real actor in a normal request, rather than per event inside the websocket
-     * server. See {@link \Flarum\Realtime\Websocket\Message\Message::relayTyping()}.
-     */
-    protected function typingIdentified(int $id): bool
-    {
-        if (! $this->settings->get('flarum-realtime.typing-indicator')
-            || ! $this->actor->hasPermission('user.viewLastSeenAt')) {
-            return false;
-        }
-
-        $discussion = Discussion::whereVisibleTo($this->actor)->find($id);
-
-        return $discussion !== null
-            && $this->actor->can('flarum-realtime.view-who-types', $discussion);
-    }
-
-    /**
-     * Authorize the forum-wide typing feed. What each subscriber then receives
-     * is narrowed further, per event, by {@link TypingActivity}.
-     */
-    protected function typingActivity(): bool
-    {
-        return ! $this->actor->isGuest()
-            && $this->settings->get('flarum-realtime.typing-indicator')
-            && $this->actor->hasPermission('flarum-realtime.view-all-typing');
-    }
-
-    /**
-     * Authorize a restricted-tag index-typing channel: the actor may listen iff
-     * they can see the tag. Reaching this without flarum-tags active is rejected.
-     */
-    protected function indexTypingTag(int $id): bool
-    {
-        if (! class_exists(\Flarum\Tags\Tag::class)) {
-            return false;
-        }
-
-        return \Flarum\Tags\Tag::whereVisibleTo($this->actor)->where('id', $id)->exists();
-    }
-
-    protected function online(User $actor): array
-    {
-        // @todo It returns []
-        $generate = $this->generator;
-
-        return [
-            'displayName' => $actor->display_name
-        ];
+        return new JsonResponse(json_decode(
+            $this->pusher->authorizePresenceChannel(
+                $channel,
+                $socketId,
+                (string) $actor->id,
+                $memberData
+            ),
+            true
+        ));
     }
 }
