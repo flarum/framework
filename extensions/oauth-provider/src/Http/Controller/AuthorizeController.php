@@ -128,12 +128,7 @@ class AuthorizeController implements RequestHandlerInterface
             }
 
             $base = $this->url->to('forum')->base();
-
-            // Build the return-to as a path+query on the configured forum URL so
-            // the scheme matches (avoids http/https mismatches behind proxies).
-            $uri = $request->getUri();
-            $returnPath = $uri->getPath();
-            $returnQuery = $uri->getQuery();
+            $returnQuery = $request->getUri()->getQuery();
 
             // A request that demands a fresh login returns with a ticket tying
             // the next login to it, so it neither satisfies nor is satisfied by
@@ -144,10 +139,7 @@ class AuthorizeController implements RequestHandlerInterface
                 return $this->authorizationError($authRequest, 'login_required', 'The user needs to authenticate.');
             }
 
-            if ($returnQuery !== '') {
-                $returnPath .= '?'.$returnQuery;
-            }
-            $returnTo = urlencode($base.$returnPath);
+            $returnTo = urlencode($this->forumUrl($request, $returnQuery));
 
             // A signed-in user must be shown the login form anyway.
             $reAuth = $actor->isGuest() ? '' : '&oauth_reauth=1';
@@ -225,7 +217,7 @@ class AuthorizeController implements RequestHandlerInterface
             'redirectHost' => $redirectHost,
             'scopes' => $scopeDescriptions,
             'actor' => $actor,
-            'formAction' => (string) $request->getUri(),
+            'formAction' => $this->forumUrl($request, $request->getUri()->getQuery()),
             'csrfToken' => $csrfToken,
             // Replayed as hidden fields; only plain string parameters belong
             // to an authorization request.
@@ -310,6 +302,17 @@ class AuthorizeController implements RequestHandlerInterface
         }
 
         return $response;
+    }
+
+    /**
+     * Not the request URI as received: behind a TLS-terminating proxy it may be
+     * http://, and the base path of a subfolder install has been stripped from it.
+     */
+    protected function forumUrl(Request $request, string $query): string
+    {
+        $url = $this->url->to('forum')->base().$request->getUri()->getPath();
+
+        return $query === '' ? $url : $url.'?'.$query;
     }
 
     protected function redirectHost(AuthorizationRequest $authRequest): ?string
