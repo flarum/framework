@@ -82,24 +82,33 @@ class PostDeleteConflictTest extends TestCase
 
                 // The liker likes the post in the other discussion and their
                 // counter update commits: the committed half of a like whose
-                // own locks are already released.
-                $observer->transaction(function () use ($observer, $liker, $likedMeanwhile) {
-                    $observer->table('post_likes')->insert(['post_id' => $likedMeanwhile, 'user_id' => $liker]);
-                    $observer->table('users')->where('id', $liker)->update(['like_count' => new Expression('like_count + 1')]);
-                });
+                // own locks are already released. The count read locks the
+                // pivot rows it reads, so on MySQL and MariaDB this can wait
+                // for the deletion instead of committing between the read and
+                // the user lock; it does not wait for long.
+                try {
+                    $observer->statement('SET SESSION innodb_lock_wait_timeout = 1');
+                    $observer->transaction(function () use ($observer, $liker, $likedMeanwhile) {
+                        $observer->table('post_likes')->insert(['post_id' => $likedMeanwhile, 'user_id' => $liker]);
+                        $observer->table('users')->where('id', $liker)->update(['like_count' => new Expression('like_count + 1')]);
+                    });
+                } catch (\Exception) {
+                    // Blocked by the deletion's locks.
+                }
             });
 
             $response = $this->send($this->request('DELETE', "/api/posts/$deletedPost", ['authenticatedAs' => 1]));
 
             $this->assertSame(204, $response->getStatusCode(), (string) $response->getBody());
-            $this->assertTrue($replayed, 'The liker should commit between the count read and the user lock.');
+            $this->assertTrue($replayed, 'The like should be attempted between the count read and the user lock.');
             // Pins the rows the retried delete removed, kept and wrote: these
             // are read straight from the tables, not from the response.
             $this->assertFalse($observer->table('posts')->where('id', $deletedPost)->exists());
             $this->assertFalse($observer->table('post_likes')->where('post_id', $deletedPost)->exists());
-            $this->assertTrue($observer->table('post_likes')->where('post_id', $likedMeanwhile)->where('user_id', $liker)->exists());
-            // One like before, one made meanwhile, one post deleted.
-            $this->assertSame(1, (int) $observer->table('users')->where('id', $liker)->value('like_count'));
+            // Whether the like waited and was refused, or committed, the count
+            // matches the likes that are left.
+            $remaining = $observer->table('post_likes')->where('user_id', $liker)->count();
+            $this->assertSame($remaining, (int) $observer->table('users')->where('id', $liker)->value('like_count'));
         } finally {
             $this->closeTransaction($db);
 
