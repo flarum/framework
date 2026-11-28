@@ -9,6 +9,7 @@
 
 namespace Flarum\Install\Steps;
 
+use Flarum\Formatter\XsltPolyfill;
 use Flarum\Install\ReversibleStep;
 use Illuminate\Filesystem\Filesystem;
 
@@ -27,19 +28,28 @@ readonly class PublishAssets implements ReversibleStep
 
     public function run(): void
     {
-        (new Filesystem)->copyDirectory(
+        $filesystem = new Filesystem;
+
+        $filesystem->copyDirectory(
             "$this->vendorPath/flarum/font-awesome/webfonts",
-            $this->targetPath()
+            "$this->assetPath/fonts"
         );
+
+        if ($sourceDir = XsltPolyfill::findSource()) {
+            foreach (XsltPolyfill::FILES as $source => $target) {
+                if ($filesystem->exists("$sourceDir/$source")) {
+                    $filesystem->ensureDirectoryExists(dirname("$this->assetPath/$target"));
+                    $filesystem->copy("$sourceDir/$source", "$this->assetPath/$target");
+                }
+            }
+        }
     }
 
     public function revert(): void
     {
-        (new Filesystem)->deleteDirectory($this->targetPath());
-    }
+        $filesystem = new Filesystem;
 
-    private function targetPath(): string
-    {
-        return "$this->assetPath/fonts";
+        $filesystem->deleteDirectory("$this->assetPath/fonts");
+        $filesystem->deleteDirectory("$this->assetPath/xslt-polyfill");
     }
 }

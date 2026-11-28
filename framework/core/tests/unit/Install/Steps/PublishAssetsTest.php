@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\unit\Install\Steps;
 
+use Flarum\Formatter\XsltPolyfill;
 use Flarum\Install\Steps\PublishAssets;
 use Flarum\Testing\unit\TestCase;
 use Illuminate\Filesystem\Filesystem;
@@ -98,5 +99,31 @@ class PublishAssetsTest extends TestCase
 
         // FA7 only ships woff2 — no ttf, woff, eot, svg
         $this->assertEquals(['woff2'], $extensions);
+    }
+
+    #[Test]
+    public function it_publishes_the_xslt_polyfill()
+    {
+        $step = new PublishAssets($this->vendorPath, $this->assetPath);
+        $step->run();
+
+        $source = XsltPolyfill::findSource();
+        $this->assertNotNull($source);
+
+        $this->assertFileEquals("$source/xslt-polyfill.min.js", $this->assetPath.'/xslt-polyfill/xslt-polyfill.min.js');
+        $this->assertFileEquals("$source/dist/xslt-wasm.js", $this->assetPath.'/xslt-polyfill/dist/xslt-wasm.js');
+    }
+
+    #[Test]
+    public function it_reverts_by_deleting_the_xslt_polyfill()
+    {
+        $step = new PublishAssets($this->vendorPath, $this->assetPath);
+        $step->run();
+
+        $this->assertDirectoryExists($this->assetPath.'/xslt-polyfill');
+
+        $step->revert();
+
+        $this->assertDirectoryDoesNotExist($this->assetPath.'/xslt-polyfill');
     }
 }
