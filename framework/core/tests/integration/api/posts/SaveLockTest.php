@@ -91,6 +91,28 @@ class SaveLockTest extends TestCase
     }
 
     #[Test]
+    public function a_registered_visibility_attribute_takes_the_discussion_lock(): void
+    {
+        $this->extend((new Extend\Post())->visibilityAttribute('edited_user_id'));
+
+        $db = $this->database();
+        $level = $db->transactionLevel();
+        $updateLevel = null;
+        $locked = false;
+        $this->watchWrites($db, $updateLevel, $locked);
+
+        $post = CommentPost::find(1);
+        $post->edited_user_id = 2;
+        $post->save();
+
+        $this->assertSame($level + 1, $updateLevel, 'A change to a registered attribute should run in its own transaction.');
+
+        if ($db->getDriverName() !== 'sqlite') {
+            $this->assertTrue($locked, 'A change to a registered attribute should lock the discussion.');
+        }
+    }
+
+    #[Test]
     public function a_visibility_change_from_a_saving_listener_is_locked_too(): void
     {
         $db = $this->database();

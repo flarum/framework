@@ -37,6 +37,11 @@ return [
         ->default('is_approved', true)
         ->cast('is_approved', 'bool'),
 
+    // Approving a post changes its visibility, which is saved under the
+    // discussion lock.
+    (new Extend\Post())
+        ->visibilityAttribute('is_approved'),
+
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->fields(fn () => [
             Schema\Boolean::make('isApproved')

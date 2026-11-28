@@ -85,11 +85,19 @@ class Post extends AbstractModel
     public static string $type = '';
 
     /**
-     * How many times a write that competes with a like counter is attempted.
+     * How many times a write that competes with a per-post counter is attempted.
      *
      * @see self::conflictAttempts()
      */
     public const CONFLICT_ATTEMPTS = 3;
+
+    /**
+     * The attributes that decide whether a post is visible. A change to one of
+     * them is saved under the discussion lock.
+     *
+     * @var list<string>
+     */
+    protected static array $visibilityAttributes = ['is_private'];
 
     /**
      * Whether the current save already holds the discussion lock.
@@ -200,10 +208,10 @@ class Post extends AbstractModel
     public function save(array $options = [])
     {
         // Only visibility changes need the discussion locked. The lock has to
-        // be taken before the saving listeners: core's ModelPrivate checkers
-        // derive `is_private` from `is_approved` there, and the likes counters
-        // are refreshed from `updated`. Ordinary edits take neither the lock
-        // nor a transaction.
+        // be taken before the saving listeners: ModelPrivate checkers derive
+        // `is_private` from other attributes there (Approval derives it from
+        // `is_approved`), and extensions that keep a per-post counter refresh it
+        // from `updated`. Ordinary edits take neither the lock nor a transaction.
         if (! $this->exists || ! $this->visibilityIsDirty()) {
             return parent::save($options);
         }
@@ -224,11 +232,10 @@ class Post extends AbstractModel
     protected function performUpdate(Builder $query)
     {
         // A saving listener may have changed visibility after save() looked.
-        // Every saving listener has run by the time Eloquent gets here, so the
-        // lock can still be taken before the visibility write and its
-        // `updated` listeners, which is what has to be serialized. Taking it
-        // later only leaves the saving listeners themselves unlocked. A
-        // visibility change made in an `updating` listener is not covered.
+        // The saving listeners themselves ran unlocked, but the visibility write
+        // and the `updated` listeners, which is what has to be serialized, still
+        // run under the lock. A visibility change made in an `updating`
+        // listener is not covered: it is made after this check.
         if (! $this->discussionLocked && $this->visibilityIsDirty()) {
             return $this->withDiscussionLock(function () use ($query) {
                 $this->discussionLocked = true;
@@ -248,30 +255,36 @@ class Post extends AbstractModel
 
     private function visibilityIsDirty(): bool
     {
-        return $this->isDirty('is_private') || $this->isDirty('is_approved');
+        return $this->isDirty(static::$visibilityAttributes);
     }
 
     /**
-     * Replace the loaded snapshot with the row the discussion lock protects.
+     * Register an attribute that decides whether a post is visible, so that
+     * changing it is saved under the discussion lock. Use
+     * {@see \Flarum\Extend\Post::visibilityAttribute()}.
      *
-     * The visibility transaction waits for the lock, so what the model was
-     * loaded with can already be out of date when the lock is granted:
-     * `getOriginal()` would report the state before the wait, and a listener
-     * deciding from it would apply its change twice (two moderators approving
-     * the same post both saw it as private). Re-reading the row after taking
-     * the lock makes `getOriginal()` the state the change is made against.
+     * A change made in an `updating` listener is not covered by the lock.
      *
-     * The attributes are refreshed with it: the ones this save means to write
-     * are kept, and every other column takes the locked row's value, so a
-     * column another request changed in the meantime is not written back from
-     * the loaded snapshot. Leaving the loaded attributes in place would make
-     * them dirty against the new originals: approving a post would revert a
-     * concurrent edit or hide of it.
+     * @internal
+     */
+    public static function registerVisibilityAttribute(string $attribute): void
+    {
+        if (! in_array($attribute, static::$visibilityAttributes, true)) {
+            static::$visibilityAttributes[] = $attribute;
+        }
+    }
+
+    /**
+     * Re-read the row under the discussion lock and treat it as the original.
      *
-     * `setRawAttributes()` is used rather than assigning `attributes` so the
-     * model's cast caches are dropped too. Eloquent merges objects it has
-     * cached from a cast back into the attributes at the start of `save()`,
-     * which would put the value read before the lock back over the row.
+     * The lock can be granted after a wait, by which time the loaded row is out
+     * of date. Listeners that compare against `getOriginal()` need the state
+     * the change is made against. Attributes this save sets are kept; every
+     * other column takes the locked row's value, so the save does not write
+     * back a stale one.
+     *
+     * `setRawAttributes()` also drops the cast caches, which `save()` would
+     * otherwise merge back over the row.
      */
     private function syncOriginalFromLock(): void
     {
