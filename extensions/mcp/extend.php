@@ -117,8 +117,8 @@ return [
         ->ability('discussion.deletePosts', 'Delete others\' posts')
         ->ability('user.edit', 'Edit members'),
 
-    // Bundled integrations, through the same extender third parties use, each
-    // registered on behalf of the extension it integrates.
+    // Bundled integrations. Capabilities go through the same extender third
+    // parties use, each registered on behalf of the extension it integrates.
     (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-tags', fn () => [
             (new Mcp('flarum-tags'))
@@ -190,6 +190,10 @@ return [
                 ->tool(Integration\Flags\FlagPostTool::class)
                 ->tool(Integration\Flags\DismissFlagsTool::class)
                 ->describe('flags', 'Flags members raised on posts for the moderators, with the reason. flag_post raises one; dismiss_flags clears a post\'s.'),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new Extend\Event())
+                ->listen(Event\Authenticated::class, Integration\Audit\RecordMcpActor::class),
         ])
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new Mcp('flarum-gdpr'))

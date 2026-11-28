@@ -67,6 +67,7 @@ flarum-audit:
                 session: Web session
                 api_key: API key
                 access_token: Access token
+                mcp: MCP
                 cli: Command line
                 unknown: Unknown client
             controls:

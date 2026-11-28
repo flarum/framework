@@ -256,13 +256,20 @@ $context->api->endpoint(string $type, string $endpoint, string $method, string $
   `JsonApi::forResource(..)->forEndpoint(..)->handle($request)`. That covers method,
   URI `/api/...`, query params, parsed JSON:API body, the actor
   (`RequestUtil::withActor`), the `routeName` attribute `"{type}.{endpoint}"` (with the
-  resource's `routeNamePrefix()` when it has one) and `bypassCsrfToken`. `process()` is
+  resource's `routeNamePrefix()` when it has one), `routeParameters` and
+  `bypassCsrfToken`. `process()` is
   **never** used: it skips the endpoint's `authenticated()/can()` gates and the model
   lookup (findings FND-258, FND-291).
-- Before `handle()`, the client calls the `flarum.api.throttlers` stack (the
-  `ThrottleApi` middleware's `throttle($request)`) with the same request. Core's post
-  flood control and every extension throttler therefore apply to MCP writes.
-  `bypassThrottling` is never set.
+- Around `handle()`, the request goes through the `api` middleware that core's
+  `Api\Client` runs, less route resolution, with error handling off, and with
+  `ThrottleApi` kept even if the client's exclusions drop it. Extensions' middleware
+  sets per-request state there (e.g. flarum/messages' dialog state user), and core's
+  post flood control and every extension throttler apply to MCP writes.
+  `bypassThrottling` is never set. A middleware that answers with an error response
+  instead of throwing is reported like the matching exception: 404 as not found, 5xx
+  as an internal error (details stay on the server), anything else from its
+  `errors` (`ErrorResponse`). Route parameters join the query after the middleware,
+  as `RouteHandlerFactory::toApiResource()` does.
 - The client resolves the resource by type through `JsonApi::getResource($type)`.
   Endpoints are looked up by name on `resolveEndpoints()`.
 - `ApiResult` wraps the decoded JSON:API document:
@@ -371,6 +378,7 @@ That way the bundled set exercises the same public extender third parties use.
 | subscriptions | `follow_discussion` tool, with `state` `follow` \| `ignore` \| `none`. |
 | lock, sticky | Generic `update_resource` on `discussions` with `isLocked` / `isSticky` (already allowed). They contribute `instructions()` only. |
 | messages | Tools `list_conversations`, `read_conversation`, `send_message` (requires sign-in; read and write follow flarum/messages' permissions). |
+| audit | No tools. The bearer is authenticated after audit's forum middleware ran for a guest, so a listener on `Flarum\Mcp\Event\Authenticated` (dispatched once a request is admitted, for its bearer or a guest) sets audit's actor and records the client as `mcp`. Third parties with forum-stack actor state can listen to the same event. |
 | mentions | `instructions()` describing the mention syntax (`@"Display Name"#p123`, `@username`). |
 | suspend, approval | Generic writes allowed on the attributes they add (`suspendedUntil`, `suspendReason`, `isApproved`); the field gates do the authorization. |
 
@@ -570,7 +578,7 @@ oauth-provider's `Extend\Scope`, together with the resource through `Extend\Reso
 - flarum/mcp `require`s `flarum/core ^2.1`, `flarum/oauth-provider *@dev` (monorepo
   version), and `mcp/sdk ~0.9.0`.
 - Bundled integrations are soft (`Extend\Conditional`) on tags, likes, subscriptions,
-  lock, sticky, messages, mentions, suspend and approval.
+  lock, sticky, messages, mentions, suspend, approval and audit.
 - No dependency on flarum/ai or flarum/flags.
 - `flarum-monorepo.json` gains `oauth-provider` (already on the branch) and `mcp`.
 

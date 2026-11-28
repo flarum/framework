@@ -9,14 +9,15 @@
 
 namespace Flarum\Mcp\Api;
 
+use Flarum\Api\ClientMiddlewarePipe;
 use Flarum\Api\Endpoint\Endpoint;
 use Flarum\Api\JsonApi;
 use Flarum\Api\Middleware\ThrottleApi;
 use Flarum\Api\Resource\AbstractResource;
 use Flarum\Http\RequestUtil;
 use Flarum\Mcp\Capability\McpContext;
+use Flarum\Mcp\Exception\ErrorResponse;
 use Flarum\Mcp\Exception\ToolError;
-use Flarum\Post\Exception\FloodingException;
 use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Container\Container;
@@ -24,7 +25,9 @@ use InvalidArgumentException;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Tobyz\JsonApiServer\Exception\NotFoundException;
 use Tobyz\JsonApiServer\Exception\ResourceNotFoundException;
 
 /**
@@ -33,8 +36,10 @@ use Tobyz\JsonApiServer\Exception\ResourceNotFoundException;
  * Every call is a real request through `JsonApi::handle()`, so the endpoint's
  * `authenticated()` / `can()` / `admin()` gates, the model lookup and its
  * visibility scope, validation and events all run exactly as they do over
- * HTTP. `process()` is never used: it skips the gates and the lookup. Every
- * `flarum.api.throttlers` entry runs first, and throttling is never bypassed.
+ * HTTP. `process()` is never used: it skips the gates and the lookup. The `api`
+ * middleware runs around it, as extensions set per-request state there (e.g.
+ * whose votes or read state the response reports). Every `flarum.api.throttlers`
+ * entry runs before the endpoint, and throttling is never bypassed.
  *
  * It is also where the `mcp:write` scope is enforced: whatever a tool declares
  * about itself, no write reaches the forum without it.
@@ -45,6 +50,8 @@ class ApiClient
      * The JSON:API query parameters; any other all-lowercase name is refused.
      */
     public const array QUERY_KEYS = ['filter', 'sort', 'page', 'include', 'fields'];
+
+    protected ?ClientMiddlewarePipe $middleware = null;
 
     /**
      * @param list<string> $scopes the MCP scopes of the request
@@ -181,12 +188,13 @@ class ApiClient
             $routeName = "$prefix.$routeName";
         }
 
+        $routeParameters = $this->routeParameters($endpoint->path, substr($path, strlen('/'.$resource->type())));
+
         $request = (new ServerRequest([], [], rtrim($path, '/') ?: '/', strtoupper($method)))
             ->withHeader('Accept', JsonApi::MEDIA_TYPE)
-            // As RouteHandlerFactory::toApiResource() does, route parameters join
-            // the query: some endpoints read `id` from there rather than the path.
-            ->withQueryParams([...$query, ...$this->routeParameters($endpoint->path, substr($path, strlen('/'.$resource->type())))])
+            ->withQueryParams($query)
             ->withAttribute('routeName', $routeName)
+            ->withAttribute('routeParameters', $routeParameters)
             ->withAttribute('bypassCsrfToken', true)
             ->withAttribute('ipAddress', $this->parent?->getAttribute('ipAddress'));
 
@@ -202,16 +210,46 @@ class ApiClient
             $request = RequestUtil::withPostSource($request, RequestUtil::getPostSource($this->parent));
         }
 
-        if ($this->container->make(ThrottleApi::class)->throttle($request)) {
-            throw new FloodingException();
+        $response = $this->middleware()->process($request, new CallEndpoint($this->api, $resource::class, $endpoint->name));
+
+        // Middleware may answer instead of throwing: errors go through the same
+        // rules as exceptions, and a server error's details stay on the server.
+        $status = $response->getStatusCode();
+
+        if ($status >= 500) {
+            throw new RuntimeException("API middleware answered HTTP $status");
+        } elseif ($status === 404) {
+            throw new NotFoundException();
+        } elseif ($status >= 300) {
+            throw new ErrorResponse($status, $this->decode($response)['errors'] ?? []);
         }
 
-        $response = $this->api
-            ->forResource($resource::class)
-            ->forEndpoint($endpoint->name)
-            ->handle($request);
-
         return new ApiResult($this->decode($response), $query);
+    }
+
+    /**
+     * As core's API client runs it, less route resolution (the endpoint is
+     * already chosen) and error handling (the tools report errors), and with
+     * throttling even where the API client skips it.
+     */
+    protected function middleware(): ClientMiddlewarePipe
+    {
+        if (! $this->middleware) {
+            $exclude = [
+                ...array_diff($this->container->make('flarum.api_client.exclude_middleware'), [ThrottleApi::class]),
+                'flarum.api.route_resolver',
+            ];
+
+            $this->middleware = (new ClientMiddlewarePipe(
+                $this->container,
+                array_values(array_filter(
+                    $this->container->make('flarum.api.middleware'),
+                    fn ($middleware) => ! in_array($middleware, $exclude, true)
+                ))
+            ))->errorHandling(false);
+        }
+
+        return $this->middleware;
     }
 
     /**
