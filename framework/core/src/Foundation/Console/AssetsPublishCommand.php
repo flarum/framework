@@ -83,12 +83,7 @@ class AssetsPublishCommand extends AbstractCommand
             return;
         }
 
-        $files = [
-            'xslt-polyfill.min.js' => 'xslt-polyfill/xslt-polyfill.min.js',
-            'dist/xslt-wasm.js' => 'xslt-polyfill/dist/xslt-wasm.js',
-        ];
-
-        foreach ($files as $relSource => $relTarget) {
+        foreach (XsltPolyfill::FILES as $relSource => $relTarget) {
             $sourcePath = "$sourceDir/$relSource";
             if ($local->exists($sourcePath)) {
                 $target->put($relTarget, $local->get($sourcePath));

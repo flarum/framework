@@ -14,6 +14,14 @@ use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 class XsltPolyfill
 {
     /**
+     * Files to publish: path relative to findSource() => path relative to the assets root.
+     */
+    public const FILES = [
+        'xslt-polyfill.min.js' => 'xslt-polyfill/xslt-polyfill.min.js',
+        'dist/xslt-wasm.js' => 'xslt-polyfill/dist/xslt-wasm.js',
+    ];
+
+    /**
      * Resolve the public URL of the published xslt-polyfill bundle, if it
      * can be served by the configured assets disk.
      *
@@ -23,7 +31,7 @@ class XsltPolyfill
     public static function publicUrl(FilesystemFactory $filesystemFactory): ?string
     {
         try {
-            $url = $filesystemFactory->disk('flarum-assets')->url('xslt-polyfill/xslt-polyfill.min.js');
+            $url = $filesystemFactory->disk('flarum-assets')->url(self::FILES['xslt-polyfill.min.js']);
         } catch (\RuntimeException) {
             return null;
         }
