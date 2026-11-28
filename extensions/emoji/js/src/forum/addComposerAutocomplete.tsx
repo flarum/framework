@@ -13,6 +13,9 @@ interface EmojiTextEditor extends Record<string, any> {
   commonEmoji: string[];
   emojiDropdown: AutocompleteDropdown;
   navigator: KeyboardNavigatable;
+  emojiStart: number | null;
+  emojiDismissed: { value: string; starts: number[] } | null;
+  value: string;
   textareaId: string;
   attrs: {
     composer: {
@@ -46,6 +49,9 @@ export default function addComposerAutocomplete(): void {
 
   extend('flarum/common/components/TextEditor', 'onbuild', function (this: EmojiTextEditor) {
     this.emojiDropdown = new AutocompleteDropdown();
+    this.emojiStart = null;
+    // Escape's keyup, clicks and caret keys re-run the input listeners, which would reopen the dropdown.
+    this.emojiDismissed = null;
     const $editor = this.$('.TextEditor-editor').wrap('<div class="ComposerBody-emojiWrapper"></div>');
 
     this.navigator = new KeyboardNavigatable();
@@ -54,7 +60,14 @@ export default function addComposerAutocomplete(): void {
       .onUp(() => this.emojiDropdown.navigate(-1))
       .onDown(() => this.emojiDropdown.navigate(1))
       .onSelect(this.emojiDropdown.complete.bind(this.emojiDropdown))
-      .onCancel(this.emojiDropdown.hide.bind(this.emojiDropdown))
+      .onCancel(() => {
+        if (this.emojiStart !== null) {
+          if (this.emojiDismissed?.value !== this.value) this.emojiDismissed = { value: this.value, starts: [] };
+          this.emojiDismissed.starts.push(this.emojiStart);
+        }
+        this.emojiStart = null;
+        this.emojiDropdown.hide();
+      })
       .bindTo($editor);
 
     $editor.after($('<div class="ComposerBody-emojiDropdownContainer"></div>'));
@@ -70,15 +83,20 @@ export default function addComposerAutocomplete(): void {
       const selection = this.attrs.composer.editor.getSelectionRange();
       const cursor = selection[0];
 
+      if (this.emojiDismissed?.value !== this.value) this.emojiDismissed = null;
+
+      this.emojiDropdown.hide();
+      this.emojiDropdown.active = false;
+      this.emojiStart = null;
+
       if (selection[1] - cursor > 0) return;
 
       const lastChunk = this.attrs.composer.editor.getLastNChars(15);
       const autocompleting = autocompleteReader.check(lastChunk, cursor, /[a-z0-9]|\+|\-|_|\:/);
 
-      this.emojiDropdown.hide();
-      this.emojiDropdown.active = false;
-
       if (autocompleting) {
+        if (this.emojiDismissed?.starts.includes(autocompleting.absoluteStart)) return;
+
         const typed = autocompleting.typed;
         const emojiDropdown: AutocompleteDropdown = this.emojiDropdown;
 
@@ -104,7 +122,7 @@ export default function addComposerAutocomplete(): void {
           );
         };
 
-        const buildSuggestions = (): void => {
+        const buildSuggestions = (): boolean => {
           const similarEmoji: string[] = [];
 
           // Build a regular expression to do a fuzzy match of the given input string
@@ -180,13 +198,15 @@ export default function addComposerAutocomplete(): void {
 
             this.emojiDropdown.show(left, top);
           }
+
+          return suggestions.length > 0;
         };
 
-        buildSuggestions();
-
-        this.emojiDropdown.setIndex(0);
-        this.emojiDropdown.$().scrollTop(0);
-        this.emojiDropdown.active = true;
+        if (buildSuggestions()) {
+          this.emojiStart = autocompleting.absoluteStart;
+          this.emojiDropdown.setIndex(0);
+          this.emojiDropdown.$().scrollTop(0);
+        }
       }
     });
   });
