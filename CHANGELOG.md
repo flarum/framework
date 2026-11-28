@@ -1,5 +1,36 @@
 # Changelog
 
+## [v2.1.0-beta.2](https://github.com/flarum/framework/compare/v2.1.0-beta.1...v2.1.0-beta.2)
+
+### Added
+
+- (core) ask for confirmation in a Flarum dialog instead of the browser's, with `app.confirm()` by @imorland [#5637]
+
+### Fixed
+
+- (core) notify each user at most once per action, also from queued jobs by @imorland [#5619]
+- (core) say why an animated WebP is rejected on the GD image driver by @imorland [#5620]
+- (core) show one save button in the Logos & icons section by @imorland [#5628]
+- (core) publish the XSLT polyfill during installation by @imorland [#5636]
+- (approval) announce the approval of a restored reply that was hidden while pending by @lazerg [#5617]
+- (emoji) keep the autocomplete closed after Escape by @imorland [#5635]
+- (jest-config) expose dayjs as a global in tests by @lazerg [#5616]
+- (mcp) update the Claude connector settings path by @lazerg [#5622]
+- (mcp) run the api middleware for MCP calls, and audit MCP writes as their bearer by @imorland [#5640]
+- (mentions) drop autocomplete results for a mention the user has left by @imorland [#5631]
+- (mentions) keep the autocomplete closed after Escape by @imorland [#5633]
+- (oauth-provider) post the consent form to the configured forum URL by @imorland [#5627]
+- (oauth-provider) style the consent screen like the forum's other standalone pages by @imorland [#5629]
+- (oauth-provider) keep errors for unapproved self-registered clients on the forum by @imorland [#5630]
+
+### Security
+
+- (oauth-provider) harden the consent screen's authorization form by @imorland [#5641]
+
+### Performance
+
+- (core) stop the session lifetime hook autoloading every container key by @imorland [#5639]
+
 ## [v2.1.0-beta.1](https://github.com/flarum/framework/compare/v2.0.2...v2.1.0-beta.1)
 
 ### Added
