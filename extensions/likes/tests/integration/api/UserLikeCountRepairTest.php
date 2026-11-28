@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Likes\LikeCount;
+use Flarum\Likes\RefreshLikesOnEnable;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -149,6 +150,24 @@ class UserLikeCountRepairTest extends TestCase
         $this->assertSame(1, $this->likeCountOf(10));
         $this->assertSame(1, $this->likeCountOf(1009));
         $this->assertSame(0, $this->app()->getContainer()->make(LikeCount::class)->refreshAll());
+    }
+
+    #[Test]
+    public function the_enable_that_ran_the_backfill_does_not_repair_again(): void
+    {
+        $db = $this->database();
+        $db->table('post_likes')->insert([['post_id' => 1, 'user_id' => 2]]);
+
+        // The migration sets this when it has just counted every like.
+        RefreshLikesOnEnable::$backfilled = true;
+        $this->enableLikes();
+
+        $this->assertSame(0, $this->likeCountOf(2), 'The first enable relies on the migration and does not scan again.');
+        $this->assertFalse(RefreshLikesOnEnable::$backfilled);
+
+        $this->enableLikes();
+
+        $this->assertSame(1, $this->likeCountOf(2), 'Enabling again repairs the counts.');
     }
 
     protected function enableLikes(): void
