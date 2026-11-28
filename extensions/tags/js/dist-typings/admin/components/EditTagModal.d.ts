@@ -55,5 +55,5 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
         isHidden: boolean;
     };
     onsubmit(e: SubmitEvent): void;
-    delete(): void;
+    delete(): Promise<void>;
 }

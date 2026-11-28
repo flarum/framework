@@ -17,8 +17,8 @@ declare const MessageControls: {
      */
     destructiveControls(message: DialogMessage, context: Message): ItemList<Mithril.Children>;
     editAction(message: DialogMessage): Promise<void>;
-    hideAction(message: DialogMessage): Promise<void> | undefined;
+    hideAction(message: DialogMessage): Promise<void>;
     restoreAction(message: DialogMessage): Promise<void>;
-    deleteAction(message: DialogMessage, context: Message): Promise<void> | undefined;
+    deleteAction(message: DialogMessage, context: Message): Promise<void>;
 };
 export default MessageControls;

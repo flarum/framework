@@ -17,5 +17,5 @@ export default class ProcessErasureRequestModal<CustomAttrs extends IProcessEras
     title(): string | any[];
     content(): JSX.Element;
     fields(): ItemList<Mithril.Children>;
-    process(mode: string): void;
+    process(mode: string): Promise<void>;
 }

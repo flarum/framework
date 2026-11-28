@@ -50,6 +50,7 @@ declare class ComposerState {
         callback: () => boolean;
         message: string;
     } | null;
+    protected pendingExitConfirmation: Promise<boolean> | null;
     /**
      * Fields of the composer.
      */
@@ -82,7 +83,7 @@ declare class ComposerState {
      * Confirm with the user so they don't lose their content, then close the
      * composer.
      */
-    close(): void;
+    close(): Promise<void>;
     /**
      * Minimize the composer. Has no effect if the composer is hidden.
      */
@@ -130,8 +131,18 @@ declare class ComposerState {
      */
     composingReplyTo(discussion: Discussion): boolean;
     /**
+     * Ask the user whether to discard their content, when closing the composer
+     * would lose it.
+     *
+     * @return Whether the composer may close.
+     */
+    confirmExit(): Promise<boolean>;
+    protected needsExitConfirmation(): boolean;
+    /**
      * Confirm with the user that they want to close the composer and lose their
      * content.
+     *
+     * @deprecated Use `confirmExit()`, which asks in a Flarum dialog rather than the browser's.
      *
      * @return Whether or not the exit was cancelled.
      */
@@ -141,7 +152,7 @@ declare class ComposerState {
      *
      * The provided callback will be used to determine whether asking for
      * confirmation is necessary. If the callback returns true at the time of
-     * closing, the provided text will be shown in a standard confirmation dialog.
+     * closing, the provided text will be shown with `app.confirm()`.
      */
     preventClosingWhen(callback: () => boolean, message: string): void;
     /**

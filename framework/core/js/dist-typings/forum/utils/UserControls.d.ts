@@ -44,7 +44,7 @@ declare namespace UserControls {
      *
      * @param {import('../../common/models/User').default} user
      */
-    function deleteAction(user: import("../../common/models/User").default): void;
+    function deleteAction(user: import("../../common/models/User").default): Promise<void>;
     /**
      * Show deletion alert of user.
      *

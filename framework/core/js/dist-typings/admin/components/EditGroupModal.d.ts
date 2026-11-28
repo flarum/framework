@@ -33,5 +33,5 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
         isHidden: boolean;
     };
     onsubmit(e: SubmitEvent): void;
-    deleteGroup(): void;
+    deleteGroup(): Promise<void>;
 }

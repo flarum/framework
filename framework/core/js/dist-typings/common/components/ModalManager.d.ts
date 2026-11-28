@@ -18,6 +18,8 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     protected modalClosing: boolean;
     protected closingModalKey: number | undefined;
     protected keyUpListener: null | ((e: KeyboardEvent) => void);
+    protected keyDownListener: null | ((e: KeyboardEvent) => void);
+    protected escapeDownModalKey: number | undefined;
     view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children;
     oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void;
     onbeforeremove(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void;

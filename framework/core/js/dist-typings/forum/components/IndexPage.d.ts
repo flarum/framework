@@ -43,5 +43,5 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
      * confirmation says which of the two is about to happen, since "all
      * discussions" would be a lie for the filtered one.
      */
-    markAllAsRead(): void;
+    markAllAsRead(): Promise<void>;
 }

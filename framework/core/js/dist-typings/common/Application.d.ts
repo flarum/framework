@@ -11,6 +11,7 @@ import AlertManagerState from './states/AlertManagerState';
 import type DefaultResolver from './resolvers/DefaultResolver';
 import type Mithril from 'mithril';
 import type Component from './Component';
+import type { ConfirmOptions } from './components/ConfirmModal';
 import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import IHistory from './IHistory';
@@ -301,6 +302,16 @@ export default class Application {
      * @param title New page title
      */
     setTitle(title: string): void;
+    /**
+     * Ask the user to confirm an action, in a Flarum modal rather than the
+     * browser's `confirm()`. It opens on top of any modal already open.
+     *
+     * @example
+     * if (!(await app.confirm({ message: app.translator.trans('acme.forum.delete_confirmation'), confirmText: app.translator.trans('acme.forum.delete_button'), danger: true }))) return;
+     *
+     * @return Resolves `true` if the user confirmed, `false` if they cancelled or the dialog was closed.
+     */
+    confirm(options: ConfirmOptions): Promise<boolean>;
     /**
      * Set a number to display in the `<title>` of the page.
      *

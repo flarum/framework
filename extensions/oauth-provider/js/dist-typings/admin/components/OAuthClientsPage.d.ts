@@ -36,7 +36,7 @@ export default class OAuthClientsPage extends ExtensionPage {
      */
     usage(client: OAuthClient): Mithril.Children;
     onCreated(client: OAuthClient, plainSecret: string | null): void;
-    deleteClient(client: OAuthClient): void;
-    rotateSecret(client: OAuthClient): void;
+    deleteClient(client: OAuthClient): Promise<void>;
+    rotateSecret(client: OAuthClient): Promise<void>;
 }
 export {};
