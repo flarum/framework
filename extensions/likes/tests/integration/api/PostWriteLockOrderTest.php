@@ -41,8 +41,7 @@ class PostWriteLockOrderTest extends TestCase
 
         if ($driver !== 'pgsql') {
             // A locked row is proven by the probe timing out, since MySQL 5.7
-            // and MariaDB have no FOR UPDATE NOWAIT. One second is the shortest
-            // wait.
+            // has no FOR UPDATE NOWAIT. One second is the shortest wait.
             $observer->statement('SET SESSION innodb_lock_wait_timeout = 1');
         }
 

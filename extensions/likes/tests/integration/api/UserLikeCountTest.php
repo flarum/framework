@@ -361,7 +361,7 @@ class UserLikeCountTest extends TestCase
     }
 
     #[Test]
-    public function hiding_a_liked_post_again_moves_each_liker_back_down_by_one(): void
+    public function unapproving_a_liked_post_again_moves_each_liker_back_down_by_one(): void
     {
         $this->extension('flarum-approval', 'flarum-flags');
         $this->database()->table('posts')->where('id', 3)->update(['is_approved' => false]);
@@ -388,6 +388,20 @@ class UserLikeCountTest extends TestCase
         $this->assertTrue($post->refresh()->is_private);
         $this->assertSame(0, $this->likeCountOf(2));
         $this->assertSame(0, $this->likeCountOf(4));
+    }
+
+    #[Test]
+    public function hiding_a_liked_post_leaves_the_count_alone(): void
+    {
+        $this->like(1, 2);
+        $this->assertSame(1, $this->likeCountOf(2));
+
+        $post = CommentPost::findOrFail(1);
+        $post->hide(User::findOrFail(1));
+        $post->save();
+
+        $this->assertNotNull($post->refresh()->hidden_at);
+        $this->assertSame(1, $this->likeCountOf(2), 'A hidden post stays counted.');
     }
 
     #[Test]

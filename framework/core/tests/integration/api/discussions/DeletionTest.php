@@ -65,8 +65,7 @@ class DeletionTest extends TestCase
     /**
      * A deletion is retried when a like commits against it. Events raised by
      * the failed attempt stay pending until the request dispatches them, so
-     * without clearing them the retry dispatches every event twice: the tag
-     * counts in the review dropped by two for one deleted discussion.
+     * without clearing them the retry dispatches every event twice.
      */
     #[Test]
     public function a_retried_deletion_dispatches_the_deleted_event_once()

@@ -195,19 +195,10 @@ class PostDeleteConflictTest extends TestCase
      * A like that commits before the deletion reads the likes must be counted
      * and removed from the liker's counter when the post is deleted.
      *
-     * MySQL and MariaDB create the transaction's read view at its first
-     * consistent read. The deletion used to look the discussions up from posts
-     * inside its locking statement, which reads posts before it waits for the
-     * discussion lock, so its view could predate a like that committed while it
-     * waited; the liker aggregate then missed the like, the cascade removed the
-     * pivot row, and the counter stayed at 1.
-     *
-     * The review reproduced that with a second session holding the discussion
-     * lock while the deletion waited. The suite runs one PHP process per test,
-     * so it cannot block a session and commit from another at the same time:
-     * the like is committed from the deletion connection's own query listener,
-     * at the point between the discussion lock and the liker aggregate where
-     * the waiting session's commit lands.
+     * The suite runs one PHP process per test, so it cannot block a session
+     * and commit from another at the same time: the like is committed from the
+     * deletion connection's own query listener, between the discussion lock and
+     * the liker aggregate.
      */
     #[Test]
     #[DataProvider('deletionTransactions')]
